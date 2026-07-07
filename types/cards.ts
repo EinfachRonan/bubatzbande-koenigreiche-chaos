@@ -29,7 +29,8 @@ export type EffectId =
   | "attack-bonus"
   | "extra-strike-damage"
   | "shadow-cloak"
-  | "forge-buff";
+  | "forge-buff"
+  | "token-vanilla";
 
 export type CardDefinition = {
   id: string;

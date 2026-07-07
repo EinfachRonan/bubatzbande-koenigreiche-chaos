@@ -106,6 +106,19 @@ export const cards: CardDefinition[] = [
     tags: ["Natur", "Todesröcheln"]
   },
   {
+    id: "baumgeist",
+    name: "Baumgeist",
+    type: "character",
+    rarity: "common",
+    cost: 0,
+    attack: 2,
+    health: 2,
+    effect: "Ein beschworener Waldgeist aus den Resten von LG3.",
+    effectId: "token-vanilla",
+    image: "/images/cards/baumgeist.png",
+    tags: ["Token", "Natur", "Beschworen"]
+  },
+  {
     id: "donpatron",
     name: "DonPatron",
     type: "character",
