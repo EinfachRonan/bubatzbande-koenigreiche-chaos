@@ -47,6 +47,8 @@ export function CardFrame({
   onClick
 }: CardFrameProps) {
   const isUnit = "maxHealth" in card;
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  const imageSrc = card.image.startsWith("/") ? `${basePath}${card.image}` : card.image;
   const shownAttack =
     isUnit && "temporaryAttackPenalty" in card ? Math.max(0, card.attack - card.temporaryAttackPenalty) : card.attack;
 
@@ -89,7 +91,7 @@ export function CardFrame({
       <div className="card-art-frame">
         <div className="card-art">
           <Image
-            src={card.image}
+            src={imageSrc}
             alt={card.name}
             fill
             sizes={compact ? "(max-width: 1100px) 110px, 180px" : "(max-width: 800px) 45vw, 240px"}
