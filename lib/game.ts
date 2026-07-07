@@ -1,3 +1,4 @@
+import { getCardById } from "@/lib/cards";
 import { botStarterDeckIds, buildDeckFromIds, starterDeckIds } from "@/lib/decks";
 import { CardDefinition, DeckCard, EffectId, UnitInstance } from "@/types/cards";
 
@@ -180,6 +181,12 @@ function healUnit(unit: UnitInstance, amount: number) {
   unit.health = Math.min(unit.maxHealth, unit.health + amount);
 }
 
+function createTokenUnit(cardId: string, owner: PlayerSide, turn: number) {
+  const token = createUnit(getCardById(cardId), owner, turn);
+  token.exhausted = true;
+  return token;
+}
+
 function cleanupDeaths(state: MatchState) {
   const died: UnitInstance[] = [];
 
@@ -201,30 +208,7 @@ function cleanupDeaths(state: MatchState) {
     if (unit.effectId === "summon-tree-spirit-on-death") {
       const owner = getStatePlayer(state, unit.owner);
       if (owner.board.length < BOARD_LIMIT) {
-        owner.board.push({
-          instanceId: `${unit.owner}-baumgeist-${Math.random().toString(36).slice(2, 8)}`,
-          baseCardId: "baumgeist-token",
-          type: "character",
-          name: "Baumgeist",
-          owner: unit.owner,
-          cost: 0,
-          attack: 2,
-          health: 2,
-          maxHealth: 2,
-          effect: "Ein zäher Waldgeist aus den Resten von LG3.",
-          effectId: "attack-bonus",
-          image: "/images/cards/lg3.png",
-          rarity: "common",
-          tags: ["Token", "Natur"],
-          exhausted: true,
-          summonedTurn: state.turn,
-          sleepForTurns: 0,
-          stunForTurns: 0,
-          untargetableForTurns: 0,
-          temporaryAttackPenalty: 0,
-          shielded: false,
-          bonusStrikeDamage: 0
-        });
+        owner.board.push(createTokenUnit("baumgeist", unit.owner, state.turn));
         logLine(state, "LG3 hinterlässt einen Baumgeist.");
       }
     }

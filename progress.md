@@ -13,3 +13,6 @@ Original prompt: Bitte setze die beigefuegte Bilddatei als exakte Design- und La
 - CardFrame von Art-Platzhalter auf echte Kartenbilder umgestellt; eager loading verhindert leere Slots in langen Bibliotheks-Views.
 - Match-Token Baumgeist auf vorhandenes LG3-Art umgelegt, damit kein kaputter Bildpfad entsteht.
 - Verifikation Runde 2: npm run typecheck erfolgreich, npm run build erfolgreich, Browser-Checks fuer /, /cards und /game auf Desktop erfolgreich; Mobile-Checks fuer / und /cards erfolgreich, /game zeigt den erwarteten Landscape-Hinweis.
+- 2026-07-08: Baumgeist als eigenes Kartenasset aus finaler Illustration nach public/images/cards/baumgeist.png uebernommen und zusaetzlich lokal nach %USERPROFILE%\Pictures\Card Sheets\BubatzBande Kartenspiel\baumgeist.png exportiert.
+- LG3-Todeseffekt auf eine echte Baumgeist-Kartendefinition umgestellt, damit Beschwoerungen denselben Bildpfad und dieselben Basisdaten wie die restlichen Karten nutzen.
+- Verifikation Runde 3: LG3-Beschwoerung lokal per Spielszenario getestet; npm run typecheck erfolgreich, npm run build erfolgreich, Asset-Request fuer /images/cards/baumgeist.png auf dem lokalen Next-Server erfolgreich.
