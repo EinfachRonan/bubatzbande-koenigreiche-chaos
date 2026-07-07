@@ -1,0 +1,24 @@
+{
+  "name": "bubatzbande-koenigreiche-chaos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "BubatzBande: Königreiche & Chaos - lokaler Next.js MVP Prototyp eines Fantasy-Kartenspiels mit Chaos-Elementen.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "15.5.20",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.0.15",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
+    "typescript": "5.8.3"
+  }
+}
