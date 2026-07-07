@@ -1,4 +1,4 @@
-import { CardDefinition, CardRarity, CardType, DeckCard } from "@/types/cards";
+import { CardDefinition, CardRarity, CardType } from "@/types/cards";
 
 export const cards: CardDefinition[] = [
   {
@@ -346,39 +346,6 @@ export const cards: CardDefinition[] = [
   }
 ];
 
-const deckRecipe: string[] = [
-  "der-gruene-kobold",
-  "der-gruene-kobold",
-  "mr-mollymann",
-  "kleine-nille",
-  "fokuhilamann",
-  "allan-king-kebab",
-  "artur-king-kebab",
-  "lg3",
-  "donpatron",
-  "der-graue-geist",
-  "marwin-der-pionier",
-  "der-kraeuterkoenig",
-  "der-koenig-von-deutschland",
-  "doenerpause",
-  "doenerpause",
-  "goldsack-gepluendert",
-  "koeniglicher-befehl",
-  "kraeuternebel",
-  "pionier-werkzeug",
-  "grauer-fluch",
-  "bubatz-alarm",
-  "der-zoll-kommt",
-  "kebab-koma",
-  "kraeuterexplosion",
-  "falscher-koenig",
-  "goldregen",
-  "goldene-krone",
-  "kebab-spiess",
-  "pionier-zirkel",
-  "schmiedehammer"
-];
-
 export const cardTypes: CardType[] = ["character", "action", "chaos", "equipment"];
 export const cardRarities: CardRarity[] = ["common", "rare", "epic", "legendary"];
 
@@ -388,22 +355,4 @@ export function getCardById(cardId: string) {
     throw new Error(`Unknown card id: ${cardId}`);
   }
   return card;
-}
-
-export function createStarterDeck(ownerSeed: string): DeckCard[] {
-  return shuffle(
-    deckRecipe.map((cardId, index) => ({
-      ...getCardById(cardId),
-      uid: `${ownerSeed}-${cardId}-${index + 1}`
-    }))
-  );
-}
-
-function shuffle<T>(items: T[]) {
-  const copy = [...items];
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
-  }
-  return copy;
 }

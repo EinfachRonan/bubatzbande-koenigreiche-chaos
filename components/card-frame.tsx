@@ -46,6 +46,8 @@ export function CardFrame({
   onClick
 }: CardFrameProps) {
   const isUnit = "maxHealth" in card;
+  const shownAttack =
+    isUnit && "temporaryAttackPenalty" in card ? Math.max(0, card.attack - card.temporaryAttackPenalty) : card.attack;
   const artLabel = card.image.replace("/images/cards/", "").replace(".png", "").replaceAll("-", " ");
 
   return (
@@ -100,7 +102,7 @@ export function CardFrame({
         {isUnit ? (
           <>
             <span className="stat-seal attack-seal" title="Angriff = Schaden eines Charakters">
-              <span className="stat-value">{card.attack}</span>
+              <span className="stat-value">{shownAttack}</span>
               <span className="stat-label">Angriff</span>
             </span>
             <span className="stat-seal health-seal" title="Leben = Trefferpunkte eines Charakters">
@@ -113,7 +115,7 @@ export function CardFrame({
         ) : "attack" in card && card.attack !== undefined ? (
           <>
             <span className="stat-seal attack-seal" title="Angriff = Schaden eines Charakters">
-              <span className="stat-value">{card.attack}</span>
+              <span className="stat-value">{shownAttack}</span>
               <span className="stat-label">Angriff</span>
             </span>
             <span className="stat-seal health-seal" title="Leben = Trefferpunkte eines Charakters">

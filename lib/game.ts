@@ -1,5 +1,5 @@
-import { createStarterDeck } from "@/lib/cards";
-import { CardDefinition, DeckCard, DeckCard as PlayedCard, EffectId, UnitInstance } from "@/types/cards";
+import { botStarterDeckIds, buildDeckFromIds, starterDeckIds } from "@/lib/decks";
+import { CardDefinition, DeckCard, EffectId, UnitInstance } from "@/types/cards";
 
 export type PlayerSide = "player" | "bot";
 export type AttackTarget =
@@ -33,9 +33,15 @@ export type MatchState = {
   targetMode: TargetMode | null;
 };
 
+type MatchSetup = {
+  botDeckIds?: string[];
+  playerDeckIds?: string[];
+};
+
 const HONOR_CAP = 30;
 const GOLD_CAP = 10;
 const BOARD_LIMIT = 5;
+const MAX_LOG_LINES = 14;
 
 function clonePlayer(player: PlayerState): PlayerState {
   return {
@@ -48,29 +54,32 @@ function clonePlayer(player: PlayerState): PlayerState {
 }
 
 function logLine(state: MatchState, message: string) {
-  state.log = [...state.log.slice(-19), message];
+  state.log = [...state.log.slice(-(MAX_LOG_LINES - 1)), message];
 }
 
-function drawCard(player: PlayerState, amount = 1) {
+function drawCard(state: MatchState, side: PlayerSide, amount = 1, reason = "zieht eine Karte") {
+  const player = getStatePlayer(state, side);
   for (let count = 0; count < amount; count += 1) {
     const next = player.deck.shift();
     if (!next) {
+      logLine(state, `${formatSide(side)} kann keine weitere Karte ziehen.`);
       return;
     }
     player.hand.push(next);
+    logLine(state, `${formatSide(side)} ${reason}.`);
   }
 }
 
-function createPlayer(side: PlayerSide): PlayerState {
+function createPlayer(side: PlayerSide, deckIds: string[]) {
   return {
     side,
     honor: HONOR_CAP,
     gold: 0,
     maxGold: 0,
-    deck: createStarterDeck(side),
-    hand: [],
-    board: [],
-    discard: []
+    deck: buildDeckFromIds(deckIds, side),
+    hand: [] as DeckCard[],
+    board: [] as UnitInstance[],
+    discard: [] as DeckCard[]
   };
 }
 
@@ -95,17 +104,15 @@ function createUnit(card: CardDefinition, owner: PlayerSide, turn: number): Unit
     sleepForTurns: 0,
     stunForTurns: 0,
     untargetableForTurns: card.effectId === "untargetable-every-other-round" ? 1 : 0,
+    temporaryAttackPenalty: 0,
     shielded: false,
     bonusStrikeDamage: 0
   };
 }
 
-export function createInitialMatchState(): MatchState {
-  const player = createPlayer("player");
-  const bot = createPlayer("bot");
-
-  drawCard(player, 3);
-  drawCard(bot, 3);
+export function createInitialMatchState(setup: MatchSetup = {}): MatchState {
+  const player = createPlayer("player", setup.playerDeckIds ?? starterDeckIds);
+  const bot = createPlayer("bot", setup.botDeckIds ?? botStarterDeckIds);
 
   const state: MatchState = {
     turn: 1,
@@ -116,6 +123,9 @@ export function createInitialMatchState(): MatchState {
     log: ["Die Königreiche geraten ins Chaos."],
     targetMode: null
   };
+
+  drawCard(state, "player", 3, "zieht eine Starthandkarte");
+  drawCard(state, "bot", 3, "zieht eine Starthandkarte");
 
   startTurn(state, "player", true);
   return state;
@@ -138,7 +148,7 @@ function removeCardFromHand(player: PlayerState, handCardId: string) {
   return card;
 }
 
-function getModifiedCardCost(player: PlayerState, card: PlayedCard) {
+function getModifiedCardCost(player: PlayerState, card: DeckCard) {
   const spellDiscount = player.board.some((unit) => unit.effectId === "spells-cost-less") &&
     (card.type === "action" || card.type === "chaos")
       ? 1
@@ -150,15 +160,20 @@ function changeHonor(player: PlayerState, amount: number) {
   player.honor = Math.max(0, Math.min(HONOR_CAP, player.honor + amount));
 }
 
+function getUnitAttack(unit: UnitInstance) {
+  return Math.max(0, unit.attack - unit.temporaryAttackPenalty);
+}
+
 function damageUnit(unit: UnitInstance, amount: number) {
   if (amount <= 0) {
-    return;
+    return 0;
   }
   if (unit.shielded) {
     unit.shielded = false;
-    return;
+    return 0;
   }
   unit.health -= amount;
+  return amount;
 }
 
 function healUnit(unit: UnitInstance, amount: number) {
@@ -182,7 +197,7 @@ function cleanupDeaths(state: MatchState) {
   }
 
   for (const unit of died) {
-    logLine(state, `${unit.name} fällt auf der Seite von ${unit.owner === "player" ? "dir" : "dem Bot"}.`);
+    logLine(state, `${unit.name} wurde besiegt.`);
     if (unit.effectId === "summon-tree-spirit-on-death") {
       const owner = getStatePlayer(state, unit.owner);
       if (owner.board.length < BOARD_LIMIT) {
@@ -206,17 +221,20 @@ function cleanupDeaths(state: MatchState) {
           sleepForTurns: 0,
           stunForTurns: 0,
           untargetableForTurns: 0,
+          temporaryAttackPenalty: 0,
           shielded: false,
           bonusStrikeDamage: 0
         });
         logLine(state, "LG3 hinterlässt einen Baumgeist.");
       }
     }
+
     const allies = getStatePlayer(state, unit.owner).board;
     allies
       .filter((ally) => ally.effectId === "gain-attack-on-ally-death")
       .forEach((ally) => {
         ally.attack += 1;
+        logLine(state, `${ally.name} wird durch den Verlust eines Verbündeten stärker (+1 Angriff).`);
       });
   }
 }
@@ -236,6 +254,12 @@ function applyEndTurnEffects(state: MatchState, side: PlayerSide) {
     player.board.forEach((unit) => healUnit(unit, 1));
     logLine(state, `${healer.name} heilt alle Verbündeten um 1.`);
   }
+
+  player.board.forEach((unit) => {
+    if (unit.temporaryAttackPenalty > 0) {
+      unit.temporaryAttackPenalty = 0;
+    }
+  });
 }
 
 function applyStartTurnBoardEffects(state: MatchState, side: PlayerSide) {
@@ -259,14 +283,18 @@ function applyStartTurnBoardEffects(state: MatchState, side: PlayerSide) {
       bonusGold += 1;
     }
     if (unit.effectId === "build-random-tool" && state.turn % 2 === 0) {
+      // MVP-Variante: Marwin verbessert sich selbst statt ein separates Werkzeug-Objekt zu erzeugen.
       unit.attack += 1;
       unit.maxHealth += 1;
       unit.health += 1;
-      logLine(state, `${unit.name} zimmert sich ein improvisiertes Werkzeug (+1/+1).`);
+      logLine(state, `${unit.name} baut ein improvisiertes Werkzeug (+1/+1).`);
     }
   });
 
-  player.gold = Math.min(GOLD_CAP, player.gold + bonusGold);
+  if (bonusGold > 0) {
+    player.gold = Math.min(GOLD_CAP, player.gold + bonusGold);
+    logLine(state, `${formatSide(side)} erhält ${bonusGold} Bonus-Gold durch laufende Effekte.`);
+  }
 }
 
 function startTurn(state: MatchState, side: PlayerSide, initial = false) {
@@ -274,16 +302,18 @@ function startTurn(state: MatchState, side: PlayerSide, initial = false) {
   state.activeSide = side;
   player.maxGold = Math.min(GOLD_CAP, initial ? 1 : player.maxGold + 1);
   player.gold = player.maxGold;
-  drawCard(player, 1);
   applyStartTurnBoardEffects(state, side);
-  logLine(state, `${side === "player" ? "Du" : "Der Bot"} beginnst Zug ${state.turn}.`);
+  if (!initial) {
+    drawCard(state, side, 1);
+  }
+  logLine(state, `${formatSide(side)} beginnt Zug ${state.turn}.`);
 }
 
 function canTargetUnit(unit: UnitInstance) {
   return unit.untargetableForTurns <= 0;
 }
 
-export function getTargetModeForCard(card: PlayedCard): TargetMode | null {
+export function getTargetModeForCard(card: DeckCard): TargetMode | null {
   switch (card.effectId) {
     case "ready-ally":
     case "ally-attack-buff":
@@ -315,7 +345,7 @@ function findUnit(player: PlayerState, unitId: string) {
 function applyCardEffect(
   state: MatchState,
   side: PlayerSide,
-  card: PlayedCard,
+  card: DeckCard,
   target?: AttackTarget
 ) {
   const player = getStatePlayer(state, side);
@@ -326,6 +356,7 @@ function applyCardEffect(
       const stolen = Math.min(1, opponent.gold);
       opponent.gold -= stolen;
       player.gold = Math.min(GOLD_CAP, player.gold + stolen);
+      logLine(state, `${card.name} klaut ${stolen} Gold.`);
       break;
     }
     case "allies-plus-health": {
@@ -335,11 +366,13 @@ function applyCardEffect(
           unit.health += 1;
         }
       });
+      logLine(state, `${card.name} stärkt alle Verbündeten mit +1 Leben.`);
       break;
     }
     case "draw-two-or-gain-three": {
-      if (player.hand.length <= 5 && player.deck.length >= 2) {
-        drawCard(player, 2);
+      const shouldDraw = side === "player" ? player.hand.length <= 5 && player.deck.length >= 2 : player.gold >= 5 ? false : player.deck.length >= 2;
+      if (shouldDraw) {
+        drawCard(state, side, 2);
         logLine(state, `${card.name} bringt 2 Karten Nachschub.`);
       } else {
         player.gold = Math.min(GOLD_CAP, player.gold + 3);
@@ -349,12 +382,14 @@ function applyCardEffect(
     }
     case "heal-leader": {
       changeHonor(player, 4);
+      logLine(state, `${card.name} heilt ${formatSide(side)} um 4 Ehre.`);
       break;
     }
     case "plunder-gold": {
-      const stolen = Math.min(2, opponent.gold);
-      opponent.gold -= stolen;
+      const lostGold = Math.min(2, opponent.gold);
+      opponent.gold -= lostGold;
       player.gold = Math.min(GOLD_CAP, player.gold + 2);
+      logLine(state, `${card.name} plündert Gold. Gegner verliert ${lostGold}.`);
       break;
     }
     case "ready-ally": {
@@ -362,14 +397,16 @@ function applyCardEffect(
         const unit = findUnit(player, target.unitId);
         if (unit) {
           unit.exhausted = false;
+          logLine(state, `${unit.name} erhält durch ${card.name} einen weiteren Angriff.`);
         }
       }
       break;
     }
     case "fog-weaken": {
       opponent.board.forEach((unit) => {
-        unit.attack = Math.max(0, unit.attack - 1);
+        unit.temporaryAttackPenalty = Math.max(unit.temporaryAttackPenalty, 1);
       });
+      logLine(state, `${card.name} senkt den Angriff aller Gegner für deren nächsten Zug.`);
       break;
     }
     case "ally-attack-buff": {
@@ -377,6 +414,7 @@ function applyCardEffect(
         const unit = findUnit(player, target.unitId);
         if (unit) {
           unit.attack += 2;
+          logLine(state, `${unit.name} erhält +2 Angriff durch ${card.name}.`);
         }
       }
       break;
@@ -385,8 +423,9 @@ function applyCardEffect(
       if (target?.kind === "unit") {
         const unit = findUnit(opponent, target.unitId);
         if (unit) {
-          unit.stunForTurns = 1;
+          unit.stunForTurns = Math.max(unit.stunForTurns, 2);
           unit.exhausted = true;
+          logLine(state, `${unit.name} wird durch ${card.name} ausgebremst.`);
         }
       }
       break;
@@ -411,48 +450,54 @@ function applyCardEffect(
           destination.board.push(unit);
         }
       });
+      logLine(state, `${card.name} verteilt das gesamte Feld neu.`);
       break;
     }
     case "both-discard": {
       [player, opponent].forEach((actor) => {
         for (let count = 0; count < 2; count += 1) {
           if (actor.hand.length === 0) {
-            return;
+            continue;
           }
           const randomIndex = Math.floor(Math.random() * actor.hand.length);
           const [discarded] = actor.hand.splice(randomIndex, 1);
           actor.discard.push(discarded);
         }
       });
+      logLine(state, `${card.name} zwingt beide Spieler zum Abwerfen von 2 Karten.`);
       break;
     }
     case "random-sleep": {
       const everyone = [...player.board, ...opponent.board];
       if (everyone.length > 0) {
         const selected = everyone[Math.floor(Math.random() * everyone.length)];
-        selected.sleepForTurns = 1;
+        selected.sleepForTurns = Math.max(selected.sleepForTurns, 2);
         selected.exhausted = true;
+        logLine(state, `${selected.name} fällt durch ${card.name} für eine Runde aus.`);
       }
       break;
     }
     case "board-blast": {
       [...player.board, ...opponent.board].forEach((unit) => damageUnit(unit, 2));
+      logLine(state, `${card.name} verursacht 2 Schaden an allen Charakteren.`);
       break;
     }
     case "swap-weakest-strongest": {
       if (player.board.length > 0 && opponent.board.length > 0) {
-        const weakest = [...player.board].sort((a, b) => a.attack + a.health - (b.attack + b.health))[0];
-        const strongest = [...opponent.board].sort((a, b) => b.attack + b.health - (a.attack + a.health))[0];
+        const weakest = [...player.board].sort((a, b) => getUnitAttack(a) + a.health - (getUnitAttack(b) + b.health))[0];
+        const strongest = [...opponent.board].sort((a, b) => getUnitAttack(b) + b.health - (getUnitAttack(a) + a.health))[0];
         weakest.owner = opponent.side;
         strongest.owner = player.side;
         player.board = player.board.filter((unit) => unit.instanceId !== weakest.instanceId).concat(strongest);
         opponent.board = opponent.board.filter((unit) => unit.instanceId !== strongest.instanceId).concat(weakest);
+        logLine(state, `${card.name} vertauscht ${weakest.name} und ${strongest.name}.`);
       }
       break;
     }
     case "both-gain-gold": {
       player.gold = Math.min(GOLD_CAP, player.gold + 5);
       opponent.gold = Math.min(GOLD_CAP, opponent.gold + 5);
+      logLine(state, `${card.name} lässt auf beide Seiten 5 Gold regnen.`);
       break;
     }
     case "crown-guard":
@@ -464,6 +509,7 @@ function applyCardEffect(
         const unit = findUnit(player, target.unitId);
         if (unit) {
           applyEquipment(unit, card.effectId);
+          logLine(state, `${card.name} wird an ${unit.name} angelegt.`);
         }
       }
       break;
@@ -547,10 +593,10 @@ export function playCard(
   if (card.type === "character") {
     const unit = createUnit(card, side, state.turn);
     player.board.push(unit);
-    logLine(state, `${side === "player" ? "Du spielst" : "Der Bot spielt"} ${card.name}.`);
+    logLine(state, `${card.name} wurde ausgespielt.`);
     applyCardEffect(state, side, card);
   } else {
-    logLine(state, `${side === "player" ? "Du wirkst" : "Der Bot wirkt"} ${card.name}.`);
+    logLine(state, `${card.name} wird eingesetzt.`);
     applyCardEffect(state, side, card, target);
   }
 
@@ -589,28 +635,37 @@ export function attackWithUnit(
     return source;
   }
 
+  const attackerDamage = getUnitAttack(attacker) + attacker.bonusStrikeDamage;
   if (target.kind === "unit") {
     const defender = findUnit(opponent, target.unitId);
     if (!defender || !canTargetUnit(defender)) {
       return source;
     }
 
-    damageUnit(defender, attacker.attack + attacker.bonusStrikeDamage);
-    damageUnit(attacker, defender.attack);
+    damageUnit(defender, attackerDamage);
+    damageUnit(attacker, getUnitAttack(defender));
 
     if (attacker.effectId === "heal-self-on-attack") {
       healUnit(attacker, 1);
     }
 
     attacker.exhausted = true;
-    logLine(state, `${attacker.name} kämpft gegen ${defender.name}.`);
+    logLine(
+      state,
+      `${attacker.name} greift ${defender.name} an und verursacht ${attackerDamage} Schaden.`
+    );
   } else {
-    changeHonor(opponent, -attacker.attack);
+    changeHonor(opponent, -attackerDamage);
     if (attacker.effectId === "heal-self-on-attack") {
       healUnit(attacker, 1);
     }
     attacker.exhausted = true;
-    logLine(state, `${attacker.name} trifft direkt die Ehre des Gegners.`);
+    logLine(
+      state,
+      attacker.effectId === "can-attack-leader"
+        ? `${attacker.name} greift direkt den gegnerischen Anführer an.`
+        : `${attacker.name} trifft direkt die Ehre des Gegners.`
+    );
   }
 
   cleanupDeaths(state);
@@ -631,6 +686,7 @@ export function endTurn(source: MatchState) {
     return source;
   }
 
+  logLine(state, `${formatSide(state.activeSide)} beendet den Zug.`);
   applyEndTurnEffects(state, state.activeSide);
   const nextSide = getOpponentSide(state.activeSide);
   if (nextSide === "player") {
@@ -641,7 +697,7 @@ export function endTurn(source: MatchState) {
   return state;
 }
 
-export function getPlayableCost(state: MatchState, side: PlayerSide, card: PlayedCard) {
+export function getPlayableCost(state: MatchState, side: PlayerSide, card: DeckCard) {
   return getModifiedCardCost(getStatePlayer(state, side), card);
 }
 
@@ -660,24 +716,34 @@ export function getValidAttackTargets(state: MatchState, side: PlayerSide, attac
   return targets;
 }
 
-export function canPlayCard(state: MatchState, side: PlayerSide, card: PlayedCard) {
+export function getCardPlayIssue(state: MatchState, side: PlayerSide, card: DeckCard) {
   const player = getStatePlayer(state, side);
+  if (state.winner) {
+    return "Das Spiel ist bereits beendet.";
+  }
+  if (state.activeSide !== side) {
+    return "Du bist gerade nicht am Zug.";
+  }
   if (player.gold < getModifiedCardCost(player, card)) {
-    return false;
+    return "Nicht genug Gold.";
   }
   if (card.type === "character" && player.board.length >= BOARD_LIMIT) {
-    return false;
+    return "Dein Feld ist voll.";
   }
   if (card.type === "equipment" && player.board.length === 0) {
-    return false;
+    return "Du brauchst erst einen verbündeten Charakter.";
   }
   if (card.effectId === "ready-ally" && player.board.length === 0) {
-    return false;
+    return "Kein Verbündeter für diesen Befehl vorhanden.";
   }
   if (card.effectId === "stun-enemy" && getStatePlayer(state, getOpponentSide(side)).board.length === 0) {
-    return false;
+    return "Es gibt kein gegnerisches Ziel.";
   }
-  return true;
+  return null;
+}
+
+export function canPlayCard(state: MatchState, side: PlayerSide, card: DeckCard) {
+  return getCardPlayIssue(state, side, card) === null;
 }
 
 export function describeWinner(state: MatchState) {
@@ -692,4 +758,8 @@ export function describeWinner(state: MatchState) {
 
 export function getCardByUid(state: MatchState, side: PlayerSide, handCardId: string) {
   return getStatePlayer(state, side).hand.find((card) => card.uid === handCardId) ?? null;
+}
+
+function formatSide(side: PlayerSide) {
+  return side === "player" ? "Spieler" : "Bot";
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CardFrame } from "@/components/card-frame";
 import { runBotTurn } from "@/lib/bot";
+import { botStarterDeckIds, DECK_SIZE_MIN, PLAYER_DECK_STORAGE_KEY, starterDeckIds, validateDeckIds } from "@/lib/decks";
 import {
   AttackTarget,
   MatchState,
@@ -14,17 +15,60 @@ import {
   describeWinner,
   endTurn,
   getCardByUid,
+  getCardPlayIssue,
   getPlayableCost,
   getValidAttackTargets,
   playCard
 } from "@/lib/game";
 
+function createStateFromStorage() {
+  if (typeof window === "undefined") {
+    return createInitialMatchState({
+      playerDeckIds: starterDeckIds,
+      botDeckIds: botStarterDeckIds
+    });
+  }
+
+  const rawDeck = window.localStorage.getItem(PLAYER_DECK_STORAGE_KEY);
+  if (!rawDeck) {
+    return createInitialMatchState({
+      playerDeckIds: starterDeckIds,
+      botDeckIds: botStarterDeckIds
+    });
+  }
+
+  try {
+    const parsed = JSON.parse(rawDeck);
+    if (!Array.isArray(parsed)) {
+      throw new Error("invalid");
+    }
+    const deckIds = parsed.filter((entry): entry is string => typeof entry === "string");
+    const validation = validateDeckIds(deckIds);
+    if (!validation.isValid || deckIds.length < DECK_SIZE_MIN) {
+      return createInitialMatchState({
+        playerDeckIds: starterDeckIds,
+        botDeckIds: botStarterDeckIds
+      });
+    }
+    return createInitialMatchState({
+      playerDeckIds: deckIds,
+      botDeckIds: botStarterDeckIds
+    });
+  } catch {
+    return createInitialMatchState({
+      playerDeckIds: starterDeckIds,
+      botDeckIds: botStarterDeckIds
+    });
+  }
+}
+
 export function MatchClient() {
-  const [state, setState] = useState<MatchState>(() => createInitialMatchState());
+  const [state, setState] = useState<MatchState>(() => createStateFromStorage());
   const [selectedHandCardId, setSelectedHandCardId] = useState<string | null>(null);
   const [selectedAttackerId, setSelectedAttackerId] = useState<string | null>(null);
   const [highlightedUnitId, setHighlightedUnitId] = useState<string | null>(null);
   const [pulseLeaderSide, setPulseLeaderSide] = useState<"player" | "bot" | null>(null);
+  const [logCollapsed, setLogCollapsed] = useState(false);
 
   useEffect(() => {
     if (state.winner || state.activeSide !== "bot") {
@@ -63,6 +107,13 @@ export function MatchClient() {
   function flashUnit(unitId: string) {
     setHighlightedUnitId(null);
     window.setTimeout(() => setHighlightedUnitId(unitId), 10);
+  }
+
+  function resetMatch() {
+    setState(createStateFromStorage());
+    setSelectedHandCardId(null);
+    setSelectedAttackerId(null);
+    setHighlightedUnitId(null);
   }
 
   function selectHandCard(handCardId: string) {
@@ -200,16 +251,8 @@ export function MatchClient() {
           </div>
         </div>
         <div className="turn-actions">
-          <button
-            className="ghost-button"
-            onClick={() => {
-              setState(createInitialMatchState());
-              setSelectedHandCardId(null);
-              setSelectedAttackerId(null);
-              setHighlightedUnitId(null);
-            }}
-          >
-            Neues Match
+          <button className="ghost-button" onClick={resetMatch}>
+            {state.winner ? "Neues Spiel" : "Match zurücksetzen"}
           </button>
           <button
             className="action-button action-button-hero"
@@ -281,28 +324,38 @@ export function MatchClient() {
               </p>
             </div>
             <div className="hand-cards">
-              {state.player.hand.map((card) => (
-                <CardFrame
-                  key={card.uid}
-                  card={card}
-                  selectable
-                  emphasis="player"
-                  selected={selectedHandCardId === card.uid}
-                  disabled={!canPlayCard(state, "player", card) || state.activeSide !== "player"}
-                  footer={<p className="hint-text">Spielkosten: {getPlayableCost(state, "player", card)}</p>}
-                  onClick={() => selectHandCard(card.uid)}
-                />
-              ))}
+              {state.player.hand.map((card) => {
+                const playIssue = getCardPlayIssue(state, "player", card);
+                return (
+                  <CardFrame
+                    key={card.uid}
+                    card={card}
+                    selectable
+                    emphasis="player"
+                    selected={selectedHandCardId === card.uid}
+                    disabled={Boolean(playIssue)}
+                    footer={
+                      <p className="hint-text">
+                        {playIssue ?? `Spielkosten: ${getPlayableCost(state, "player", card)}`}
+                      </p>
+                    }
+                    onClick={() => selectHandCard(card.uid)}
+                  />
+                );
+              })}
             </div>
           </section>
         </div>
 
-        <aside className="log-panel">
-          <div>
-            <h2 className="section-title">Zugprotokoll</h2>
-            <p className="hint-text">
-              Direkte Angriffe sind nur erlaubt, wenn kein Gegner steht oder Kleine Nille lossprintet.
-            </p>
+        <aside className={`log-panel ${logCollapsed ? "collapsed" : ""}`}>
+          <div className="log-header">
+            <div>
+              <h2 className="section-title">Ereignisprotokoll</h2>
+              <p className="hint-text">Die letzten 14 Ereignisse bleiben sichtbar.</p>
+            </div>
+            <button className="ghost-button log-toggle" onClick={() => setLogCollapsed((current) => !current)}>
+              {logCollapsed ? "Log öffnen" : "Log einklappen"}
+            </button>
           </div>
           {selectedCard ? (
             <div className="selected-card-panel">
@@ -328,7 +381,7 @@ export function MatchClient() {
             ))}
           </ul>
           <Link href="/cards" className="secondary-button">
-            Kartenbibliothek
+            Deckbuilder öffnen
           </Link>
         </aside>
       </div>

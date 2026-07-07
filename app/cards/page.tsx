@@ -6,7 +6,7 @@ export default function CardsPage() {
       <div className="page-header">
         <div>
           <p className="eyebrow">Starter Set</p>
-          <h1>Kartenbibliothek</h1>
+          <h1>Kartenbibliothek &amp; Deckbuilder</h1>
         </div>
       </div>
       <CardLibraryClient />

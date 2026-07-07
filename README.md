@@ -1,6 +1,6 @@
 # BubatzBande: Königreiche & Chaos
 
-Lokaler MVP-Prototyp eines eigenständigen Fantasy-Browser-Kartenspiels mit Chaos-Faktor. Die erste Version läuft komplett lokal im Browser, ohne Backend, ohne Accounts und ohne Multiplayer.
+Lokaler Next.js-MVP eines eigenstaendigen Fantasy-Browser-Kartenspiels mit Chaos-Faktor. Das Projekt laeuft komplett ohne Backend, Accounts oder Multiplayer und ist auf schnelle lokale Spielbarkeit ausgelegt.
 
 Repository-Name: `bubatzbande-koenigreiche-chaos`
 
@@ -11,49 +11,77 @@ npm install
 npm run dev
 ```
 
-Danach im Browser `http://localhost:3000` öffnen.
+Danach im Browser `http://localhost:3000` oeffnen.
 
 ## Online Deployment
 
-Das Projekt ist für GitHub Pages als statischen Next.js-Export vorbereitet. Nach dem Push auf GitHub kann es über die Actions-Workflow-Datei automatisch veröffentlicht werden.
+Das Projekt ist fuer GitHub Pages als statischen Next.js-Export vorbereitet. Nach dem Push nach GitHub veroeffentlicht der Workflow unter `.github/workflows/deploy-pages.yml` automatisch die aktuelle Version.
 
 ## Projektstruktur
 
 ```text
 app/
   page.tsx              Startseite
-  game/page.tsx         Spielansicht
-  cards/page.tsx        Kartenbibliothek
-  globals.css           Globales Fantasy-UI
+  game/page.tsx         Match-Screen
+  cards/page.tsx        Kartenbibliothek und Deckbuilder
+  globals.css           Globales UI und Responsive-Design
 components/
-  card-frame.tsx        Wiederverwendbare Kartendarstellung
-  match-client.tsx      Client-Matchscreen mit Spielinteraktion
+  card-frame.tsx
+  match-client.tsx
   card-library-client.tsx
 lib/
-  cards.ts              Kartendaten und Starter-Deck
+  cards.ts              Kartendaten
+  decks.ts              Deckregeln, Starterdecks, Deck-Utilities
   game.ts               Match-State und Regel-Engine
-  bot.ts                Einfache Gegner-KI
+  bot.ts                Bot-KI
 types/
-  cards.ts              Zentrale Typen
-public/
-  images/
-    starter-set-reference.png
-    cards/
-      ...
+  cards.ts
+docs/
+  balancing.md          Kurznotizen zum aktuellen Set
 ```
 
-## Was im MVP enthalten ist
+## Aktuell fertige Features
 
-- Startseite mit Hero-Bild und Navigation
-- Spielbarer lokaler Match-Screen
-- 30-Karten-Starterdeck auf Basis des Referenzsets
-- Vier Kartentypen: Charaktere, Aktionen, Chaos, Ausrüstung
-- Gold-, Zieh- und Kampf-Logik
-- Maximal 5 Charaktere pro Spielfeld
-- Einfache Bot-KI
-- Kartenbibliothek mit Suche und Filtern
+- Startseite mit Branding und Referenzbild
+- Spielbarer 1v1-Match-Screen
+- Kartenbibliothek mit Filtern und Suche
+- Deckbuilder mit LocalStorage-Speicherung
+- Regelkonforme Deckgrenzen:
+  - maximal 30 Karten
+  - mindestens 20 Karten zum Starten
+  - gewoehnlich/selten/episch maximal 2x
+  - legendaer maximal 1x
+- Starterdeck und Bot-Starterdeck
+- Smartere Bot-KI
+- Sichtbares Ereignisprotokoll
+- GitHub-Pages-Deployment
 
-## Neue Karten hinzufügen
+## Deckbuilder benutzen
+
+Die Kartenbibliothek unter `/cards` ist gleichzeitig der Deckbuilder.
+
+Moeglich ist dort:
+
+- Karten zum Deck hinzufuegen
+- Karten wieder entfernen
+- Starterdeck laden
+- Deck zuruecksetzen
+- Deckstand `X / 30` sehen
+- Grenzen pro Karte direkt erkennen
+- Deck automatisch im Browser per `localStorage` speichern
+- Mit dem aktuellen Deck direkt ein Match starten
+
+Beim Oeffnen wird zuerst ein gespeichertes Deck geladen. Falls keines vorhanden ist, steht das Starterdeck bereit.
+
+## Wie Deckregeln funktionieren
+
+- Ein Deck darf maximal `30` Karten enthalten.
+- Ein Match darf mit mindestens `20` Karten gestartet werden.
+- `common`, `rare` und `epic` duerfen jeweils maximal `2x` enthalten sein.
+- `legendary` darf maximal `1x` enthalten sein.
+- Ist ein gespeichertes Deck ungueltig oder zu klein, faellt das Spiel automatisch auf das Starterdeck zurueck.
+
+## Neue Karten hinzufuegen
 
 Neue Karten werden zentral in [lib/cards.ts](C:/Users/Test/Documents/Bubatzbande.de/lib/cards.ts) angelegt.
 
@@ -70,40 +98,32 @@ Jede Karte braucht mindestens:
 - `image`
 - `tags`
 
-Beispiel:
-
-```ts
-{
-  id: "neue-karte",
-  name: "Neue Karte",
-  type: "action",
-  rarity: "rare",
-  cost: 3,
-  effect: "Beschreibe hier den Effekt.",
-  effectId: "plunder-gold",
-  image: "/images/cards/neue-karte.png",
-  tags: ["Test", "Gold"]
-}
-```
-
-Wenn ein neuer Effekt wirklich neues Verhalten braucht, ergänze ihn in:
+Wenn ein neuer Effekt neues Verhalten braucht, dann erweitere:
 
 - [types/cards.ts](C:/Users/Test/Documents/Bubatzbande.de/types/cards.ts)
 - [lib/game.ts](C:/Users/Test/Documents/Bubatzbande.de/lib/game.ts)
-- optional [lib/bot.ts](C:/Users/Test/Documents/Bubatzbande.de/lib/bot.ts), falls der Bot ihn sinnvoll nutzen soll
+- optional [lib/bot.ts](C:/Users/Test/Documents/Bubatzbande.de/lib/bot.ts)
 
-## Echte Kartenbilder einbinden
+## Kartenbilder einbinden
 
-Die Karten sind bereits auf lokale Bildpfade vorbereitet:
+Die Karten nutzen lokale Bildpfade wie:
 
 - `/images/cards/der-gruene-kobold.png`
 - `/images/cards/donpatron.png`
-- usw.
 
-Lege deine finalen Bilder einfach in `public/images/cards/` mit den passenden Dateinamen. Die UI nutzt diese Pfade bereits als vorbereitete Referenz.
+Lege finale Bilder einfach in `public/images/cards/` mit den passenden Dateinamen ab.
 
-## Hinweise zum aktuellen Regelstand
+## Geplante spaetere Ausbaustufen
 
-- Die Version ist bewusst ein MVP und priorisiert Lesbarkeit vor maximaler Systemtiefe.
-- Einige komplexe Karteneffekte sind vereinfacht, aber funktional umgesetzt.
-- Der Fokus liegt auf einer spielbaren lokalen Match-Ansicht, sauberer Datenstruktur und leichter Erweiterbarkeit.
+- Mehr Karten und weitere Sets
+- Tiefere Chaos-Effekte
+- Besserer visueller Kampf-Feedback-Layer
+- Weitere KI-Persoenlichkeiten
+- Zusätzliche Matchmodi
+
+## Lokale Qualitaetspruefung
+
+```bash
+npm run typecheck
+npm run build
+```

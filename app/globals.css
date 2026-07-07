@@ -737,6 +737,25 @@ h1 {
   gap: 14px;
 }
 
+.log-header,
+.deckbuilder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.log-toggle,
+.deck-remove-button {
+  padding: 8px 12px;
+}
+
+.log-panel.collapsed .log-list,
+.log-panel.collapsed .selected-card-panel {
+  display: none;
+}
+
 .selected-card-panel {
   padding: 12px;
   border-radius: 16px;
@@ -803,6 +822,44 @@ h1 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
   gap: 18px;
+}
+
+.deckbuilder-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.deck-warning {
+  color: #f0c887;
+}
+
+.deck-list-panel {
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(240, 212, 140, 0.1);
+}
+
+.deck-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 340px;
+  overflow: auto;
+}
+
+.deck-list-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.18);
 }
 
 .detail-panel {
@@ -938,5 +995,14 @@ h1 {
 
   .card-script-box {
     min-height: 68px;
+  }
+
+  .log-panel.collapsed {
+    max-height: 150px;
+    overflow: hidden;
+  }
+
+  .deck-list {
+    max-height: 220px;
   }
 }

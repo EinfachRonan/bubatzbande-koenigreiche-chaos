@@ -1,16 +1,56 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CardFrame } from "@/components/card-frame";
 import { cardRarities, cards, cardTypes } from "@/lib/cards";
+import {
+  DECK_SIZE_MAX,
+  DECK_SIZE_MIN,
+  PLAYER_DECK_STORAGE_KEY,
+  canAddCardToDeck,
+  getDeckCardsForDisplay,
+  normalizeDeckIds,
+  starterDeckIds,
+  validateDeckIds
+} from "@/lib/decks";
 import { CardRarity, CardType } from "@/types/cards";
 
 export function CardLibraryClient() {
+  const router = useRouter();
   const [typeFilter, setTypeFilter] = useState<CardType | "all">("all");
   const [rarityFilter, setRarityFilter] = useState<CardRarity | "all">("all");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState(cards[0]?.id ?? "");
+  const [deckIds, setDeckIds] = useState<string[]>(starterDeckIds);
+  const [statusMessage, setStatusMessage] = useState<string>("Starterdeck geladen.");
+
+  useEffect(() => {
+    const rawDeck = window.localStorage.getItem(PLAYER_DECK_STORAGE_KEY);
+    if (!rawDeck) {
+      window.localStorage.setItem(PLAYER_DECK_STORAGE_KEY, JSON.stringify(starterDeckIds));
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(rawDeck);
+      if (!Array.isArray(parsed)) {
+        return;
+      }
+      const normalized = normalizeDeckIds(parsed.filter((entry): entry is string => typeof entry === "string"));
+      if (normalized.length >= DECK_SIZE_MIN) {
+        setDeckIds(normalized);
+        setStatusMessage("Gespeichertes Deck geladen.");
+      }
+    } catch {
+      window.localStorage.setItem(PLAYER_DECK_STORAGE_KEY, JSON.stringify(starterDeckIds));
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(PLAYER_DECK_STORAGE_KEY, JSON.stringify(deckIds));
+  }, [deckIds]);
 
   const filtered = useMemo(() => {
     const normalized = search.trim().toLowerCase();
@@ -27,6 +67,33 @@ export function CardLibraryClient() {
   }, [rarityFilter, search, typeFilter]);
 
   const selectedCard = cards.find((card) => card.id === selectedId) ?? filtered[0] ?? cards[0];
+  const addState = canAddCardToDeck(deckIds, selectedCard);
+  const deckView = getDeckCardsForDisplay(deckIds);
+  const deckValidation = validateDeckIds(deckIds);
+  const canPlayWithDeck = deckValidation.isValid && deckIds.length >= DECK_SIZE_MIN;
+
+  function addSelectedCard() {
+    if (!addState.allowed) {
+      setStatusMessage(addState.reason ?? "Diese Karte kann nicht mehr hinzugefügt werden.");
+      return;
+    }
+    setDeckIds((current) => [...current, selectedCard.id]);
+    setStatusMessage(`${selectedCard.name} wurde zum Deck hinzugefügt.`);
+  }
+
+  function removeCard(cardId: string) {
+    const cardName = cards.find((entry) => entry.id === cardId)?.name ?? "Die Karte";
+    setDeckIds((current) => {
+      const index = current.lastIndexOf(cardId);
+      if (index === -1) {
+        return current;
+      }
+      const next = [...current];
+      next.splice(index, 1);
+      return next;
+    });
+    setStatusMessage(`${cardName} wurde aus dem Deck entfernt.`);
+  }
 
   return (
     <section className="library-shell">
@@ -35,7 +102,7 @@ export function CardLibraryClient() {
           <div className="library-toolbar">
             <div className="library-toolbar-copy">
               <p className="eyebrow">Archiv des Starter-Sets</p>
-              <h2 className="section-title">Alle Karten im Überblick</h2>
+              <h2 className="section-title">Kartenbibliothek &amp; Deckbuilder</h2>
             </div>
             <div className="filter-row">
               <input
@@ -80,6 +147,11 @@ export function CardLibraryClient() {
                   card={card}
                   selectable
                   selected={selectedCard?.id === card.id}
+                  footer={
+                    <p className="hint-text">
+                      {canAddCardToDeck(deckIds, card).allowed ? "Zum Deck hinzufügbar" : "Kopienlimit erreicht"}
+                    </p>
+                  }
                   onClick={() => setSelectedId(card.id)}
                 />
               ))}
@@ -87,8 +159,8 @@ export function CardLibraryClient() {
           )}
         </div>
 
-        <aside className="detail-panel">
-          <p className="eyebrow">Karten-Detail</p>
+        <aside className="detail-panel deckbuilder-panel">
+          <p className="eyebrow">Deckbuilder</p>
           <h2>{selectedCard.name}</h2>
           <div className="detail-hero-card">
             <CardFrame card={selectedCard} />
@@ -98,23 +170,78 @@ export function CardLibraryClient() {
             <span className={`card-badge rarity-${selectedCard.rarity}`}>{selectedCard.rarity}</span>
           </div>
           <p className="detail-text">{selectedCard.effect}</p>
-          <p className="detail-text">Kosten: {selectedCard.cost} Gold</p>
-          {selectedCard.attack !== undefined ? (
-            <p className="detail-text">
-              Werte: {selectedCard.attack} Angriff / {selectedCard.health} Leben
+          <p className="detail-text">
+            Deckstatus: <strong>{deckIds.length}</strong> / {DECK_SIZE_MAX}
+          </p>
+          <p className="detail-text">{statusMessage}</p>
+          {!addState.allowed ? <p className="detail-text deck-warning">{addState.reason}</p> : null}
+          {!canPlayWithDeck ? (
+            <p className="detail-text deck-warning">
+              Für ein Match brauchst du mindestens {DECK_SIZE_MIN} regelkonforme Karten.
             </p>
           ) : null}
-          <p className="detail-text">Bildpfad: {selectedCard.image}</p>
-          <div className="card-tags">
-            {selectedCard.tags.map((tag) => (
-              <span className="mini-badge" key={tag}>
-                {tag}
-              </span>
-            ))}
-          </div>
           <div className="detail-actions">
-            <Link href="/game" className="primary-button">
-              Direkt spielen
+            <button className="primary-button" onClick={addSelectedCard}>
+              Karte hinzufügen
+            </button>
+            <button className="ghost-button" onClick={() => removeCard(selectedCard.id)}>
+              Karte entfernen
+            </button>
+          </div>
+
+          <div className="deckbuilder-actions">
+            <button
+              className="secondary-button"
+              onClick={() => {
+                setDeckIds(starterDeckIds);
+                setStatusMessage("Starterdeck wurde geladen.");
+              }}
+            >
+              Starterdeck verwenden
+            </button>
+            <button
+              className="ghost-button"
+              onClick={() => {
+                setDeckIds([]);
+                setStatusMessage("Deck wurde zurückgesetzt.");
+              }}
+            >
+              Deck zurücksetzen
+            </button>
+            <button
+              className="action-button"
+              disabled={!canPlayWithDeck}
+              onClick={() => router.push("/game")}
+            >
+              Mit diesem Deck spielen
+            </button>
+          </div>
+
+          <div className="deck-list-panel">
+            <h3 className="section-title">Aktuelles Deck</h3>
+            <p className="hint-text">
+              Regeln: Gewöhnlich/Selten/Episch max. 2x, Legendär max. 1x, mindestens {DECK_SIZE_MIN} Karten.
+            </p>
+            <ul className="deck-list">
+              {deckView.map(({ card, count }) => (
+                <li key={card.id} className="deck-list-item">
+                  <div>
+                    <strong>{card.name}</strong>
+                    <p className="hint-text">
+                      {count}x · {card.cost} Gold
+                    </p>
+                  </div>
+                  <button className="ghost-button deck-remove-button" onClick={() => removeCard(card.id)}>
+                    -1
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="detail-actions">
+            <Link href="/game" className="secondary-button">
+              Zum Match
             </Link>
             <Link href="/" className="ghost-button">
               Zur Startseite

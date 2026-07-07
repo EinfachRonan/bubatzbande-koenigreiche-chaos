@@ -69,6 +69,7 @@ export type UnitInstance = {
   sleepForTurns: number;
   stunForTurns: number;
   untargetableForTurns: number;
+  temporaryAttackPenalty: number;
   shielded: boolean;
   bonusStrikeDamage: number;
 };
