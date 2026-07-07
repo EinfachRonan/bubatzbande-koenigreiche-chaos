@@ -8,12 +8,28 @@ function rarityClass(rarity: CardLike["rarity"]) {
   return `rarity-${rarity}`;
 }
 
+const typeLabel: Record<CardLike["type"], string> = {
+  action: "Aktion",
+  chaos: "Chaos",
+  character: "Charakter",
+  equipment: "Ausrüstung"
+};
+
+const rarityLabel: Record<CardLike["rarity"], string> = {
+  common: "Gewöhnlich",
+  rare: "Selten",
+  epic: "Episch",
+  legendary: "Legendär"
+};
+
 type CardFrameProps = {
   card: CardLike;
   selected?: boolean;
   selectable?: boolean;
   disabled?: boolean;
   targetable?: boolean;
+  compact?: boolean;
+  emphasis?: "neutral" | "player" | "enemy";
   footer?: React.ReactNode;
   onClick?: () => void;
 };
@@ -24,19 +40,24 @@ export function CardFrame({
   selectable = false,
   disabled = false,
   targetable = false,
+  compact = false,
+  emphasis = "neutral",
   footer,
   onClick
 }: CardFrameProps) {
   const isUnit = "maxHealth" in card;
+  const artLabel = card.image.replace("/images/cards/", "").replace(".png", "").replaceAll("-", " ");
 
   return (
     <article
       className={[
         "card-frame",
+        `card-${emphasis}`,
         selectable ? "selectable" : "",
         selected ? "selected" : "",
         disabled ? "disabled" : "",
-        targetable ? "targetable" : ""
+        targetable ? "targetable" : "",
+        compact ? "compact" : ""
       ]
         .filter(Boolean)
         .join(" ")}
@@ -44,24 +65,61 @@ export function CardFrame({
       role={selectable ? "button" : undefined}
       aria-disabled={disabled}
     >
+      <div className="card-crest" aria-hidden="true" />
       <div className="card-head">
-        <span className="card-cost">Gold {card.cost}</span>
-        <span className={`card-rarity ${rarityClass(card.rarity)}`}>{card.rarity}</span>
+        <span className="card-cost-orb" title="Gold = Ressource zum Ausspielen von Karten">
+          <span className="card-orb-value">{card.cost}</span>
+          <span className="card-orb-label">Gold</span>
+        </span>
+        <div className="card-head-copy">
+          <p className="card-type-line" title={`${typeLabel[card.type]} = Kartentyp`}>
+            {typeLabel[card.type]}
+          </p>
+          <h3 className="card-name">{card.name}</h3>
+        </div>
+        <span
+          className={`card-rarity card-ribbon ${rarityClass(card.rarity)}`}
+          title={`${rarityLabel[card.rarity]} = Seltenheitsstufe`}
+        >
+          {rarityLabel[card.rarity]}
+        </span>
       </div>
-      <h3 className="card-name">{card.name}</h3>
-      <div className="card-art">{card.image.replace("/images/cards/", "").replace(".png", "")}</div>
-      <p className="card-effect">{card.effect}</p>
+      <div className="card-art-frame">
+        <div className="card-art">
+          <span className="card-art-label">Bildslot</span>
+          <strong>{artLabel}</strong>
+        </div>
+      </div>
+      <div className="card-script-box">
+        <p className="card-effect">{card.effect}</p>
+      </div>
       <div className="card-stats">
-        <span className="card-badge">{card.type}</span>
+        <span className="card-badge" title={`${typeLabel[card.type]} = Kartentyp`}>
+          {typeLabel[card.type]}
+        </span>
         {isUnit ? (
           <>
-            <span className="card-badge">ATK {card.attack}</span>
-            <span className="card-badge">HP {card.health}/{card.maxHealth}</span>
+            <span className="stat-seal attack-seal" title="Angriff = Schaden eines Charakters">
+              <span className="stat-value">{card.attack}</span>
+              <span className="stat-label">Angriff</span>
+            </span>
+            <span className="stat-seal health-seal" title="Leben = Trefferpunkte eines Charakters">
+              <span className="stat-value">
+                {card.health}/{card.maxHealth}
+              </span>
+              <span className="stat-label">Leben</span>
+            </span>
           </>
         ) : "attack" in card && card.attack !== undefined ? (
           <>
-            <span className="card-badge">ATK {card.attack}</span>
-            <span className="card-badge">HP {card.health}</span>
+            <span className="stat-seal attack-seal" title="Angriff = Schaden eines Charakters">
+              <span className="stat-value">{card.attack}</span>
+              <span className="stat-label">Angriff</span>
+            </span>
+            <span className="stat-seal health-seal" title="Leben = Trefferpunkte eines Charakters">
+              <span className="stat-value">{card.health}</span>
+              <span className="stat-label">Leben</span>
+            </span>
           </>
         ) : null}
       </div>

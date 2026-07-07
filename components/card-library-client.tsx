@@ -32,37 +32,43 @@ export function CardLibraryClient() {
     <section className="library-shell">
       <div className="library-layout">
         <div className="library-panel">
-          <div className="filter-row">
-            <input
-              className="search-input"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Nach Name, Effekt oder Tag suchen"
-            />
-            <select
-              className="filter-select"
-              value={typeFilter}
-              onChange={(event) => setTypeFilter(event.target.value as CardType | "all")}
-            >
-              <option value="all">Alle Typen</option>
-              {cardTypes.map((type) => (
-                <option value={type} key={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-            <select
-              className="filter-select"
-              value={rarityFilter}
-              onChange={(event) => setRarityFilter(event.target.value as CardRarity | "all")}
-            >
-              <option value="all">Alle Seltenheiten</option>
-              {cardRarities.map((rarity) => (
-                <option value={rarity} key={rarity}>
-                  {rarity}
-                </option>
-              ))}
-            </select>
+          <div className="library-toolbar">
+            <div className="library-toolbar-copy">
+              <p className="eyebrow">Archiv des Starter-Sets</p>
+              <h2 className="section-title">Alle Karten im Überblick</h2>
+            </div>
+            <div className="filter-row">
+              <input
+                className="search-input"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Nach Name, Effekt oder Tag suchen"
+              />
+              <select
+                className="filter-select"
+                value={typeFilter}
+                onChange={(event) => setTypeFilter(event.target.value as CardType | "all")}
+              >
+                <option value="all">Alle Typen</option>
+                {cardTypes.map((type) => (
+                  <option value={type} key={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="filter-select"
+                value={rarityFilter}
+                onChange={(event) => setRarityFilter(event.target.value as CardRarity | "all")}
+              >
+                <option value="all">Alle Seltenheiten</option>
+                {cardRarities.map((rarity) => (
+                  <option value={rarity} key={rarity}>
+                    {rarity}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           {filtered.length === 0 ? (
             <p className="library-empty">Keine Karte passt auf die aktuelle Suche.</p>
@@ -84,6 +90,9 @@ export function CardLibraryClient() {
         <aside className="detail-panel">
           <p className="eyebrow">Karten-Detail</p>
           <h2>{selectedCard.name}</h2>
+          <div className="detail-hero-card">
+            <CardFrame card={selectedCard} />
+          </div>
           <div className="detail-meta">
             <span className="card-badge">{selectedCard.type}</span>
             <span className={`card-badge rarity-${selectedCard.rarity}`}>{selectedCard.rarity}</span>

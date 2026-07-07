@@ -23,6 +23,8 @@ export function MatchClient() {
   const [state, setState] = useState<MatchState>(() => createInitialMatchState());
   const [selectedHandCardId, setSelectedHandCardId] = useState<string | null>(null);
   const [selectedAttackerId, setSelectedAttackerId] = useState<string | null>(null);
+  const [highlightedUnitId, setHighlightedUnitId] = useState<string | null>(null);
+  const [pulseLeaderSide, setPulseLeaderSide] = useState<"player" | "bot" | null>(null);
 
   useEffect(() => {
     if (state.winner || state.activeSide !== "bot") {
@@ -38,7 +40,30 @@ export function MatchClient() {
     return () => window.clearTimeout(timeout);
   }, [state.activeSide, state.winner]);
 
+  useEffect(() => {
+    if (!highlightedUnitId) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setHighlightedUnitId(null), 520);
+    return () => window.clearTimeout(timeout);
+  }, [highlightedUnitId]);
+
+  useEffect(() => {
+    if (!pulseLeaderSide) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setPulseLeaderSide(null), 520);
+    return () => window.clearTimeout(timeout);
+  }, [pulseLeaderSide]);
+
   const winnerText = describeWinner(state);
+
+  function flashUnit(unitId: string) {
+    setHighlightedUnitId(null);
+    window.setTimeout(() => setHighlightedUnitId(unitId), 10);
+  }
 
   function selectHandCard(handCardId: string) {
     if (state.activeSide !== "player" || state.winner) {
@@ -87,6 +112,7 @@ export function MatchClient() {
             unitId
           })
         );
+        flashUnit(unitId);
         setSelectedHandCardId(null);
         return;
       }
@@ -99,6 +125,7 @@ export function MatchClient() {
             unitId
           })
         );
+        flashUnit(unitId);
         setSelectedHandCardId(null);
         return;
       }
@@ -118,6 +145,8 @@ export function MatchClient() {
           unitId
         })
       );
+      flashUnit(selectedAttackerId);
+      flashUnit(unitId);
       setSelectedAttackerId(null);
     }
   }
@@ -129,6 +158,8 @@ export function MatchClient() {
     setState((current) =>
       attackWithUnit(current, "player", selectedAttackerId, { kind: "leader", side: "bot" })
     );
+    flashUnit(selectedAttackerId);
+    setPulseLeaderSide("bot");
     setSelectedAttackerId(null);
   }
 
@@ -160,7 +191,14 @@ export function MatchClient() {
       </div>
 
       <div className="top-row">
-        <div className="turn-pill">Runde {state.turn}</div>
+        <div className="turn-state-panel">
+          <div className="turn-pill" title="Aktuelle Runde des Duells">
+            Runde {state.turn}
+          </div>
+          <div className={`active-side-badge ${state.activeSide === "player" ? "is-player" : "is-bot"}`}>
+            {state.activeSide === "player" ? "Aktiver Spieler: Du" : "Aktiver Spieler: Bot"}
+          </div>
+        </div>
         <div className="turn-actions">
           <button
             className="ghost-button"
@@ -168,12 +206,13 @@ export function MatchClient() {
               setState(createInitialMatchState());
               setSelectedHandCardId(null);
               setSelectedAttackerId(null);
+              setHighlightedUnitId(null);
             }}
           >
             Neues Match
           </button>
           <button
-            className="action-button"
+            className="action-button action-button-hero"
             onClick={() => {
               setState((current) => endTurn(current));
               setSelectedAttackerId(null);
@@ -199,20 +238,25 @@ export function MatchClient() {
             board={state.bot.board.length}
             onLeaderClick={() => attackLeader("bot")}
             leaderTargetable={getTargetableClass({ kind: "leader", side: "bot" })}
+            pulse={pulseLeaderSide === "bot"}
           />
 
           <BoardRow
             title="Bot-Spielfeld"
+            side="bot"
             units={state.bot.board}
             selectedId={selectedAttackerId}
+            highlightedId={highlightedUnitId}
             onUnitClick={(unitId) => onBoardClick(unitId, "bot")}
             isTargetable={(unitId) => getTargetableClass({ kind: "unit", side: "bot", unitId })}
           />
 
           <BoardRow
             title="Dein Spielfeld"
+            side="player"
             units={state.player.board}
             selectedId={selectedAttackerId}
+            highlightedId={highlightedUnitId}
             onUnitClick={(unitId) => onBoardClick(unitId, "player")}
             isTargetable={() => state.targetMode?.target === "ally-unit"}
           />
@@ -226,16 +270,23 @@ export function MatchClient() {
             deck={state.player.deck.length}
             hand={state.player.hand.length}
             board={state.player.board.length}
+            pulse={pulseLeaderSide === "player"}
           />
 
           <section className="hand-row">
-            <h2 className="section-title">Deine Hand</h2>
+            <div className="hand-header">
+              <h2 className="section-title">Deine Hand</h2>
+              <p className="hint-text">
+                Nicht spielbare Karten sind gedimmt. Wähle erst eine Karte oder einen Angreifer.
+              </p>
+            </div>
             <div className="hand-cards">
               {state.player.hand.map((card) => (
                 <CardFrame
                   key={card.uid}
                   card={card}
                   selectable
+                  emphasis="player"
                   selected={selectedHandCardId === card.uid}
                   disabled={!canPlayCard(state, "player", card) || state.activeSide !== "player"}
                   footer={<p className="hint-text">Spielkosten: {getPlayableCost(state, "player", card)}</p>}
@@ -254,7 +305,7 @@ export function MatchClient() {
             </p>
           </div>
           {selectedCard ? (
-            <div>
+            <div className="selected-card-panel">
               <h3 className="section-title">Ausgewählte Karte</h3>
               <p className="hint-text">{selectedCard.name}</p>
               <p className="hint-text">{selectedCard.effect}</p>
@@ -296,6 +347,7 @@ type PlayerHudProps = {
   board: number;
   onLeaderClick?: () => void;
   leaderTargetable?: boolean;
+  pulse?: boolean;
 };
 
 function PlayerHud({
@@ -308,11 +360,12 @@ function PlayerHud({
   hand,
   board,
   onLeaderClick,
-  leaderTargetable = false
+  leaderTargetable = false,
+  pulse = false
 }: PlayerHudProps) {
   return (
     <section
-      className={`hud-card ${leaderTargetable ? "leader-target" : ""}`}
+      className={`hud-card ${leaderTargetable ? "leader-target" : ""} ${pulse ? "leader-pulse" : ""}`}
       onClick={leaderTargetable ? onLeaderClick : undefined}
     >
       <div className="hud-title">
@@ -320,21 +373,21 @@ function PlayerHud({
         <span className="card-badge">{side === "player" ? "Mensch" : "Bot"}</span>
       </div>
       <div className="hud-stats">
-        <div className="stat-chip">
+        <div className="stat-chip" title="Ehre = Leben des Spielers">
           <span>Ehre</span>
           <strong>{honor}</strong>
         </div>
-        <div className="stat-chip">
+        <div className="stat-chip" title="Gold = Ressource zum Ausspielen von Karten">
           <span>Gold</span>
           <strong>
             {gold}/{maxGold}
           </strong>
         </div>
-        <div className="stat-chip">
+        <div className="stat-chip" title="Anzahl verbleibender Karten im Deck">
           <span>Deck</span>
           <strong>{deck}</strong>
         </div>
-        <div className="stat-chip">
+        <div className="stat-chip" title="Handkarten und Charaktere auf dem Feld">
           <span>Hand / Feld</span>
           <strong>
             {hand} / {board}
@@ -347,16 +400,29 @@ function PlayerHud({
 
 type BoardRowProps = {
   title: string;
+  side: "player" | "bot";
   units: MatchState["player"]["board"];
   selectedId: string | null;
+  highlightedId: string | null;
   onUnitClick: (unitId: string) => void;
   isTargetable: (unitId: string) => boolean;
 };
 
-function BoardRow({ title, units, selectedId, onUnitClick, isTargetable }: BoardRowProps) {
+function BoardRow({
+  title,
+  side,
+  units,
+  selectedId,
+  highlightedId,
+  onUnitClick,
+  isTargetable
+}: BoardRowProps) {
   return (
-    <section className="board-row">
-      <h2 className="section-title">{title}</h2>
+    <section className={`board-row ${side === "bot" ? "enemy-lane" : "player-lane"}`}>
+      <div className="board-row-header">
+        <h2 className="section-title">{title}</h2>
+        <span className="board-lane-chip">{side === "bot" ? "Gegnerseite" : "Deine Seite"}</span>
+      </div>
       <div className="board-slots">
         {Array.from({ length: 5 }).map((_, index) => {
           const unit = units[index];
@@ -373,10 +439,12 @@ function BoardRow({ title, units, selectedId, onUnitClick, isTargetable }: Board
               <CardFrame
                 card={unit}
                 selectable
+                compact
+                emphasis={side === "bot" ? "enemy" : "player"}
                 selected={selectedId === unit.instanceId}
-                targetable={isTargetable(unit.instanceId)}
+                targetable={isTargetable(unit.instanceId) || highlightedId === unit.instanceId}
                 footer={
-                  <p className="hint-text">
+                  <p className="hint-text unit-state-text">
                     {unit.sleepForTurns > 0
                       ? "Schläft"
                       : unit.stunForTurns > 0
