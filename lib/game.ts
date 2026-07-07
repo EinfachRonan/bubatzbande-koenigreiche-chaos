@@ -213,7 +213,7 @@ function cleanupDeaths(state: MatchState) {
           maxHealth: 2,
           effect: "Ein zäher Waldgeist aus den Resten von LG3.",
           effectId: "attack-bonus",
-          image: "/images/cards/baumgeist.png",
+          image: "/images/cards/lg3.png",
           rarity: "common",
           tags: ["Token", "Natur"],
           exhausted: true,

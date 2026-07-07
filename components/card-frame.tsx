@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { CardDefinition, DeckCard, UnitInstance } from "@/types/cards";
 
 type CardLike = CardDefinition | DeckCard | UnitInstance;
@@ -48,7 +49,6 @@ export function CardFrame({
   const isUnit = "maxHealth" in card;
   const shownAttack =
     isUnit && "temporaryAttackPenalty" in card ? Math.max(0, card.attack - card.temporaryAttackPenalty) : card.attack;
-  const artLabel = card.image.replace("/images/cards/", "").replace(".png", "").replaceAll("-", " ");
 
   return (
     <article
@@ -88,8 +88,14 @@ export function CardFrame({
       </div>
       <div className="card-art-frame">
         <div className="card-art">
-          <span className="card-art-label">Bildslot</span>
-          <strong>{artLabel}</strong>
+          <Image
+            src={card.image}
+            alt={card.name}
+            fill
+            sizes={compact ? "(max-width: 1100px) 110px, 180px" : "(max-width: 800px) 45vw, 240px"}
+            className="card-art-image"
+            loading="eager"
+          />
         </div>
       </div>
       <div className="card-script-box">

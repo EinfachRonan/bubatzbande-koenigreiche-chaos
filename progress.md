@@ -9,3 +9,7 @@ Original prompt: Bitte setze die beigefuegte Bilddatei als exakte Design- und La
 - Mobile-Portrait-Hinweis hinzugefuegt, Landscape kompakter abgestimmt.
 - Verifikation: npm run typecheck erfolgreich, npm run build erfolgreich, lokale Seitenchecks fuer /, /game und /cards erfolgreich.
 - Offener Punkt fuer spaeter: visuelles Feintuning kann noch weiter an die Referenz angenaehert werden, falls wir danach noch eine Polishing-Runde wollen.
+- 2026-07-08: Kartenassets aus dem exportierten Sheet nach public/images/cards uebernommen (29 PNGs).
+- CardFrame von Art-Platzhalter auf echte Kartenbilder umgestellt; eager loading verhindert leere Slots in langen Bibliotheks-Views.
+- Match-Token Baumgeist auf vorhandenes LG3-Art umgelegt, damit kein kaputter Bildpfad entsteht.
+- Verifikation Runde 2: npm run typecheck erfolgreich, npm run build erfolgreich, Browser-Checks fuer /, /cards und /game auf Desktop erfolgreich; Mobile-Checks fuer / und /cards erfolgreich, /game zeigt den erwarteten Landscape-Hinweis.

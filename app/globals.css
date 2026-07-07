@@ -615,26 +615,18 @@ h1 {
 }
 
 .card-art {
+  position: relative;
   height: 112px;
   border-radius: 14px;
   border: 1px solid rgba(201, 164, 81, 0.25);
   background:
     radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.09), transparent 40%),
     linear-gradient(135deg, rgba(53, 95, 69, 0.95), rgba(9, 16, 12, 1));
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 4px;
-  padding: 12px;
-  font-size: 0.82rem;
-  color: rgba(240, 230, 199, 0.82);
+  overflow: hidden;
 }
 
-.card-art-label {
-  font-size: 0.64rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgba(240, 230, 199, 0.56);
+.card-art-image {
+  object-fit: cover;
 }
 
 .card-script-box {
