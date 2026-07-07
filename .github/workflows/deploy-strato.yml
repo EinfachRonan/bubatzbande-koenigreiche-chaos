@@ -1,0 +1,48 @@
+name: Deploy to STRATO
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Deploy to STRATO
+        env:
+          STRATO_HOST: ${{ secrets.STRATO_HOST }}
+          STRATO_USER: ${{ secrets.STRATO_USER }}
+          STRATO_PASSWORD: ${{ secrets.STRATO_PASSWORD }}
+          STRATO_PORT: ${{ secrets.STRATO_PORT }}
+          STRATO_PATH: ${{ secrets.STRATO_PATH }}
+        run: |
+          lftp -u "$STRATO_USER","$STRATO_PASSWORD" -p "$STRATO_PORT" sftp://"$STRATO_HOST" <<EOF
+          set sftp:auto-confirm yes
+          set ssl:verify-certificate no
+          mirror -R --delete --verbose ./out/ "$STRATO_PATH"
+          bye
+          EOF
