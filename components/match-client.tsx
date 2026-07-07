@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { CardFrame } from "@/components/card-frame";
+import { BoardSlot } from "@/components/game/board-slot";
+import { EventLog } from "@/components/game/event-log";
+import { HandCards } from "@/components/game/hand-cards";
+import { KraeuterhoehleMap } from "@/components/game/kraeuterhoehle-map";
+import { PlayerPanel } from "@/components/game/player-panel";
+import { TurnPanel } from "@/components/game/turn-panel";
 import { runBotTurn } from "@/lib/bot";
 import { botStarterDeckIds, DECK_SIZE_MIN, PLAYER_DECK_STORAGE_KEY, starterDeckIds, validateDeckIds } from "@/lib/decks";
 import {
@@ -62,6 +66,19 @@ function createStateFromStorage() {
   }
 }
 
+function getUnitStatus(unit: MatchState["player"]["board"][number]) {
+  if (unit.sleepForTurns > 0) {
+    return "Schlaeft";
+  }
+  if (unit.stunForTurns > 0) {
+    return "Betaeubt";
+  }
+  if (unit.exhausted) {
+    return "Erschoepft";
+  }
+  return "Bereit";
+}
+
 export function MatchClient() {
   const [state, setState] = useState<MatchState>(() => createStateFromStorage());
   const [selectedHandCardId, setSelectedHandCardId] = useState<string | null>(null);
@@ -114,6 +131,7 @@ export function MatchClient() {
     setSelectedHandCardId(null);
     setSelectedAttackerId(null);
     setHighlightedUnitId(null);
+    setPulseLeaderSide(null);
   }
 
   function selectHandCard(handCardId: string) {
@@ -232,30 +250,108 @@ export function MatchClient() {
   const selectedCard = selectedHandCardId ? getCardByUid(state, "player", selectedHandCardId) : null;
 
   return (
-    <section className="match-shell">
-      <div className="status-banner">
-        {winnerText ??
-          (state.targetMode?.prompt ||
-            (state.activeSide === "player"
-              ? "Dein Zug. Spiele Karten aus oder schicke deine Bande in den Kampf."
-              : "Der Bot schmiedet gerade seinen nächsten fragwürdigen Plan."))}
-      </div>
-
-      <div className="top-row">
-        <div className="turn-state-panel">
-          <div className="turn-pill" title="Aktuelle Runde des Duells">
-            Runde {state.turn}
-          </div>
-          <div className={`active-side-badge ${state.activeSide === "player" ? "is-player" : "is-bot"}`}>
-            {state.activeSide === "player" ? "Aktiver Spieler: Du" : "Aktiver Spieler: Bot"}
+    <KraeuterhoehleMap
+      statusBanner={
+        winnerText ??
+        (state.targetMode?.prompt ||
+          (state.activeSide === "player"
+            ? "Dein Zug. Spiele Karten aus oder schicke deine Bande in den Kampf."
+            : "Der Bot schmiedet gerade seinen naechsten fragwuerdigen Plan."))
+      }
+      topLeft={
+        <PlayerPanel
+          side="bot"
+          name="Gegner"
+          honor={state.bot.honor}
+          gold={state.bot.gold}
+          maxGold={state.bot.maxGold}
+          pulse={pulseLeaderSide === "bot"}
+          targetable={getTargetableClass({ kind: "leader", side: "bot" })}
+          onLeaderClick={() => attackLeader("bot")}
+        />
+      }
+      bottomLeft={
+        <PlayerPanel
+          side="player"
+          name="Du"
+          honor={state.player.honor}
+          gold={state.player.gold}
+          maxGold={state.player.maxGold}
+          pulse={pulseLeaderSide === "player"}
+        />
+      }
+      topHand={
+        <div className="kh-mini-hand" aria-label={`Gegnerhand mit ${state.bot.hand.length} Karten`}>
+          {state.bot.hand.map((card) => (
+            <span className="kh-card-back" key={card.uid} aria-hidden="true" />
+          ))}
+        </div>
+      }
+      topDeck={
+        <div className="kh-deck-box kh-deck-box-top">
+          <span className="kh-card-back kh-card-back-stack" aria-hidden="true" />
+          <div className="kh-deck-copy">
+            <strong>{state.bot.deck.length}</strong>
+            <span>DECK</span>
           </div>
         </div>
-        <div className="turn-actions">
-          <button className="ghost-button" onClick={resetMatch}>
-            {state.winner ? "Neues Spiel" : "Match zurücksetzen"}
-          </button>
+      }
+      enemyBoard={
+        <div className="kh-slot-grid">
+          {Array.from({ length: 5 }).map((_, index) => {
+            const unit = state.bot.board[index];
+            return (
+              <BoardSlot
+                key={`bot-slot-${index}`}
+                side="bot"
+                unit={unit}
+                highlighted={highlightedUnitId === unit?.instanceId}
+                targetable={unit ? getTargetableClass({ kind: "unit", side: "bot", unitId: unit.instanceId }) : false}
+                statusText={unit ? getUnitStatus(unit) : undefined}
+                onClick={unit ? () => onBoardClick(unit.instanceId, "bot") : undefined}
+              />
+            );
+          })}
+        </div>
+      }
+      playerBoard={
+        <div className="kh-slot-grid">
+          {Array.from({ length: 5 }).map((_, index) => {
+            const unit = state.player.board[index];
+            return (
+              <BoardSlot
+                key={`player-slot-${index}`}
+                side="player"
+                unit={unit}
+                selected={selectedAttackerId === unit?.instanceId}
+                highlighted={highlightedUnitId === unit?.instanceId}
+                targetable={Boolean(unit && state.targetMode?.target === "ally-unit")}
+                statusText={unit ? getUnitStatus(unit) : undefined}
+                onClick={unit ? () => onBoardClick(unit.instanceId, "player") : undefined}
+              />
+            );
+          })}
+        </div>
+      }
+      rightTop={<TurnPanel turn={state.turn} activeSide={state.activeSide} />}
+      rightMiddle={
+        <EventLog
+          entries={state.log}
+          collapsed={logCollapsed}
+          onToggle={() => setLogCollapsed((current) => !current)}
+          selectedCardName={selectedCard?.name ?? null}
+          selectedCardEffect={selectedCard?.effect ?? null}
+          canCancelTarget={Boolean(state.targetMode)}
+          onCancelTarget={() => {
+            setState((current) => cancelTargetMode(current));
+            setSelectedHandCardId(null);
+          }}
+        />
+      }
+      rightBottom={
+        <div className="kh-action-stack">
           <button
-            className="action-button action-button-hero"
+            className="kh-end-turn-button"
             onClick={() => {
               setState((current) => endTurn(current));
               setSelectedAttackerId(null);
@@ -263,256 +359,35 @@ export function MatchClient() {
             }}
             disabled={state.activeSide !== "player" || Boolean(state.winner)}
           >
-            Zug beenden
+            {state.winner ? "Neues Spiel" : "Zug beenden"}
+          </button>
+
+          <div className="kh-gold-bar" title="Gold = Ressource zum Ausspielen von Karten">
+            <div className="kh-gold-pips" aria-hidden="true">
+              {Array.from({ length: Math.max(10, state.player.maxGold) }).map((_, index) => (
+                <span key={`gold-${index}`} className={index < state.player.gold ? "is-filled" : ""} />
+              ))}
+            </div>
+            <strong>
+              {state.player.gold}/{state.player.maxGold}
+            </strong>
+          </div>
+
+          <button className="ghost-button kh-reset-button" onClick={resetMatch}>
+            {state.winner ? "Match neu starten" : "Match zuruecksetzen"}
           </button>
         </div>
-      </div>
-
-      <div className="match-grid">
-        <div className="arena-column">
-          <PlayerHud
-            side="bot"
-            name="Chaos-Bot"
-            honor={state.bot.honor}
-            gold={state.bot.gold}
-            maxGold={state.bot.maxGold}
-            deck={state.bot.deck.length}
-            hand={state.bot.hand.length}
-            board={state.bot.board.length}
-            onLeaderClick={() => attackLeader("bot")}
-            leaderTargetable={getTargetableClass({ kind: "leader", side: "bot" })}
-            pulse={pulseLeaderSide === "bot"}
-          />
-
-          <BoardRow
-            title="Bot-Spielfeld"
-            side="bot"
-            units={state.bot.board}
-            selectedId={selectedAttackerId}
-            highlightedId={highlightedUnitId}
-            onUnitClick={(unitId) => onBoardClick(unitId, "bot")}
-            isTargetable={(unitId) => getTargetableClass({ kind: "unit", side: "bot", unitId })}
-          />
-
-          <BoardRow
-            title="Dein Spielfeld"
-            side="player"
-            units={state.player.board}
-            selectedId={selectedAttackerId}
-            highlightedId={highlightedUnitId}
-            onUnitClick={(unitId) => onBoardClick(unitId, "player")}
-            isTargetable={() => state.targetMode?.target === "ally-unit"}
-          />
-
-          <PlayerHud
-            side="player"
-            name="Dein Reich"
-            honor={state.player.honor}
-            gold={state.player.gold}
-            maxGold={state.player.maxGold}
-            deck={state.player.deck.length}
-            hand={state.player.hand.length}
-            board={state.player.board.length}
-            pulse={pulseLeaderSide === "player"}
-          />
-
-          <section className="hand-row">
-            <div className="hand-header">
-              <h2 className="section-title">Deine Hand</h2>
-              <p className="hint-text">
-                Nicht spielbare Karten sind gedimmt. Wähle erst eine Karte oder einen Angreifer.
-              </p>
-            </div>
-            <div className="hand-cards">
-              {state.player.hand.map((card) => {
-                const playIssue = getCardPlayIssue(state, "player", card);
-                return (
-                  <CardFrame
-                    key={card.uid}
-                    card={card}
-                    selectable
-                    emphasis="player"
-                    selected={selectedHandCardId === card.uid}
-                    disabled={Boolean(playIssue)}
-                    footer={
-                      <p className="hint-text">
-                        {playIssue ?? `Spielkosten: ${getPlayableCost(state, "player", card)}`}
-                      </p>
-                    }
-                    onClick={() => selectHandCard(card.uid)}
-                  />
-                );
-              })}
-            </div>
-          </section>
-        </div>
-
-        <aside className={`log-panel ${logCollapsed ? "collapsed" : ""}`}>
-          <div className="log-header">
-            <div>
-              <h2 className="section-title">Ereignisprotokoll</h2>
-              <p className="hint-text">Die letzten 14 Ereignisse bleiben sichtbar.</p>
-            </div>
-            <button className="ghost-button log-toggle" onClick={() => setLogCollapsed((current) => !current)}>
-              {logCollapsed ? "Log öffnen" : "Log einklappen"}
-            </button>
-          </div>
-          {selectedCard ? (
-            <div className="selected-card-panel">
-              <h3 className="section-title">Ausgewählte Karte</h3>
-              <p className="hint-text">{selectedCard.name}</p>
-              <p className="hint-text">{selectedCard.effect}</p>
-              {state.targetMode ? (
-                <button
-                  className="ghost-button"
-                  onClick={() => {
-                    setState((current) => cancelTargetMode(current));
-                    setSelectedHandCardId(null);
-                  }}
-                >
-                  Zielwahl abbrechen
-                </button>
-              ) : null}
-            </div>
-          ) : null}
-          <ul className="log-list">
-            {state.log.map((entry, index) => (
-              <li key={`${entry}-${index}`}>{entry}</li>
-            ))}
-          </ul>
-          <Link href="/cards" className="secondary-button">
-            Deckbuilder öffnen
-          </Link>
-        </aside>
-      </div>
-    </section>
-  );
-}
-
-type PlayerHudProps = {
-  side: "player" | "bot";
-  name: string;
-  honor: number;
-  gold: number;
-  maxGold: number;
-  deck: number;
-  hand: number;
-  board: number;
-  onLeaderClick?: () => void;
-  leaderTargetable?: boolean;
-  pulse?: boolean;
-};
-
-function PlayerHud({
-  side,
-  name,
-  honor,
-  gold,
-  maxGold,
-  deck,
-  hand,
-  board,
-  onLeaderClick,
-  leaderTargetable = false,
-  pulse = false
-}: PlayerHudProps) {
-  return (
-    <section
-      className={`hud-card ${leaderTargetable ? "leader-target" : ""} ${pulse ? "leader-pulse" : ""}`}
-      onClick={leaderTargetable ? onLeaderClick : undefined}
-    >
-      <div className="hud-title">
-        <h2>{name}</h2>
-        <span className="card-badge">{side === "player" ? "Mensch" : "Bot"}</span>
-      </div>
-      <div className="hud-stats">
-        <div className="stat-chip" title="Ehre = Leben des Spielers">
-          <span>Ehre</span>
-          <strong>{honor}</strong>
-        </div>
-        <div className="stat-chip" title="Gold = Ressource zum Ausspielen von Karten">
-          <span>Gold</span>
-          <strong>
-            {gold}/{maxGold}
-          </strong>
-        </div>
-        <div className="stat-chip" title="Anzahl verbleibender Karten im Deck">
-          <span>Deck</span>
-          <strong>{deck}</strong>
-        </div>
-        <div className="stat-chip" title="Handkarten und Charaktere auf dem Feld">
-          <span>Hand / Feld</span>
-          <strong>
-            {hand} / {board}
-          </strong>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-type BoardRowProps = {
-  title: string;
-  side: "player" | "bot";
-  units: MatchState["player"]["board"];
-  selectedId: string | null;
-  highlightedId: string | null;
-  onUnitClick: (unitId: string) => void;
-  isTargetable: (unitId: string) => boolean;
-};
-
-function BoardRow({
-  title,
-  side,
-  units,
-  selectedId,
-  highlightedId,
-  onUnitClick,
-  isTargetable
-}: BoardRowProps) {
-  return (
-    <section className={`board-row ${side === "bot" ? "enemy-lane" : "player-lane"}`}>
-      <div className="board-row-header">
-        <h2 className="section-title">{title}</h2>
-        <span className="board-lane-chip">{side === "bot" ? "Gegnerseite" : "Deine Seite"}</span>
-      </div>
-      <div className="board-slots">
-        {Array.from({ length: 5 }).map((_, index) => {
-          const unit = units[index];
-          if (!unit) {
-            return (
-              <div className="board-slot" key={`${title}-slot-${index}`}>
-                <span className="empty-slot">Freier Platz</span>
-              </div>
-            );
-          }
-
-          return (
-            <div className="board-unit" key={unit.instanceId}>
-              <CardFrame
-                card={unit}
-                selectable
-                compact
-                emphasis={side === "bot" ? "enemy" : "player"}
-                selected={selectedId === unit.instanceId}
-                targetable={isTargetable(unit.instanceId) || highlightedId === unit.instanceId}
-                footer={
-                  <p className="hint-text unit-state-text">
-                    {unit.sleepForTurns > 0
-                      ? "Schläft"
-                      : unit.stunForTurns > 0
-                        ? "Betäubt"
-                        : unit.exhausted
-                          ? "Erschöpft"
-                          : "Bereit"}
-                  </p>
-                }
-                onClick={() => onUnitClick(unit.instanceId)}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </section>
+      }
+      hand={
+        <HandCards
+          cards={state.player.hand}
+          deckCount={state.player.deck.length}
+          selectedId={selectedHandCardId}
+          getPlayIssue={(card) => getCardPlayIssue(state, "player", card)}
+          getPlayableCostText={(card) => `Spielkosten: ${getPlayableCost(state, "player", card)}`}
+          onSelect={selectHandCard}
+        />
+      }
+    />
   );
 }
