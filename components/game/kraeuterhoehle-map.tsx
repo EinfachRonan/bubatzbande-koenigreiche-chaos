@@ -39,21 +39,23 @@ export function KraeuterhoehleMap({
       </div>
 
       <div className="kh-map-stage">
-        <div className="kh-background" aria-hidden="true" />
-        <div className="kh-overlay" aria-hidden="true" />
+        <div className="kh-map-canvas">
+          <div className="kh-background" aria-hidden="true" />
+          <div className="kh-overlay" aria-hidden="true" />
 
-        {statusBanner ? <div className="kh-status-banner">{statusBanner}</div> : null}
+          {statusBanner ? <div className="kh-status-banner">{statusBanner}</div> : null}
 
-        <div className="kh-anchor kh-anchor-top-left">{topLeft}</div>
-        <div className="kh-anchor kh-anchor-bottom-left">{bottomLeft}</div>
-        <div className="kh-anchor kh-anchor-top-hand">{topHand}</div>
-        <div className="kh-anchor kh-anchor-top-deck">{topDeck}</div>
-        <div className="kh-anchor kh-anchor-enemy-board">{enemyBoard}</div>
-        <div className="kh-anchor kh-anchor-player-board">{playerBoard}</div>
-        <div className="kh-anchor kh-anchor-right-top">{rightTop}</div>
-        <div className="kh-anchor kh-anchor-right-middle">{rightMiddle}</div>
-        <div className="kh-anchor kh-anchor-right-bottom">{rightBottom}</div>
-        <div className="kh-anchor kh-anchor-hand">{hand}</div>
+          <div className="kh-anchor kh-anchor-top-left">{topLeft}</div>
+          <div className="kh-anchor kh-anchor-bottom-left">{bottomLeft}</div>
+          <div className="kh-anchor kh-anchor-top-hand">{topHand}</div>
+          <div className="kh-anchor kh-anchor-top-deck">{topDeck}</div>
+          <div className="kh-anchor kh-anchor-enemy-board">{enemyBoard}</div>
+          <div className="kh-anchor kh-anchor-player-board">{playerBoard}</div>
+          <div className="kh-anchor kh-anchor-right-top">{rightTop}</div>
+          <div className="kh-anchor kh-anchor-right-middle">{rightMiddle}</div>
+          <div className="kh-anchor kh-anchor-right-bottom">{rightBottom}</div>
+          <div className="kh-anchor kh-anchor-hand">{hand}</div>
+        </div>
       </div>
     </section>
   );
