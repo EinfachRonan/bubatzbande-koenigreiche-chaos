@@ -30,6 +30,9 @@ jobs:
       - name: Build static site
         run: npm run build
 
+      - name: Verify static export output
+        run: test -f out/index.html
+
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
@@ -41,9 +44,21 @@ jobs:
           STRATO_PORT: ${{ secrets.STRATO_PORT }}
           STRATO_PATH: ${{ secrets.STRATO_PATH }}
         run: |
+          TARGET_PATH="${STRATO_PATH:-/}"
+
+          if [ -z "$TARGET_PATH" ] || [ "$TARGET_PATH" = "." ]; then
+            TARGET_PATH="/"
+          fi
+
+          if [[ "$TARGET_PATH" != /* ]]; then
+            TARGET_PATH="/$TARGET_PATH"
+          fi
+
+          echo "Deploying ./out/ to STRATO path: $TARGET_PATH"
+
           lftp -u "$STRATO_USER","$STRATO_PASSWORD" -p "$STRATO_PORT" sftp://"$STRATO_HOST" <<EOF
           set sftp:auto-confirm yes
           set ssl:verify-certificate no
-          mirror -R --delete --verbose ./out/ "$STRATO_PATH"
+          mirror -R --delete --verbose ./out/ "$TARGET_PATH"
           bye
           EOF
