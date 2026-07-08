@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CardFrame } from "@/components/card-frame";
 import { MatchState } from "@/lib/game";
 
@@ -26,6 +26,12 @@ export function HandCards({
   const [previewId, setPreviewId] = useState<string | null>(null);
   const previewCard = cards.find((card) => card.uid === previewId) ?? null;
   const previewIssue = previewCard ? getPlayIssue(previewCard) : null;
+
+  useEffect(() => {
+    if (previewId && !previewCard) {
+      setPreviewId(null);
+    }
+  }, [previewCard, previewId]);
 
   return (
     <section className="kh-hand-shell">

@@ -150,6 +150,14 @@
     inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
+.page :global(.kh-deck-box) {
+  display: grid;
+  grid-template-columns: minmax(0, 44px) minmax(0, 1fr);
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .page :global(.kh-player-panel) {
   gap: 8px;
   min-height: 0;
@@ -193,6 +201,7 @@
 
 .page :global(.kh-deck-copy strong) {
   font-size: clamp(0.88rem, 1.35vh, 1.2rem);
+  line-height: 1;
 }
 
 .page :global(.kh-deck-copy span) {
@@ -393,7 +402,8 @@
 
 .page :global(.kh-hand-deck-box) {
   align-self: end;
-  height: 86%;
+  height: 74%;
+  width: clamp(72px, 6.8vw, 96px);
   min-height: 0;
   padding: 5px;
 }
@@ -437,6 +447,10 @@
 .page :global(.kh-hand-mini-card.disabled) {
   color: rgba(244, 228, 173, 0.7);
   filter: saturate(0.72) brightness(0.78);
+}
+
+.page :global(.kh-hand-mini-card.selected) {
+  transform: translateY(-5px);
 }
 
 .page :global(.kh-hand-mini-cost) {
@@ -486,6 +500,19 @@
     0 22px 42px rgba(0, 0, 0, 0.46),
     0 0 0 1px rgba(255, 255, 255, 0.035);
   transform: translateX(-50%);
+}
+
+.page :global(.kh-card-preview::after) {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 14px;
+  height: 14px;
+  border-right: 1px solid rgba(240, 212, 140, 0.62);
+  border-bottom: 1px solid rgba(240, 212, 140, 0.62);
+  background: rgba(5, 11, 8, 0.92);
+  transform: translateX(-50%) rotate(45deg);
 }
 
 .page :global(.kh-card-preview-frame .card-frame) {
@@ -739,6 +766,32 @@
   .page :global(.kh-hand-card) {
     width: clamp(54px, 5vw, 70px);
     margin-left: -6px;
+  }
+
+  .page :global(.kh-hand-mini-card) {
+    flex-basis: clamp(48px, 4.4vw, 64px);
+    height: clamp(72px, 10.6vh, 96px);
+    margin-left: -3px;
+    padding: 5px 4px;
+  }
+
+  .page :global(.kh-hand-mini-cost) {
+    width: 20px;
+    height: 20px;
+    font-size: 0.64rem;
+  }
+
+  .page :global(.kh-hand-mini-name) {
+    font-size: 0.48rem;
+  }
+
+  .page :global(.kh-hand-mini-meta) {
+    font-size: 0.4rem;
+  }
+
+  .page :global(.kh-card-preview) {
+    width: clamp(146px, 26vw, 182px);
+    bottom: 112%;
   }
 
   .page :global(.kh-hand-card .card-frame) {

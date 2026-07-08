@@ -45,3 +45,5 @@ Original prompt: Bitte setze die beigefuegte Bilddatei als exakte Design- und La
 - Verifikation Runde 12: npm run typecheck erfolgreich, npm run build erfolgreich, lokaler out/-Server liefert HTTP 200 fuer /, /game, /cards und /deckbuilder. Playwright ist im Projekt nicht installiert, daher keine neue automatisierte Screenshot-Datei erzeugt.
 - 2026-07-08: Handkarten auf eine reduzierte Mini-Darstellung umgestellt, damit sie sauber in der unteren Bank liegen; Linksklick auf eine Handkarte oeffnet jetzt eine grosse Karten-Vorschau mit separatem Ausspielen-Button.
 - Verifikation Runde 13: npm run typecheck erfolgreich, npm run build erfolgreich, lokaler out/-Server liefert HTTP 200 fuer /, /game, /cards und /deckbuilder.
+- 2026-07-08: Mini-Hand weiter beruhigt: Deckbox unten links enger in ihr Feld gezogen, Mini-Karten kompakter mit klarerem Status-Text, Vorschau stabilisiert und Hover-Markierung auf der Startseite entfernt.
+- Verifikation Runde 14: npm run typecheck erfolgreich, npm run build erfolgreich, lokaler out/-Server liefert HTTP 200 fuer /, /game, /cards und /deckbuilder.
