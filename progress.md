@@ -16,3 +16,6 @@ Original prompt: Bitte setze die beigefuegte Bilddatei als exakte Design- und La
 - 2026-07-08: Baumgeist als eigenes Kartenasset aus finaler Illustration nach public/images/cards/baumgeist.png uebernommen und zusaetzlich lokal nach %USERPROFILE%\Pictures\Card Sheets\BubatzBande Kartenspiel\baumgeist.png exportiert.
 - LG3-Todeseffekt auf eine echte Baumgeist-Kartendefinition umgestellt, damit Beschwoerungen denselben Bildpfad und dieselben Basisdaten wie die restlichen Karten nutzen.
 - Verifikation Runde 3: LG3-Beschwoerung lokal per Spielszenario getestet; npm run typecheck erfolgreich, npm run build erfolgreich, Asset-Request fuer /images/cards/baumgeist.png auf dem lokalen Next-Server erfolgreich.
+- 2026-07-08: Startseite auf Basis der neuen visuellen Hauptreferenz als interaktive Homepage umgesetzt, inklusive grosser Hero-CTAs, klickbarer Info-Kacheln und zusaetzlicher /deckbuilder-Route.
+- Referenzbild nach public/images/home/homepage-reference.png uebernommen und als atmosphaerische Hintergrundgrundlage in der neuen Hero-Komposition verwendet.
+- Verifikation Runde 4: npm run typecheck erfolgreich, npm run build erfolgreich, Export-Artefakte fuer /, /cards, /game und /deckbuilder vorhanden; direkte In-App-Browser-Livepruefung war durch lokale URL-Policy eingeschraenkt, daher Export-HTML und Zielrouten zusaetzlich dateibasiert geprueft.
