@@ -19,6 +19,9 @@ Original prompt: Bitte setze die beigefuegte Bilddatei als exakte Design- und La
 - 2026-07-08: /game-Layout auf die Kraeuterhoehle-Map zurueckgefuehrt; grosse kuenstliche Board-Flaechen entfernt und alle Match-Elemente wieder als Overlay auf der Hintergrundkarte verankert.
 - Slots und Hand liegen jetzt ueber der Map statt auf separaten Panels; Overlays und Panel-Hintergruende wurden deutlich aufgehellt, damit die Karte sichtbar bleibt.
 - Verifikation Runde 4: npm run typecheck erfolgreich, npm run build erfolgreich, statischer Export unter /out erfolgreich; direkter visueller Browser-Attach war lokal nicht verfuegbar, daher nur struktureller URL-/Build-Check fuer /game.
+- 2026-07-08: Startseite weiter an den gelieferten Startscreen angeglichen; Hero nutzt die Referenz jetzt als dominante Fullscreen-Hintergrundflaeche statt nur als schwachen Wash.
+- 2026-07-08: /game mit haerteren Seiten-Overrides abgesichert, damit die Kraeuterhoehle trotz aelterer Global-Styles sichtbar bleibt und UI/Slots leichter auf der Map sitzen.
+- Verifikation Runde 5: npm run typecheck erfolgreich; npm run build nach Freigabe eines gesperrten out/-Ordners erfolgreich.
 - 2026-07-08: Startseite auf Basis der neuen visuellen Hauptreferenz als interaktive Homepage umgesetzt, inklusive grosser Hero-CTAs, klickbarer Info-Kacheln und zusaetzlicher /deckbuilder-Route.
 - Referenzbild nach public/images/home/homepage-reference.png uebernommen und als atmosphaerische Hintergrundgrundlage in der neuen Hero-Komposition verwendet.
 - Verifikation Runde 4: npm run typecheck erfolgreich, npm run build erfolgreich, Export-Artefakte fuer /, /cards, /game und /deckbuilder vorhanden; direkte In-App-Browser-Livepruefung war durch lokale URL-Policy eingeschraenkt, daher Export-HTML und Zielrouten zusaetzlich dateibasiert geprueft.

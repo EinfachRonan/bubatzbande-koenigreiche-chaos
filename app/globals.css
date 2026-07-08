@@ -67,9 +67,12 @@ img {
 }
 
 .home-page {
-  width: min(1680px, calc(100% - 24px));
-  margin: 0 auto;
-  padding: 14px 0 54px;
+  width: 100%;
+  margin: 0;
+  padding: 0 0 54px;
+  background:
+    radial-gradient(circle at top, rgba(54, 90, 58, 0.18), transparent 28%),
+    linear-gradient(180deg, #050b08, #06100c 100%);
 }
 
 .home-hero-shell {
@@ -90,13 +93,10 @@ img {
 
 .home-hero-frame {
   overflow: hidden;
-  min-height: 920px;
-  border-radius: 34px 34px 16px 16px;
-  background:
-    radial-gradient(circle at 50% 22%, rgba(196, 167, 87, 0.14), transparent 17%),
-    radial-gradient(circle at 22% 68%, rgba(90, 144, 76, 0.18), transparent 22%),
-    radial-gradient(circle at 81% 68%, rgba(93, 152, 93, 0.16), transparent 22%),
-    linear-gradient(180deg, rgba(6, 11, 9, 0.92), rgba(4, 9, 7, 0.98));
+  min-height: min(100vh, 980px);
+  border-radius: 0 0 22px 22px;
+  border-inline: none;
+  background: linear-gradient(180deg, rgba(6, 11, 9, 0.9), rgba(4, 9, 7, 0.96));
 }
 
 .home-reference-wash,
@@ -108,34 +108,24 @@ img {
 
 .home-reference-wash {
   background:
-    linear-gradient(180deg, rgba(5, 8, 7, 0.14), rgba(5, 8, 7, 0.56)),
+    linear-gradient(90deg, rgba(4, 8, 6, 0.18) 0%, rgba(4, 8, 6, 0.28) 24%, rgba(4, 8, 6, 0.08) 48%, rgba(4, 8, 6, 0.28) 100%),
     url("/images/home/homepage-reference.png");
-  background-position: center top;
+  background-position: center center;
   background-size: cover;
-  opacity: 0.38;
-  filter: saturate(0.76) brightness(0.72);
-  transform: scale(1.015);
+  opacity: 0.76;
+  filter: saturate(0.96) brightness(0.82);
+  transform: scale(1.01);
 }
 
 .home-vignette {
   background:
-    radial-gradient(circle at center, transparent 24%, rgba(2, 5, 4, 0.2) 58%, rgba(2, 5, 4, 0.74) 100%),
-    linear-gradient(180deg, rgba(4, 8, 6, 0.26) 0%, rgba(4, 8, 6, 0.02) 16%, rgba(4, 8, 6, 0.46) 100%);
+    radial-gradient(circle at center, transparent 30%, rgba(2, 5, 4, 0.18) 60%, rgba(2, 5, 4, 0.72) 100%),
+    linear-gradient(90deg, rgba(3, 7, 5, 0.84) 0%, rgba(3, 7, 5, 0.72) 30%, rgba(3, 7, 5, 0.16) 56%, rgba(3, 7, 5, 0.44) 100%),
+    linear-gradient(180deg, rgba(4, 8, 6, 0.18) 0%, rgba(4, 8, 6, 0.1) 24%, rgba(4, 8, 6, 0.52) 100%);
 }
 
 .home-banner {
-  position: absolute;
-  top: 104px;
-  width: 130px;
-  height: 260px;
-  border-radius: 0 0 30px 30px;
-  border: 1px solid rgba(201, 164, 81, 0.42);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 28%),
-    linear-gradient(180deg, rgba(13, 40, 25, 0.94), rgba(7, 14, 10, 0.98));
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 18px 30px rgba(0, 0, 0, 0.26);
+  display: none;
 }
 
 .home-banner::before {
@@ -162,20 +152,21 @@ img {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  min-height: 920px;
-  padding: 34px 78px 64px;
+  min-height: min(100vh, 980px);
+  padding: 56px min(8vw, 120px) 56px;
+  justify-content: center;
 }
 
 .home-title-stack {
-  max-width: 760px;
-  margin: 0 auto;
-  text-align: center;
+  max-width: min(760px, 52vw);
+  margin: 0;
+  text-align: left;
 }
 
 .home-crest {
-  width: 132px;
-  height: 132px;
-  margin: 0 auto 12px;
+  width: 118px;
+  height: 118px;
+  margin: 0 0 16px;
   border-radius: 26px;
   border: 2px solid rgba(201, 164, 81, 0.72);
   background:
@@ -201,7 +192,7 @@ img {
 }
 
 .home-kicker {
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   color: #d8b766;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -209,7 +200,7 @@ img {
 }
 
 .home-title {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   color: #efcf82;
   line-height: 0.86;
   text-transform: none;
@@ -232,8 +223,8 @@ img {
 }
 
 .home-tagline {
-  max-width: 760px;
-  margin: 0 auto;
+  max-width: 720px;
+  margin: 0;
   color: #efe1b5;
   font-size: clamp(1.05rem, 1.7vw, 1.72rem);
   line-height: 1.42;
@@ -241,12 +232,7 @@ img {
 }
 
 .home-figure-row {
-  display: grid;
-  grid-template-columns: 0.84fr 1fr 1.12fr 1fr 0.84fr;
-  align-items: end;
-  gap: 18px;
-  margin-top: auto;
-  padding: 38px 0 26px;
+  display: none;
 }
 
 .home-figure {
@@ -289,13 +275,13 @@ img {
 }
 
 .home-action-row {
-  display: grid;
-  grid-template-columns: 1fr 1.25fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   align-items: center;
-  max-width: 1080px;
+  max-width: 640px;
   width: 100%;
-  margin: 12px auto 0;
+  margin: 32px 0 0;
 }
 
 .home-cta {
@@ -303,7 +289,7 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 86px;
+  min-height: 74px;
   padding: 18px 24px;
   border-radius: 999px;
   border: 1px solid rgba(201, 164, 81, 0.78);
@@ -334,7 +320,7 @@ img {
     radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.1), transparent 22%),
     linear-gradient(180deg, #2b6a35, #14351c);
   color: #efd683;
-  font-size: clamp(1.4rem, 3vw, 2.25rem);
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
 }
 
 .home-cta-secondary {
@@ -358,9 +344,7 @@ img {
 }
 
 .home-scroll-row {
-  display: flex;
-  justify-content: center;
-  margin-top: 18px;
+  display: none;
 }
 
 .home-scroll-link {
@@ -388,12 +372,14 @@ img {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
-  margin: -12px auto 0;
+  width: min(1440px, calc(100% - 28px));
+  margin: -22px auto 0;
   overflow: hidden;
   border-top: none;
-  border-radius: 18px 18px 30px 30px;
+  border-radius: 26px;
   background:
-    linear-gradient(180deg, rgba(9, 16, 12, 0.96), rgba(5, 10, 8, 0.98));
+    linear-gradient(180deg, rgba(9, 16, 12, 0.88), rgba(5, 10, 8, 0.92));
+  backdrop-filter: blur(6px);
 }
 
 .home-feature-card {
@@ -441,6 +427,9 @@ img {
 }
 
 .home-detail-section {
+  width: min(1440px, calc(100% - 28px));
+  margin-left: auto;
+  margin-right: auto;
   margin-top: 22px;
   border-radius: 30px;
   padding: 28px;
@@ -1360,7 +1349,7 @@ h1 {
 
 @media (max-width: 1100px) {
   .home-hero-inner {
-    padding: 28px 28px 40px;
+    padding: 42px 28px 42px;
   }
 
   .home-banner {
@@ -1371,17 +1360,12 @@ h1 {
     min-height: auto;
   }
 
-  .home-figure-row,
   .home-action-row,
   .home-feature-ribbon,
   .home-detail-card-grid,
   .home-faction-grid,
   .home-event-panel {
     grid-template-columns: 1fr;
-  }
-
-  .home-figure-row {
-    gap: 14px;
   }
 
   .home-feature-card {
@@ -1410,8 +1394,8 @@ h1 {
 
 @media (max-width: 800px) {
   .home-page {
-    width: min(100% - 12px, 1680px);
-    padding-top: 8px;
+    width: 100%;
+    padding-top: 0;
   }
 
   .home-hero-frame,
@@ -1432,13 +1416,8 @@ h1 {
     font-size: 1rem;
   }
 
-  .home-figure-row {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .home-figure.is-center-alpha {
-    grid-column: 1 / -1;
-    order: -1;
+  .home-title-stack {
+    max-width: 100%;
   }
 
   .home-action-row {
@@ -1489,22 +1468,9 @@ h1 {
     height: 104px;
   }
 
-  .home-figure-row,
   .home-action-row {
-    grid-template-columns: 1fr;
-  }
-
-  .home-figure.is-left-edge,
-  .home-figure.is-right-edge,
-  .home-figure.is-center-alpha {
-    transform: none;
-  }
-
-  .home-figure-image,
-  .home-figure.is-left-king .home-figure-image,
-  .home-figure.is-right-queen .home-figure-image,
-  .home-figure.is-center-alpha .home-figure-image {
-    min-height: 214px;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .home-feature-card,
