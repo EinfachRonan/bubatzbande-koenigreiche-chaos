@@ -31,3 +31,6 @@ Original prompt: Bitte setze die beigefuegte Bilddatei als exakte Design- und La
 - 2026-07-08: Startseite wieder auf das reine Referenzbild plus zwei klickbare Buttons reduziert, damit kein zusaetzlicher Hero-/Kartenaufbau mehr vor dem gelieferten Motiv liegt.
 - 2026-07-08: /game-Handbereich und untere Slot-Reihe weiter nach unten in die gemalten Kraeuterhoehle-Felder verschoben; Slot-Rechtecke enger auf die sichtbaren Map-Rechtecke gezogen.
 - Verifikation Runde 7: npm run typecheck erfolgreich, npm run build erfolgreich; Export-HTML fuer / und /game enthaelt die erwarteten Bild- und Layout-Overlays.
+- 2026-07-08: Startseite weiter bereinigt: sichtbare Overlay-Buttons durch exakt ueber den gemalten CTA-Flaechen liegende Hotspots ersetzt; damit bleibt das Referenzmotiv selbst der einzige sichtbare Startscreen.
+- 2026-07-08: /game visuell beruhigt: obere Gegnerhand kleiner und hoeher gesetzt, linke/rechte Panels etwas kompakter und weniger glasig, Spielerhand tiefer und schmaler in die untere Bank-/Handzone geschoben.
+- Verifikation Runde 8: npm run typecheck erfolgreich, npm run build erfolgreich, statischer Export unter /out erneut erfolgreich; lokale Headless-Screenshot-Erzeugung ueber Edge/Chrome blieb hier ohne Datei-Output, daher HTML-/Build-Check statt finaler Bilddatei.
