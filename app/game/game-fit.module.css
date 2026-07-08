@@ -108,21 +108,21 @@
   top: 20.8%;
   right: 2.85%;
   width: 14.1%;
-  height: 53.9%;
+  height: 50.8%;
 }
 
 .page :global(.kh-anchor-right-bottom) {
   right: 2.85%;
-  bottom: 3.15%;
-  width: 20.15%;
-  height: 18.8%;
+  bottom: 4.1%;
+  width: 16.9%;
+  height: 15.6%;
 }
 
 .page :global(.kh-anchor-hand) {
   left: 22.55%;
   right: 18.35%;
-  bottom: 4.25%;
-  height: 15.55%;
+  bottom: 4.7%;
+  height: 14.6%;
 }
 
 .page :global(.kh-layout),
@@ -318,8 +318,8 @@
 }
 
 .page :global(.kh-log-list li) {
-  padding: 8px 10px;
-  font-size: clamp(0.64rem, 0.72vw, 0.8rem);
+  padding: 7px 9px;
+  font-size: clamp(0.6rem, 0.68vw, 0.76rem);
   background: rgba(255, 255, 255, 0.018);
 }
 
@@ -340,12 +340,12 @@
 }
 
 .page :global(.kh-end-turn-button) {
-  min-height: 74px;
-  font-size: clamp(0.96rem, 1.38vw, 1.42rem);
+  min-height: 56px;
+  font-size: clamp(0.86rem, 1.12vw, 1.08rem);
 }
 
 .page :global(.kh-gold-bar) {
-  padding: 8px 10px;
+  padding: 7px 9px;
 }
 
 .page :global(.kh-gold-pips) {
@@ -358,9 +358,9 @@
 }
 
 .page :global(.kh-reset-button) {
-  padding: 8px 10px;
+  padding: 6px 9px;
   min-height: 0;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
 }
 
 .page :global(.kh-hand-shell) {
@@ -394,6 +394,12 @@
   min-height: clamp(112px, 14.1vh, 154px);
   padding: 5px 5px 6px;
   border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(222, 188, 102, 0.12), rgba(0, 0, 0, 0) 18%),
+    linear-gradient(180deg, rgba(18, 31, 22, 0.92), rgba(8, 16, 11, 0.98));
+  box-shadow:
+    0 8px 14px rgba(0, 0, 0, 0.16),
+    0 0 0 1px rgba(201, 164, 81, 0.08);
 }
 
 .page :global(.kh-hand-card .card-head) {
@@ -410,21 +416,27 @@
 .page :global(.kh-hand-card .card-name) {
   font-size: clamp(0.62rem, 0.72vw, 0.78rem);
   line-height: 1.08;
+  color: #f5df9d;
 }
 
 .page :global(.kh-hand-card .card-art) {
   height: clamp(22px, 18%, 34px);
+  border-color: rgba(201, 164, 81, 0.22);
 }
 
 .page :global(.kh-hand-card .card-script-box) {
   min-height: clamp(24px, 21%, 34px);
   padding: 5px 6px;
   margin-bottom: 4px;
+  border-color: rgba(240, 212, 140, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.08));
 }
 
 .page :global(.kh-hand-card .card-effect) {
   font-size: clamp(0.56rem, 0.6vw, 0.66rem);
   line-height: 1.18;
+  color: #efe4bf;
 }
 
 .page :global(.kh-hand-card .card-badge) {
@@ -441,16 +453,19 @@
 .page :global(.kh-hand-card .stat-value) {
   font-size: 0.64rem;
   line-height: 1;
+  color: #fff1c4;
 }
 
 .page :global(.kh-hand-card .stat-label) {
   font-size: 0.46rem;
   letter-spacing: 0.03em;
+  color: #d9cda4;
 }
 
 .page :global(.kh-hand-card .hint-text) {
   font-size: 0.54rem;
   line-height: 1.12;
+  color: #e9d9aa;
 }
 
 .page :global(.kh-hand-card .card-rarity),
@@ -482,7 +497,7 @@
   }
 
   .page :global(.kh-anchor-right-bottom) {
-    width: 19.2%;
+    width: 17.8%;
   }
 
   .page :global(.kh-anchor-player-board) {
@@ -490,8 +505,8 @@
   }
 
   .page :global(.kh-anchor-hand) {
-    bottom: 4%;
-    height: 14.8%;
+    bottom: 4.5%;
+    height: 13.9%;
   }
 }
 
