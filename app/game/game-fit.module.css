@@ -48,8 +48,8 @@
 
 .page :global(.kh-anchor-bottom-left) {
   left: 1.8%;
-  bottom: 6.2%;
-  width: 14.8%;
+  bottom: 7.4%;
+  width: 14.2%;
 }
 
 .page :global(.kh-anchor-top-hand) {
@@ -79,29 +79,29 @@
 }
 
 .page :global(.kh-anchor-right-top) {
-  top: 4.3%;
+  top: 4.7%;
   right: 1.6%;
-  width: 12.9%;
+  width: 12.4%;
 }
 
 .page :global(.kh-anchor-right-middle) {
-  top: 20.1%;
+  top: 20.6%;
   right: 1.6%;
-  width: 13%;
-  height: 49.2%;
+  width: 12.5%;
+  height: 47.9%;
 }
 
 .page :global(.kh-anchor-right-bottom) {
   right: 1.7%;
-  bottom: 5.6%;
-  width: 15.9%;
+  bottom: 6.9%;
+  width: 15.1%;
 }
 
 .page :global(.kh-anchor-hand) {
-  left: 19%;
-  right: 16.9%;
-  bottom: -2.1%;
-  height: 12.9%;
+  left: 20.1%;
+  right: 17.6%;
+  bottom: 0.9%;
+  height: 10.8%;
 }
 
 .page :global(.kh-layout),
@@ -130,7 +130,7 @@
 
 .page :global(.kh-player-panel) {
   gap: 10px;
-  padding: 10px 12px;
+  padding: 9px 11px;
 }
 
 .page :global(.kh-player-avatar) {
@@ -261,7 +261,7 @@
 .page :global(.kh-phase-panel),
 .page :global(.kh-log-panel),
 .page :global(.kh-action-stack) {
-  padding: 10px;
+  padding: 9px;
 }
 
 .page :global(.kh-turn-label) {
@@ -308,12 +308,12 @@
 }
 
 .page :global(.kh-end-turn-button) {
-  min-height: 68px;
-  font-size: clamp(0.94rem, 1.4vw, 1.38rem);
+  min-height: 62px;
+  font-size: clamp(0.9rem, 1.28vw, 1.24rem);
 }
 
 .page :global(.kh-gold-bar) {
-  padding: 10px 12px;
+  padding: 8px 10px;
 }
 
 .page :global(.kh-gold-pips) {
@@ -326,48 +326,83 @@
 }
 
 .page :global(.kh-hand-shell) {
-  grid-template-columns: 9% minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: 8.3% minmax(0, 1fr);
+  gap: 6px;
   height: 100%;
 }
 
 .page :global(.kh-hand-fan) {
   height: 100%;
-  padding: 0 0.6% 0.2%;
+  padding: 0 0.3% 0;
   align-items: flex-end;
 }
 
 .page :global(.kh-hand-card) {
-  width: clamp(62px, 5vw, 86px);
-  margin-left: clamp(-14px, -1vw, -8px);
+  width: clamp(56px, 4.45vw, 76px);
+  margin-left: clamp(-10px, -0.72vw, -6px);
 }
 
 .page :global(.kh-hand-card .card-frame) {
-  min-height: clamp(104px, 12.9vh, 148px);
-  padding: 6px;
+  min-height: clamp(90px, 10.8vh, 122px);
+  padding: 4px 4px 5px;
+  border-radius: 12px;
 }
 
 .page :global(.kh-hand-card .card-head) {
-  grid-template-columns: 30px 1fr;
-  gap: 8px;
-  margin-bottom: 6px;
+  grid-template-columns: 24px 1fr;
+  gap: 5px;
+  margin-bottom: 4px;
 }
 
 .page :global(.kh-hand-card .card-cost-orb) {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
 }
 
 .page :global(.kh-hand-card .card-name) {
-  font-size: clamp(0.66rem, 0.8vw, 0.88rem);
+  font-size: clamp(0.55rem, 0.68vw, 0.72rem);
+  line-height: 1.04;
 }
 
 .page :global(.kh-hand-card .card-art) {
-  height: clamp(20px, 16%, 34px);
+  height: clamp(18px, 15%, 26px);
 }
 
 .page :global(.kh-hand-card .card-script-box) {
-  min-height: clamp(22px, 20%, 34px);
+  min-height: clamp(20px, 18%, 28px);
+  padding: 4px 5px;
+  margin-bottom: 4px;
+}
+
+.page :global(.kh-hand-card .card-effect) {
+  font-size: clamp(0.5rem, 0.58vw, 0.62rem);
+  line-height: 1.2;
+}
+
+.page :global(.kh-hand-card .card-badge) {
+  padding: 3px 6px;
+  font-size: 0.46rem;
+}
+
+.page :global(.kh-hand-card .stat-seal) {
+  min-width: 34px;
+  padding: 4px 5px;
+  border-radius: 10px;
+}
+
+.page :global(.kh-hand-card .stat-value) {
+  font-size: 0.58rem;
+  line-height: 1;
+}
+
+.page :global(.kh-hand-card .stat-label) {
+  font-size: 0.42rem;
+  letter-spacing: 0.03em;
+}
+
+.page :global(.kh-hand-card .hint-text) {
+  font-size: 0.5rem;
+  line-height: 1.12;
 }
 
 .page :global(.kh-hand-card .card-rarity),
@@ -378,7 +413,7 @@
 }
 
 .page :global(.kh-hand-instruction) {
-  font-size: clamp(0.58rem, 0.68vw, 0.76rem);
+  font-size: clamp(0.5rem, 0.58vw, 0.66rem);
   opacity: 0.72;
 }
 
@@ -395,11 +430,11 @@
 
   .page :global(.kh-anchor-right-top),
   .page :global(.kh-anchor-right-middle) {
-    width: 13.5%;
+    width: 12.9%;
   }
 
   .page :global(.kh-anchor-right-bottom) {
-    width: 16.6%;
+    width: 15.8%;
   }
 
   .page :global(.kh-anchor-player-board) {
@@ -407,8 +442,8 @@
   }
 
   .page :global(.kh-anchor-hand) {
-    bottom: -1.9%;
-    height: 12.5%;
+    bottom: 0.7%;
+    height: 10.5%;
   }
 }
 
@@ -483,39 +518,57 @@
   }
 
   .page :global(.kh-end-turn-button) {
-    min-height: 50px;
-    font-size: 0.84rem;
+    min-height: 44px;
+    font-size: 0.74rem;
   }
 
   .page :global(.kh-hand-card) {
-    width: clamp(50px, 5.2vw, 72px);
-    margin-left: -10px;
+    width: clamp(44px, 4.7vw, 60px);
+    margin-left: -7px;
   }
 
   .page :global(.kh-hand-card .card-frame) {
-    min-height: 92px;
-    padding: 5px;
+    min-height: 76px;
+    padding: 4px;
   }
 
   .page :global(.kh-hand-card .card-head) {
-    grid-template-columns: 26px 1fr;
-    gap: 6px;
+    grid-template-columns: 20px 1fr;
+    gap: 4px;
   }
 
   .page :global(.kh-hand-card .card-cost-orb) {
-    width: 26px;
-    height: 26px;
+    width: 20px;
+    height: 20px;
   }
 
   .page :global(.kh-hand-card .card-name) {
-    font-size: 0.6rem;
+    font-size: 0.5rem;
   }
 
   .page :global(.kh-hand-card .card-art) {
-    height: 16px;
+    height: 12px;
   }
 
   .page :global(.kh-hand-card .card-script-box) {
-    min-height: 18px;
+    min-height: 14px;
+  }
+
+  .page :global(.kh-hand-card .card-effect) {
+    font-size: 0.44rem;
+  }
+
+  .page :global(.kh-hand-card .stat-seal) {
+    min-width: 28px;
+    padding: 3px 4px;
+  }
+
+  .page :global(.kh-hand-card .stat-value) {
+    font-size: 0.5rem;
+  }
+
+  .page :global(.kh-hand-card .stat-label),
+  .page :global(.kh-hand-card .hint-text) {
+    font-size: 0.38rem;
   }
 }

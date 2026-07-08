@@ -53,6 +53,7 @@ export function HandCards({
               <CardFrame
                 card={card}
                 selectable
+                compact
                 emphasis="player"
                 selected={selectedId === card.uid}
                 disabled={Boolean(playIssue)}
