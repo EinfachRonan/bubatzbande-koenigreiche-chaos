@@ -12,7 +12,7 @@
 .page :global(.kh-background) {
   background:
     linear-gradient(180deg, rgba(4, 8, 6, 0.22), rgba(4, 8, 6, 0.46)),
-    var(--kh-map-url, url("/images/maps/kraeuterhoehle-reference.png"));
+    url("/images/maps/kraeuterhoehle-reference.png");
   background-position: center;
   background-size: cover;
 }

@@ -1,8 +1,6 @@
 import Link from "next/link";
 
 export default function HomePage() {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-
   return (
     <main className="landing-shell">
       <section className="hero-panel">
@@ -24,11 +22,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="hero-art">
-          <img
-            src={`${basePath}/images/starter-set-reference.png`}
-            alt="Starter-Set Referenz"
-            className="hero-image"
-          />
+          <img src="/images/home/starter-set-reference.png" alt="Starter-Set Referenz" className="hero-image" />
         </div>
       </section>
 
