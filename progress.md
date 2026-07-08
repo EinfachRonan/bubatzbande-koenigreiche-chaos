@@ -22,6 +22,9 @@ Original prompt: Bitte setze die beigefuegte Bilddatei als exakte Design- und La
 - 2026-07-08: Startseite weiter an den gelieferten Startscreen angeglichen; Hero nutzt die Referenz jetzt als dominante Fullscreen-Hintergrundflaeche statt nur als schwachen Wash.
 - 2026-07-08: /game mit haerteren Seiten-Overrides abgesichert, damit die Kraeuterhoehle trotz aelterer Global-Styles sichtbar bleibt und UI/Slots leichter auf der Map sitzen.
 - Verifikation Runde 5: npm run typecheck erfolgreich; npm run build nach Freigabe eines gesperrten out/-Ordners erfolgreich.
+- 2026-07-08: Startseite weiter vereinfacht auf Hintergrundmotiv plus klickbare Buttons; zusaetzliche Karten-/Infosektionen aus dem sichtbaren First Screen entfernt.
+- 2026-07-08: Weitere globale Sicherheits-Overrides fuer /game gesetzt, damit mittige Board-Shell, Divider und Kraeuterhoehle-Badge selbst bei aelterer Struktur nicht mehr sichtbar bleiben.
+- Verifikation Runde 6: npm run typecheck erfolgreich, npm run build erfolgreich.
 - 2026-07-08: Startseite auf Basis der neuen visuellen Hauptreferenz als interaktive Homepage umgesetzt, inklusive grosser Hero-CTAs, klickbarer Info-Kacheln und zusaetzlicher /deckbuilder-Route.
 - Referenzbild nach public/images/home/homepage-reference.png uebernommen und als atmosphaerische Hintergrundgrundlage in der neuen Hero-Komposition verwendet.
 - Verifikation Runde 4: npm run typecheck erfolgreich, npm run build erfolgreich, Export-Artefakte fuer /, /cards, /game und /deckbuilder vorhanden; direkte In-App-Browser-Livepruefung war durch lokale URL-Policy eingeschraenkt, daher Export-HTML und Zielrouten zusaetzlich dateibasiert geprueft.
