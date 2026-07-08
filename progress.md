@@ -47,3 +47,5 @@ Original prompt: Bitte setze die beigefuegte Bilddatei als exakte Design- und La
 - Verifikation Runde 13: npm run typecheck erfolgreich, npm run build erfolgreich, lokaler out/-Server liefert HTTP 200 fuer /, /game, /cards und /deckbuilder.
 - 2026-07-08: Mini-Hand weiter beruhigt: Deckbox unten links enger in ihr Feld gezogen, Mini-Karten kompakter mit klarerem Status-Text, Vorschau stabilisiert und Hover-Markierung auf der Startseite entfernt.
 - Verifikation Runde 14: npm run typecheck erfolgreich, npm run build erfolgreich, lokaler out/-Server liefert HTTP 200 fuer /, /game, /cards und /deckbuilder.
+- 2026-07-09: /game auf neuen Kraeuterhoehle-Hintergrund umgestellt: neues 16:9-Brett mit `public/images/maps/kraeuterhoehle-bg.png`, eigene Overlay-UI ohne gemalte Slot-Vorlagen und ohne alte 3:2-Innen-Canvas.
+- Verifikation Runde 15: npm run typecheck erfolgreich, npm run build erfolgreich, lokaler out/-Server liefert HTTP 200 fuer /, /game, /cards und /deckbuilder.
