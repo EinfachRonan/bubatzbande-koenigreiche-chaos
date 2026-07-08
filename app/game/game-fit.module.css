@@ -65,17 +65,17 @@
 }
 
 .page :global(.kh-anchor-enemy-board) {
-  top: 16.6%;
-  left: 18.1%;
-  width: 54.9%;
-  height: 22.2%;
+  top: 17.2%;
+  left: 18.35%;
+  width: 54.45%;
+  height: 21.7%;
 }
 
 .page :global(.kh-anchor-player-board) {
-  top: 50.8%;
-  left: 18.1%;
-  width: 54.9%;
-  height: 22.2%;
+  top: 53%;
+  left: 18.35%;
+  width: 54.45%;
+  height: 21.9%;
 }
 
 .page :global(.kh-anchor-right-top) {
@@ -98,10 +98,10 @@
 }
 
 .page :global(.kh-anchor-hand) {
-  left: 18.1%;
-  right: 16.5%;
-  bottom: 1.6%;
-  height: 16.4%;
+  left: 18.2%;
+  right: 16%;
+  bottom: -1.4%;
+  height: 14.1%;
 }
 
 .page :global(.kh-layout),
@@ -315,24 +315,25 @@
 }
 
 .page :global(.kh-hand-shell) {
-  grid-template-columns: 11.5% minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: 10% minmax(0, 1fr);
+  gap: 10px;
   height: 100%;
 }
 
 .page :global(.kh-hand-fan) {
   height: 100%;
-  padding: 0 1.2% 0.4%;
+  padding: 0 0.6% 0;
+  align-items: flex-end;
 }
 
 .page :global(.kh-hand-card) {
-  width: clamp(74px, 6.2vw, 108px);
-  margin-left: clamp(-20px, -1.3vw, -12px);
+  width: clamp(70px, 5.7vw, 98px);
+  margin-left: clamp(-18px, -1.18vw, -10px);
 }
 
 .page :global(.kh-hand-card .card-frame) {
-  min-height: clamp(126px, 15.7vh, 188px);
-  padding: 8px;
+  min-height: clamp(118px, 14.4vh, 172px);
+  padding: 7px;
 }
 
 .page :global(.kh-hand-card .card-head) {
@@ -351,11 +352,11 @@
 }
 
 .page :global(.kh-hand-card .card-art) {
-  height: clamp(28px, 22%, 52px);
+  height: clamp(24px, 18%, 44px);
 }
 
 .page :global(.kh-hand-card .card-script-box) {
-  min-height: clamp(34px, 28%, 52px);
+  min-height: clamp(28px, 24%, 42px);
 }
 
 .page :global(.kh-hand-card .card-rarity),
@@ -387,6 +388,15 @@
 
   .page :global(.kh-anchor-right-bottom) {
     width: 17.2%;
+  }
+
+  .page :global(.kh-anchor-player-board) {
+    top: 53.2%;
+  }
+
+  .page :global(.kh-anchor-hand) {
+    bottom: -1.1%;
+    height: 13.9%;
   }
 }
 
@@ -466,13 +476,13 @@
   }
 
   .page :global(.kh-hand-card) {
-    width: clamp(60px, 6.2vw, 84px);
-    margin-left: -16px;
+    width: clamp(56px, 5.8vw, 78px);
+    margin-left: -14px;
   }
 
   .page :global(.kh-hand-card .card-frame) {
-    min-height: 112px;
-    padding: 7px;
+    min-height: 102px;
+    padding: 6px;
   }
 
   .page :global(.kh-hand-card .card-head) {
@@ -490,10 +500,10 @@
   }
 
   .page :global(.kh-hand-card .card-art) {
-    height: 24px;
+    height: 20px;
   }
 
   .page :global(.kh-hand-card .card-script-box) {
-    min-height: 30px;
+    min-height: 24px;
   }
 }

@@ -28,3 +28,6 @@ Original prompt: Bitte setze die beigefuegte Bilddatei als exakte Design- und La
 - 2026-07-08: Startseite auf Basis der neuen visuellen Hauptreferenz als interaktive Homepage umgesetzt, inklusive grosser Hero-CTAs, klickbarer Info-Kacheln und zusaetzlicher /deckbuilder-Route.
 - Referenzbild nach public/images/home/homepage-reference.png uebernommen und als atmosphaerische Hintergrundgrundlage in der neuen Hero-Komposition verwendet.
 - Verifikation Runde 4: npm run typecheck erfolgreich, npm run build erfolgreich, Export-Artefakte fuer /, /cards, /game und /deckbuilder vorhanden; direkte In-App-Browser-Livepruefung war durch lokale URL-Policy eingeschraenkt, daher Export-HTML und Zielrouten zusaetzlich dateibasiert geprueft.
+- 2026-07-08: Startseite wieder auf das reine Referenzbild plus zwei klickbare Buttons reduziert, damit kein zusaetzlicher Hero-/Kartenaufbau mehr vor dem gelieferten Motiv liegt.
+- 2026-07-08: /game-Handbereich und untere Slot-Reihe weiter nach unten in die gemalten Kraeuterhoehle-Felder verschoben; Slot-Rechtecke enger auf die sichtbaren Map-Rechtecke gezogen.
+- Verifikation Runde 7: npm run typecheck erfolgreich, npm run build erfolgreich; Export-HTML fuer / und /game enthaelt die erwarteten Bild- und Layout-Overlays.
