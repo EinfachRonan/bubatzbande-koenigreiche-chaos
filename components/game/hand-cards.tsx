@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties } from "react";
+import { useState } from "react";
 import { CardFrame } from "@/components/card-frame";
 import { MatchState } from "@/lib/game";
 
@@ -23,48 +23,81 @@ export function HandCards({
   getPlayableCostText,
   onSelect
 }: HandCardsProps) {
+  const [previewId, setPreviewId] = useState<string | null>(null);
+  const previewCard = cards.find((card) => card.uid === previewId) ?? null;
+  const previewIssue = previewCard ? getPlayIssue(previewCard) : null;
+
   return (
     <section className="kh-hand-shell">
       <div className="kh-hand-rail" aria-hidden="true" />
-      <div className="kh-deck-box">
+      <div className="kh-deck-box kh-hand-deck-box">
         <span className="kh-card-back kh-card-back-stack" aria-hidden="true" />
         <div className="kh-deck-copy">
           <strong>{deckCount}</strong>
           <span>DECK</span>
         </div>
       </div>
+
       <div className="kh-hand-fan">
-        {cards.map((card, index) => {
+        {cards.map((card) => {
           const playIssue = getPlayIssue(card);
-          const angle = (index - (cards.length - 1) / 2) * 4.5;
-          const lift = Math.abs(index - (cards.length - 1) / 2) * -2;
 
           return (
-            <div
-              className="kh-hand-card"
+            <button
+              type="button"
+              className={[
+                "kh-hand-mini-card",
+                selectedId === card.uid || previewId === card.uid ? "selected" : "",
+                playIssue ? "disabled" : ""
+              ]
+                .filter(Boolean)
+                .join(" ")}
               key={card.uid}
-              style={
-                {
-                  "--fan-angle": `${angle}deg`,
-                  "--fan-lift": `${lift}px`
-                } as CSSProperties
-              }
+              onClick={() => setPreviewId((current) => (current === card.uid ? null : card.uid))}
+              aria-pressed={previewId === card.uid}
             >
-              <CardFrame
-                card={card}
-                selectable
-                compact
-                emphasis="player"
-                selected={selectedId === card.uid}
-                disabled={Boolean(playIssue)}
-                footer={<p className="hint-text">{playIssue ?? getPlayableCostText(card)}</p>}
-                onClick={() => onSelect(card.uid)}
-              />
-            </div>
+              <span className="kh-hand-mini-cost">{card.cost}</span>
+              <span className="kh-hand-mini-name">{card.name}</span>
+              <span className="kh-hand-mini-meta">{playIssue ?? getPlayableCostText(card)}</span>
+            </button>
           );
         })}
       </div>
-      <p className="kh-hand-instruction">Ziehe Karten • Spiele aus • Greife an • Beende deinen Zug</p>
+
+      {previewCard ? (
+        <div className="kh-card-preview" role="dialog" aria-label={`Kartenvorschau ${previewCard.name}`}>
+          <button
+            className="kh-card-preview-close"
+            type="button"
+            onClick={() => setPreviewId(null)}
+            aria-label="Kartenvorschau schliessen"
+          >
+            x
+          </button>
+          <div className="kh-card-preview-frame">
+            <CardFrame
+              card={previewCard}
+              compact
+              emphasis="player"
+              disabled={Boolean(previewIssue)}
+              footer={<p className="hint-text">{previewIssue ?? getPlayableCostText(previewCard)}</p>}
+            />
+          </div>
+          <button
+            className="kh-card-preview-play"
+            type="button"
+            disabled={Boolean(previewIssue)}
+            onClick={() => {
+              onSelect(previewCard.uid);
+              setPreviewId(null);
+            }}
+          >
+            Karte ausspielen
+          </button>
+        </div>
+      ) : null}
+
+      <p className="kh-hand-instruction">Karte anklicken: Vorschau. In der Vorschau ausspielen.</p>
     </section>
   );
 }

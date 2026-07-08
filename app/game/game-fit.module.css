@@ -373,6 +373,7 @@
   grid-template-columns: 12.5% minmax(0, 1fr);
   gap: 6px;
   height: 100%;
+  position: relative;
 }
 
 .page :global(.kh-hand-fan) {
@@ -388,6 +389,149 @@
 
 .page :global(.kh-hand-fan::-webkit-scrollbar) {
   display: none;
+}
+
+.page :global(.kh-hand-deck-box) {
+  align-self: end;
+  height: 86%;
+  min-height: 0;
+  padding: 5px;
+}
+
+.page :global(.kh-hand-mini-card) {
+  position: relative;
+  flex: 0 0 clamp(58px, 4.4vw, 78px);
+  height: clamp(88px, 11.1vh, 118px);
+  margin-left: clamp(-6px, -0.42vw, -2px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: start;
+  gap: 4px;
+  padding: 7px 6px 6px;
+  border: 1px solid rgba(201, 164, 81, 0.38);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(46, 68, 44, 0.82), rgba(9, 18, 13, 0.96)),
+    radial-gradient(circle at 50% 18%, rgba(240, 212, 140, 0.1), transparent 38%);
+  color: #f4e4ad;
+  box-shadow:
+    0 10px 16px rgba(0, 0, 0, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+  cursor: pointer;
+}
+
+.page :global(.kh-hand-mini-card:first-child) {
+  margin-left: 0;
+}
+
+.page :global(.kh-hand-mini-card:hover),
+.page :global(.kh-hand-mini-card:focus-visible),
+.page :global(.kh-hand-mini-card.selected) {
+  border-color: rgba(240, 212, 140, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(240, 212, 140, 0.32),
+    0 0 18px rgba(101, 194, 129, 0.18);
+  outline: none;
+}
+
+.page :global(.kh-hand-mini-card.disabled) {
+  color: rgba(244, 228, 173, 0.7);
+  filter: saturate(0.72) brightness(0.78);
+}
+
+.page :global(.kh-hand-mini-cost) {
+  width: 24px;
+  height: 24px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(240, 212, 140, 0.55);
+  border-radius: 50%;
+  background: radial-gradient(circle, #e5c466, #4d682f 72%);
+  color: #10170d;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.page :global(.kh-hand-mini-name) {
+  align-self: center;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  font-size: clamp(0.54rem, 0.58vw, 0.64rem);
+  line-height: 1.08;
+  text-align: left;
+}
+
+.page :global(.kh-hand-mini-meta) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #d9cda4;
+  font-size: clamp(0.44rem, 0.48vw, 0.52rem);
+  text-align: left;
+}
+
+.page :global(.kh-card-preview) {
+  position: absolute;
+  left: 50%;
+  bottom: 108%;
+  z-index: 20;
+  width: clamp(158px, 13vw, 212px);
+  padding: 8px;
+  border: 1px solid rgba(240, 212, 140, 0.62);
+  border-radius: 14px;
+  background: rgba(5, 11, 8, 0.92);
+  box-shadow:
+    0 22px 42px rgba(0, 0, 0, 0.46),
+    0 0 0 1px rgba(255, 255, 255, 0.035);
+  transform: translateX(-50%);
+}
+
+.page :global(.kh-card-preview-frame .card-frame) {
+  min-height: clamp(220px, 29vh, 290px);
+  padding: 8px;
+}
+
+.page :global(.kh-card-preview-frame .card-name) {
+  font-size: clamp(0.82rem, 0.9vw, 1rem);
+}
+
+.page :global(.kh-card-preview-frame .card-effect) {
+  font-size: clamp(0.7rem, 0.72vw, 0.82rem);
+  line-height: 1.22;
+}
+
+.page :global(.kh-card-preview-close) {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(240, 212, 140, 0.45);
+  border-radius: 50%;
+  background: rgba(6, 12, 9, 0.86);
+  color: #f4e4ad;
+  cursor: pointer;
+}
+
+.page :global(.kh-card-preview-play) {
+  width: 100%;
+  margin-top: 7px;
+  padding: 7px 8px;
+  border: 1px solid rgba(240, 212, 140, 0.65);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #315f35, #122616);
+  color: #f4e4ad;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.page :global(.kh-card-preview-play:disabled) {
+  cursor: not-allowed;
+  filter: saturate(0.6) brightness(0.7);
 }
 
 .page :global(.kh-hand-card) {
