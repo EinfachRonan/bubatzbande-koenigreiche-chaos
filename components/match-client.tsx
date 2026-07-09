@@ -293,7 +293,10 @@ export function MatchClient() {
         aria-label={state.winner === "player" ? "Sieg" : "Niederlage"}
       >
         <span className="kh-match-result-kicker">Match beendet</span>
-        <h2>{state.winner === "player" ? "Gewonnen" : "Verloren"}</h2>
+        <strong className="kh-match-result-state">
+          {state.winner === "player" ? "GEWONNEN" : "VERLOREN"}
+        </strong>
+        <h2>{state.winner === "player" ? "Sieg fuer dein Reich" : "Das Chaos hat gesiegt"}</h2>
         <p>{winnerText}</p>
         <button className="kh-match-result-button" type="button" onClick={resetMatch}>
           Neu starten

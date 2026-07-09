@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CardFrame } from "@/components/card-frame";
 import { MatchState } from "@/lib/game";
 
@@ -24,6 +24,7 @@ export function HandCards({
   onSelect
 }: HandCardsProps) {
   const [previewId, setPreviewId] = useState<string | null>(null);
+  const closeTimeoutRef = useRef<number | null>(null);
   const previewCard = cards.find((card) => card.uid === previewId) ?? null;
   const previewIssue = previewCard ? getPlayIssue(previewCard) : null;
 
@@ -32,6 +33,33 @@ export function HandCards({
       setPreviewId(null);
     }
   }, [previewCard, previewId]);
+
+  useEffect(
+    () => () => {
+      if (closeTimeoutRef.current) {
+        window.clearTimeout(closeTimeoutRef.current);
+      }
+    },
+    []
+  );
+
+  function openPreview(cardId: string) {
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setPreviewId(cardId);
+  }
+
+  function closePreviewSoon() {
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current);
+    }
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setPreviewId(null);
+      closeTimeoutRef.current = null;
+    }, 80);
+  }
 
   return (
     <section className="kh-hand-shell">
@@ -60,7 +88,10 @@ export function HandCards({
                 .filter(Boolean)
                 .join(" ")}
               key={card.uid}
-              onClick={() => setPreviewId((current) => (current === card.uid ? null : card.uid))}
+              onMouseEnter={() => openPreview(card.uid)}
+              onMouseLeave={closePreviewSoon}
+              onFocus={() => openPreview(card.uid)}
+              onBlur={closePreviewSoon}
               aria-pressed={previewId === card.uid}
             >
               <span className="kh-hand-mini-cost">{card.cost}</span>
@@ -84,21 +115,16 @@ export function HandCards({
       </div>
 
       {previewCard ? (
-        <div className="kh-card-preview-backdrop" onClick={() => setPreviewId(null)}>
+        <div
+          className="kh-card-preview-backdrop"
+          onMouseEnter={() => openPreview(previewCard.uid)}
+          onMouseLeave={closePreviewSoon}
+        >
           <div
             className="kh-card-preview"
             role="dialog"
             aria-label={`Kartenvorschau ${previewCard.name}`}
-            onClick={(event) => event.stopPropagation()}
           >
-            <button
-              className="kh-card-preview-close"
-              type="button"
-              onClick={() => setPreviewId(null)}
-              aria-label="Kartenvorschau schliessen"
-            >
-              x
-            </button>
             <div className="kh-card-preview-frame">
               <CardFrame
                 card={previewCard}
@@ -123,7 +149,7 @@ export function HandCards({
         </div>
       ) : null}
 
-      <p className="kh-hand-instruction">Karte anklicken: Vorschau. In der Vorschau ausspielen.</p>
+      <p className="kh-hand-instruction">Karte anhovern: Vorschau. In der Vorschau ausspielen.</p>
     </section>
   );
 }

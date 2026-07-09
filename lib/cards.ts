@@ -182,6 +182,8 @@ export const cards: CardDefinition[] = [
       "Mutationsrausch: Zu Beginn deines Zuges +1 Angriff. Unter 50% Leben erhaelt er Berserkerwut und Schildbruch: Runenhieb verursacht +1 Schaden, ignoriert Schilde und Seelenspalter fuegt den uebrigen Gegnern 1 Schaden zu.",
     effectId: "mutant-rage",
     image: "/images/cards/der-runenmutant.png",
+    imageFit: "contain",
+    imagePosition: "center center",
     tags: ["Mutant", "Boss-Tank", "Berserker", "Runenaxt"]
   },
   {
@@ -260,6 +262,8 @@ export const cards: CardDefinition[] = [
       "Runenwut: Der Runenmutant entfesselt rohe Mutationsenergie. Erhaelt 2 Runden lang +4 Angriff. Der naechste Angriff verursacht zusaetzlich 3 Schildbruch.",
     effectId: "runenwut",
     image: "/images/cards/runenwut.png",
+    imageFit: "contain",
+    imagePosition: "center center",
     tags: ["Wut", "Runen", "Mutant"]
   },
   {

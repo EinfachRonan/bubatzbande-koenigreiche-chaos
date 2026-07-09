@@ -49,6 +49,8 @@ export function CardFrame({
   const isUnit = "maxHealth" in card;
   const shownAttack =
     isUnit && "temporaryAttackPenalty" in card ? Math.max(0, card.attack - card.temporaryAttackPenalty) : card.attack;
+  const artFit = card.imageFit ?? "cover";
+  const artPosition = card.imagePosition ?? "center center";
 
   return (
     <article
@@ -94,6 +96,7 @@ export function CardFrame({
             fill
             sizes={compact ? "(max-width: 1100px) 110px, 180px" : "(max-width: 800px) 45vw, 240px"}
             className="card-art-image"
+            style={{ objectFit: artFit, objectPosition: artPosition }}
             loading="eager"
           />
         </div>

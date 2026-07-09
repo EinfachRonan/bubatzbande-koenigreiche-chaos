@@ -23,6 +23,8 @@ export function BoardSlot({
   onClick
 }: BoardSlotProps) {
   const shownAttack = unit ? Math.max(0, unit.attack - unit.temporaryAttackPenalty) : 0;
+  const artFit = unit?.imageFit ?? "cover";
+  const artPosition = unit?.imagePosition ?? "center center";
 
   if (!unit) {
     return (
@@ -57,6 +59,7 @@ export function BoardSlot({
           fill
           sizes="(max-width: 900px) 18vw, 180px"
           className="kh-board-mini-art-image"
+          style={{ objectFit: artFit, objectPosition: artPosition }}
         />
       </div>
       <div className="kh-board-mini-stats">

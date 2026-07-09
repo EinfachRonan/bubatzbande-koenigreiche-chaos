@@ -99,6 +99,8 @@ function createUnit(card: CardDefinition, owner: PlayerSide, turn: number): Unit
     effect: card.effect,
     effectId: card.effectId,
     image: card.image,
+    imageFit: card.imageFit,
+    imagePosition: card.imagePosition,
     rarity: card.rarity,
     tags: [...card.tags],
     exhausted: true,

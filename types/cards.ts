@@ -45,6 +45,8 @@ export type CardDefinition = {
   effect: string;
   effectId: EffectId;
   image: string;
+  imageFit?: "cover" | "contain";
+  imagePosition?: string;
   tags: string[];
 };
 
@@ -65,6 +67,8 @@ export type UnitInstance = {
   effect: string;
   effectId: EffectId;
   image: string;
+  imageFit?: "cover" | "contain";
+  imagePosition?: string;
   rarity: CardRarity;
   tags: string[];
   exhausted: boolean;
