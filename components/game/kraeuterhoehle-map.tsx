@@ -14,6 +14,7 @@ type KraeuterhoehleMapProps = {
   rightBottom: ReactNode;
   hand: ReactNode;
   statusBanner?: ReactNode;
+  centerOverlay?: ReactNode;
 };
 
 export function KraeuterhoehleMap({
@@ -27,7 +28,8 @@ export function KraeuterhoehleMap({
   rightMiddle,
   rightBottom,
   hand,
-  statusBanner
+  statusBanner,
+  centerOverlay
 }: KraeuterhoehleMapProps) {
   return (
     <section className="kh-shell">
@@ -43,6 +45,7 @@ export function KraeuterhoehleMap({
         <div className="kh-overlay" aria-hidden="true" />
 
         {statusBanner ? <div className="kh-status-banner">{statusBanner}</div> : null}
+        {centerOverlay ? <div className="kh-center-overlay">{centerOverlay}</div> : null}
 
         <div className="kh-anchor kh-anchor-top-left">{topLeft}</div>
         <div className="kh-anchor kh-anchor-bottom-left">{bottomLeft}</div>

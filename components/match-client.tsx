@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { CardFrame } from "@/components/card-frame";
 import { BoardSlot } from "@/components/game/board-slot";
 import { EventLog } from "@/components/game/event-log";
 import { HandCards } from "@/components/game/hand-cards";
@@ -86,6 +87,7 @@ export function MatchClient() {
   const [highlightedUnitId, setHighlightedUnitId] = useState<string | null>(null);
   const [pulseLeaderSide, setPulseLeaderSide] = useState<"player" | "bot" | null>(null);
   const [logCollapsed, setLogCollapsed] = useState(false);
+  const [previewUnitId, setPreviewUnitId] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.winner || state.activeSide !== "bot") {
@@ -119,6 +121,17 @@ export function MatchClient() {
     return () => window.clearTimeout(timeout);
   }, [pulseLeaderSide]);
 
+  const previewUnit =
+    state.player.board.find((unit) => unit.instanceId === previewUnitId) ??
+    state.bot.board.find((unit) => unit.instanceId === previewUnitId) ??
+    null;
+
+  useEffect(() => {
+    if (previewUnitId && !previewUnit) {
+      setPreviewUnitId(null);
+    }
+  }, [previewUnit, previewUnitId]);
+
   const winnerText = describeWinner(state);
 
   function flashUnit(unitId: string) {
@@ -132,6 +145,7 @@ export function MatchClient() {
     setSelectedAttackerId(null);
     setHighlightedUnitId(null);
     setPulseLeaderSide(null);
+    setPreviewUnitId(null);
   }
 
   function selectHandCard(handCardId: string) {
@@ -203,6 +217,7 @@ export function MatchClient() {
     if (side === "player") {
       setSelectedAttackerId((current) => (current === unitId ? null : unitId));
       setSelectedHandCardId(null);
+      setPreviewUnitId(unitId);
       return;
     }
 
@@ -217,7 +232,11 @@ export function MatchClient() {
       flashUnit(selectedAttackerId);
       flashUnit(unitId);
       setSelectedAttackerId(null);
+      setPreviewUnitId(null);
+      return;
     }
+
+    setPreviewUnitId(unitId);
   }
 
   function attackLeader(side: "player" | "bot") {
@@ -230,6 +249,7 @@ export function MatchClient() {
     flashUnit(selectedAttackerId);
     setPulseLeaderSide("bot");
     setSelectedAttackerId(null);
+    setPreviewUnitId(null);
   }
 
   function getTargetableClass(target: AttackTarget) {
@@ -387,6 +407,21 @@ export function MatchClient() {
           getPlayableCostText={(card) => `Spielkosten: ${getPlayableCost(state, "player", card)}`}
           onSelect={selectHandCard}
         />
+      }
+      centerOverlay={
+        previewUnit ? (
+          <div className="kh-board-preview" role="dialog" aria-label={`Kartenvorschau ${previewUnit.name}`}>
+            <button
+              className="kh-board-preview-close"
+              type="button"
+              onClick={() => setPreviewUnitId(null)}
+              aria-label="Kartenvorschau schliessen"
+            >
+              x
+            </button>
+            <CardFrame card={previewUnit} emphasis={previewUnit.owner === "player" ? "player" : "enemy"} />
+          </div>
+        ) : null
       }
     />
   );
