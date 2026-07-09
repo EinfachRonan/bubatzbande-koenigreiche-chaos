@@ -32,6 +32,9 @@ function getPreferredCardOrder(state: MatchState) {
 function getBotCardPriority(state: MatchState, card: MatchState["bot"]["hand"][number]) {
   switch (card.type) {
     case "character":
+      if (card.effectId === "mutant-rage") {
+        return 48 + (card.attack ?? 0) + (card.health ?? 0);
+      }
       return 40 + (card.attack ?? 0) + (card.health ?? 0);
     case "equipment":
       return state.bot.board.length > 0 ? 28 : -10;

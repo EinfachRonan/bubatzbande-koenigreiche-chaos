@@ -165,16 +165,24 @@ function getUnitAttack(unit: UnitInstance) {
   return Math.max(0, unit.attack - unit.temporaryAttackPenalty);
 }
 
-function damageUnit(unit: UnitInstance, amount: number) {
+function isRunenmutantEnraged(unit: UnitInstance) {
+  return unit.effectId === "mutant-rage" && unit.health <= Math.ceil(unit.maxHealth / 2);
+}
+
+function damageUnit(unit: UnitInstance, amount: number, options?: { ignoreShield?: boolean }) {
   if (amount <= 0) {
     return 0;
   }
-  if (unit.shielded) {
+  if (unit.shielded && !options?.ignoreShield) {
     unit.shielded = false;
     return 0;
   }
-  unit.health -= amount;
-  return amount;
+  if (unit.shielded && options?.ignoreShield) {
+    unit.shielded = false;
+  }
+  const actualDamage = isRunenmutantEnraged(unit) ? Math.max(1, amount - 1) : amount;
+  unit.health -= actualDamage;
+  return actualDamage;
 }
 
 function healUnit(unit: UnitInstance, amount: number) {
@@ -265,6 +273,10 @@ function applyStartTurnBoardEffects(state: MatchState, side: PlayerSide) {
     }
     if (unit.effectId === "extra-gold-each-turn") {
       bonusGold += 1;
+    }
+    if (unit.effectId === "mutant-rage") {
+      unit.attack += 1;
+      logLine(state, `${unit.name} verfaellt dem Mutationsrausch und erhaelt +1 Angriff.`);
     }
     if (unit.effectId === "build-random-tool" && state.turn % 2 === 0) {
       // MVP-Variante: Marwin verbessert sich selbst statt ein separates Werkzeug-Objekt zu erzeugen.
@@ -619,18 +631,31 @@ export function attackWithUnit(
     return source;
   }
 
-  const attackerDamage = getUnitAttack(attacker) + attacker.bonusStrikeDamage;
+  const isMutantRaging = isRunenmutantEnraged(attacker);
+  const attackerDamage = getUnitAttack(attacker) + attacker.bonusStrikeDamage + (isMutantRaging ? 1 : 0);
   if (target.kind === "unit") {
     const defender = findUnit(opponent, target.unitId);
     if (!defender || !canTargetUnit(defender)) {
       return source;
     }
 
-    damageUnit(defender, attackerDamage);
+    damageUnit(defender, attackerDamage, { ignoreShield: isMutantRaging });
     damageUnit(attacker, getUnitAttack(defender));
 
     if (attacker.effectId === "heal-self-on-attack") {
       healUnit(attacker, 1);
+    }
+
+    if (isMutantRaging) {
+      opponent.board
+        .filter((unit) => unit.instanceId !== defender.instanceId)
+        .forEach((unit) => {
+          damageUnit(unit, 1, { ignoreShield: true });
+        });
+      logLine(
+        state,
+        `${attacker.name} entfesselt Seelenspalter und trifft die uebrigen Gegner fuer 1 Schaden.`
+      );
     }
 
     attacker.exhausted = true;

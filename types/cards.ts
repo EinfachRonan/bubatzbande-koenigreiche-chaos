@@ -13,6 +13,7 @@ export type EffectId =
   | "untargetable-every-other-round"
   | "heal-all-allies-end-turn"
   | "gain-attack-on-ally-death"
+  | "mutant-rage"
   | "heal-leader"
   | "plunder-gold"
   | "ready-ally"

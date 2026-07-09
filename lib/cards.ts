@@ -171,6 +171,20 @@ export const cards: CardDefinition[] = [
     tags: ["Schmied", "Wachsend"]
   },
   {
+    id: "der-runenmutant",
+    name: "der-runenmutant",
+    type: "character",
+    rarity: "legendary",
+    cost: 8,
+    attack: 5,
+    health: 9,
+    effect:
+      "Mutationsrausch: Zu Beginn deines Zuges +1 Angriff. Unter 50% Leben erhaelt er Berserkerwut und Schildbruch: Runenhieb verursacht +1 Schaden, ignoriert Schilde und Seelenspalter fuegt den uebrigen Gegnern 1 Schaden zu.",
+    effectId: "mutant-rage",
+    image: "/images/cards/der-runenmutant.png",
+    tags: ["Mutant", "Boss-Tank", "Berserker", "Runenaxt"]
+  },
+  {
     id: "doenerpause",
     name: "Dönerpause",
     type: "action",

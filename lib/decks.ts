@@ -18,7 +18,7 @@ export const starterDeckIds: string[] = [
   "donpatron",
   "der-graue-geist",
   "der-kraeuterkoenig",
-  "marwin-der-pionier",
+  "der-runenmutant",
   "doenerpause",
   "doenerpause",
   "goldsack-gepluendert",
@@ -67,7 +67,7 @@ export const botStarterDeckIds: string[] = [
   "pionier-zirkel",
   "schmiedehammer",
   "schmiedehammer",
-  "bubatz-alarm",
+  "der-runenmutant",
   "der-koenig-von-deutschland"
 ];
 
