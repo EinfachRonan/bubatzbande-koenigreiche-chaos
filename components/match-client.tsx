@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { CardFrame } from "@/components/card-frame";
 import { BoardSlot } from "@/components/game/board-slot";
@@ -292,14 +293,20 @@ export function MatchClient() {
         role="dialog"
         aria-label={state.winner === "player" ? "Sieg" : "Niederlage"}
       >
-        <span className="kh-match-result-kicker">Match beendet</span>
-        <strong className="kh-match-result-state">
-          {state.winner === "player" ? "GEWONNEN" : "VERLOREN"}
-        </strong>
-        <h2>{state.winner === "player" ? "Sieg fuer dein Reich" : "Das Chaos hat gesiegt"}</h2>
-        <p>{winnerText}</p>
+        <div className="kh-match-result-banner">
+          <Image
+            src={
+              state.winner === "player"
+                ? "/images/ui/result-win-banner.png"
+                : "/images/ui/result-loss-banner.png"
+            }
+            alt={winnerText ?? (state.winner === "player" ? "Gewonnen" : "Verloren")}
+            fill
+            sizes="(max-width: 768px) 92vw, 900px"
+          />
+        </div>
         <button className="kh-match-result-button" type="button" onClick={resetMatch}>
-          Neu starten
+          Nochmal spielen
         </button>
       </div>
     </div>
