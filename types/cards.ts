@@ -14,6 +14,7 @@ export type EffectId =
   | "heal-all-allies-end-turn"
   | "gain-attack-on-ally-death"
   | "mutant-rage"
+  | "runenwut"
   | "heal-leader"
   | "plunder-gold"
   | "ready-ally"
@@ -72,6 +73,9 @@ export type UnitInstance = {
   stunForTurns: number;
   untargetableForTurns: number;
   temporaryAttackPenalty: number;
+  temporaryAttackBonus: number;
+  temporaryAttackBonusTurns: number;
   shielded: boolean;
   bonusStrikeDamage: number;
+  nextAttackShieldBreakBonus: number;
 };

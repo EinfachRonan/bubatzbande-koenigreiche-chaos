@@ -188,6 +188,13 @@ export function MatchClient() {
 
     if (state.targetMode && selectedHandCardId) {
       if (state.targetMode.target === "ally-unit" && side === "player") {
+        const unit = state.player.board.find((entry) => entry.instanceId === unitId);
+        if (
+          state.targetMode.requiredBaseCardId &&
+          unit?.baseCardId !== state.targetMode.requiredBaseCardId
+        ) {
+          return;
+        }
         setState((current) =>
           playCard(current, "player", selectedHandCardId, {
             kind: "unit",
@@ -265,6 +272,16 @@ export function MatchClient() {
       }
       return entry.kind === "unit" && target.kind === "unit" && entry.unitId === target.unitId;
     });
+  }
+
+  function isTargetableAlly(unit: MatchState["player"]["board"][number] | undefined) {
+    if (!unit || state.targetMode?.target !== "ally-unit") {
+      return false;
+    }
+    if (!state.targetMode.requiredBaseCardId) {
+      return true;
+    }
+    return unit.baseCardId === state.targetMode.requiredBaseCardId;
   }
 
   const selectedCard = selectedHandCardId ? getCardByUid(state, "player", selectedHandCardId) : null;
@@ -361,7 +378,7 @@ export function MatchClient() {
                 unit={unit}
                 selected={selectedAttackerId === unit?.instanceId}
                 highlighted={highlightedUnitId === unit?.instanceId}
-                targetable={Boolean(unit && state.targetMode?.target === "ally-unit")}
+                targetable={isTargetableAlly(unit)}
                 statusText={unit ? getUnitStatus(unit) : undefined}
                 onClick={unit ? () => onBoardClick(unit.instanceId, "player") : undefined}
               />

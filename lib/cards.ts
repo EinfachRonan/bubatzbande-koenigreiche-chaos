@@ -251,6 +251,18 @@ export const cards: CardDefinition[] = [
     tags: ["Kontrolle", "Fluch"]
   },
   {
+    id: "runenwut",
+    name: "runenwut",
+    type: "action",
+    rarity: "epic",
+    cost: 3,
+    effect:
+      "Runenwut: Der Runenmutant entfesselt rohe Mutationsenergie. Erhaelt 2 Runden lang +4 Angriff. Der naechste Angriff verursacht zusaetzlich 3 Schildbruch.",
+    effectId: "runenwut",
+    image: "/images/cards/runenwut.png",
+    tags: ["Wut", "Runen", "Mutant"]
+  },
+  {
     id: "bubatz-alarm",
     name: "Bubatz-Alarm",
     type: "chaos",

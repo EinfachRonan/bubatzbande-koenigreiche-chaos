@@ -22,6 +22,7 @@ export type TargetMode = {
   handCardId: string;
   prompt: string;
   target: "ally-unit" | "enemy-unit";
+  requiredBaseCardId?: string;
 };
 
 export type MatchState = {
@@ -106,8 +107,11 @@ function createUnit(card: CardDefinition, owner: PlayerSide, turn: number): Unit
     stunForTurns: 0,
     untargetableForTurns: card.effectId === "untargetable-every-other-round" ? 1 : 0,
     temporaryAttackPenalty: 0,
+    temporaryAttackBonus: 0,
+    temporaryAttackBonusTurns: 0,
     shielded: false,
-    bonusStrikeDamage: 0
+    bonusStrikeDamage: 0,
+    nextAttackShieldBreakBonus: 0
   };
 }
 
@@ -162,7 +166,7 @@ function changeHonor(player: PlayerState, amount: number) {
 }
 
 function getUnitAttack(unit: UnitInstance) {
-  return Math.max(0, unit.attack - unit.temporaryAttackPenalty);
+  return Math.max(0, unit.attack + unit.temporaryAttackBonus - unit.temporaryAttackPenalty);
 }
 
 function isRunenmutantEnraged(unit: UnitInstance) {
@@ -251,6 +255,13 @@ function applyEndTurnEffects(state: MatchState, side: PlayerSide) {
     if (unit.temporaryAttackPenalty > 0) {
       unit.temporaryAttackPenalty = 0;
     }
+    if (unit.temporaryAttackBonusTurns > 0) {
+      unit.temporaryAttackBonusTurns -= 1;
+      if (unit.temporaryAttackBonusTurns === 0) {
+        unit.temporaryAttackBonus = 0;
+        logLine(state, `${unit.name} verliert die zusaetzliche Runenwut.`);
+      }
+    }
   });
 }
 
@@ -322,6 +333,13 @@ export function getTargetModeForCard(card: DeckCard): TargetMode | null {
         handCardId: card.uid,
         prompt: "Wähle einen verbündeten Charakter.",
         target: "ally-unit"
+      };
+    case "runenwut":
+      return {
+        handCardId: card.uid,
+        prompt: "Waehle den Runenmutanten.",
+        target: "ally-unit",
+        requiredBaseCardId: "der-runenmutant"
       };
     case "stun-enemy":
       return {
@@ -411,6 +429,18 @@ function applyCardEffect(
         if (unit) {
           unit.attack += 2;
           logLine(state, `${unit.name} erhält +2 Angriff durch ${card.name}.`);
+        }
+      }
+      break;
+    }
+    case "runenwut": {
+      if (target?.kind === "unit") {
+        const unit = findUnit(player, target.unitId);
+        if (unit && unit.baseCardId === "der-runenmutant") {
+          unit.temporaryAttackBonus = 4;
+          unit.temporaryAttackBonusTurns = Math.max(unit.temporaryAttackBonusTurns, 2);
+          unit.nextAttackShieldBreakBonus = 3;
+          logLine(state, `${unit.name} entfesselt mit ${card.name} rohe Mutationsenergie.`);
         }
       }
       break;
@@ -581,6 +611,12 @@ export function playCard(
     state.targetMode = requiresTarget;
     return state;
   }
+  if (card.effectId === "runenwut" && target?.kind === "unit") {
+    const unit = findUnit(player, target.unitId);
+    if (!unit || unit.baseCardId !== "der-runenmutant") {
+      return source;
+    }
+  }
 
   player.gold -= realCost;
   removeCardFromHand(player, handCardId);
@@ -632,14 +668,20 @@ export function attackWithUnit(
   }
 
   const isMutantRaging = isRunenmutantEnraged(attacker);
-  const attackerDamage = getUnitAttack(attacker) + attacker.bonusStrikeDamage + (isMutantRaging ? 1 : 0);
+  const shieldBreakBonus = attacker.nextAttackShieldBreakBonus;
+  const ignoreShield = isMutantRaging || shieldBreakBonus > 0;
+  const attackerDamage =
+    getUnitAttack(attacker) +
+    attacker.bonusStrikeDamage +
+    (isMutantRaging ? 1 : 0) +
+    shieldBreakBonus;
   if (target.kind === "unit") {
     const defender = findUnit(opponent, target.unitId);
     if (!defender || !canTargetUnit(defender)) {
       return source;
     }
 
-    damageUnit(defender, attackerDamage, { ignoreShield: isMutantRaging });
+    damageUnit(defender, attackerDamage, { ignoreShield });
     damageUnit(attacker, getUnitAttack(defender));
 
     if (attacker.effectId === "heal-self-on-attack") {
@@ -657,6 +699,10 @@ export function attackWithUnit(
         `${attacker.name} entfesselt Seelenspalter und trifft die uebrigen Gegner fuer 1 Schaden.`
       );
     }
+    if (shieldBreakBonus > 0) {
+      attacker.nextAttackShieldBreakBonus = 0;
+      logLine(state, `${attacker.name} zertruemmert mit Runenwut Schutz und Ruestung.`);
+    }
 
     attacker.exhausted = true;
     logLine(
@@ -667,6 +713,10 @@ export function attackWithUnit(
     changeHonor(opponent, -attackerDamage);
     if (attacker.effectId === "heal-self-on-attack") {
       healUnit(attacker, 1);
+    }
+    if (shieldBreakBonus > 0) {
+      attacker.nextAttackShieldBreakBonus = 0;
+      logLine(state, `${attacker.name} entlaedt Runenwut in einem vernichtenden Schlag.`);
     }
     attacker.exhausted = true;
     logLine(
@@ -744,6 +794,9 @@ export function getCardPlayIssue(state: MatchState, side: PlayerSide, card: Deck
   }
   if (card.effectId === "ready-ally" && player.board.length === 0) {
     return "Kein Verbündeter für diesen Befehl vorhanden.";
+  }
+  if (card.effectId === "runenwut" && !player.board.some((unit) => unit.baseCardId === "der-runenmutant")) {
+    return "Du brauchst den Runenmutanten auf dem Feld.";
   }
   if (card.effectId === "stun-enemy" && getStatePlayer(state, getOpponentSide(side)).board.length === 0) {
     return "Es gibt kein gegnerisches Ziel.";

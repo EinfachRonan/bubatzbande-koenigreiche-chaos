@@ -39,6 +39,9 @@ function getBotCardPriority(state: MatchState, card: MatchState["bot"]["hand"][n
     case "equipment":
       return state.bot.board.length > 0 ? 28 : -10;
     case "action":
+      if (card.effectId === "runenwut") {
+        return state.bot.board.some((unit) => unit.baseCardId === "der-runenmutant") ? 30 : -12;
+      }
       if (card.effectId === "heal-leader") {
         return state.bot.honor < 24 ? 18 : -6;
       }
@@ -118,6 +121,19 @@ export function runBotTurn(initial: MatchState) {
         kind: "unit",
         side: "player",
         unitId: bestEnemy.instanceId
+      });
+      continue;
+    }
+
+    if (card.effectId === "runenwut") {
+      const mutant = state.bot.board.find((unit) => unit.baseCardId === "der-runenmutant");
+      if (!mutant) {
+        continue;
+      }
+      state = playCard(state, "bot", card.uid, {
+        kind: "unit",
+        side: "bot",
+        unitId: mutant.instanceId
       });
       continue;
     }
