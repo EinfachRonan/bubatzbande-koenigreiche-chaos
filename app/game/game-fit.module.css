@@ -392,6 +392,16 @@
   pointer-events: auto;
 }
 
+.page :global(.kh-board-preview-backdrop) {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  background: rgba(4, 7, 5, 0.12);
+}
+
 .page :global(.kh-board-preview .card-frame) {
   min-height: clamp(300px, 46vh, 420px);
   box-shadow:
@@ -598,10 +608,36 @@
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   font-size: clamp(0.54rem, 0.58vw, 0.66rem);
   line-height: 1.08;
   text-align: left;
+}
+
+.page :global(.kh-hand-mini-stats) {
+  display: flex;
+  gap: 4px;
+}
+
+.page :global(.kh-hand-mini-stat) {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+  padding: 2px 5px;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 164, 81, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.page :global(.kh-hand-mini-stat strong) {
+  font-size: clamp(0.54rem, 0.58vw, 0.66rem);
+}
+
+.page :global(.kh-hand-mini-stat small) {
+  font-size: 0.4rem;
+  color: #d1c39b;
 }
 
 .page :global(.kh-hand-mini-meta) {
@@ -613,10 +649,18 @@
   text-align: left;
 }
 
-.page :global(.kh-card-preview) {
+.page :global(.kh-card-preview-backdrop) {
   position: absolute;
-  left: 50%;
-  bottom: 102%;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 11.4vh;
+  background: rgba(4, 7, 5, 0.12);
+}
+
+.page :global(.kh-card-preview) {
+  position: relative;
   z-index: 20;
   width: clamp(166px, 13.4vw, 220px);
   padding: 8px;
@@ -626,7 +670,6 @@
   box-shadow:
     0 24px 46px rgba(0, 0, 0, 0.48),
     0 0 0 1px rgba(255, 255, 255, 0.035);
-  transform: translateX(-50%);
 }
 
 .page :global(.kh-card-preview::after) {
@@ -773,6 +816,18 @@
     font-size: 0.48rem;
   }
 
+  .page :global(.kh-hand-mini-stat) {
+    padding: 2px 4px;
+  }
+
+  .page :global(.kh-hand-mini-stat strong) {
+    font-size: 0.5rem;
+  }
+
+  .page :global(.kh-hand-mini-stat small) {
+    font-size: 0.36rem;
+  }
+
   .page :global(.kh-hand-mini-meta) {
     font-size: 0.4rem;
   }
@@ -812,7 +867,10 @@
 
   .page :global(.kh-card-preview) {
     width: clamp(150px, 24vw, 188px);
-    bottom: 104%;
+  }
+
+  .page :global(.kh-card-preview-backdrop) {
+    padding-bottom: 10.6vh;
   }
 
   .page :global(.kh-card-preview-frame .card-frame) {

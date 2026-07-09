@@ -47,6 +47,7 @@ export function HandCards({
       <div className="kh-hand-fan">
         {cards.map((card) => {
           const playIssue = getPlayIssue(card);
+          const hasStats = typeof card.attack === "number" && typeof card.health === "number";
 
           return (
             <button
@@ -64,6 +65,18 @@ export function HandCards({
             >
               <span className="kh-hand-mini-cost">{card.cost}</span>
               <span className="kh-hand-mini-name">{card.name}</span>
+              {hasStats ? (
+                <span className="kh-hand-mini-stats" aria-hidden="true">
+                  <span className="kh-hand-mini-stat attack">
+                    <strong>{card.attack}</strong>
+                    <small>ANG</small>
+                  </span>
+                  <span className="kh-hand-mini-stat health">
+                    <strong>{card.health}</strong>
+                    <small>LP</small>
+                  </span>
+                </span>
+              ) : null}
               <span className="kh-hand-mini-meta">{playIssue ?? getPlayableCostText(card)}</span>
             </button>
           );
@@ -71,35 +84,42 @@ export function HandCards({
       </div>
 
       {previewCard ? (
-        <div className="kh-card-preview" role="dialog" aria-label={`Kartenvorschau ${previewCard.name}`}>
-          <button
-            className="kh-card-preview-close"
-            type="button"
-            onClick={() => setPreviewId(null)}
-            aria-label="Kartenvorschau schliessen"
+        <div className="kh-card-preview-backdrop" onClick={() => setPreviewId(null)}>
+          <div
+            className="kh-card-preview"
+            role="dialog"
+            aria-label={`Kartenvorschau ${previewCard.name}`}
+            onClick={(event) => event.stopPropagation()}
           >
-            x
-          </button>
-          <div className="kh-card-preview-frame">
-            <CardFrame
-              card={previewCard}
-              compact
-              emphasis="player"
+            <button
+              className="kh-card-preview-close"
+              type="button"
+              onClick={() => setPreviewId(null)}
+              aria-label="Kartenvorschau schliessen"
+            >
+              x
+            </button>
+            <div className="kh-card-preview-frame">
+              <CardFrame
+                card={previewCard}
+                compact
+                emphasis="player"
+                disabled={Boolean(previewIssue)}
+                footer={<p className="hint-text">{previewIssue ?? getPlayableCostText(previewCard)}</p>}
+              />
+            </div>
+            <button
+              className="kh-card-preview-play"
+              type="button"
               disabled={Boolean(previewIssue)}
-              footer={<p className="hint-text">{previewIssue ?? getPlayableCostText(previewCard)}</p>}
-            />
+              onClick={() => {
+                onSelect(previewCard.uid);
+                setPreviewId(null);
+              }}
+            >
+              Karte ausspielen
+            </button>
           </div>
-          <button
-            className="kh-card-preview-play"
-            type="button"
-            disabled={Boolean(previewIssue)}
-            onClick={() => {
-              onSelect(previewCard.uid);
-              setPreviewId(null);
-            }}
-          >
-            Karte ausspielen
-          </button>
         </div>
       ) : null}
 

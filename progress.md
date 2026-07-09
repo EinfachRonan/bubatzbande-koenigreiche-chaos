@@ -51,3 +51,5 @@ Original prompt: Bitte setze die beigefuegte Bilddatei als exakte Design- und La
 - Verifikation Runde 15: npm run typecheck erfolgreich, npm run build erfolgreich, lokaler out/-Server liefert HTTP 200 fuer /, /game, /cards und /deckbuilder.
 - 2026-07-09: Feldkarten im Spiel auf kompakte Board-Ansicht reduziert: nur Name, Bild, Angriff und Leben bleiben im Slot; Klick auf eine Feldkarte oeffnet jetzt die volle Vorschau als zentriertes Overlay ueber dem Brett.
 - Verifikation Runde 16: npm run typecheck erfolgreich, npm run build erfolgreich, lokaler out/-Server liefert HTTP 200 fuer /game.
+- 2026-07-09: Kartenvorschauen weiter verfeinert: Klick neben die Vollvorschau schliesst sie wieder, und die Handkarten zeigen jetzt ebenfalls Angriff/Leben in kompakter Mini-Ansicht ohne Faehigkeitstext.
+- Verifikation Runde 17: npm run typecheck erfolgreich, npm run build erfolgreich.

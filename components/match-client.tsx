@@ -410,16 +410,23 @@ export function MatchClient() {
       }
       centerOverlay={
         previewUnit ? (
-          <div className="kh-board-preview" role="dialog" aria-label={`Kartenvorschau ${previewUnit.name}`}>
-            <button
-              className="kh-board-preview-close"
-              type="button"
-              onClick={() => setPreviewUnitId(null)}
-              aria-label="Kartenvorschau schliessen"
+          <div className="kh-board-preview-backdrop" onClick={() => setPreviewUnitId(null)}>
+            <div
+              className="kh-board-preview"
+              role="dialog"
+              aria-label={`Kartenvorschau ${previewUnit.name}`}
+              onClick={(event) => event.stopPropagation()}
             >
-              x
-            </button>
-            <CardFrame card={previewUnit} emphasis={previewUnit.owner === "player" ? "player" : "enemy"} />
+              <button
+                className="kh-board-preview-close"
+                type="button"
+                onClick={() => setPreviewUnitId(null)}
+                aria-label="Kartenvorschau schliessen"
+              >
+                x
+              </button>
+              <CardFrame card={previewUnit} emphasis={previewUnit.owner === "player" ? "player" : "enemy"} />
+            </div>
           </div>
         ) : null
       }
