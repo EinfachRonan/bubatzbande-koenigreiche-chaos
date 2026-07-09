@@ -268,6 +268,22 @@ export function MatchClient() {
   }
 
   const selectedCard = selectedHandCardId ? getCardByUid(state, "player", selectedHandCardId) : null;
+  const winnerOverlay = state.winner ? (
+    <div className="kh-match-result-backdrop">
+      <div
+        className={`kh-match-result-card ${state.winner === "player" ? "is-win" : "is-loss"}`}
+        role="dialog"
+        aria-label={state.winner === "player" ? "Sieg" : "Niederlage"}
+      >
+        <span className="kh-match-result-kicker">Match beendet</span>
+        <h2>{state.winner === "player" ? "Gewonnen" : "Verloren"}</h2>
+        <p>{winnerText}</p>
+        <button className="kh-match-result-button" type="button" onClick={resetMatch}>
+          Neu starten
+        </button>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <KraeuterhoehleMap
@@ -409,26 +425,29 @@ export function MatchClient() {
         />
       }
       centerOverlay={
-        previewUnit ? (
-          <div className="kh-board-preview-backdrop" onClick={() => setPreviewUnitId(null)}>
-            <div
-              className="kh-board-preview"
-              role="dialog"
-              aria-label={`Kartenvorschau ${previewUnit.name}`}
-              onClick={(event) => event.stopPropagation()}
-            >
-              <button
-                className="kh-board-preview-close"
-                type="button"
-                onClick={() => setPreviewUnitId(null)}
-                aria-label="Kartenvorschau schliessen"
+        <>
+          {previewUnit ? (
+            <div className="kh-board-preview-backdrop" onClick={() => setPreviewUnitId(null)}>
+              <div
+                className="kh-board-preview"
+                role="dialog"
+                aria-label={`Kartenvorschau ${previewUnit.name}`}
+                onClick={(event) => event.stopPropagation()}
               >
-                x
-              </button>
-              <CardFrame card={previewUnit} emphasis={previewUnit.owner === "player" ? "player" : "enemy"} />
+                <button
+                  className="kh-board-preview-close"
+                  type="button"
+                  onClick={() => setPreviewUnitId(null)}
+                  aria-label="Kartenvorschau schliessen"
+                >
+                  x
+                </button>
+                <CardFrame card={previewUnit} emphasis={previewUnit.owner === "player" ? "player" : "enemy"} />
+              </div>
             </div>
-          </div>
-        ) : null
+          ) : null}
+          {winnerOverlay}
+        </>
       }
     />
   );
