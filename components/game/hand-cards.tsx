@@ -73,7 +73,7 @@ export function HandCards({
     closeTimeoutRef.current = window.setTimeout(() => {
       setPreviewId(null);
       closeTimeoutRef.current = null;
-    }, 160);
+    }, 420);
   }
 
   function isInsidePreviewZone(target: EventTarget | null) {
@@ -107,7 +107,7 @@ export function HandCards({
         </div>
         <div className="kh-hand-gold-box" title="Gold = Ressource zum Ausspielen von Karten">
           <span className="kh-hand-gold-icon" aria-hidden="true">
-            ●
+            G
           </span>
           <div className="kh-hand-gold-copy">
             <strong>{currentGold}</strong>
@@ -177,10 +177,7 @@ export function HandCards({
       </div>
 
       {previewCard && !locked ? (
-        <div
-          className="kh-card-preview-backdrop"
-          onClick={() => setPreviewId(null)}
-        >
+        <div className="kh-card-preview-backdrop" onClick={() => setPreviewId(null)}>
           <div
             className="kh-card-preview"
             role="dialog"
