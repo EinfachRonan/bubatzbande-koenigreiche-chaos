@@ -133,6 +133,16 @@ export function MatchClient() {
     }
   }, [previewUnit, previewUnitId]);
 
+  useEffect(() => {
+    if (!state.winner) {
+      return;
+    }
+
+    setSelectedHandCardId(null);
+    setSelectedAttackerId(null);
+    setPreviewUnitId(null);
+  }, [state.winner]);
+
   const winnerText = describeWinner(state);
 
   function flashUnit(unitId: string) {
@@ -426,14 +436,17 @@ export function MatchClient() {
           </button>
 
           <div className="kh-gold-bar" title="Gold = Ressource zum Ausspielen von Karten">
+            <div className="kh-gold-bar-copy">
+              <span>Aktuelles Gold</span>
+              <strong>
+                {state.player.gold}/{state.player.maxGold}
+              </strong>
+            </div>
             <div className="kh-gold-pips" aria-hidden="true">
               {Array.from({ length: Math.max(10, state.player.maxGold) }).map((_, index) => (
                 <span key={`gold-${index}`} className={index < state.player.gold ? "is-filled" : ""} />
               ))}
             </div>
-            <strong>
-              {state.player.gold}/{state.player.maxGold}
-            </strong>
           </div>
 
           <button className="ghost-button kh-reset-button" onClick={resetMatch}>
@@ -445,7 +458,10 @@ export function MatchClient() {
         <HandCards
           cards={state.player.hand}
           deckCount={state.player.deck.length}
+          currentGold={state.player.gold}
+          maxGold={state.player.maxGold}
           selectedId={selectedHandCardId}
+          locked={Boolean(state.winner)}
           getPlayIssue={(card) => getCardPlayIssue(state, "player", card)}
           getPlayableCostText={(card) => `Spielkosten: ${getPlayableCost(state, "player", card)}`}
           onSelect={selectHandCard}
