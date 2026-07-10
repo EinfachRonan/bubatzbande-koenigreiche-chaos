@@ -12,20 +12,20 @@
 
 .utilityNav {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 14px;
+  left: 16px;
   z-index: 6;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  max-width: min(70vw, 420px);
+  gap: 8px;
+  max-width: min(52vw, 340px);
 }
 
 .utilityNav :global(.secondary-button),
 .utilityNav :global(.ghost-button) {
   min-height: 0;
-  padding: 8px 14px;
-  font-size: 0.88rem;
+  padding: 7px 12px;
+  font-size: 0.82rem;
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.26);
 }
 
@@ -116,15 +116,15 @@
 }
 
 .page :global(.kh-anchor-top-left) {
-  top: 3.8%;
-  left: 2.4%;
-  width: 16.5%;
+  top: 4.8%;
+  left: 3.2%;
+  width: 15.2%;
 }
 
 .page :global(.kh-anchor-bottom-left) {
-  left: 1.9%;
-  bottom: 4.2%;
-  width: 15.2%;
+  left: 2.8%;
+  bottom: 5.1%;
+  width: 14.2%;
 }
 
 .page :global(.kh-anchor-top-hand) {
@@ -174,10 +174,10 @@
 }
 
 .page :global(.kh-anchor-hand) {
-  left: 23.4%;
+  left: 24.8%;
   right: 18%;
-  bottom: 3.8%;
-  height: 14.6%;
+  bottom: 4.4%;
+  height: 13.8%;
 }
 
 .page :global(.kh-layout),
@@ -679,8 +679,8 @@
 .page :global(.kh-hand-shell) {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(54px, 7.6%) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(48px, 6.8%) minmax(0, 1fr);
+  gap: 14px;
   height: 100%;
 }
 
@@ -689,7 +689,7 @@
   grid-template-rows: minmax(0, 1fr) auto;
   gap: 8px;
   align-self: end;
-  height: 92%;
+  height: 88%;
 }
 
 .page :global(.kh-hand-rail) {
@@ -755,7 +755,7 @@
   align-items: flex-end;
   gap: 6px;
   height: 100%;
-  padding: 0 0 0.8%;
+  padding: 0 0 0.35%;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -767,13 +767,13 @@
 
 .page :global(.kh-hand-mini-card) {
   position: relative;
-  flex: 0 0 clamp(62px, 4.3vw, 82px);
-  height: clamp(90px, 10.9vh, 116px);
+  flex: 0 0 clamp(58px, 4vw, 76px);
+  height: clamp(84px, 10.1vh, 108px);
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 4px;
   align-items: start;
-  padding: 7px 6px 6px;
+  padding: 6px 5px 5px;
   border: 1px solid rgba(201, 164, 81, 0.34);
   border-radius: 13px;
   background:
@@ -1077,7 +1077,7 @@
 
   .page :global(.kh-anchor-top-left),
   .page :global(.kh-anchor-bottom-left) {
-    width: 16.2%;
+    width: 15%;
   }
 
   .page :global(.kh-anchor-right-top),
@@ -1087,14 +1087,14 @@
   }
 
   .page :global(.kh-anchor-hand) {
-    left: 22.8%;
+    left: 24%;
     right: 18.1%;
-    height: 15.2%;
+    height: 14%;
   }
 
   .page :global(.kh-hand-mini-card) {
-    flex-basis: clamp(46px, 4vw, 60px);
-    height: clamp(68px, 9.2vh, 88px);
+    flex-basis: clamp(44px, 3.8vw, 56px);
+    height: clamp(64px, 8.6vh, 82px);
     padding: 5px 4px;
   }
 
