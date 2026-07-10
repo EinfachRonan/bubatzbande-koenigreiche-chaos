@@ -9,14 +9,14 @@ export function HomepageLanding() {
           <div className="home-splash-shade" aria-hidden="true" />
 
           <div className="home-splash-hotspots">
-            <Link href="/cards" className="home-splash-hotspot is-cards">
-              <span>Kartenset ansehen</span>
+            <Link href="/cards" className="home-splash-hotspot is-cards" aria-label="Kartenset ansehen">
+              <span className="sr-only">Kartenset ansehen</span>
             </Link>
-            <Link href="/game" className="home-splash-hotspot is-play">
-              <span>Spiel starten</span>
+            <Link href="/game" className="home-splash-hotspot is-play" aria-label="Spiel starten">
+              <span className="sr-only">Spiel starten</span>
             </Link>
-            <Link href="/deckbuilder" className="home-splash-hotspot is-deckbuilder">
-              <span>Deckbuilder</span>
+            <Link href="/deckbuilder" className="home-splash-hotspot is-deckbuilder" aria-label="Deckbuilder">
+              <span className="sr-only">Deckbuilder</span>
             </Link>
           </div>
         </div>

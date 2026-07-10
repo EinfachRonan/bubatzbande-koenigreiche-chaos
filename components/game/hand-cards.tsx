@@ -73,7 +73,7 @@ export function HandCards({
     closeTimeoutRef.current = window.setTimeout(() => {
       setPreviewId(null);
       closeTimeoutRef.current = null;
-    }, 24);
+    }, 160);
   }
 
   return (
