@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { FocusEvent, MouseEvent, useEffect, useRef, useState } from "react";
 import { CardFrame } from "@/components/card-frame";
 import { MatchState } from "@/lib/game";
 
@@ -76,6 +76,24 @@ export function HandCards({
     }, 160);
   }
 
+  function isInsidePreviewZone(target: EventTarget | null) {
+    return target instanceof HTMLElement && Boolean(target.closest("[data-hand-preview-zone='true']"));
+  }
+
+  function handleCardLeave(event: MouseEvent<HTMLButtonElement> | FocusEvent<HTMLButtonElement>) {
+    if (isInsidePreviewZone(event.relatedTarget)) {
+      return;
+    }
+    closePreviewSoon();
+  }
+
+  function handlePreviewLeave(event: MouseEvent<HTMLDivElement> | FocusEvent<HTMLDivElement>) {
+    if (isInsidePreviewZone(event.relatedTarget)) {
+      return;
+    }
+    closePreviewSoon();
+  }
+
   return (
     <section className="kh-hand-shell">
       <div className="kh-hand-rail" aria-hidden="true" />
@@ -116,10 +134,11 @@ export function HandCards({
                 .filter(Boolean)
                 .join(" ")}
               key={card.uid}
+              data-hand-preview-zone="true"
               onMouseEnter={() => openPreview(card.uid)}
-              onMouseLeave={closePreviewSoon}
+              onMouseLeave={handleCardLeave}
               onFocus={() => openPreview(card.uid)}
-              onBlur={closePreviewSoon}
+              onBlur={handleCardLeave}
               aria-pressed={previewId === card.uid}
               aria-label={`${card.name}. ${playIssue ?? getPlayableCostText(card)}`}
               disabled={locked}
@@ -166,8 +185,10 @@ export function HandCards({
             className="kh-card-preview"
             role="dialog"
             aria-label={`Kartenvorschau ${previewCard.name}`}
+            data-hand-preview-zone="true"
             onMouseEnter={() => openPreview(previewCard.uid)}
-            onMouseLeave={closePreviewSoon}
+            onMouseLeave={handlePreviewLeave}
+            onBlur={handlePreviewLeave}
             onClick={(event) => event.stopPropagation()}
           >
             <button
