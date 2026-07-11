@@ -73,7 +73,7 @@ export function HandCards({
     closeTimeoutRef.current = window.setTimeout(() => {
       setPreviewId(null);
       closeTimeoutRef.current = null;
-    }, 420);
+    }, 900);
   }
 
   function isInsidePreviewZone(target: EventTarget | null) {
@@ -177,7 +177,13 @@ export function HandCards({
       </div>
 
       {previewCard && !locked ? (
-        <div className="kh-card-preview-backdrop" onClick={() => setPreviewId(null)}>
+        <div
+          className="kh-card-preview-backdrop"
+          data-hand-preview-zone="true"
+          onMouseEnter={() => openPreview(previewCard.uid)}
+          onMouseLeave={handlePreviewLeave}
+          onClick={() => setPreviewId(null)}
+        >
           <div
             className="kh-card-preview"
             role="dialog"
