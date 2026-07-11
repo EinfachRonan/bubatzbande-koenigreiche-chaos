@@ -28,13 +28,13 @@ export function EventLog({
           <h2 className="section-title">Ereignis-Log</h2>
         </div>
         <button className="ghost-button log-toggle" type="button" onClick={onToggle}>
-          {collapsed ? "Log oeffnen" : "Log einklappen"}
+          {collapsed ? "Log öffnen" : "Log einklappen"}
         </button>
       </div>
 
       {selectedCardName ? (
         <div className="kh-selected-card">
-          <h3 className="section-title">Ausgewaehlte Karte</h3>
+          <h3 className="section-title">Ausgewählte Karte</h3>
           <p className="hint-text">{selectedCardName}</p>
           {selectedCardEffect ? <p className="hint-text">{selectedCardEffect}</p> : null}
           {canCancelTarget ? (
@@ -52,7 +52,7 @@ export function EventLog({
       </ul>
 
       <Link href="/cards" className="secondary-button kh-log-link">
-        Deckbuilder oeffnen
+        Deckbuilder öffnen
       </Link>
     </section>
   );

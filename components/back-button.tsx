@@ -9,7 +9,7 @@ type BackButtonProps = {
 export function BackButton({
   className,
   fallbackHref = "/",
-  label = "Zurueck"
+  label = "Zurück"
 }: BackButtonProps) {
   function handleBack() {
     if (typeof window === "undefined") {

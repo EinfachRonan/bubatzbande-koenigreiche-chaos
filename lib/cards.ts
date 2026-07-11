@@ -146,7 +146,7 @@ export const cards: CardDefinition[] = [
   },
   {
     id: "der-kraeuterkoenig",
-    name: "Der KräuterKönig",
+    name: "Der Kräuterkönig",
     type: "character",
     rarity: "legendary",
     cost: 7,
@@ -179,7 +179,7 @@ export const cards: CardDefinition[] = [
     attack: 5,
     health: 9,
     effect:
-      "Mutationsrausch: Zu Beginn deines Zuges +1 Angriff. Unter 50% Leben erhaelt er Berserkerwut und Schildbruch: Runenhieb verursacht +1 Schaden, ignoriert Schilde und Seelenspalter fuegt den uebrigen Gegnern 1 Schaden zu.",
+      "Mutationsrausch: Zu Beginn deines Zuges +1 Angriff. Unter 50% Leben erhält er Berserkerwut und Schildbruch: Runenhieb verursacht +1 Schaden, ignoriert Schilde und Seelenspalter fügt den übrigen Gegnern 1 Schaden zu.",
     effectId: "mutant-rage",
     image: "/images/cards/der-runenmutant.png",
     imageFit: "contain",
@@ -259,7 +259,7 @@ export const cards: CardDefinition[] = [
     rarity: "epic",
     cost: 3,
     effect:
-      "Runenwut: Der Runenmutant entfesselt rohe Mutationsenergie. Erhaelt 2 Runden lang +4 Angriff. Der naechste Angriff verursacht zusaetzlich 3 Schildbruch.",
+      "Runenwut: Der Runenmutant entfesselt rohe Mutationsenergie. Erhält 2 Runden lang +4 Angriff. Der nächste Angriff verursacht zusätzlich 3 Schildbruch.",
     effectId: "runenwut",
     image: "/images/cards/runenwut.png",
     imageFit: "contain",

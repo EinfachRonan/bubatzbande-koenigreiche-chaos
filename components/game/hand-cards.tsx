@@ -1,10 +1,10 @@
 "use client";
 
-import { FocusEvent, MouseEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { CardFrame } from "@/components/card-frame";
-import { MatchState } from "@/lib/game";
+import { DeckCard } from "@/types/cards";
 
-type HandCard = MatchState["player"]["hand"][number];
+type HandCard = DeckCard;
 
 type HandCardsProps = {
   cards: HandCard[];
@@ -15,7 +15,7 @@ type HandCardsProps = {
   locked?: boolean;
   getPlayIssue: (card: HandCard) => string | null;
   getPlayableCostText: (card: HandCard) => string;
-  onSelect: (cardId: string) => void;
+  onSelect: (handCardId: string) => void;
 };
 
 export function HandCards({
@@ -30,72 +30,44 @@ export function HandCards({
   onSelect
 }: HandCardsProps) {
   const [previewId, setPreviewId] = useState<string | null>(null);
-  const closeTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!previewId) {
+      return;
+    }
+
+    const exists = cards.some((card) => card.uid === previewId);
+    if (!exists) {
+      setPreviewId(null);
+    }
+  }, [cards, previewId]);
+
+  useEffect(() => {
+    if (selectedId) {
+      setPreviewId(selectedId);
+    }
+  }, [selectedId]);
+
   const previewCard = cards.find((card) => card.uid === previewId) ?? null;
   const previewIssue = previewCard ? getPlayIssue(previewCard) : null;
 
-  useEffect(() => {
-    if (previewId && !previewCard) {
-      setPreviewId(null);
-    }
-  }, [previewCard, previewId]);
+  function openPreview(handCardId: string) {
+    setPreviewId(handCardId);
+  }
 
-  useEffect(() => {
-    if (locked) {
-      setPreviewId(null);
-    }
-  }, [locked]);
-
-  useEffect(
-    () => () => {
-      if (closeTimeoutRef.current) {
-        window.clearTimeout(closeTimeoutRef.current);
-      }
-    },
-    []
-  );
-
-  function openPreview(cardId: string) {
-    if (locked) {
+  function handlePreviewLeave(event: React.MouseEvent<HTMLElement> | React.FocusEvent<HTMLElement>) {
+    const relatedTarget = event.relatedTarget;
+    if (!(relatedTarget instanceof HTMLElement)) {
       return;
     }
-    if (closeTimeoutRef.current) {
-      window.clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
-    setPreviewId(cardId);
-  }
-
-  function closePreviewSoon() {
-    if (closeTimeoutRef.current) {
-      window.clearTimeout(closeTimeoutRef.current);
-    }
-    closeTimeoutRef.current = window.setTimeout(() => {
-      setPreviewId(null);
-      closeTimeoutRef.current = null;
-    }, 900);
-  }
-
-  function isInsidePreviewZone(target: EventTarget | null) {
-    return target instanceof HTMLElement && Boolean(target.closest("[data-hand-preview-zone='true']"));
-  }
-
-  function handleCardLeave(event: MouseEvent<HTMLButtonElement> | FocusEvent<HTMLButtonElement>) {
-    if (isInsidePreviewZone(event.relatedTarget)) {
+    if (relatedTarget.closest("[data-hand-preview-zone='true']")) {
       return;
     }
-    closePreviewSoon();
-  }
-
-  function handlePreviewLeave(event: MouseEvent<HTMLDivElement> | FocusEvent<HTMLDivElement>) {
-    if (isInsidePreviewZone(event.relatedTarget)) {
-      return;
-    }
-    closePreviewSoon();
+    setPreviewId(null);
   }
 
   return (
-    <section className="kh-hand-shell">
+    <div className="kh-hand-shell">
       <div className="kh-hand-rail" aria-hidden="true" />
       <div className="kh-hand-side-stack">
         <div className="kh-deck-box kh-hand-deck-box">
@@ -110,8 +82,10 @@ export function HandCards({
             G
           </span>
           <div className="kh-hand-gold-copy">
-            <strong>{currentGold}</strong>
-            <span>/ {maxGold} Gold</span>
+            <strong>
+              {currentGold}/{maxGold}
+            </strong>
+            <span>Gold</span>
           </div>
         </div>
       </div>
@@ -119,30 +93,29 @@ export function HandCards({
       <div className="kh-hand-fan">
         {cards.map((card) => {
           const playIssue = getPlayIssue(card);
-          const hasStats = typeof card.attack === "number" && typeof card.health === "number";
+          const isSelected = selectedId === card.uid;
           const canPlay = !playIssue;
+          const isAffordable = card.cost <= currentGold;
 
           return (
             <button
+              key={card.uid}
               type="button"
               className={[
                 "kh-hand-mini-card",
-                selectedId === card.uid || previewId === card.uid ? "selected" : "",
+                isSelected ? "selected" : "",
                 locked ? "locked" : "",
                 playIssue ? "disabled" : ""
               ]
                 .filter(Boolean)
                 .join(" ")}
-              key={card.uid}
               data-hand-preview-zone="true"
               onMouseEnter={() => openPreview(card.uid)}
-              onMouseLeave={handleCardLeave}
+              onMouseLeave={handlePreviewLeave}
               onFocus={() => openPreview(card.uid)}
-              onBlur={handleCardLeave}
-              onClick={() => openPreview(card.uid)}
-              aria-pressed={previewId === card.uid}
+              onBlur={handlePreviewLeave}
+              onClick={() => onSelect(card.uid)}
               aria-label={`${card.name}. ${playIssue ?? getPlayableCostText(card)}`}
-              disabled={locked}
             >
               <span
                 className="kh-hand-mini-art"
@@ -152,21 +125,22 @@ export function HandCards({
               <span
                 className={[
                   "kh-hand-mini-cost",
-                  canPlay ? "is-affordable" : "is-unaffordable"
-                ].join(" ")}
-                title={getPlayableCostText(card)}
+                  isAffordable ? "is-affordable" : "is-unaffordable"
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
-                <small>G</small>
                 {card.cost}
+                <small>G</small>
               </span>
               <span className="kh-hand-mini-name">{card.name}</span>
-              {hasStats ? (
+              {"attack" in card && card.attack !== undefined ? (
                 <span className="kh-hand-mini-stats" aria-hidden="true">
-                  <span className="kh-hand-mini-stat attack">
+                  <span className="kh-hand-mini-stat">
                     <strong>{card.attack}</strong>
                     <small>ANG</small>
                   </span>
-                  <span className="kh-hand-mini-stat health">
+                  <span className="kh-hand-mini-stat">
                     <strong>{card.health}</strong>
                     <small>LP</small>
                   </span>
@@ -177,7 +151,9 @@ export function HandCards({
         })}
       </div>
 
-      {previewCard && !locked ? (
+      <p className="kh-hand-instruction">Karte auswählen für Vorschau und Ausspielen.</p>
+
+      {previewCard ? (
         <div
           className="kh-card-preview-backdrop"
           data-hand-preview-zone="true"
@@ -199,7 +175,7 @@ export function HandCards({
               className="kh-card-preview-close"
               type="button"
               onClick={() => setPreviewId(null)}
-              aria-label="Kartenvorschau schliessen"
+              aria-label="Kartenvorschau schließen"
             >
               x
             </button>
@@ -221,15 +197,11 @@ export function HandCards({
                 setPreviewId(null);
               }}
             >
-              Karte ausspielen
+              Ausspielen
             </button>
           </div>
         </div>
       ) : null}
-
-      {!locked ? (
-        <p className="kh-hand-instruction">Karte anhovern: Vorschau. In der Vorschau ausspielen.</p>
-      ) : null}
-    </section>
+    </div>
   );
 }

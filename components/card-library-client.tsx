@@ -17,6 +17,20 @@ import {
 } from "@/lib/decks";
 import { CardRarity, CardType } from "@/types/cards";
 
+const typeLabels: Record<CardType, string> = {
+  character: "Charakter",
+  action: "Aktion",
+  chaos: "Chaos",
+  equipment: "Ausrüstung"
+};
+
+const rarityLabels: Record<CardRarity, string> = {
+  common: "Gewöhnlich",
+  rare: "Selten",
+  epic: "Episch",
+  legendary: "Legendär"
+};
+
 export function CardLibraryClient() {
   const router = useRouter();
   const [typeFilter, setTypeFilter] = useState<CardType | "all">("all");
@@ -72,6 +86,33 @@ export function CardLibraryClient() {
   const deckValidation = validateDeckIds(deckIds);
   const canPlayWithDeck = deckValidation.isValid && deckIds.length >= DECK_SIZE_MIN;
 
+  const deckCurve = useMemo(() => {
+    const counts = new Map<number, number>();
+    deckView.forEach(({ card, count }) => {
+      counts.set(card.cost, (counts.get(card.cost) ?? 0) + count);
+    });
+    return Array.from(counts.entries())
+      .sort(([left], [right]) => left - right)
+      .map(([cost, count]) => ({ cost, count }));
+  }, [deckView]);
+
+  const deckTypeDistribution = useMemo(() => {
+    const counts = new Map<CardType, number>();
+    deckView.forEach(({ card, count }) => {
+      counts.set(card.type, (counts.get(card.type) ?? 0) + count);
+    });
+    return cardTypes
+      .map((type) => ({
+        type,
+        label: typeLabels[type],
+        count: counts.get(type) ?? 0
+      }))
+      .filter((entry) => entry.count > 0);
+  }, [deckView]);
+
+  const highestCurveCount = Math.max(1, ...deckCurve.map((entry) => entry.count));
+  const highestTypeCount = Math.max(1, ...deckTypeDistribution.map((entry) => entry.count));
+
   function addSelectedCard() {
     if (!addState.allowed) {
       setStatusMessage(addState.reason ?? "Diese Karte kann nicht mehr hinzugefügt werden.");
@@ -119,7 +160,7 @@ export function CardLibraryClient() {
                 <option value="all">Alle Typen</option>
                 {cardTypes.map((type) => (
                   <option value={type} key={type}>
-                    {type}
+                    {typeLabels[type]}
                   </option>
                 ))}
               </select>
@@ -131,7 +172,7 @@ export function CardLibraryClient() {
                 <option value="all">Alle Seltenheiten</option>
                 {cardRarities.map((rarity) => (
                   <option value={rarity} key={rarity}>
-                    {rarity}
+                    {rarityLabels[rarity]}
                   </option>
                 ))}
               </select>
@@ -166,8 +207,8 @@ export function CardLibraryClient() {
             <CardFrame card={selectedCard} />
           </div>
           <div className="detail-meta">
-            <span className="card-badge">{selectedCard.type}</span>
-            <span className={`card-badge rarity-${selectedCard.rarity}`}>{selectedCard.rarity}</span>
+            <span className="card-badge">{typeLabels[selectedCard.type]}</span>
+            <span className={`card-badge rarity-${selectedCard.rarity}`}>{rarityLabels[selectedCard.rarity]}</span>
           </div>
           <p className="detail-text">{selectedCard.effect}</p>
           <p className="detail-text">
@@ -215,6 +256,41 @@ export function CardLibraryClient() {
             >
               Mit diesem Deck spielen
             </button>
+          </div>
+
+          <div className="deck-list-panel deck-insights">
+            <h3 className="section-title">Deck-Analyse</h3>
+            <div className="deck-insight-grid">
+              <div className="deck-insight-block">
+                <p className="eyebrow">Goldkurve</p>
+                <div className="deck-curve-list">
+                  {deckCurve.map((entry) => (
+                    <div key={`curve-${entry.cost}`} className="deck-curve-row">
+                      <span className="deck-insight-label">{entry.cost} Gold</span>
+                      <div className="deck-insight-bar">
+                        <span style={{ width: `${(entry.count / highestCurveCount) * 100}%` }} aria-hidden="true" />
+                      </div>
+                      <strong>{entry.count}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="deck-insight-block">
+                <p className="eyebrow">Kartentypen</p>
+                <div className="deck-type-list">
+                  {deckTypeDistribution.map((entry) => (
+                    <div key={`type-${entry.type}`} className="deck-type-row">
+                      <span className="deck-insight-label">{entry.label}</span>
+                      <div className="deck-insight-bar">
+                        <span style={{ width: `${(entry.count / highestTypeCount) * 100}%` }} aria-hidden="true" />
+                      </div>
+                      <strong>{entry.count}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="deck-list-panel">

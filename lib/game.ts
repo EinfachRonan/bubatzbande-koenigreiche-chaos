@@ -261,7 +261,7 @@ function applyEndTurnEffects(state: MatchState, side: PlayerSide) {
       unit.temporaryAttackBonusTurns -= 1;
       if (unit.temporaryAttackBonusTurns === 0) {
         unit.temporaryAttackBonus = 0;
-        logLine(state, `${unit.name} verliert die zusaetzliche Runenwut.`);
+        logLine(state, `${unit.name} verliert die zusätzliche Runenwut.`);
       }
     }
   });
@@ -289,10 +289,9 @@ function applyStartTurnBoardEffects(state: MatchState, side: PlayerSide) {
     }
     if (unit.effectId === "mutant-rage") {
       unit.attack += 1;
-      logLine(state, `${unit.name} verfaellt dem Mutationsrausch und erhaelt +1 Angriff.`);
+      logLine(state, `${unit.name} verfällt dem Mutationsrausch und erhält +1 Angriff.`);
     }
     if (unit.effectId === "build-random-tool" && state.turn % 2 === 0) {
-      // MVP-Variante: Marwin verbessert sich selbst statt ein separates Werkzeug-Objekt zu erzeugen.
       unit.attack += 1;
       unit.maxHealth += 1;
       unit.health += 1;
@@ -339,7 +338,7 @@ export function getTargetModeForCard(card: DeckCard): TargetMode | null {
     case "runenwut":
       return {
         handCardId: card.uid,
-        prompt: "Waehle den Runenmutanten.",
+        prompt: "Wähle den Runenmutanten.",
         target: "ally-unit",
         requiredBaseCardId: "der-runenmutant"
       };
@@ -386,7 +385,8 @@ function applyCardEffect(
       break;
     }
     case "draw-two-or-gain-three": {
-      const shouldDraw = side === "player" ? player.hand.length <= 5 && player.deck.length >= 2 : player.gold >= 5 ? false : player.deck.length >= 2;
+      const shouldDraw =
+        side === "player" ? player.hand.length <= 5 && player.deck.length >= 2 : player.gold < 5 && player.deck.length >= 2;
       if (shouldDraw) {
         drawCard(state, side, 2);
         logLine(state, `${card.name} bringt 2 Karten Nachschub.`);
@@ -698,12 +698,12 @@ export function attackWithUnit(
         });
       logLine(
         state,
-        `${attacker.name} entfesselt Seelenspalter und trifft die uebrigen Gegner fuer 1 Schaden.`
+        `${attacker.name} entfesselt Seelenspalter und trifft die übrigen Gegner für 1 Schaden.`
       );
     }
     if (shieldBreakBonus > 0) {
       attacker.nextAttackShieldBreakBonus = 0;
-      logLine(state, `${attacker.name} zertruemmert mit Runenwut Schutz und Ruestung.`);
+      logLine(state, `${attacker.name} zertrümmert mit Runenwut Schutz und Rüstung.`);
     }
 
     attacker.exhausted = true;
@@ -718,7 +718,7 @@ export function attackWithUnit(
     }
     if (shieldBreakBonus > 0) {
       attacker.nextAttackShieldBreakBonus = 0;
-      logLine(state, `${attacker.name} entlaedt Runenwut in einem vernichtenden Schlag.`);
+      logLine(state, `${attacker.name} entlädt Runenwut in einem vernichtenden Schlag.`);
     }
     attacker.exhausted = true;
     logLine(

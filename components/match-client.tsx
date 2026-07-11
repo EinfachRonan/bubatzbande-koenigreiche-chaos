@@ -70,13 +70,13 @@ function createStateFromStorage() {
 
 function getUnitStatus(unit: MatchState["player"]["board"][number]) {
   if (unit.sleepForTurns > 0) {
-    return "Schlaeft";
+    return "Schläft";
   }
   if (unit.stunForTurns > 0) {
-    return "Betaeubt";
+    return "Betäubt";
   }
   if (unit.exhausted) {
-    return "Erschoepft";
+    return "Erschöpft";
   }
   return "Bereit";
 }
@@ -87,7 +87,7 @@ export function MatchClient() {
   const [selectedAttackerId, setSelectedAttackerId] = useState<string | null>(null);
   const [highlightedUnitId, setHighlightedUnitId] = useState<string | null>(null);
   const [pulseLeaderSide, setPulseLeaderSide] = useState<"player" | "bot" | null>(null);
-  const [logCollapsed, setLogCollapsed] = useState(false);
+  const [logCollapsed, setLogCollapsed] = useState(true);
   const [previewUnitId, setPreviewUnitId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -200,10 +200,7 @@ export function MatchClient() {
     if (state.targetMode && selectedHandCardId) {
       if (state.targetMode.target === "ally-unit" && side === "player") {
         const unit = state.player.board.find((entry) => entry.instanceId === unitId);
-        if (
-          state.targetMode.requiredBaseCardId &&
-          unit?.baseCardId !== state.targetMode.requiredBaseCardId
-        ) {
+        if (state.targetMode.requiredBaseCardId && unit?.baseCardId !== state.targetMode.requiredBaseCardId) {
           return;
         }
         setState((current) =>
@@ -329,7 +326,7 @@ export function MatchClient() {
         (state.targetMode?.prompt ||
           (state.activeSide === "player"
             ? "Dein Zug. Spiele Karten aus oder schicke deine Bande in den Kampf."
-            : "Der Bot schmiedet gerade seinen naechsten fragwuerdigen Plan."))
+            : "Der Bot schmiedet gerade seinen nächsten fragwürdigen Plan."))
       }
       topLeft={
         <PlayerPanel
@@ -370,40 +367,52 @@ export function MatchClient() {
         </div>
       }
       enemyBoard={
-        <div className="kh-slot-grid">
-          {Array.from({ length: 5 }).map((_, index) => {
-            const unit = state.bot.board[index];
-            return (
-              <BoardSlot
-                key={`bot-slot-${index}`}
-                side="bot"
-                unit={unit}
-                highlighted={highlightedUnitId === unit?.instanceId}
-                targetable={unit ? getTargetableClass({ kind: "unit", side: "bot", unitId: unit.instanceId }) : false}
-                statusText={unit ? getUnitStatus(unit) : undefined}
-                onClick={unit ? () => onBoardClick(unit.instanceId, "bot") : undefined}
-              />
-            );
-          })}
+        <div className="kh-board-area kh-board-area-enemy">
+          <div className="kh-board-area-head">
+            <span className="kh-board-area-label">Gegnerisches Spielfeld</span>
+            <span className="kh-board-area-copy">Angriffsziele und Einheiten des Gegners</span>
+          </div>
+          <div className="kh-slot-grid">
+            {Array.from({ length: 5 }).map((_, index) => {
+              const unit = state.bot.board[index];
+              return (
+                <BoardSlot
+                  key={`bot-slot-${index}`}
+                  side="bot"
+                  unit={unit}
+                  highlighted={highlightedUnitId === unit?.instanceId}
+                  targetable={unit ? getTargetableClass({ kind: "unit", side: "bot", unitId: unit.instanceId }) : false}
+                  statusText={unit ? getUnitStatus(unit) : undefined}
+                  onClick={unit ? () => onBoardClick(unit.instanceId, "bot") : undefined}
+                />
+              );
+            })}
+          </div>
         </div>
       }
       playerBoard={
-        <div className="kh-slot-grid">
-          {Array.from({ length: 5 }).map((_, index) => {
-            const unit = state.player.board[index];
-            return (
-              <BoardSlot
-                key={`player-slot-${index}`}
-                side="player"
-                unit={unit}
-                selected={selectedAttackerId === unit?.instanceId}
-                highlighted={highlightedUnitId === unit?.instanceId}
-                targetable={isTargetableAlly(unit)}
-                statusText={unit ? getUnitStatus(unit) : undefined}
-                onClick={unit ? () => onBoardClick(unit.instanceId, "player") : undefined}
-              />
-            );
-          })}
+        <div className="kh-board-area kh-board-area-player">
+          <div className="kh-board-area-head">
+            <span className="kh-board-area-label">Eigenes Spielfeld</span>
+            <span className="kh-board-area-copy">Bereite Angriffe und Effekte für deinen Zug vor</span>
+          </div>
+          <div className="kh-slot-grid">
+            {Array.from({ length: 5 }).map((_, index) => {
+              const unit = state.player.board[index];
+              return (
+                <BoardSlot
+                  key={`player-slot-${index}`}
+                  side="player"
+                  unit={unit}
+                  selected={selectedAttackerId === unit?.instanceId}
+                  highlighted={highlightedUnitId === unit?.instanceId}
+                  targetable={isTargetableAlly(unit)}
+                  statusText={unit ? getUnitStatus(unit) : undefined}
+                  onClick={unit ? () => onBoardClick(unit.instanceId, "player") : undefined}
+                />
+              );
+            })}
+          </div>
         </div>
       }
       rightTop={<TurnPanel turn={state.turn} activeSide={state.activeSide} />}
@@ -450,7 +459,7 @@ export function MatchClient() {
           </div>
 
           <button className="ghost-button kh-reset-button" onClick={resetMatch}>
-            {state.winner ? "Match neu starten" : "Match zuruecksetzen"}
+            {state.winner ? "Match neu starten" : "Match zurücksetzen"}
           </button>
         </div>
       }
@@ -481,7 +490,7 @@ export function MatchClient() {
                   className="kh-board-preview-close"
                   type="button"
                   onClick={() => setPreviewUnitId(null)}
-                  aria-label="Kartenvorschau schliessen"
+                  aria-label="Kartenvorschau schließen"
                 >
                   x
                 </button>

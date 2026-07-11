@@ -77,8 +77,8 @@ export function KraeuterhoehleMap({
     <section className="kh-shell">
       <div className={`kh-orientation-warning${hideOrientationWarning ? " is-hidden" : ""}`}>
         <div className="kh-orientation-card">
-          <h2>Bitte drehe dein Geraet ins Querformat.</h2>
-          <p>Die Kraeuterhoehle ist fuer Landscape optimiert.</p>
+          <h2>Bitte drehe dein Gerät ins Querformat.</h2>
+          <p>Die Kräuterhöhle ist für Landscape optimiert.</p>
         </div>
       </div>
 

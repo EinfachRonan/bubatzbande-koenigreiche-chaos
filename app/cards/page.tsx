@@ -39,7 +39,7 @@ export default function CardsPage() {
         <div className="asset-sheet-frame">
           <Image
             src="/images/home/asset-overview-reference.png"
-            alt="Asset-Uebersicht von BubatzBande: Koenigreiche & Chaos"
+            alt="Asset-Übersicht von BubatzBande: Königreiche & Chaos"
             width={1448}
             height={1086}
             className="asset-sheet-image"

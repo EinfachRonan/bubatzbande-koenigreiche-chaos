@@ -36,8 +36,8 @@ export function HomepageLanding() {
 
           <div className="home-splash-mobile-features">
             <Link href="/cards" className="home-splash-mobile-feature">
-              <strong>Ueber 180 Karten</strong>
-              <span>Entdecke Helden, Chaos und Ausruestung aus dem Starter-Set.</span>
+              <strong>Über 180 Karten</strong>
+              <span>Entdecke Helden, Chaos und Ausrüstung aus dem Starter-Set.</span>
             </Link>
             <Link href="/#fraktionen" className="home-splash-mobile-feature">
               <strong>4 Fraktionen</strong>
@@ -45,16 +45,16 @@ export function HomepageLanding() {
             </Link>
             <Link href="/game" className="home-splash-mobile-feature">
               <strong>Strategie &amp; Taktik</strong>
-              <span>Fuehre deine Bande in kompakte, taktische Runden.</span>
+              <span>Führe deine Bande in kompakte, taktische Runden.</span>
             </Link>
             <Link href="/deckbuilder" className="home-splash-mobile-feature">
               <strong>Deckbuilder</strong>
-              <span>Optimiere dein Deck fuer den naechsten Run.</span>
+              <span>Optimiere dein Deck für den nächsten Run.</span>
             </Link>
           </div>
         </div>
 
-        <h1 className="sr-only">BubatzBande: Koenigreiche &amp; Chaos</h1>
+        <h1 className="sr-only">BubatzBande: Königreiche &amp; Chaos</h1>
       </div>
     </main>
   );
