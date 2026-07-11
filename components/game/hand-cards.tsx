@@ -139,6 +139,7 @@ export function HandCards({
               onMouseLeave={handleCardLeave}
               onFocus={() => openPreview(card.uid)}
               onBlur={handleCardLeave}
+              onClick={() => openPreview(card.uid)}
               aria-pressed={previewId === card.uid}
               aria-label={`${card.name}. ${playIssue ?? getPlayableCostText(card)}`}
               disabled={locked}
