@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>BubatzBande Klicker</title>
 <style>
   @font-face{
@@ -48,6 +48,21 @@
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
+  /* Handy: kein Zoom-Ruckler beim Tippen, kein Überziehen, keine Textauswahl beim Dauerklicken */
+  button{ touch-action: manipulation; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ overscroll-behavior-y: contain; }
+  .click-btn, .b-buy, .buy-mode button, .lvl-badge, .b-name{
+    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+  }
+  /* Tastatur-Bedienung sichtbar machen */
+  button:focus-visible{
+    outline: 3px solid #e0ab3f;
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
   /* Dunkler Holz-/Lederboden hinter dem Rahmen */
   body{
     font-family:'OldBook', 'Palatino Linotype', Georgia, serif;
@@ -110,6 +125,36 @@
   .corner-orn.br{ bottom:4px; right:6px; transform: scale(-1,-1); }
 
   .wrap{ max-width: 660px; margin: 0 auto; padding: 2px 2px 34px; position:relative; }
+
+  /* Handy/Tablet: eine Spalte in natürlicher Reihenfolge.
+     Ab Desktop-Breite: Schatzkammer links stehend, Bande rechts. */
+  .game-grid{ display:block; }
+  /* Basisregeln müssen vor der Media Query stehen, sonst überschreiben sie diese. */
+  .kbd-hint{
+    display:none; text-align:center; font-size:0.6rem; color:#7b6a4c;
+    font-style:italic; margin-top:6px;
+  }
+  .kbd-hint kbd{
+    font-family:'EngravedCaps', serif; font-style:normal; font-size:0.58rem;
+    background: linear-gradient(180deg, var(--parchment-hi), var(--parchment-dark));
+    border:1px solid rgba(58,40,18,0.7); border-radius:3px; padding:1px 6px;
+    box-shadow: 0 1px 0 rgba(58,40,18,0.5);
+  }
+  @media (min-width: 950px){
+    .outer-frame{ max-width: 1080px; padding: 20px 22px; }
+    .wrap{ max-width: 1010px; }
+    .game-grid{
+      display:grid; grid-template-columns: 340px minmax(0,1fr);
+      gap: 26px; align-items:start;
+    }
+    .col-left{ position:sticky; top: 16px; }
+    .col-left .divider{ margin: 14px 0; }
+    .click-btn{ width:172px; height:172px; }
+    .click-btn .coin-leaf{ width:70px; height:70px; }
+    .ledger{ max-width:none; }
+    .prestige-box{ margin: 18px 0 0; }
+    .kbd-hint{ display:block; }
+  }
 
   .divider{ display:flex; align-items:center; gap:10px; margin: 16px 2px; }
   .divider::before, .divider::after{
@@ -284,7 +329,7 @@
   }
   .buy-mode button{
     font-family:'EngravedCaps', serif; font-size:0.62rem; letter-spacing:1px;
-    padding: 5px 14px; border:none; cursor:pointer; color: var(--ink);
+    padding: 9px 18px; min-height:40px; border:none; cursor:pointer; color: var(--ink);
     background: linear-gradient(180deg, var(--parchment-hi), var(--parchment-dark));
     border-right:1px solid rgba(44,32,19,0.5);
   }
@@ -375,7 +420,7 @@
   }
 
   .b-buy{
-    flex-shrink:0; min-width:88px;
+    flex-shrink:0; min-width:88px; min-height:46px;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
     background: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold-bright) 40%, var(--gold) 100%);
     border:none; padding: 8px 9px; cursor:pointer;
@@ -456,7 +501,7 @@
   .mini-btn{
     background: linear-gradient(180deg, var(--parchment-hi), var(--parchment-dark));
     border:1px solid rgba(58,40,18,0.8); border-radius:2px;
-    padding: 8px 15px; font-family:'EngravedCaps', serif;
+    padding: 11px 16px; min-height:42px; font-family:'EngravedCaps', serif;
     font-size:0.6rem; letter-spacing:1.2px; text-transform:uppercase;
     color: var(--ink); cursor:pointer;
     box-shadow: 0 2px 3px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.5);
@@ -556,6 +601,9 @@
     <svg class="torch right"><use href="#i-flame"/></svg>
   </div>
 
+  <div class="game-grid">
+  <div class="col-left">
+
   <div class="ledger">
     <div class="amount" id="totalDisplay">0</div>
     <div class="unit"><svg class="ico"><use href="#i-leaf"/></svg> Bubatz im Schatzkästlein</div>
@@ -573,20 +621,24 @@
     </button>
   </div>
   <div class="click-power-label">+<span id="clickPowerDisplay">1</span> pro Klick</div>
+  <div class="kbd-hint">oder <kbd>Leertaste</kbd> drücken</div>
 
   <div class="divider"><span class="fleur">❦</span></div>
 
   <div class="click-upgrade-row">
     <div class="anvil"><svg class="ico"><use href="#i-anvil"/></svg></div>
     <div class="b-info">
-      <div class="b-name">Fauststärke trainieren</div>
-      <div class="b-flavor">Beim Schmied gestählt — jeder Klick bringt mehr.</div>
+      <div class="b-name">Faust stählen</div>
+      <div class="b-flavor">Beim Schmied gehärtet — jeder Klick bringt mehr.</div>
     </div>
     <button class="b-buy" id="clickUpgradeBtn">
       <span>Üben</span>
       <span class="cost"><span id="clickUpgradeCost">50</span><svg class="ico"><use href="#i-leaf"/></svg></span>
     </button>
   </div>
+
+  </div><!-- /col-left -->
+  <div class="col-right">
 
   <div class="banner-wrap"><div class="section-title">Deine Bande</div></div>
 
@@ -607,6 +659,9 @@
       einschmelzen
     </button>
   </div>
+
+  </div><!-- /col-right -->
+  </div><!-- /game-grid -->
 
   <div class="divider"><span class="fleur">❦</span></div>
 
@@ -999,6 +1054,21 @@
   }
 
   document.getElementById("clickBtn").addEventListener("click", handleClick);
+
+  /* Am Rechner: Leertaste/Enter sammelt ebenfalls. Liegt der Fokus schon auf einem
+     Bedienelement, löst der Browser dessen Klick selbst aus — dann hier nichts tun. */
+  document.addEventListener("keydown", function(ev){
+    if(ev.code !== "Space" && ev.key !== "Enter") return;
+    var el = document.activeElement;
+    if(el && (el.tagName === "BUTTON" || el.tagName === "TEXTAREA" || el.tagName === "INPUT")) return;
+    if(document.getElementById("exportModal").classList.contains("open")) return;
+    ev.preventDefault();
+    var coin = document.getElementById("clickBtn").getBoundingClientRect();
+    var power = clickPower();
+    addGold(power);
+    spawnFloatNumber(coin.left + coin.width/2, coin.top + coin.height/3, "+" + fmt(power));
+    renderTop();
+  });
   document.getElementById("clickUpgradeBtn").addEventListener("click", buyClickUpgrade);
   document.getElementById("prestigeBtn").addEventListener("click", doPrestige);
 
