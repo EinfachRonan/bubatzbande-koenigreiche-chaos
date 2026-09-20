@@ -521,6 +521,9 @@
     display:none; align-items:center; justify-content:center; z-index:100; padding:16px;
   }
   .modal-backdrop.open{ display:flex; }
+  /* Meldungen liegen immer obenauf — sonst versperrt das Spielstand-Fenster
+     die Rückmeldung bei einem ungültigen Code. */
+  #msgModal{ z-index:120; }
   .modal{
     background: linear-gradient(180deg, var(--parchment-hi), var(--parchment));
     border:3px solid var(--iron); border-radius:4px; padding:18px;
@@ -534,6 +537,11 @@
     border:1px solid rgba(58,40,18,0.7); border-radius:3px; padding:7px; background:#f7eed4; color:var(--ink);
   }
   .modal .row{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .mini-btn.danger{
+    background: linear-gradient(180deg, #a83535, var(--wax) 50%, var(--wax-dark));
+    color: var(--gold-hi); border-color: var(--iron-dark);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.55);
+  }
 
   @media (max-width:430px){
     .outer-frame{ padding:12px 9px; border-width:9px; border-image-slice:9; }
@@ -674,6 +682,15 @@
     Eigenständiges Offline-Spiel · Fortschritt wird lokal im Browser gespeichert.
   </p>
 </div>
+</div>
+
+<!-- Eigene Dialoge statt alert()/confirm(): die sind in eingebetteten Seiten gesperrt. -->
+<div class="modal-backdrop" id="msgModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="msgTitle">
+    <h3 id="msgTitle"></h3>
+    <p id="msgText"></p>
+    <div class="row" id="msgButtons"></div>
+  </div>
 </div>
 
 <div class="modal-backdrop" id="exportModal">
@@ -828,6 +845,55 @@
     setTimeout(function(){ el.remove(); }, 1000);
   }
 
+  /* ---------------------------------------------------------------
+     Eigene Dialoge. alert() und confirm() werden von eingebetteten
+     Seiten (Artifact, iframe ohne allow-modals) stillschweigend
+     ignoriert — confirm() liefert dort immer false, wodurch Neustart
+     und Prestige wirkungslos blieben. Diese Dialoge laufen überall.
+     --------------------------------------------------------------- */
+  var msgModal = document.getElementById("msgModal");
+  var msgButtons = document.getElementById("msgButtons");
+
+  function closeMsg(){
+    msgModal.classList.remove("open");
+    msgButtons.innerHTML = "";
+  }
+
+  function openMsg(title, text, buttons){
+    document.getElementById("msgTitle").textContent = title;
+    document.getElementById("msgText").textContent = text;
+    msgButtons.innerHTML = "";
+    buttons.forEach(function(cfg){
+      var btn = document.createElement("button");
+      btn.className = "mini-btn" + (cfg.danger ? " danger" : "");
+      btn.textContent = cfg.label;
+      btn.addEventListener("click", function(){
+        closeMsg();
+        if(cfg.action) cfg.action();
+      });
+      msgButtons.appendChild(btn);
+    });
+    msgModal.classList.add("open");
+    var first = msgButtons.querySelector("button");
+    if(first) first.focus();
+  }
+
+  function showNotice(title, text){
+    openMsg(title, text, [{ label: "Weiter" }]);
+  }
+
+  function showConfirm(title, text, confirmLabel, onConfirm){
+    openMsg(title, text, [
+      { label: confirmLabel, danger: true, action: onConfirm },
+      { label: "Abbrechen" }
+    ]);
+  }
+
+  function anyModalOpen(){
+    return msgModal.classList.contains("open") ||
+           document.getElementById("exportModal").classList.contains("open");
+  }
+
   var buildingsListEl = document.getElementById("buildingsList");
 
   function renderBuildings(){
@@ -961,15 +1027,22 @@
   function doPrestige(){
     var gain = calcPrestigeGain();
     if(gain < 1) return;
-    if(!confirm("Krone einschmelzen für +" + gain + " Kronen? Bubatz und Bande werden zurückgesetzt.")) return;
-    var keepPrestige = state.prestige + gain;
-    var keepClickUpgrades = state.clickUpgrades;
-    state = defaultState();
-    state.prestige = keepPrestige;
-    state.clickUpgrades = keepClickUpgrades;
-    renderBuildings();
-    renderTop();
-    save();
+    showConfirm(
+      "Krone einschmelzen",
+      "Du erhältst " + gain + " Kronen (+" + (gain * 5) + "% Bubatz für immer). " +
+      "Dein Bubatz und deine gesamte Bande werden dafür zurückgesetzt.",
+      "Einschmelzen",
+      function(){
+        var keepPrestige = state.prestige + gain;
+        var keepClickUpgrades = state.clickUpgrades;
+        state = defaultState();
+        state.prestige = keepPrestige;
+        state.clickUpgrades = keepClickUpgrades;
+        renderBuildings();
+        renderTop();
+        save();
+      }
+    );
   }
 
   function tick(dtSeconds){
@@ -1044,8 +1117,11 @@
         if(offlineGain > 0){
           addGold(offlineGain);
           setTimeout(function(){
-            alert("Willkommen zurück! Deine Bande hat während deiner Abwesenheit " + fmt(offlineGain) + " Bubatz erwirtschaftet.");
-          }, 200);
+            showNotice(
+              "Willkommen zurück",
+              "Deine Bande hat während deiner Abwesenheit " + fmt(offlineGain) + " Bubatz erwirtschaftet."
+            );
+          }, 300);
         }
       }
     }catch(e){
@@ -1061,7 +1137,7 @@
     if(ev.code !== "Space" && ev.key !== "Enter") return;
     var el = document.activeElement;
     if(el && (el.tagName === "BUTTON" || el.tagName === "TEXTAREA" || el.tagName === "INPUT")) return;
-    if(document.getElementById("exportModal").classList.contains("open")) return;
+    if(anyModalOpen()) return;
     ev.preventDefault();
     var coin = document.getElementById("clickBtn").getBoundingClientRect();
     var power = clickPower();
@@ -1085,15 +1161,20 @@
 
   document.getElementById("saveBtn").addEventListener("click", function(){
     save();
-    alert("Gespeichert.");
+    showNotice("Gespeichert", "Dein Spielstand liegt sicher im Schatzkästlein.");
   });
   document.getElementById("resetBtn").addEventListener("click", function(){
-    if(confirm("Wirklich den kompletten Spielstand löschen?")){
-      state = defaultState();
-      save();
-      renderBuildings();
-      renderTop();
-    }
+    showConfirm(
+      "Neu beginnen",
+      "Damit werden Bubatz, Bande, Klickkraft und Kronen vollständig gelöscht. Das lässt sich nicht rückgängig machen.",
+      "Alles löschen",
+      function(){
+        state = defaultState();
+        save();
+        renderBuildings();
+        renderTop();
+      }
+    );
   });
 
   var exportModal = document.getElementById("exportModal");
@@ -1117,10 +1198,26 @@
       renderBuildings();
       renderTop();
       exportModal.classList.remove("open");
-      alert("Spielstand geladen.");
+      showNotice("Geladen", "Der Spielstand wurde übernommen.");
     }catch(e){
-      alert("Ungültiger Code.");
+      showNotice("Das hat nicht geklappt", "Dieser Code konnte nicht gelesen werden. Bitte den vollständigen Code einfügen.");
     }
+  });
+
+  /* Klick auf den dunklen Hintergrund schließt den Dialog (Abbruch). */
+  [msgModal, exportModal].forEach(function(backdrop){
+    backdrop.addEventListener("click", function(ev){
+      if(ev.target === backdrop){
+        backdrop.classList.remove("open");
+        if(backdrop === msgModal) msgButtons.innerHTML = "";
+      }
+    });
+  });
+
+  document.addEventListener("keydown", function(ev){
+    if(ev.key !== "Escape") return;
+    if(msgModal.classList.contains("open")) closeMsg();
+    exportModal.classList.remove("open");
   });
 
   window.addEventListener("beforeunload", save);
