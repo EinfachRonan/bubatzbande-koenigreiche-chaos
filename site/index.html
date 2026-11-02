@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Schlagabtausch – Schach im 3D-Wohnzimmer gegen Herrn Holz. Jedes Schlagen wird als Ego-Duell ausgekämpft.">
+<meta name="description" content="Schlagabtausch – Schach im 3D-Wohnzimmer gegen Herrn Holz oder online gegen Freunde. Jedes Schlagen wird als Ego-Duell ausgekämpft.">
 <meta name="theme-color" content="#17120f">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -144,6 +144,18 @@ button:focus-visible{outline:2px solid var(--lamp);outline-offset:3px}
 #scores{z-index:24}
 .sc{max-width:640px;background:rgba(23,18,15,.95);padding:22px;border-radius:6px;border:1px solid rgba(239,230,210,.15);max-height:calc(100vh - 48px);overflow:auto;gap:20px}
 #scBody{display:grid;gap:22px}
+.menu{max-width:540px;gap:16px}.menu .title{font-size:clamp(52px,12vw,104px)}
+.mm{display:grid;gap:8px}
+.mbig{display:grid;gap:2px;text-align:left;padding:14px 18px;border-radius:6px;background:rgba(239,230,210,.07);border:1px solid rgba(239,230,210,.16);color:var(--ivory);font-weight:400}
+.mbig b{font-family:var(--font-d);font-weight:900;font-size:26px;line-height:1.05;text-transform:uppercase;letter-spacing:.02em}
+.mbig small{color:var(--mute);font-size:13px}@media (max-width:520px){.mbig b{font-size:21px}.mbig{padding:12px 14px}}.mbig:hover{border-color:rgba(242,165,65,.7);background:rgba(242,165,65,.08)}
+.mbig.primary{background:var(--lamp);color:var(--ebony);border-color:var(--lamp)}.mbig.primary small{color:#5f3f12}.mbig.primary:hover{background:#f5b459}
+.mset{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;align-items:center}
+.seg{display:inline-flex;justify-self:start;border:1px solid rgba(239,230,210,.22);border-radius:4px;overflow:hidden}
+.seg button{background:transparent;color:var(--ivory);padding:7px 14px;font-size:13px;font-weight:600;border-radius:0;border-left:1px solid rgba(239,230,210,.12)}
+.seg button:first-child{border-left:0}.seg button[aria-pressed="true"]{background:rgba(242,165,65,.22);color:var(--lamp)}
+.mrow{display:flex;gap:8px;flex-wrap:wrap}
+details.keysd summary{cursor:pointer;color:var(--mute);font-size:13px;font-weight:600}details.keysd .keys{margin-top:10px}
 .onl{max-width:620px}.onl2{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media (max-width:560px){.onl2{grid-template-columns:1fr}}
 .inp{font:inherit;font-size:16px;background:rgba(239,230,210,.06);color:var(--ivory);border:1px solid rgba(239,230,210,.25);border-radius:4px;padding:10px 12px;min-width:0}
 .inp:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}.inp.code{width:7.5em;text-transform:uppercase;letter-spacing:.25em;font-family:var(--font-d);font-size:22px}
@@ -213,10 +225,23 @@ body.coarse .ab,body.coarse .vs-desc{display:none}
 <div id="vig2"></div>
 
 <div class="overlay" id="start">
-  <div class="card">
-    <div class="label">Schach im Wohnzimmer · 1 Spieler gegen KI · 10 Min + 3 Sek</div>
+  <div class="card menu">
+    <div class="label">Schach im Wohnzimmer · echte Regeln · 10 Min + 3 Sek</div>
     <h1 class="title">Schlag<br><span>abtausch</span></h1>
-    <p class="lede">Du spielst Weiß gegen Herrn Holz am Wohnzimmertisch, nach allen echten Regeln mit Schachuhr. Jedes Schlagen ist aber nur ein Versuch: Erst muss deine Figur das Duell in Ego-Sicht gewinnen. Verliert der Angreifer, fliegt er selbst vom Brett.</p>
+    <p class="lede">Jedes Schlagen ist nur ein Versuch: Erst muss deine Figur das Duell in Ego-Sicht gewinnen. Verliert der Angreifer, fliegt er selbst vom Brett.</p>
+    <div class="mm">
+      <button class="mbig primary" id="mResume" hidden><b>Weiterspielen</b><small id="mResumeSub">Deine Partie läuft noch</small></button>
+      <button class="mbig" id="mPlay"><b>Gegen Herrn Holz</b><small id="mPlaySub">Direkt an den Tisch · Stufe Mittel</small></button>
+      <button class="mbig" id="goOnline"><b>Online gegen Freund</b><small>Spiel erstellen oder mit Code beitreten</small></button>
+      <button class="mbig" id="go"><b>Wohnzimmer erkunden</b><small>Rumlaufen und selbst an den Tisch setzen</small></button>
+    </div>
+    <div class="mset">
+      <span class="label">Stufe</span><div class="seg" id="diffSeg" role="group" aria-label="Schwierigkeit"></div>
+      <span class="label">Musik</span><div class="seg"><button id="mMusic" aria-pressed="true">An</button></div>
+      <span class="label">Grafik</span><div class="seg"><button id="mGfx" aria-pressed="true">Hoch</button></div>
+    </div>
+    <div class="mrow"><button class="btn ghost" id="mPieces">Figuren</button><button class="btn ghost" id="mScores">Bestenliste</button></div>
+    <details class="keysd"><summary>Steuerung</summary>
     <div class="keys" id="keylist">
       <b>WASD</b><span>Laufen</span>
       <b>Maus</b><span>Umschauen (klicken zum Fangen, Esc zum Loslassen)</span>
@@ -225,9 +250,7 @@ body.coarse .ab,body.coarse .vs-desc{display:none}
       <b>Linksklick / Q</b><span>Angriff und Spezialfähigkeit im Duell</span>
       <b>Leertaste</b><span>Springen</span>
       <b>M / B / G / I</b><span>Musik · Bestenliste · Grafik · Figuren-Übersicht</span>
-    </div>
-    <div class="ssec"><span class="label">Schwierigkeit</span><div class="diffs" id="diffStart" role="radiogroup" aria-label="Schwierigkeit"></div></div>
-    <div class="row"><button class="btn" id="go">Reinlaufen</button><button class="btn ghost" id="goOnline">Online gegen Freund</button></div>
+    </div></details>
   </div>
 </div>
 
@@ -247,6 +270,7 @@ body.coarse .ab,body.coarse .vs-desc{display:none}
       <button class="btn ghost" id="gfxBtn">Grafik: Hoch</button>
       <button class="btn ghost" id="pcBtn">Figuren</button>
       <button class="btn ghost" id="scoreBtn">Bestenliste</button>
+      <button class="btn ghost" id="homeBtn">Hauptmenü</button>
       <button class="btn ghost" id="onlBtn">Online</button>
       <button class="btn ghost" id="resignBtn" hidden>Aufgeben</button>
       <button class="btn ghost" id="newgame">Neue Partie</button>
@@ -285,7 +309,7 @@ body.coarse .ab,body.coarse .vs-desc{display:none}
     </div>
     <button class="btn ghost" id="onResume" hidden></button>
     <p class="pnote" id="onMsg" role="status"></p>
-    <p class="pnote">Dein Freund braucht Zugriff auf dieses Spiel: Lade ihn über „Teilen“ oben rechts ein, dann öffnet er denselben Link.</p>
+    <p class="pnote" id="onShare">Dein Freund braucht Zugriff auf dieses Spiel: Lade ihn über „Teilen“ oben rechts ein, dann öffnet er denselben Link.</p>
   </div>
   <div id="onWait" class="ssec" hidden>
     <span class="label">Dein Spiel-Code</span><div class="bigcode" id="onBig"></div>
@@ -311,7 +335,7 @@ body.coarse .ab,body.coarse .vs-desc{display:none}
     <div class="label">Partie vorbei</div>
     <h2 class="title" id="overT" style="font-size:clamp(48px,11vw,96px)"></h2>
     <p class="lede" id="overS"></p>
-    <div class="row"><button class="btn" id="again">Neue Partie</button><button class="btn ghost" id="overScores">Bestenliste</button></div>
+    <div class="row"><button class="btn" id="again">Neue Partie</button><button class="btn ghost" id="overHome">Hauptmenü</button><button class="btn ghost" id="overScores">Bestenliste</button></div>
   </div>
 </div>
 
@@ -324,6 +348,7 @@ body.coarse .ab,body.coarse .vs-desc{display:none}
 </div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/SSAOShader.js"></script>
@@ -814,7 +839,7 @@ function setScene(sc){mus.scene=sc;if(!audio())return;const t=AC.currentTime;
   ambGain.gain.cancelScheduledValues(t);ambGain.gain.setValueAtTime(ambGain.gain.value,t);ambGain.gain.linearRampToValueAtTime(0,t+.3);
   if(!mus.enabled){seqStop(BATTLE,.3);seqStop(ROOM,.3);return;}
   if(sc==='duel'){seqStop(ROOM,.5);seqStart(BATTLE);}else if(sc==='room'){seqStop(BATTLE,1.2);seqStart(ROOM);}}
-function updMusicBtn(){const b=document.querySelector('#musicBtn');if(b)b.textContent=mus.enabled?'♪ Musik an (M)':'♪ Musik aus (M)';}
+function updMusicBtn(){const b=document.querySelector('#musicBtn');if(b)b.textContent=mus.enabled?'♪ Musik an (M)':'♪ Musik aus (M)';if(typeof updMenu==='function'&&document.querySelector('#mMusic'))updMenu();}
 function toggleMusic(){mus.enabled=!mus.enabled;try{localStorage.setItem('sa_music',mus.enabled?'1':'0');}catch(e){}
   setScene(mode==='duel'&&D&&!D.over?'duel':'room');updMusicBtn();}
 
@@ -1044,7 +1069,7 @@ function openVS(m,att,def){
   $('#vsR').innerHTML=sideHTML(foe,youAtt?'Verteidiger':'Angreifer',OPP_NAME,false,youAtt?nD:nA);
   if(document.pointerLockElement)document.exitPointerLock();
   $('#vs').classList.add('on');setMode('vs');sfx('vs');drawClock();const fb=$('#fight');fb.disabled=false;fb.textContent='Duell starten';fb.focus();if(ONLINE){ONLINE.starting=false;clearTimeout(ONLINE.autoRdy);ONLINE.autoRdy=setTimeout(()=>{if(mode==='vs')onlReady();},12000);}}
-$('#fight').addEventListener('click',()=>{if(ONLINE){lock();onlReady();return;}$('#vs').classList.remove('on');lock();startDuel();});
+$('#fight').addEventListener('click',()=>{if(!pending)return;if(ONLINE){lock();onlReady();return;}$('#vs').classList.remove('on');lock();startDuel();});
 
 const duel=new THREE.Scene();duel.background=new THREE.Color(0x0f0b0a);duel.fog=new THREE.FogExp2(0x0f0b0a,.022);duel.environment=envTex;
 // Arena = das echte Brett, ein Feld = 6 m
@@ -1426,10 +1451,23 @@ document.querySelectorAll('.diffs').forEach(renderDiff);
 function openSetup(){document.querySelectorAll('.diffs').forEach(renderDiff);$('#setup').hidden=false;$('#setupGo').focus();}
 $('#setupGo').addEventListener('click',()=>{$('#setup').hidden=true;newGame();setLog('Neue Partie auf '+DF().name+'. Du hast Weiß, zieh los.');});
 $('#setupCancel').addEventListener('click',()=>{$('#setup').hidden=true;});$('#musicBtn').addEventListener('click',toggleMusic);
-$('#newgame').addEventListener('click',()=>{if(ONLINE)onlLeave();openSetup();});
-$('#again').addEventListener('click',()=>{$('#over').hidden=true;if(ONLINE)onlLeave();openSetup();});
-$('#go').addEventListener('click',()=>{newGame();$('#start').hidden=true;setMode('walk');drawClock();setScene('room');if(coarse){pl.set(BX,1.6,BZ+1.5);yaw=0;pitch=-.35;sitDown();}else{lock();canvas.focus();}});
-if(coarse)$('#go').textContent='Losspielen';
+$('#newgame').addEventListener('click',()=>{if(ONLINE)onlLeave();newGame();setLog('Neue Partie auf Stufe '+DF().name+'. Du hast Weiß, zieh los.');if(mode!=='chess')sitDown();});
+$('#again').addEventListener('click',()=>{$('#over').hidden=true;if(ONLINE)onlLeave();newGame();if(mode!=='chess')sitDown();});
+function inGame(){return typeof S!=='undefined'&&S&&S.hist.length>0&&!S.over;}
+function leaveMenu(){$('#start').hidden=true;drawClock();setScene('room');}
+$('#go').addEventListener('click',()=>{if(ONLINE)onlLeave();if(!inGame())newGame();leaveMenu();pl.set(.6,1.6,2.3);yaw=.15;pitch=-.08;setMode('walk');if(!coarse){lock();canvas.focus();}});
+$('#mPlay').addEventListener('click',()=>{if(ONLINE)onlLeave();newGame();leaveMenu();pl.set(BX,1.6,BZ+1.5);yaw=0;pitch=-.35;sitDown();});
+$('#mResume').addEventListener('click',()=>{leaveMenu();sitDown();});
+$('#mPieces').addEventListener('click',()=>openPieces());$('#mScores').addEventListener('click',()=>openScores());
+$('#mMusic').addEventListener('click',()=>{audio();toggleMusic();});$('#mGfx').addEventListener('click',()=>toggleGfx());
+function renderSeg(){const el=$('#diffSeg');el.innerHTML='';Object.entries(DIFF).forEach(([k,d])=>{const b=document.createElement('button');b.textContent=d.name;b.setAttribute('aria-pressed',k===diff?'true':'false');b.title=d.desc;
+  b.addEventListener('click',()=>{diff=k;try{localStorage.setItem('sa_diff',k);}catch(e){}renderSeg();updMenu();});el.appendChild(b);});}
+function updMenu(){const r=inGame()&&!ONLINE;$('#mResume').hidden=!r;if(r)$('#mResumeSub').textContent=`Zug ${Math.floor(S.hist.length/2)+1} gegen Herrn Holz · Stufe ${DF().name}`;
+  $('#mPlay').classList.toggle('primary',!r);$('#mPlay').querySelector('b').textContent=r?'Neue Partie':'Gegen Herrn Holz';$('#mPlaySub').textContent=(r?'Neu anfangen':'Direkt an den Tisch')+' · Stufe '+DF().name;
+  const m=$('#mMusic');m.textContent=mus.enabled?'An':'Aus';m.setAttribute('aria-pressed',mus.enabled);const g=$('#mGfx');g.textContent=postOn?'Hoch':'Normal';g.setAttribute('aria-pressed',postOn);}
+function openMenu(){if(document.pointerLockElement)document.exitPointerLock();$('#tb').classList.remove('open');setMode('start');renderSeg();updMenu();$('#start').hidden=false;}
+$('#homeBtn').addEventListener('click',openMenu);$('#overHome').addEventListener('click',()=>{$('#over').hidden=true;if(ONLINE)onlLeave();openMenu();});
+renderSeg();
 let topView=coarse;
 function setView(top){topView=top;orb.az=0;orb.el=top?1.32:.8;updView();if(mode==='chess')seatCam(false);}
 function updView(){const b=document.querySelector('#viewBtn');if(b)b.textContent='Ansicht: '+(topView?'Von oben':'Schräg');}
@@ -1467,8 +1505,45 @@ function renderFrame(sc,now){
     u.cameraNear.value=camera.near;u.cameraFar.value=camera.far;u.cameraProjectionMatrix.value.copy(camera.projectionMatrix);u.cameraInverseProjectionMatrix.value.copy(camera.projectionMatrixInverse);
     post.fin.uniforms.time.value=(now*.001)%100;post.comp.render();}
   else renderer.render(sc,camera);}
-function updGfx(){document.body.classList.toggle('post',postOn);const b=document.querySelector('#gfxBtn');if(b)b.textContent='Grafik: '+(postOn?'Hoch':'Normal');}
+function updGfx(){document.body.classList.toggle('post',postOn);const b=document.querySelector('#gfxBtn');if(b)b.textContent='Grafik: '+(postOn?'Hoch':'Normal');if(typeof updMenu==='function'&&document.querySelector('#mGfx'))try{updMenu();}catch(e){}}
 function toggleGfx(){postOn=!postOn;try{localStorage.setItem('sa_gfx',postOn?'hoch':'normal');}catch(e){}updGfx();}
+
+/* ---------- Online ohne claude.ai: direkte Verbindung zwischen zwei Browsern (PeerJS/WebRTC) ---------- */
+function makeNet(){if(!window.Peer)return null;
+  const OPTS=Object.assign({debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}},window.SA_PEER_OPTS||{});
+  const PFX='schlagabtausch-';let peer=null,conn=null,me={},remote=null,remT=0,lastData=0,role=null,code=null,retryT=null,sendT=0,sendTimer=null;const hs=[];
+  const peers=()=>{const a=[{peer:'me',by:null,isMe:true,sameTab:true,kind:'viewer',guest:false,presence:Object.freeze(Object.assign({},me)),updatedAt:Date.now()}];
+    if(conn&&conn.open&&remote)a.push({peer:'remote',by:null,isMe:false,sameTab:false,kind:'viewer',guest:false,presence:remote,updatedAt:remT});return a;};
+  const fire=()=>{const ps=peers();hs.forEach(h=>{try{h({peers:ps,joined:[],left:[],updated:[]});}catch(e){}});};
+  const flush=()=>{sendTimer=null;sendT=performance.now();if(conn&&conn.open){try{conn.send({t:'p',p:me});}catch(e){}}};
+  const send=()=>{if(sendTimer)return;const w=33-(performance.now()-sendT);if(w<=0)flush();else sendTimer=setTimeout(flush,w);};
+  function attach(c,onFirst){const prev=conn;conn=c;if(prev&&prev!==c){try{prev.close();}catch(e){}}
+    c.on('open',()=>{lastData=Date.now();flush();});
+    c.on('data',d=>{if(conn!==c||!d||typeof d!=='object')return;lastData=Date.now();
+      if(d.t==='p'&&d.p&&typeof d.p==='object'&&!Array.isArray(d.p)){remote=Object.freeze(Object.assign({},d.p));remT=Date.now();fire();if(onFirst){const f=onFirst;onFirst=null;f(null);}}
+      else if(d.t==='full'){if(onFirst){const f=onFirst;onFirst=null;f('full');}try{c.close();}catch(e){}}});
+    c.on('close',()=>{if(conn===c){conn=null;remote=null;fire();if(role==='join')retry();}});c.on('error',()=>{});}
+  function newPeer(id){const p=id?new Peer(id,OPTS):new Peer(OPTS);p.on('disconnected',()=>{if(peer===p&&!p.destroyed)setTimeout(()=>{try{if(peer===p&&!p.destroyed)p.reconnect();}catch(e){}},1500);});return p;}
+  function retry(){clearTimeout(retryT);if(role!=='join')return;retryT=setTimeout(()=>{if(role!=='join'||(conn&&conn.open))return;
+    if(!peer||peer.destroyed){peer=newPeer();peer.on('open',()=>retry());peer.on('error',()=>retry());return;}
+    if(peer.open)attach(peer.connect(PFX+code,{reliable:true}));else retry();},3000);}
+  function close(){role=null;clearTimeout(retryT);const p=peer;peer=null;conn=null;remote=null;try{p&&p.destroy();}catch(e){}fire();}
+  return{net:true,
+    presence(patch){for(const k in patch){if(patch[k]===null)delete me[k];else me[k]=patch[k];}send();return Promise.resolve();},
+    peers,onPeers(h){hs.push(h);return()=>{const i=hs.indexOf(h);if(i>=0)hs.splice(i,1);};},connected:()=>!!(conn&&conn.open),
+    host(cd){close();role='host';code=cd;return new Promise((res,rej)=>{let done=false;const p=newPeer(PFX+cd);peer=p;
+      const fin=(e)=>{if(done)return;done=true;clearTimeout(to);e?rej(e):res();};const to=setTimeout(()=>fin('net'),12000);
+      p.on('open',()=>fin(null));
+      p.on('error',e=>{const t=e&&e.type;if(!done){fin(t==='unavailable-id'?'taken':'net');if(peer===p){peer=null;try{p.destroy();}catch(x){}}}});
+      p.on('connection',c=>{const busy=conn&&conn.open&&remote&&Date.now()-lastData<6000;
+        if(busy){c.on('open',()=>{try{c.send({t:'full'});}catch(e){}setTimeout(()=>{try{c.close();}catch(e){}},400);});return;}attach(c);});});},
+    join(cd,persist){close();role='join';code=cd;return new Promise((res,rej)=>{let done=false;const p=newPeer();peer=p;
+      const fin=(e)=>{if(done)return;done=true;clearTimeout(to);if(e&&persist){retry();res(false);return;}if(e){if(!persist)close();rej(e);}else res(true);};
+      const to=setTimeout(()=>fin('missing'),window.SA_JOIN_MS||20000);
+      p.on('open',()=>{attach(p.connect(PFX+cd,{reliable:true}),fin);});
+      p.on('error',e=>{const t=e&&e.type;if(!done)fin(t==='peer-unavailable'?'missing':'net');else if(t==='peer-unavailable')retry();});});},
+    close};}
+let NETM=false;
 
 /* ---------- Online gegen Freunde (Presence: jeder sendet seinen ganzen Stand) ---------- */
 const SQN=(r,c)=>'abcdefgh'[c]+(r+1);
@@ -1527,23 +1602,28 @@ function onlStart(code,col,rec){ONLINE={code,pres:{},opp:null,atkDone:-1,startin
   placeOpp();onlReplay(rec||[]);
   onlPub({g:code,r:ME,nk:nickVal(),rec:S.rec.join(' '),tm:+S.time[ME].toFixed(1),atk:null,rdy:null,d:null});onlSave(false);
   $('#resignBtn').hidden=false;$('#start').hidden=true;$('#over').hidden=true;setScene('room');if(mode!=='chess')sitDown();updStatus();drawClock(true);onlSync();}
-function onlLeave(){if(!ONLINE)return;if(RM)RM.presence({g:null,r:null,rec:null,atk:null,rdy:null,d:null,nk:null,tm:null}).catch(()=>{});ONLINE=null;ME='w';OPP_NAME='Herr Holz';OPP_SHORT='Holz';placeOpp();$('#resignBtn').hidden=true;}
-function onlUI(){const st=RM===undefined?'load':RM?'ok':'none';$('#onNone').hidden=st!=='none';$('#onNone').textContent=st==='load'?'Verbinde …':'Online-Spiele gehen nur, wenn du dieses Spiel auf claude.ai angemeldet öffnest.';if(st==='load')$('#onNone').hidden=false;
+function onlLeave(){if(!ONLINE)return;if(RM)RM.presence({g:null,r:null,rec:null,atk:null,rdy:null,d:null,nk:null,tm:null}).catch(()=>{});if(NETM)RM.close();ONLINE=null;ME='w';OPP_NAME='Herr Holz';OPP_SHORT='Holz';placeOpp();$('#resignBtn').hidden=true;}
+function onlUI(){const st=RM===undefined?'load':RM?'ok':'none';$('#onNone').hidden=st!=='none';$('#onNone').textContent=st==='load'?'Verbinde …':(window.claude?'Online-Spiele gehen nur, wenn du dieses Spiel auf claude.ai angemeldet öffnest.':'Der Online-Modus konnte nicht geladen werden. Prüf deine Internetverbindung und lade die Seite neu.');if(st==='load')$('#onNone').hidden=false;
   $('#onSetup').querySelectorAll('button,input').forEach(x=>{if(x.id!=='onNick')x.disabled=st!=='ok';});
   let sv=null;try{sv=JSON.parse(localStorage.getItem('sa_onl'));}catch(e){}
   const rb=$('#onResume');if(st==='ok'&&sv&&sv.code&&!sv.over&&Array.isArray(sv.rec)){rb.hidden=false;rb.textContent='Letzte Partie fortsetzen (Code '+String(sv.code).toUpperCase()+', '+(sv.me==='w'?'Weiß':'Schwarz')+')';
-    rb.onclick=()=>{onlStart(sv.code,sv.me==='b'?'b':'w',sv.rec);$('#online').hidden=true;};}else rb.hidden=true;}
+    rb.onclick=async()=>{const col=sv.me==='b'?'b':'w';if(NETM){$('#onMsg').textContent='Verbinde …';rb.disabled=true;try{if(col==='w')await RM.host(sv.code);else await RM.join(sv.code,true);}catch(e){rb.disabled=false;$('#onMsg').textContent='Das Spiel ist gerade noch belegt. Warte ein paar Sekunden und versuch es nochmal.';return;}rb.disabled=false;$('#onMsg').textContent='';}
+      onlStart(sv.code,col,sv.rec);$('#online').hidden=true;};}else rb.hidden=true;}
 function openOnline(){try{if(!$('#onNick').value)$('#onNick').value=localStorage.getItem('sa_nick')||'';}catch(e){}
   $('#onMsg').textContent='';if(ONLINE&&!S.over){$('#onSetup').hidden=true;$('#onWait').hidden=false;$('#onBig').textContent=ONLINE.code.toUpperCase();$('#onWaitMsg').textContent=ONLINE.opp?'Du spielst gerade gegen '+OPP_NAME+'.':'Warte auf deinen Freund … Du kannst dich schon an den Tisch setzen.';}
   else{$('#onSetup').hidden=false;$('#onWait').hidden=true;}onlUI();$('#online').hidden=false;}
 $('#onNick').addEventListener('change',()=>{try{localStorage.setItem('sa_nick',nickVal());}catch(e){}if(ONLINE)onlPub({nk:nickVal()});});
 $('#onClose').addEventListener('click',()=>{$('#online').hidden=true;});
 $('#goOnline').addEventListener('click',openOnline);$('#onlBtn').addEventListener('click',openOnline);
-$('#onCreate').addEventListener('click',()=>{if(!RM)return;const A='abcdefghjkmnpqrstuvwxyz23456789',used=new Set(RM.peers().map(p=>p.presence&&p.presence.g));let code;
-  do{code=[0,1,2,3].map(()=>A[(Math.random()*A.length)|0]).join('');}while(used.has(code));
-  if(ONLINE)onlLeave();onlStart(code,'w',[]);$('#onSetup').hidden=true;$('#onWait').hidden=false;$('#onBig').textContent=code.toUpperCase();$('#onWaitMsg').textContent='Warte auf deinen Freund … Du kannst dich schon an den Tisch setzen.';$('#online').hidden=false;});
-$('#onJoin').addEventListener('click',()=>{if(!RM)return;const code=($('#onCode').value||'').trim().toLowerCase();
+$('#onCreate').addEventListener('click',async()=>{if(!RM)return;const A='abcdefghjkmnpqrstuvwxyz23456789',used=new Set(RM.peers().map(p=>p.presence&&p.presence.g));let code;const mk=()=>{do{code=[0,1,2,3].map(()=>A[(Math.random()*A.length)|0]).join('');}while(used.has(code));};mk();
+  if(ONLINE)onlLeave();
+  if(NETM){const b=$('#onCreate');b.disabled=true;$('#onMsg').textContent='Spiel wird erstellt …';let ok=false;for(let i=0;i<4&&!ok;i++){try{await RM.host(code);ok=true;}catch(e){if(e==='taken')mk();else break;}}b.disabled=false;
+    if(!ok){$('#onMsg').textContent='Keine Verbindung zum Spiel-Server. Prüf dein Internet und versuch es nochmal.';return;}$('#onMsg').textContent='';}
+  onlStart(code,'w',[]);$('#onSetup').hidden=true;$('#onWait').hidden=false;$('#onBig').textContent=code.toUpperCase();$('#onWaitMsg').textContent='Warte auf deinen Freund … Du kannst dich schon an den Tisch setzen.';$('#online').hidden=false;});
+$('#onJoin').addEventListener('click',async()=>{if(!RM)return;const code=($('#onCode').value||'').trim().toLowerCase();
   if(!/^[a-z0-9]{4}$/.test(code)){$('#onMsg').textContent='Der Code hat 4 Zeichen, zum Beispiel K7QM.';return;}
+  if(NETM){if(ONLINE)onlLeave();const b=$('#onJoin');b.disabled=true;$('#onMsg').textContent='Verbinde mit '+code.toUpperCase()+' …';let err=null;try{await RM.join(code);}catch(e){err=e;}b.disabled=false;
+    if(!err)$('#onMsg').textContent='';if(err){$('#onMsg').textContent=err==='full'?'Dieses Spiel ist schon voll.':err==='missing'?'Kein offenes Spiel mit diesem Code gefunden. Hat dein Freund das Spiel erstellt und die Seite offen?':'Keine Verbindung möglich. Prüf dein Internet und versuch es nochmal.';return;}}
   const ps=RM.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.g===code);
   if(!ps.some(p=>p.presence.r==='w')){$('#onMsg').textContent='Kein offenes Spiel mit diesem Code gefunden. Ist dein Freund gerade im Spiel?';return;}
   if(ps.some(p=>p.presence.r==='b')){$('#onMsg').textContent='Dieses Spiel ist schon voll.';return;}
@@ -1552,9 +1632,8 @@ $('#onCopy').addEventListener('click',()=>{const t=$('#onBig').textContent;const
   try{navigator.clipboard.writeText(t).then(done,()=>{getSelection().selectAllChildren($('#onBig'));});}catch(e){getSelection().selectAllChildren($('#onBig'));}});
 $('#onCancel').addEventListener('click',()=>{onlLeave();newGame();$('#onSetup').hidden=false;$('#onWait').hidden=true;onlUI();});
 let resArm=false;$('#resignBtn').addEventListener('click',e=>{if(!ONLINE||S.over)return;const b=$('#resignBtn');if(!resArm){resArm=true;b.textContent='Wirklich aufgeben?';e.stopPropagation();setTimeout(()=>{resArm=false;b.textContent='Aufgeben';},4000);return;}resArm=false;b.textContent='Aufgeben';onlEnd('R',ME);});
-if(!window.claude){['goOnline','onlBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.hidden=true;});}
 (async()=>{let r=null,u=null;try{if(window.claude&&typeof claude.use==='function'){[r,u]=await Promise.all([claude.use('room'),claude.use('user')]);}}catch(e){}
-  RM=r;USR=u;if(RM){try{RM.onPeers(()=>onlSync(),()=>{});}catch(e){}}
+  RM=r||(window.claude?null:makeNet());NETM=!!(RM&&RM.net);USR=u;$('#onShare').textContent=NETM?'Schick deinem Freund den Link zu dieser Seite und den Code. Ihr braucht beide Internet, die Verbindung läuft direkt zwischen euren Geräten.':'Dein Freund braucht Zugriff auf dieses Spiel: Lade ihn über „Teilen“ oben rechts ein, dann öffnet er denselben Link.';if(RM){try{RM.onPeers(()=>onlSync(),()=>{});}catch(e){}}
   try{if(USR&&!$('#onNick').value&&!localStorage.getItem('sa_nick')){const me=await USR.me();if(me&&me.name)$('#onNick').value=me.name.split(' ')[0].slice(0,16);}}catch(e){}
   if(!$('#online').hidden)onlUI();})();
 
