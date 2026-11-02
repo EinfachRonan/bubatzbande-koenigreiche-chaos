@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $me = null;
 }
 $t = $read($their);
-$fresh = $t && $t['age'] < 10;
+$fresh = $t && $t['age'] < 900;
 echo '{"o":' . ($fresh ? $t['body'] : 'null')
   . ',"oa":' . ($t ? round($t['age'], 2) : 'null')
   . ',"ma":' . ($me ? round($me['age'], 2) : 'null')

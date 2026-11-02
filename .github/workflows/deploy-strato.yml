@@ -47,3 +47,7 @@ jobs:
           mirror -R --delete --verbose ./site/ "$TARGET_PATH"
           bye
           EOF2
+
+      - name: Check online relay (PHP)
+        continue-on-error: true
+        run: curl -fsS "https://bubatzbande.de/net.php?ping=1" | tee /dev/stderr | grep -q '"ok":1'

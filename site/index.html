@@ -805,22 +805,30 @@ function seqStart(q){if(!q||q.on)return;q.on=true;const t=AC.currentTime;q.gain.
 function seqStop(q,f=1.2){if(!q||!q.on)return;q.on=false;const t=AC.currentTime;q.gain.gain.cancelScheduledValues(t);q.gain.gain.setValueAtTime(q.gain.gain.value,t);q.gain.gain.linearRampToValueAtTime(0,t+f);
   const id=q.int;setTimeout(()=>{if(!q.on)clearInterval(id);},f*1000+150);}
 /* Kampfmusik: d-Moll, 140 BPM */
-const BPM=140,SD=60/BPM/4;
+const BPM=176,SD=60/BPM/4;
 const PROG=[{root:38,ch:[62,65,69]},{root:34,ch:[58,62,65]},{root:36,ch:[60,64,67]},{root:33,ch:[61,64,69]}];
 const ARP=[0,1,2,1,0,1,2,3,0,1,2,1,2,1,0,1];
 const HORN=[[74,77,76,74],[70,74,72,70],[72,76,79,76],[73,76,77,76]];
 function voice(type,m,t,dur,peak,det,fFrom,fTo,o){const a=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();a.type=type;a.frequency.value=mtof(m);if(det)a.detune.value=det;
   f.type='lowpass';f.frequency.setValueAtTime(fFrom,t);if(fTo)f.frequency.exponentialRampToValueAtTime(fTo,t+dur);env(g,t,.006,peak,dur);a.connect(f);f.connect(g);g.connect(o);a.start(t);a.stop(t+dur+.05);return f;}
-function mSched(s16,t,q){const bar=Math.floor(s16/16),s=s16%16,ch=PROG[bar],o=musicGain;
+/* Hardtekk: 176 BPM, verzerrte Kick auf jeder Viertel, Offbeat-Bass, Clap, Supersaw-Lead mit Pumpen */
+const LEAD=[[74,null,74,77,null,76,74,null,72,null,74,null,77,null,76,null],[74,null,74,77,null,76,74,null,70,null,72,null,74,null,72,null],
+  [72,null,72,76,null,74,72,null,67,null,72,null,76,null,79,null],[76,null,76,73,null,76,81,null,79,null,76,null,73,null,69,null]];
+let TK=null;
+function tekNodes(){if(TK)return TK;const n=2048,c1=new Float32Array(n),c2=new Float32Array(n);for(let i=0;i<n;i++){const x=i*2/n-1;c1[i]=Math.tanh(x*9)*.92;c2[i]=Math.tanh(x*2.4);}
+  const dist=AC.createWaveShaper();dist.curve=c1;const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3800;const kg=AC.createGain();kg.gain.value=.5;dist.connect(lp);lp.connect(kg);kg.connect(musicGain);
+  const pump=AC.createGain();pump.connect(musicGain);const ld=AC.createWaveShaper();ld.curve=c2;const lg=AC.createGain();lg.gain.value=.8;ld.connect(lg);lg.connect(pump);
+  TK={dist,pump,ld};return TK;}
+function mSched(s16,t,q){const N=tekNodes(),bar=Math.floor(s16/16),s=s16%16,ch=PROG[bar],o=musicGain;
   const I=D&&!D.over&&Math.min(D.p.hp/D.p.max,D.e.hp/D.e.max)<.4;
-  if([0,7,8,10].includes(s))osc('sine',160,t,.3,.95,o,42,.002);
-  if(s===4||s===12){noise(t,.16,'bandpass',1900,.8,.45,o);osc('triangle',220,t,.09,.3,o,140);}
-  if(s%2===0)noise(t,.035,'highpass',7500,.7,.13,o);else if(I)noise(t,.03,'highpass',8000,.7,.07,o);
-  if(bar===3&&s>=12)osc('sine',[210,175,145,115][s-12],t,.25,.6,o,90);
-  if(s%2===0){const f=voice('sawtooth',ch.root+(s%4===2?12:0),t,SD*1.8,.3,0,950,170,o);f.Q.value=7;}
-  const n=ARP[s];voice('square',(n===3?ch.ch[0]+12:ch.ch[n])+(I?12:0),t,SD*.9,.06,0,2300,0,o);
-  if(s===0)ch.ch.forEach(m=>[-9,9].forEach(d=>voice('sawtooth',m-12,t,.6,.055,d,3200,380,o)));
-  if(q.loop%2===1&&s%4===0)[-6,6].forEach(d=>voice('sawtooth',HORN[bar][s/4],t,SD*3.8,.07,d,600,2000,o));}
+  if(s%4===0){const k=AC.createOscillator(),g=AC.createGain();k.type='sine';k.frequency.setValueAtTime(210,t);k.frequency.exponentialRampToValueAtTime(46,t+.11);env(g,t,.001,1,.22);k.connect(g);g.connect(N.dist);k.start(t);k.stop(t+.3);
+    noise(t,.012,'highpass',3000,.7,.35,N.dist);N.pump.gain.cancelScheduledValues(t);N.pump.gain.setValueAtTime(.25,t);N.pump.gain.linearRampToValueAtTime(1,t+SD*3.2);}
+  if(s%4===2){const f=voice('sawtooth',ch.root+12,t,SD*1.7,.26,0,1600,240,N.pump);f.Q.value=5;voice('square',ch.root,t,SD*1.4,.12,0,600,120,N.pump);noise(t,.06,'highpass',8500,.7,.17,o);}
+  else noise(t,.022,'highpass',10500,.7,s%2?.045:.07,o);
+  if(s===4||s===12)[0,.011,.022].forEach(d=>noise(t+d,.08,'bandpass',1500,1.1,.34,o));
+  if(bar===3&&s>=12)noise(t,.06,'bandpass',1900+s*120,1,.22,o);
+  const L=LEAD[bar][s];if(L!=null&&(q.loop>0||bar>=2)){const m=L+(I?12:0);[-16,-7,0,7,16].forEach(dt=>voice('sawtooth',m,t,SD*1.8,.042,dt,5600,2000,N.ld));voice('square',m-12,t,SD*1.6,.03,0,2400,900,N.ld);}
+  if(s===0&&q.loop%2===1)ch.ch.forEach(m=>[-10,10].forEach(d=>voice('sawtooth',m,t,SD*14,.02,d,2600,700,N.pump)));}
 /* Wohnzimmer: Lo-Fi-Jazz, 76 BPM, Achtel mit Swing */
 const LOFI=[{b:38,ch:[53,57,60,64]},{b:43,ch:[53,59,64,69]},{b:36,ch:[52,55,59,62]},{b:45,ch:[55,58,61,64]}];
 const PENTA=[62,65,67,69,72,74,77];
@@ -1544,6 +1552,35 @@ function makeNet(){if(!window.Peer)return null;
       p.on('error',e=>{const t=e&&e.type;if(!done)fin(t==='peer-unavailable'?'missing':'net');else if(t==='peer-unavailable')retry();});});},
     close};}
 let NETM=false;
+/* ---------- Online über den eigenen Server (net.php auf dem Webspace): funktioniert in jedem Netz ---------- */
+function makeHttpNet(URL){const K=(Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/g,'').slice(0,12);
+  let me={},remote=null,remJs='',remT=0,role=null,code=null,timer=null,busy=false,lastSend=0;const hs=[];
+  const peers=()=>{const a=[{peer:'me',by:null,isMe:true,sameTab:true,kind:'viewer',guest:false,presence:Object.freeze(Object.assign({},me)),updatedAt:Date.now()}];
+    if(remote)a.push({peer:'remote',by:null,isMe:false,sameTab:false,kind:'viewer',guest:false,presence:remote,updatedAt:remT});return a;};
+  const fire=()=>{const ps=peers();hs.forEach(h=>{try{h({peers:ps,joined:[],left:[],updated:[]});}catch(e){}});};
+  const q=(cd,rl)=>URL+'?c='+cd+'&r='+rl+'&k='+K;
+  async function req(cd,rl,body){const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),8000);
+    try{const r=await fetch(q(cd,rl),body?{method:'POST',body:JSON.stringify(body),headers:{'Content-Type':'text/plain'},cache:'no-store',signal:ctl.signal}:{cache:'no-store',signal:ctl.signal});return await r.json();}finally{clearTimeout(to);}}
+  const fast=()=>(typeof D!=='undefined'&&D&&D.online)||(typeof mode!=='undefined'&&mode==='vs');
+  function sched(ms){clearTimeout(timer);timer=setTimeout(tick,Math.max(0,ms));}
+  function take(d){const o=d&&d.o&&typeof d.o==='object'&&!Array.isArray(d.o)&&typeof d.oa==='number'&&d.oa<10?d.o:null;
+    if(o){const js=JSON.stringify(o);if(js!==remJs){remJs=js;remote=Object.freeze(o);remT=Date.now();fire();}}else if(remote){remote=null;remJs='';fire();}}
+  async function tick(){timer=null;if(!role)return;if(busy){sched(40);return;}busy=true;const cd=code,rl=role;let d=null;
+    try{d=await req(cd,rl,me);}catch(e){}busy=false;lastSend=performance.now();if(role!==rl||code!==cd)return;if(d)take(d);sched(fast()?100:document.hidden?2500:700);}
+  function close(){if(role&&code){const cd=code,rl=role;req(cd,rl,{_leave:1}).catch(()=>{});}role=null;clearTimeout(timer);timer=null;remote=null;remJs='';fire();}
+  document.addEventListener('visibilitychange',()=>{if(role&&!document.hidden)sched(0);});
+  return{net:true,
+    presence(patch){for(const k in patch){if(patch[k]===null)delete me[k];else me[k]=patch[k];}if(role){const since=performance.now()-lastSend;sched(since>80?0:80-since);}return Promise.resolve();},
+    peers,onPeers(h){hs.push(h);return()=>{const i=hs.indexOf(h);if(i>=0)hs.splice(i,1);};},connected:()=>!!remote,
+    async host(cd){close();let d;try{d=await req(cd,'w');}catch(e){throw'net';}if(d&&typeof d.ma==='number'&&d.ma<600&&d.mk!==K)throw'taken';code=cd;role='w';sched(0);},
+    async join(cd,persist){close();let d;try{d=await req(cd,'b');}catch(e){if(persist){code=cd;role='b';sched(0);return false;}throw'net';}
+      const host=d&&d.o&&typeof d.o==='object'&&d.o.r==='w'&&typeof d.oa==='number'&&d.oa<900;
+      if(!host&&!persist)throw'missing';if(d&&typeof d.ma==='number'&&d.ma<20&&d.mk!==K&&!persist)throw'full';
+      code=cd;role='b';take(d);sched(0);return true;},
+    close};}
+async function httpRelay(){try{const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),4000);const r=await fetch('net.php?ping=1',{cache:'no-store',signal:ctl.signal});clearTimeout(to);const j=await r.json();return !!(j&&j.ok);}catch(e){return false;}}
+
+
 
 /* ---------- Online gegen Freunde (Presence: jeder sendet seinen ganzen Stand) ---------- */
 const SQN=(r,c)=>'abcdefgh'[c]+(r+1);
@@ -1623,7 +1660,8 @@ $('#onCreate').addEventListener('click',async()=>{if(!RM)return;const A='abcdefg
 $('#onJoin').addEventListener('click',async()=>{if(!RM)return;const code=($('#onCode').value||'').trim().toLowerCase();
   if(!/^[a-z0-9]{4}$/.test(code)){$('#onMsg').textContent='Der Code hat 4 Zeichen, zum Beispiel K7QM.';return;}
   if(NETM){if(ONLINE)onlLeave();const b=$('#onJoin');b.disabled=true;$('#onMsg').textContent='Verbinde mit '+code.toUpperCase()+' …';let err=null;try{await RM.join(code);}catch(e){err=e;}b.disabled=false;
-    if(!err)$('#onMsg').textContent='';if(err){$('#onMsg').textContent=err==='full'?'Dieses Spiel ist schon voll.':err==='missing'?'Kein offenes Spiel mit diesem Code gefunden. Hat dein Freund das Spiel erstellt und die Seite offen?':'Keine Verbindung möglich. Prüf dein Internet und versuch es nochmal.';return;}}
+    if(err){$('#onMsg').textContent=err==='full'?'Dieses Spiel ist schon voll.':err==='missing'?'Kein Spiel mit diesem Code gefunden. Prüf den Code, und dein Freund muss das Spiel vorher über „Spiel erstellen“ angelegt haben.':'Keine Verbindung möglich. Prüf dein Internet und versuch es nochmal.';return;}
+    $('#onMsg').textContent='';onlStart(code,'b',[]);$('#online').hidden=true;return;}
   const ps=RM.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.g===code);
   if(!ps.some(p=>p.presence.r==='w')){$('#onMsg').textContent='Kein offenes Spiel mit diesem Code gefunden. Ist dein Freund gerade im Spiel?';return;}
   if(ps.some(p=>p.presence.r==='b')){$('#onMsg').textContent='Dieses Spiel ist schon voll.';return;}
@@ -1633,7 +1671,7 @@ $('#onCopy').addEventListener('click',()=>{const t=$('#onBig').textContent;const
 $('#onCancel').addEventListener('click',()=>{onlLeave();newGame();$('#onSetup').hidden=false;$('#onWait').hidden=true;onlUI();});
 let resArm=false;$('#resignBtn').addEventListener('click',e=>{if(!ONLINE||S.over)return;const b=$('#resignBtn');if(!resArm){resArm=true;b.textContent='Wirklich aufgeben?';e.stopPropagation();setTimeout(()=>{resArm=false;b.textContent='Aufgeben';},4000);return;}resArm=false;b.textContent='Aufgeben';onlEnd('R',ME);});
 (async()=>{let r=null,u=null;try{if(window.claude&&typeof claude.use==='function'){[r,u]=await Promise.all([claude.use('room'),claude.use('user')]);}}catch(e){}
-  RM=r||(window.claude?null:makeNet());NETM=!!(RM&&RM.net);USR=u;$('#onShare').textContent=NETM?'Schick deinem Freund den Link zu dieser Seite und den Code. Ihr braucht beide Internet, die Verbindung läuft direkt zwischen euren Geräten.':'Dein Freund braucht Zugriff auf dieses Spiel: Lade ihn über „Teilen“ oben rechts ein, dann öffnet er denselben Link.';if(RM){try{RM.onPeers(()=>onlSync(),()=>{});}catch(e){}}
+  RM=r||(window.claude?null:((location.protocol.startsWith('http')&&await httpRelay())?makeHttpNet('net.php'):makeNet()));NETM=!!(RM&&RM.net);USR=u;$('#onShare').textContent=NETM?'Schick deinem Freund den Link zu dieser Seite und den Code. Ihr braucht beide Internet, die Verbindung läuft direkt zwischen euren Geräten.':'Dein Freund braucht Zugriff auf dieses Spiel: Lade ihn über „Teilen“ oben rechts ein, dann öffnet er denselben Link.';if(RM){try{RM.onPeers(()=>onlSync(),()=>{});}catch(e){}}
   try{if(USR&&!$('#onNick').value&&!localStorage.getItem('sa_nick')){const me=await USR.me();if(me&&me.name)$('#onNick').value=me.name.split(' ')[0].slice(0,16);}}catch(e){}
   if(!$('#online').hidden)onlUI();})();
 
