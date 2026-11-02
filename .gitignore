@@ -1,8 +1,2 @@
-.next
-node_modules
-npm-debug.log*
-dist
-out
-*.tsbuildinfo
-.codex-next-*
-.codex-phase2-*
+node_modules/
+.DS_Store
