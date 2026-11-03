@@ -341,6 +341,66 @@ body.coarse .chips,body.coarse #musicBtn{display:none}
   .think{top:-18px;left:44px}#table2d .pcard.opp{margin-top:54px}
   #log{left:auto;right:max(12px,env(safe-area-inset-right,0px));transform:none;max-width:240px;bottom:calc(10px + env(safe-area-inset-bottom,0px));font-size:12px;padding:6px 10px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== Brettseite im Anime-/Manga-Stil ===== */
+body[data-mode="chess"]{background:
+  repeating-conic-gradient(from 0deg at 50% 46%,rgba(255,255,255,.07) 0 1.6deg,transparent 1.6deg 6deg),
+  radial-gradient(circle at 1.5px 1.5px,rgba(255,255,255,.16) 1.2px,transparent 1.7px) 0 0/9px 9px,
+  linear-gradient(180deg,#2a1554 0%,#5a2380 30%,#c2387a 62%,#ff7a5c 84%,#ffc06a 100%)}
+#hud-chess .pcard{color:var(--ink);background:#fffaf0;border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:8px 10px;gap:10px;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center}
+#hud-chess .pcard.opp{transform:rotate(-1deg)}#hud-chess .pcard.me{transform:rotate(.8deg)}
+#hud-chess .pcard::before{content:"";position:absolute;right:0;bottom:0;width:46%;height:100%;background:radial-gradient(circle at 1.5px 1.5px,rgba(12,10,16,.13) 1.1px,transparent 1.6px) 0 0/6px 6px;pointer-events:none}
+#hud-chess .pcard .av{width:54px;height:54px;border:3px solid var(--ink);border-radius:50%;background:#ffd23f;box-shadow:3px 3px 0 var(--lamp);grid-row:1;position:relative;z-index:1}
+#hud-chess .pcard .av.me{background:#ffd23f;color:var(--ink)}
+#hud-chess .pcard .av{grid-column:1}#hud-chess .pinfo{position:relative;z-index:1;grid-column:2;grid-row:1}#hud-chess .pcard .clk2{grid-column:3}
+#hud-chess .pinfo b{font:400 19px/1.05 var(--font-d);color:var(--ink);text-transform:uppercase;letter-spacing:.01em}
+#hud-chess .pinfo b::before{content:"▶ ";color:var(--lamp)}
+#hud-chess .pinfo span{font:800 11px var(--font-b);color:#6b5f7a;text-transform:uppercase;letter-spacing:.08em}
+#hud-chess .capt{grid-column:1/-1;grid-row:3;color:var(--ink);font-size:17px;max-width:none;min-height:0;position:relative;z-index:1}
+#hud-chess .capt:empty{display:none}
+#hud-chess .clk2{grid-row:1;font:400 22px/1 var(--font-d);background:var(--ink);color:#fffaf0;border:3px solid var(--ink);transform:skewX(-8deg);padding:7px 12px;min-width:84px;position:relative;z-index:1}
+#hud-chess .clk2.on{background:var(--lamp);color:#fff;box-shadow:3px 3px 0 var(--pop);animation:clkpulse 1.4s infinite}
+#hud-chess .clk2.low{color:#ffd23f}#hud-chess .clk2.on.low{background:#ff1430;color:#fff}
+@keyframes clkpulse{50%{box-shadow:3px 3px 0 var(--pop),0 0 0 4px rgba(255,59,77,.35)}}
+#hud-chess .think{display:none!important}
+.say{grid-column:1/-1;grid-row:2;position:relative;z-index:1;justify-self:start;max-width:100%;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:16px;padding:6px 12px;font:800 13px/1.25 var(--font-b);margin-left:4px}
+.say::before{content:"";position:absolute;left:14px;top:-12px;border:9px solid transparent;border-bottom:12px solid var(--ink);border-top:0}
+.say::after{content:"";position:absolute;left:17px;top:-7px;border:6px solid transparent;border-bottom:8px solid #fff;border-top:0}
+.say.thinking{background:#fff6cc}.say.thinking::after{border-bottom-color:#fff6cc}
+.say.pop{animation:saypop .35s cubic-bezier(.3,1.6,.4,1)}@keyframes saypop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.pcard.me .say{display:none}
+#hud-chess #board{border:5px solid var(--ink);box-shadow:0 0 0 4px #fffaf0,10px 10px 0 4px var(--ink);background:#fff4e0}
+#hud-chess .sq.l{background:#fff4e0}
+#hud-chess .sq.d{background:#9b7fd8 radial-gradient(circle at 1.5px 1.5px,rgba(42,21,84,.35) 1.1px,transparent 1.6px) 0 0/6px 6px}
+#hud-chess .sq .co{color:rgba(42,21,84,.75);font-weight:800}
+#hud-chess .sq.d .co{color:rgba(255,250,240,.9)}
+#hud-chess .sq.last::after{background:rgba(255,210,63,.6)}
+#hud-chess .sq.sel::after{background:rgba(255,210,63,.85);box-shadow:inset 0 0 0 3px var(--ink)}
+#hud-chess .sq.mv::before{width:24%;height:24%;margin:-12% 0 0 -12%;background:var(--lamp);border:2px solid #fff;box-shadow:0 0 0 2px var(--ink);opacity:.95}
+#hud-chess .sq.cap::before{inset:4%;border:4px dashed var(--lamp);animation:capspin 3s linear infinite}
+@keyframes capspin{to{transform:rotate(360deg)}}
+#hud-chess .pc.w{color:#fff;-webkit-text-stroke:3px var(--ink);text-shadow:3px 3px 0 rgba(42,21,84,.45)}
+#hud-chess .pc.b{color:var(--ink);-webkit-text-stroke:1.5px #fffaf0;text-shadow:3px 3px 0 rgba(255,59,77,.6)}
+#hud-chess #status{background:#ffd23f;color:var(--ink);border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);transform:skewX(-6deg)}
+#hud-chess #status strong{color:var(--ink);font-family:var(--font-d);text-transform:uppercase}
+#hud-chess #status .label{color:#5a3a00;font-weight:800}
+#hud-chess #status .clocks{color:var(--ink)}
+#hud-chess #status.check{background:var(--lamp);animation:shk .4s 2}#hud-chess #status.check strong,#hud-chess #status.check .label{color:#fff}
+@keyframes shk{25%{translate:-3px 0}75%{translate:3px 0}}
+#hud-chess .btn.ghost{background:#fffaf0;color:var(--ink);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);font-weight:800}
+#hud-chess .btn.ghost:hover{background:#ffd23f}
+#hud-chess #tb{background:rgba(255,250,240,.97);border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink);border-radius:0}
+#hud-chess #tb .btn.ghost{box-shadow:none;border-width:2px}
+#hud-chess #log{background:#fffaf0;color:var(--ink);border:3px solid var(--ink);border-left:10px solid var(--lamp);box-shadow:5px 5px 0 var(--ink);font-weight:700}
+#hud-chess #moves{background:#fffaf0;color:var(--ink);border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink)}
+#chkOno{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%) rotate(-8deg) scale(.4);font:400 clamp(54px,16vw,120px)/1 var(--font-d);color:#ffd23f;-webkit-text-stroke:4px var(--ink);paint-order:stroke fill;text-shadow:8px 8px 0 var(--lamp);opacity:0;pointer-events:none;z-index:8;letter-spacing:.02em}
+#chkOno.on{animation:ono 1.1s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes ono{0%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(.4)}18%{opacity:1;transform:translate(-50%,-50%) rotate(-8deg) scale(1.08)}70%{opacity:1;transform:translate(-50%,-50%) rotate(-6deg) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(-6deg) scale(1.15)}}
+@media (max-width:520px){#hud-chess .pcard .av{width:44px;height:44px}#hud-chess .pinfo b{font-size:16px}#hud-chess .clk2{font-size:19px;min-width:70px;padding:6px 9px}.say{font-size:12px;padding:5px 10px}}
+@media (max-width:700px) and (orientation:portrait){#hud-chess{--bs:min(calc(100vw - 40px),calc(calc(var(--vh,1vh)*100) - 300px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)))}#table2d{gap:14px}}
+#hud-chess .pinfo span,#hud-chess .pinfo b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (min-width:701px) and (min-height:561px){#hud-chess #log{left:max(24px,env(safe-area-inset-left,0px));transform:none;bottom:24px;max-width:320px}}
+@media (orientation:landscape) and (max-height:560px){#table2d{grid-template-columns:var(--bs) minmax(280px,340px)}#hud-chess .pcard{gap:8px}#hud-chess .pcard .av{width:38px;height:38px}#hud-chess .pinfo b{font-size:14px}#hud-chess .clk2{font-size:16px;min-width:60px;padding:5px 7px}.say{font-size:11px;padding:4px 8px}#table2d .pcard.opp{margin-top:50px}}
 </style>
 
 <canvas id="c" tabindex="0" aria-label="3D-Spielansicht"></canvas>
@@ -400,10 +460,11 @@ body.coarse .chips,body.coarse #musicBtn{display:none}
     </div>
   </div>
   <div id="table2d">
-    <div class="pcard opp"><div class="av" id="oppAv"></div><div class="pinfo"><b id="oppNm">Herr Holz</b><span id="oppSub">Stufe Mittel</span></div><div class="capt" id="capOpp"></div><div class="clk2" id="clkOpp">10:00</div><div class="think" id="think">denkt nach<i>.</i><i>.</i><i>.</i></div></div>
+    <div class="pcard opp"><div class="av" id="oppAv"></div><div class="pinfo"><b id="oppNm">Herr Holz</b><span id="oppSub">Stufe Mittel</span></div><div class="capt" id="capOpp"></div><div class="clk2" id="clkOpp">10:00</div><div class="think" id="think">denkt nach<i>.</i><i>.</i><i>.</i></div><div class="say" id="say">Na los, zeig was du drauf hast!</div></div>
     <div id="board" role="grid" aria-label="Schachbrett"></div>
     <div class="pcard me"><div class="av me" id="meAv">DU</div><div class="pinfo"><b id="meNm">Du</b><span id="meSub">Weiß</span></div><div class="capt" id="capMe"></div><div class="clk2" id="clkMe">10:00</div></div>
   </div>
+  <div id="chkOno" aria-hidden="true">SCHACH!</div>
   <div id="moves"><span class="label">Notation</span><ol id="mlist"></ol></div>
   
   <div id="log"></div>
@@ -887,8 +948,9 @@ function renderMarks(){if(!BSQ)return;for(let r=0;r<8;r++)for(let c=0;c<8;c++)BS
   for(const cc of['w','b']){const k=findKing(S.board,cc);if(k&&!S.over&&inCheck(S.board,cc))BSQ[k[0]][k[1]].classList.add('chk');}
   if(S.sel){BSQ[S.sel[0]][S.sel[1]].classList.add('sel');S.legal.forEach(m=>BSQ[m.tr][m.tc].classList.add((S.board[m.tr][m.tc]||m.ep)?'cap':'mv'));}
   updCards();}
+const ME_SVG='<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#ffd23f"/><path d="M6 22 L4 10 L11 14 L12 4 L18 11 L22 2 L25 11 L32 5 L31 14 L37 11 L34 22 Z" fill="#ff3b4d" stroke="#0c0a10" stroke-width="1.8" stroke-linejoin="round"/><ellipse cx="20" cy="26" rx="10.5" ry="11" fill="#ffe0c2" stroke="#0c0a10" stroke-width="1.8"/><path d="M9.5 21 L14 17 L16 21 L20 16.5 L24 21 L26 17 L30.5 21 L30 15 L10 15 Z" fill="#ff3b4d" stroke="#0c0a10" stroke-width="1.6" stroke-linejoin="round"/><ellipse cx="15.5" cy="26.5" rx="2.4" ry="3.2" fill="#0c0a10"/><ellipse cx="24.5" cy="26.5" rx="2.4" ry="3.2" fill="#0c0a10"/><circle cx="16.3" cy="25.3" r="1" fill="#fff"/><circle cx="25.3" cy="25.3" r="1" fill="#fff"/><path d="M16 32 Q20 35.5 24 32 Z" fill="#fff" stroke="#0c0a10" stroke-width="1.4" stroke-linejoin="round"/><path d="M11 30 l2 .6 M29 30 l-2 .6" stroke="#ff7a8a" stroke-width="1.4" stroke-linecap="round"/></svg>';
 const HOLZ_SVG='<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#2a2433"/><ellipse cx="20" cy="24" rx="10" ry="12" fill="#d8a36a" stroke="#0c0a10" stroke-width="2"/><path d="M8 17 Q20 6 32 17 L33 19 L7 19 Z" fill="#4a4258" stroke="#0c0a10" stroke-width="2"/><rect x="6" y="17.5" width="28" height="3" fill="#4a4258" stroke="#0c0a10" stroke-width="1.6"/><circle cx="15.5" cy="25" r="3.3" fill="#fff" stroke="#0c0a10" stroke-width="1.6"/><circle cx="24.5" cy="25" r="3.3" fill="#fff" stroke="#0c0a10" stroke-width="1.6"/><circle cx="16" cy="25.4" r="1.3" fill="#0c0a10"/><circle cx="25" cy="25.4" r="1.3" fill="#0c0a10"/><path d="M18.8 25 h2.4" stroke="#0c0a10" stroke-width="1.4"/><path d="M16.5 31.5 Q20 33.5 23.5 31.5" fill="none" stroke="#0c0a10" stroke-width="1.6" stroke-linecap="round"/><path d="M27 29 l3 1" stroke="#ff3b4d" stroke-width="1.6" stroke-linecap="round"/></svg>';
-function updCards(){if(!$('#oppAv'))return;if(!$('#oppAv').innerHTML)$('#oppAv').innerHTML=HOLZ_SVG;
+function updCards(){if(!$('#oppAv'))return;if(!$('#oppAv').innerHTML)$('#oppAv').innerHTML=HOLZ_SVG;if(!$('#meAv').querySelector('svg'))$('#meAv').innerHTML=ME_SVG;
   $('#oppNm').textContent=OPP_NAME;$('#oppSub').textContent=ONLINE?('Online · '+(OPPC()==='w'?'Weiß':'Schwarz')+(ONLINE.opp?'':' · offline')):('Stufe '+DF().name);
   $('#meSub').textContent=(ME==='w'?'Weiß':'Schwarz');const th=!S.over&&S.turn===OPPC()&&(mode==='chess');$('#think').classList.toggle('on',th);
   const t=S.time,fm=fmt;const co=$('#clkOpp'),cm=$('#clkMe'),oc=OPPC();co.textContent=fm(t[oc]);cm.textContent=fm(t[ME]);
@@ -912,7 +974,7 @@ function audio(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioConte
   const cb=AC.createBuffer(1,AC.sampleRate*3,AC.sampleRate);const cd=cb.getChannelData(0);for(let i=0;i<cd.length;i++)cd[i]=rnd()<.0007?(rnd()*2-1)*.8:0;
   const cs=AC.createBufferSource();cs.buffer=cb;cs.loop=true;const cf=AC.createBiquadFilter();cf.type='highpass';cf.frequency.value=1500;cs.connect(cf);cf.connect(roomGain);
   rs.start();rs2.start();
-  BATTLE=seq(SD,64,mSched,musicGain,.62);ROOM=seq(60/92/2,48,lofi,roomGain,.55);}
+  BATTLE=seq(SD,64,mSched,musicGain,.62);ROOM=seq(KL_SD,KL_LEN,lofi,roomGain,.95);}
   if(AC.state==='suspended')AC.resume();return AC;}
 const mtof=m=>440*Math.pow(2,(m-69)/12);
 function env(g,t,a,peak,dec){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+dec);}
@@ -1009,19 +1071,27 @@ function mSched(s16,t,q){const bar=Math.floor(s16/16),s=s16%16,ch=PROG[bar],o=mu
   if(q.loop>0||bar>=2){const n=MEL[bar].find(x=>x[0]===s);if(n)flute(n[1]+(I?12:0),t,SD*n[2]*.95,.17,o,n[2]>=4);}
   // Koto-Glitzer jede zweite Runde
   if(q.loop%2===1&&(s===6||s===14))koto(ch.ch[(bar+s)%3]+12,t,.06,o);}
-/* Menü/Brett: Ghibli-artiger Walzer, 92 BPM, 3/4: Klavier, Streicher, Flöte (C-Dur, IV-V-iii-vi) */
+/* Menü/Brett: Klassik am Klavier (gemeinfrei): J. S. Bach, Präludium C-Dur BWV 846 · L. v. Beethoven, Für Elise (A-Teil) */
 function piano(m,t,dur,peak,o){const f=mtof(m);[[1,1,1],[2,.32,.6],[3,.12,.4],[4,.05,.3]].forEach(([h,a,d])=>{const x=AC.createOscillator(),g=AC.createGain();x.type='sine';x.frequency.value=f*h*(h>1?1.0008:1);
   env(g,t,.004,peak*a,dur*d+.08);x.connect(g);g.connect(o);x.start(t);x.stop(t+dur*d+.2);});}
-const WALTZ=[[41,[57,60,64]],[43,[55,59,62]],[40,[55,59,62]],[45,[57,60,64]],[38,[57,60,65]],[43,[55,59,65]],[36,[55,60,64]],[40,[56,59,62]]];
-const WMEL=[[[0,76,3],[3,77,1],[4,79,2]],[[0,81,4],[4,79,2]],[[0,76,3],[3,74,1],[4,72,2]],[[0,72,4],[4,71,1],[5,72,1]],
-  [[0,74,3],[3,76,1],[4,77,2]],[[0,79,2],[2,77,2],[4,74,2]],[[0,76,4],[4,72,2]],[[0,71,6]]];
-function lofi(st,t,q){const bar=Math.floor(st/6),s=st%6,[bs,ch]=WALTZ[bar],o=roomGain,sd=q.sd;
-  if(s===0){piano(bs,t,1.6,.2,o);piano(bs+12,t+.01,1,.06,o);}
-  if(s===2||s===4)ch.forEach((m,i)=>piano(m,t+i*.012,.7,.06,o));
-  if(s===0&&q.loop>0)pad(ch,t,sd*6,.022,o);
-  const n=WMEL[bar].find(x=>x[0]===s);
-  if(n){if(q.loop%2===0)piano(n[1],t,sd*n[2]*1.3,.13,o);else{flute(n[1],t,sd*n[2]*.95,.1,o);piano(n[1]-12,t,sd*n[2],.04,o);}}
-  if(q.loop>0&&s===5&&bar%2===1)koto(ch[2]+24,t,.035,o);}
+const N=n=>{const m=/^([A-G])(#|b)?(-?\d)$/.exec(n);return 12*(+m[3]+1)+{C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0);};
+const KL_SD=.22;const KL_EV=[];let KL_LEN=0;
+(function(){let st=0;const ev=(s,n,d,v)=>KL_EV.push([s,typeof n==='number'?n:N(n),d,v]);
+  // Bach: jeder Takt = 5 Töne, Muster wie im Original (Bass halbe, zweiter Ton punktiert, oben 3 Töne zweimal)
+  const BACH=['C4 E4 G4 C5 E5','C4 D4 A4 D5 F5','B3 D4 G4 D5 F5','C4 E4 G4 C5 E5','C4 E4 A4 E5 A5','C4 D4 F#4 A4 D5','B3 D4 G4 D5 G5','B3 C4 E4 G4 C5',
+    'A3 C4 E4 G4 C5','D3 A3 D4 F#4 C5','G3 B3 D4 G4 B4','G3 Bb3 E4 G4 C#5','F3 A3 D4 A4 D5','F3 Ab3 D4 F4 B4','E3 G3 C4 G4 C5','E3 F3 A3 C4 F4',
+    'D3 F3 A3 C4 F4','G2 D3 G3 B3 F4','C3 E3 G3 C4 E4','C3 G3 Bb3 C4 E4','F2 F3 A3 C4 E4','F#2 C3 A3 C4 Eb4','Ab2 F3 B3 C4 D4','G2 F3 G3 B3 D4',
+    'G2 E3 G3 C4 E4','G2 D3 G3 C4 F4','G2 D3 G3 B3 F4','G2 Eb3 A3 C4 F#4','G2 E3 G3 C4 G4','G2 D3 G3 C4 F4','G2 D3 G3 B3 F4','C2 C3 G3 Bb3 E4'];
+  BACH.forEach(b=>{const n=b.split(' ').map(N);for(const h of[0,8]){ev(st+h,n[0],8*KL_SD,.15);ev(st+h+1,n[1],7*KL_SD,.11);[2,3,4,2,3,4].forEach((k,i)=>ev(st+h+2+i,n[k],1.6*KL_SD,.1));}st+=16;});
+  ['C2','C3','G3','C4','E4','G4'].forEach((n,i)=>ev(st+i*.25,n,10*KL_SD,.13));st+=24;
+  // Beethoven, Für Elise, A-Teil zweimal (3/8, Sechzehntel)
+  for(let r=0;r<2;r++){ev(st,'E5',1,.12);ev(st+1,'D#5',1,.11);st+=2;
+    const bars=[['E5','D#5','E5','B4','D5','C5'],['A4*','A2','E3','A3','C4','E4','A4'],['B4*','E2','E3','G#3','E4','G#4','B4'],['C5*','A2','E3','A3','E4','E5','D#5'],
+      ['E5','D#5','E5','B4','D5','C5'],['A4*','A2','E3','A3','C4','E4','A4'],['B4*','E2','E3','G#3','E4','C5','B4'],['A4*','A2','E3','A3']];
+    bars.forEach(b=>{let i=0;for(const x of b){if(x.endsWith('*')){ev(st,x.slice(0,-1),3*KL_SD,.13);continue;}ev(st+i,x,(N(x)<60?3:1.4)*KL_SD,N(x)<60?.09:.12);i++;}st+=6;});
+    st+=r?10:2;}
+  KL_LEN=Math.ceil(st);KL_EV.sort((a,b)=>a[0]-b[0]);})();
+function lofi(st,t,q){const o=roomGain;for(const e of KL_EV){if(e[0]<st)continue;if(e[0]>=st+1)break;piano(e[1],t+(e[0]-st)*KL_SD,e[2],e[3],o);}}
 const mus={enabled:true,scene:'room'};
 try{mus.enabled=localStorage.getItem('sa_music')!=='0';}catch(e){}
 function setScene(sc){mus.scene=sc;if(!audio())return;const t=AC.currentTime;
@@ -1158,7 +1228,17 @@ function setLog(t){$('#log').textContent=t;}
 const fmt=t=>{t=Math.max(0,t);if(t<20)return t.toFixed(1);const m=Math.floor(t/60),s=Math.floor(t%60);return m+':'+String(s).padStart(2,'0');};
 function updStatus(){const st=$('#status');$('#statusL').textContent=ONLINE?'Online · Code '+ONLINE.code.toUpperCase()+(ONLINE.opp?'':' · Gegner offline'):'Partie · '+DF().name;const chk=!S.over&&inCheck(S.board,S.turn);
   $('#statusT').textContent=S.over?'Partie vorbei':S.turn===ME?(chk?'Schach! Du bist dran':'Du bist dran'):(chk?'Schach dem Gegner':OPP_NAME+' überlegt …');
-  st.classList.toggle('check',chk);}
+  st.classList.toggle('check',chk);oppLine(chk);}
+const SAY_THINK=['Hmm … lass mich nachdenken.','Interessanter Zug …','Moment, Moment …','Das hab ich kommen sehen. Glaub ich.','Clever. Aber nicht clever genug.'];
+const SAY_TAUNT=['Dein Zug, Kleiner!','Na, Angst bekommen?','Zeig mal, was du kannst!','Mein Holz ist härter als dein Plan.','Denk lieber zweimal nach!','Das wird ein Spaß.'];
+let SAYK='',CHKK='';const pickS=a=>a[Math.floor(Math.random()*a.length)];
+function oppLine(chk){const el=$('#say');if(!el||!S)return;const k=S.rec.length+'|'+S.turn+'|'+(S.over?1:0);if(k===SAYK)return;SAYK=k;let t;const on=!!ONLINE;
+  if(S.over)t=on?'GG!':'Gute Partie. Nächstes Mal krieg ich dich!';
+  else if(!S.rec.length)t=on?'Viel Glück!':'Na los, zeig was du drauf hast!';
+  else if(S.turn===OPPC())t=chk?pickS(['Was?! Schach?','Uff … Schach. Nicht schlecht.']):(on?'überlegt …':pickS(SAY_THINK));
+  else t=chk?pickS(['Schach! Hehe.','Pass auf deinen König auf!']):(on?'Du bist dran!':pickS(SAY_TAUNT));
+  el.textContent=t;el.classList.toggle('thinking',!S.over&&S.turn===OPPC());el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');
+  const ck=chk?k:'';if(chk&&ck!==CHKK&&mode==='chess'){const o=$('#chkOno');o.classList.remove('on');void o.offsetWidth;o.classList.add('on');}CHKK=ck;}
 function renderMoves(){const ol=$('#mlist');ol.innerHTML='';
   if(!S.hist.length){ol.innerHTML='<li class="empty">Noch keine Züge</li>';return;}
   for(let i=0;i<S.hist.length;i+=2){const n=document.createElement('li');n.className='n';n.textContent=(i/2+1)+'.';ol.appendChild(n);
