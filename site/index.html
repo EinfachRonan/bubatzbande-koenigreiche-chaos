@@ -2111,7 +2111,8 @@ function remoteUpdate(dt){const e=D.e,p=D.p,peer=onlPeer(),q=peer&&peer.presence
     if(t&&/^[a-h][1-8][a-h][1-8][qrbn]?[+-]$/.test(t)){const aw=t.slice(-1)==='+';D.forced=D.youAtt?aw:!aw;endFight(D.forced);return;}
     if(D.p.hp<=0||D.e.hp<=0){if(!D.zeroT)D.zeroT=performance.now();else if(performance.now()-D.zeroT>7000){D.forced=D.e.hp<=0&&D.p.hp>0;endFight(D.forced);return;}}else D.zeroT=0;}
   if(D.over)return;
-  if((performance.now()-D.lastSeen>15000||performance.now()-D.lastRem>45000)){D.myDmg=e.max;e.hp=0;endFight(true);setLog(OPP_NAME+' ist nicht mehr da. Duell gewonnen.');}}
+  if(ME==='b'&&peer)return;
+  if((performance.now()-D.lastSeen>15000||performance.now()-D.lastRem>(D.remInit?45000:90000))){D.myDmg=e.max;e.hp=0;endFight(true);setLog(OPP_NAME+' ist nicht mehr da. Duell gewonnen.');}}
 function onlStart(code,col,rec){ONLINE={code,pres:{},opp:null,atkDone:-1,starting:false,replay:false};ME=col;OPP_NAME='Gegner';OPP_SHORT='Gegner';
   placeOpp();onlReplay(rec||[]);
   onlPub({g:code,r:ME,nk:nickVal(),rec:S.rec.join(' '),tm:+S.time[ME].toFixed(1),atk:null,rdy:null,d:null});onlSave(false);
