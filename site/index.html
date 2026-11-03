@@ -401,6 +401,15 @@ body[data-mode="chess"]{background:
 #hud-chess .pinfo span,#hud-chess .pinfo b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (min-width:701px) and (min-height:561px){#hud-chess #log{left:max(24px,env(safe-area-inset-left,0px));transform:none;bottom:24px;max-width:320px}}
 @media (orientation:landscape) and (max-height:560px){#table2d{grid-template-columns:var(--bs) minmax(280px,340px)}#hud-chess .pcard{gap:8px}#hud-chess .pcard .av{width:38px;height:38px}#hud-chess .pinfo b{font-size:14px}#hud-chess .clk2{font-size:16px;min-width:60px;padding:5px 7px}.say{font-size:11px;padding:4px 8px}#table2d .pcard.opp{margin-top:50px}}
+
+#turnPop{position:fixed;left:50%;top:40%;z-index:9;display:grid;justify-items:center;gap:4px;padding:14px 26px 12px;background:#ffd23f;color:var(--ink);border:5px solid var(--ink);box-shadow:8px 8px 0 var(--ink),0 0 0 6px #fff;transform:translate(-50%,-50%) rotate(-3deg) scale(.4);opacity:0;pointer-events:none;text-align:center;
+  clip-path:polygon(0 8%,6% 0,50% 4%,94% 0,100% 10%,98% 50%,100% 92%,92% 100%,50% 96%,6% 100%,0 90%,2% 50%)}
+#turnPop b{font:400 clamp(30px,9vw,58px)/1 var(--font-d);letter-spacing:.01em;white-space:nowrap}
+#turnPop span{font:800 13px var(--font-b);text-transform:uppercase;letter-spacing:.12em;color:#5a3a00}
+#turnPop.red{background:var(--lamp);color:#fff}#turnPop.red span{color:#fff}
+#turnPop.on{animation:turnIn 2.6s cubic-bezier(.2,1.4,.4,1) forwards;pointer-events:auto;cursor:pointer}
+@keyframes turnIn{0%{opacity:0;transform:translate(-50%,-50%) rotate(-3deg) scale(.4)}12%{opacity:1;transform:translate(-50%,-50%) rotate(-3deg) scale(1.06)}20%{transform:translate(-50%,-50%) rotate(-3deg) scale(1)}82%{opacity:1;transform:translate(-50%,-50%) rotate(-2deg) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(-2deg) scale(.9)}}
+body:not([data-mode="chess"]) #turnPop{display:none}
 </style>
 
 <canvas id="c" tabindex="0" aria-label="3D-Spielansicht"></canvas>
@@ -465,6 +474,7 @@ body[data-mode="chess"]{background:
     <div class="pcard me"><div class="av me" id="meAv">DU</div><div class="pinfo"><b id="meNm">Du</b><span id="meSub">Weiß</span></div><div class="capt" id="capMe"></div><div class="clk2" id="clkMe">10:00</div></div>
   </div>
   <div id="chkOno" aria-hidden="true">SCHACH!</div>
+  <div id="turnPop" role="status" aria-live="polite"><b>DU BIST DRAN!</b><span>Zieh deine Figur</span></div>
   <div id="moves"><span class="label">Notation</span><ol id="mlist"></ol></div>
   
   <div id="log"></div>
@@ -1238,7 +1248,20 @@ function oppLine(chk){const el=$('#say');if(!el||!S)return;const k=S.rec.length+
   else if(S.turn===OPPC())t=chk?pickS(['Was?! Schach?','Uff … Schach. Nicht schlecht.']):(on?'überlegt …':pickS(SAY_THINK));
   else t=chk?pickS(['Schach! Hehe.','Pass auf deinen König auf!']):(on?'Du bist dran!':pickS(SAY_TAUNT));
   el.textContent=t;el.classList.toggle('thinking',!S.over&&S.turn===OPPC());el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');
-  const ck=chk?k:'';if(chk&&ck!==CHKK&&mode==='chess'){const o=$('#chkOno');o.classList.remove('on');void o.offsetWidth;o.classList.add('on');}CHKK=ck;}
+  const ck=chk?k:'';if(chk&&ck!==CHKK&&mode==='chess'){const o=$('#chkOno');o.classList.remove('on');void o.offsetWidth;o.classList.add('on');}CHKK=ck;
+  if(!S.over&&S.turn===ME){TURN.t0=performance.now();TURN.rem=0;if(mode==='chess')turnPop(chk?'SCHACH – DU BIST DRAN!':'DU BIST DRAN!',chk?'Rette deinen König':(S.rec.length?OPP_NAME+' hat gezogen':'Du hast Weiß, fang an'),chk);}
+  else{TURN.t0=0;hideTurn();}}
+/* Erinnerung: Du bist dran */
+const TURN={t0:0,rem:0,title:document.title,tm:null};
+function turnPop(big,small,red){const el=$('#turnPop');if(!el)return;el.querySelector('b').textContent=big;el.querySelector('span').textContent=small;el.classList.toggle('red',!!red);
+  el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(TURN.tm);TURN.tm=setTimeout(()=>el.classList.remove('on'),2600);
+  sfx('ready');try{if(navigator.vibrate)navigator.vibrate(red?[60,40,60]:40);}catch(e){}
+  if(document.hidden)document.title='▶ Du bist dran! · Schlagabtausch';}
+function hideTurn(){const el=$('#turnPop');if(el)el.classList.remove('on');document.title=TURN.title;}
+$('#turnPop').addEventListener('click',hideTurn);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.title=TURN.title;});
+setInterval(()=>{if(!TURN.t0||!S||S.over||S.turn!==ME||mode!=='chess'||S.busy)return;const w=(performance.now()-TURN.t0)/1000;
+  if(w>25&&TURN.rem===0||w>60&&TURN.rem===1){TURN.rem++;turnPop('HEY! DU BIST DRAN!',fmt(S.time[ME])+' auf deiner Uhr',false);}},1000);
 function renderMoves(){const ol=$('#mlist');ol.innerHTML='';
   if(!S.hist.length){ol.innerHTML='<li class="empty">Noch keine Züge</li>';return;}
   for(let i=0;i<S.hist.length;i+=2){const n=document.createElement('li');n.className='n';n.textContent=(i/2+1)+'.';ol.appendChild(n);
