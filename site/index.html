@@ -1330,12 +1330,12 @@ function updBtns(){btnW.position.y=S.turn==='b'?.074:.082;btnB.position.y=S.turn
 
 /* ---------- Duell ---------- */
 const DEF={
- p:{val:1,hp:70,speed:4.6,h:1.75,desc:'Flinker Ninja-Novize: wirft Kunai und verschwindet im Rauch.',P:{kind:'bolt',ty:'kunai',dmg:9,speed:36,cd:.45,size:.14,label:'Kunai-Wurf'},S:{kind:'swap',cd:6,label:'Holzklotz-Tausch'},U:{kind:'clone',count:2,dur:7,label:'Schattendoppelgänger'}},
- n:{val:3,hp:100,speed:5.6,h:2.05,desc:'Wendig, springt mitten rein und tritt im Wirbel zu.',P:{kind:'melee',dmg:14,range:2.5,cd:.55,label:'Huftritt'},S:{kind:'leap',dmg:28,radius:3.4,cd:5,label:'Galoppsprung'},U:{kind:'tornado',dmg:9,ticks:7,radius:5,label:'Wirbelsturm-Tritt'}},
- b:{val:3,hp:90,speed:5.0,h:2.3,desc:'Fernkämpfer mit Chakra-Kugeln und Shuriken.',P:{kind:'bolt',ty:'orb',dmg:9,speed:26,cd:.38,size:.18,label:'Chakra-Kugel'},S:{kind:'fan',ty:'star',dmg:8,speed:24,count:5,cd:5,size:.2,label:'Shuriken-Fächer'},U:{kind:'beam',dps:45,dur:1.4,label:'Mondsichel-Strahl'}},
- r:{val:5,hp:150,speed:3.6,h:2.0,desc:'Bollwerk mit Feuerbällen, ruft einen Meteor vom Himmel.',P:{kind:'bolt',ty:'fire',dmg:22,speed:17,cd:.95,size:.42,radius:3,label:'Feuerball'},S:{kind:'quake',dmg:28,radius:4.8,cd:7,label:'Erdwall-Beben'},U:{kind:'meteor',dmg:50,radius:6,delay:.9,label:'Meteor'}},
- q:{val:9,hp:170,speed:5.4,h:2.25,desc:'Die stärkste Figur: blitzschnell und taucht hinter dir auf.',P:{kind:'bolt',ty:'blade',dmg:13,speed:30,cd:.3,size:.18,label:'Blitzklinge'},S:{kind:'blink',dmg:24,cd:4.5,label:'Blinzschritt'},U:{kind:'blades',waves:3,count:9,dmg:7,speed:26,size:.18,ty:'blade',label:'Sturm der Klingen'}},
- k:{val:'∞',hp:190,speed:4.0,h:2.6,desc:'Unersetzlich: viel Leben, heilt sich und entfacht seine Aura.',P:{kind:'melee',dmg:20,range:2.6,cd:.65,label:'Zepterhieb'},S:{kind:'heal',amount:45,cd:10,label:'Königsgnade'},U:{kind:'aura',dur:6,label:'Königsaura'}},
+ p:{val:1,hp:90,speed:5.0,h:1.75,desc:'Flinker Ninja-Novize: wirft Kunai, tauscht sich mit Holzklötzen und kämpft mit Schattendoppelgängern.',P:{kind:'bolt',ty:'kunai',dmg:10,speed:36,cd:.42,size:.15,label:'Kunai-Wurf'},S:{kind:'swap',cd:5,label:'Holzklotz-Tausch'},U:{kind:'clone',count:3,dur:8,label:'Schattendoppelgänger'}},
+ n:{val:3,hp:115,speed:5.6,h:2.05,desc:'Wendig, springt mitten rein und tritt im Wirbel zu.',P:{kind:'melee',dmg:16,range:2.7,cd:.55,label:'Huftritt'},S:{kind:'leap',dmg:30,radius:3.4,cd:5,label:'Galoppsprung'},U:{kind:'tornado',dmg:9,ticks:8,radius:5,label:'Wirbelsturm-Tritt'}},
+ b:{val:3,hp:105,speed:5.0,h:2.3,desc:'Fernkämpfer mit Chakra-Kugeln und Shuriken.',P:{kind:'bolt',ty:'orb',dmg:9,speed:27,cd:.36,size:.2,label:'Chakra-Kugel'},S:{kind:'fan',ty:'star',dmg:8,speed:24,count:5,cd:5,size:.2,label:'Shuriken-Fächer'},U:{kind:'beam',dps:40,dur:1.4,label:'Mondsichel-Strahl'}},
+ r:{val:5,hp:140,speed:3.8,h:2.0,desc:'Bollwerk mit Feuerbällen, ruft einen Meteor vom Himmel.',P:{kind:'bolt',ty:'fire',dmg:20,speed:18,cd:.95,size:.42,radius:3,label:'Feuerball'},S:{kind:'quake',dmg:26,radius:4.8,cd:6,label:'Erdwall-Beben'},U:{kind:'meteor',dmg:55,radius:6,delay:.9,label:'Meteor'}},
+ q:{val:9,hp:150,speed:5.2,h:2.25,desc:'Die stärkste Figur: blitzschnell und taucht hinter dir auf.',P:{kind:'bolt',ty:'blade',dmg:10,speed:30,cd:.32,size:.18,label:'Blitzklinge'},S:{kind:'blink',dmg:20,cd:5,label:'Blinzschritt'},U:{kind:'blades',waves:3,count:7,dmg:5,speed:26,size:.18,ty:'blade',label:'Sturm der Klingen'}},
+ k:{val:'∞',hp:165,speed:4.0,h:2.6,desc:'Unersetzlich: viel Leben, heilt sich und entfacht seine Aura.',P:{kind:'melee',dmg:18,range:2.7,cd:.65,label:'Zepterhieb'},S:{kind:'heal',amount:35,cd:12,label:'Königsgnade'},U:{kind:'aura',dur:6,label:'Königsaura'}},
 };
 const de=(n,k=1)=>String(Math.round(n*10**k)/10**k).replace('.',',');
 function specText(S){switch(S.kind){case'shield':return`${de(S.dur)} s nur 25 % Schaden`;case'leap':return`${S.dmg} Schaden, ${de(S.radius)} m Umkreis`;case'fan':return`${S.count} × ${S.dmg} Schaden`;
@@ -1343,21 +1343,21 @@ function specText(S){switch(S.kind){case'shield':return`${de(S.dur)} s nur 25 % 
   case'swap':return'Verschwindet im Rauch, taucht hinter dem Gegner auf';case'clone':return`${S.count} Doppelgänger für ${S.dur} s`;case'tornado':return`${S.ticks} × ${S.dmg} Schaden, zieht heran`;
   case'beam':return`${S.dps} Schaden/s für ${de(S.dur)} s`;case'meteor':return`${S.dmg} Schaden, ${S.radius} m Umkreis`;case'blink':return`Teleport hinter den Gegner + ${S.dmg} Schaden`;
   case'blades':return`${S.waves} Wellen × ${S.count} Klingen`;case'aura':return`${S.dur} s: +60 % Schaden, halber Schaden`;}return'';}
-function statsHTML(t,n,foe){const d=DEF[t],f=foe?DF():{hp:1,dmg:1,speed:1};const hp=Math.round(d.hp*(1+.12*n)*f.hp),dps=d.P.dmg/d.P.cd*(1+.06*n)*f.dmg,sp=d.speed*f.speed;
+function statsHTML(t,n,foe){const d=DEF[t],f=foe?DF():{hp:1,dmg:1,speed:1};const hp=Math.round(d.hp*(1+.1*n)*f.hp),dps=d.P.dmg/d.P.cd*(1+.05*n)*f.dmg,sp=d.speed*f.speed;
   const row=(l,v,max,txt)=>`<div class="srow"><span>${l}</span><span class="sbar"><i style="width:${Math.min(100,v/max*100)}%"></i></span><b>${txt}</b></div>`;
   return `<div class="stats2">${row('Leben',hp,300,hp)}${row('Schaden/Sek',dps,60,de(dps))}${row('Tempo',sp,7,de(sp))}<div class="srow"><span>Reichweite</span><span></span><b>${d.P.kind==='melee'?de(d.P.range)+' m':'Fern'}</b></div><div class="srow"><span>Schachwert</span><span></span><b>${d.val}</b></div></div>`;}
 
 const DS=2.4,ARENA=15;
 const DIFF={
   easy:{name:'Leicht',desc:'Herr Holz spielt locker, Gegner im Duell sind langsam und treffen schwach.',depth:0,noise:90,dmg:.6,spread:2,cd:.6,speed:.72,hp:.85,deep:false},
-  mid:{name:'Mittel',desc:'Solides Hobby-Schach und faire Duelle.',depth:1,noise:20,dmg:.8,spread:1,cd:.3,speed:.85,hp:1,deep:false},
-  hard:{name:'Schwer',desc:'Herr Holz rechnet bis zu 5 Sekunden tief voraus und kennt Bauernstrukturen. Duell-Gegner sind brutal: zäh, schnell, regenerieren, weichen aus und treffen fast immer.',depth:2,noise:0,dmg:1.75,spread:.08,cd:0,speed:1.25,hp:1.85,deep:true,q:true,lead:true,aggr:true,scd:.7,regen:1.5,id:true,time:5000}};
+  mid:{name:'Mittel',desc:'Solides Hobby-Schach und faire Duelle.',depth:1,noise:20,dmg:.9,spread:.8,cd:.25,speed:.9,hp:1,deep:false},
+  hard:{name:'Schwer',desc:'Herr Holz rechnet bis zu 5 Sekunden tief voraus und kennt Bauernstrukturen. Duell-Gegner sind brutal: zäh, schnell, regenerieren, weichen aus und treffen fast immer.',depth:2,noise:0,dmg:1.4,spread:.1,cd:0,speed:1.15,hp:1.5,deep:true,q:true,lead:true,aggr:true,scd:.7,regen:1,id:true,time:5000}};
 let diff='mid';try{const d=localStorage.getItem('sa_diff');if(DIFF[d])diff=d;}catch(e){}
 const DF=()=>DIFF[diff];
 const keyP=coarse?'Angriff':'Linksklick',keyS=coarse?'Spezial':'Q / Rechtsklick';
 let pending=null;
 function sideHTML(p,role,who,isYou,n){const d=DEF[p.t];
-  return `<div class="glyph">${GLYPH[p.t]}</div><div class="vs-role">${role} · ${who}</div><div class="vs-name">${NAMES[p.t]}</div><div class="vs-desc">${d.desc}</div>${statsHTML(p.t,n||0,!isYou)}<div class="vs-bonus">${n?`Gedeckt von ${n} Figur${n>1?'en':''}: +${n*12} % Leben, +${n*6} % Schaden`:'Keine Deckung, kein Bonus'}</div>
+  return `<div class="glyph">${GLYPH[p.t]}</div><div class="vs-role">${role} · ${who}</div><div class="vs-name">${NAMES[p.t]}</div><div class="vs-desc">${d.desc}</div>${statsHTML(p.t,n||0,!isYou)}<div class="vs-bonus">${n?`Gedeckt von ${n} Figur${n>1?'en':''}: +${n*10} % Leben, +${n*5} % Schaden`:'Keine Deckung, kein Bonus'}</div>
   <div class="ab"><div>${isYou?`<em>${keyP}</em>`:''}<span>${d.P.label}</span>${isYou?'':'<em>Angriff</em>'}</div><div>${isYou?`<em>${keyS}</em>`:''}<span>${d.S.label}</span>${isYou?'':'<em>Spezial</em>'}</div><div>${isYou?`<em>${coarse?'Ulti':'R'}</em>`:''}<span>${d.U.label}</span>${isYou?'':'<em>Ulti</em>'}</div></div>`;}
 function openVS(m,att,def){
   const dsr=m.ep?m.fr:m.tr,dsc=m.tc,nA=Math.min(3,support(S.board,dsr,dsc,att.c,[m.fr,m.fc])),nD=Math.min(3,support(S.board,dsr,dsc,def.c,null));pending={m,att,def,nA,nD};const youAtt=att.c===ME;const you=youAtt?att:def,foe=youAtt?def:att;
@@ -1486,7 +1486,7 @@ function contain(f){for(const o of D.obs){const dx=f.pos.x-o.x,dz=f.pos.z-o.z,d=
   const r=Math.hypot(f.pos.x,f.pos.z);if(r>ARENA-.6){f.pos.x*=(ARENA-.6)/r;f.pos.z*=(ARENA-.6)/r;}}
 function blockedBy(a,b){const dx=b.x-a.x,dz=b.z-a.z,L2=dx*dx+dz*dz||1;for(const o of D.obs){let t=((o.x-a.x)*dx+(o.z-a.z)*dz)/L2;if(t<0||t>1)continue;if(Math.hypot(a.x+dx*t-o.x,a.z+dz*t-o.z)<o.r*.9)return o;}return null;}
 
-function fighter(t,c,isPlayer,pos,n){const hp=Math.round(DEF[t].hp*(1+.12*n));return{t,c,isPlayer,pos:pos.clone(),vy:0,air:new THREE.Vector3(),hp,max:hp,dmgMul:1+.06*n,bonus:n,cdP:.4,cdS:1.5,shield:0,dashT:0,dashDir:new THREE.Vector3(),dashHit:false,leap:false,flash:0,think:0,seed:rnd()*10,idle:0,dodgeT:0,cdD:0,dodgeDir:new THREE.Vector3(),ch:isPlayer?20:10,inv:0,auraT:0,beamT:0,spinT:0,spinTick:0,beamTick:0,tgt:null};}
+function fighter(t,c,isPlayer,pos,n){const hp=Math.round(DEF[t].hp*(1+.1*n));return{t,c,isPlayer,pos:pos.clone(),vy:0,air:new THREE.Vector3(),hp,max:hp,dmgMul:1+.05*n,bonus:n,cdP:.4,cdS:1.5,shield:0,dashT:0,dashDir:new THREE.Vector3(),dashHit:false,leap:false,flash:0,think:0,seed:rnd()*10,idle:0,dodgeT:0,cdD:0,dodgeDir:new THREE.Vector3(),ch:isPlayer?20:10,inv:0,auraT:0,beamT:0,spinT:0,spinTick:0,beamTick:0,tgt:null};}
 function startDuel(){
   const{m,att,def,nA,nD}=pending;const youAtt=att.c===ME,zMe=ME==='w'?7:-7;const you=youAtt?att:def,foe=youAtt?def:att;
   const tr=m.ep?m.fr:m.tr,tc=m.tc;
@@ -1569,7 +1569,9 @@ function ultUpdate(dt){const p=D.p,e=D.e;
     if(k>=1){D.dyn.remove(m.ring);D.dyn.remove(m.fill);D.dyn.remove(m.rock);explode(m.T,m.d.radius,m.d.dmg,m.f,m.vis);impact(new THREE.Vector3(m.T.x,2,m.T.z),true);D.meteors.splice(i,1);}}
   for(const c of D.clones){if(!c.alive)continue;c.life-=dt;if(c.life<=0){killClone(c);continue;}const o=c.owner===p?e:p,dx=o.pos.x-c.pos.x,dz=o.pos.z-c.pos.z,dd=Math.hypot(dx,dz)||1;
     const want=dd>5?1:dd<3?-.6:0,str=Math.sin(D.t*1.6+c.seed);c.pos.x+=(dx/dd*want-dz/dd*str)*4*dt;c.pos.z+=(dz/dd*want+dx/dd*str)*4*dt;contain(c);
-    c.m.position.set(c.pos.x,Math.abs(Math.sin(D.t*12+c.seed))*.2,c.pos.z);c.m.rotation.y=Math.atan2(dx,dz);}
+    c.m.position.set(c.pos.x,Math.abs(Math.sin(D.t*12+c.seed))*.2,c.pos.z);c.m.rotation.y=Math.atan2(dx,dz);
+    if(!D.online||c.owner===p){c.cd=(c.cd===undefined?.5+rnd()*.5:c.cd)-dt;if(c.cd<=0&&D.start<=0&&dd<14){c.cd=1.1+rnd()*.3;const from=new THREE.Vector3(c.pos.x,DEF[c.owner.t].h*.75,c.pos.z),to=new THREE.Vector3(o.pos.x,DEF[o.t].h*.6+o.pos.y,o.pos.z);
+      spawnBolt(c.owner,from,to.sub(from).normalize(),Object.assign({},DEF.p.P,{dmg:4}));}}}
   for(let i=D.logs.length-1;i>=0;i--){const l=D.logs[i];l.t-=dt;l.vy-=18*dt;l.m.position.y=Math.max(.32,l.m.position.y+l.vy*dt);if(l.m.position.y<=.32){l.m.rotation.z=Math.PI/2;}if(l.t<=0){poof(l.m.position);D.dyn.remove(l.m);D.logs.splice(i,1);}}
   if(D.eAura){D.eAura.visible=e.auraT>0;if(e.auraT>0){D.eAura.position.set(e.pos.x,e.pos.y+1.6,e.pos.z);D.eAura.scale.setScalar(7+Math.sin(D.t*18)*.6);}}
   $('#aura').style.opacity=p.auraT>0?(.75+.2*Math.sin(D.t*12)):0;}
@@ -1611,7 +1613,7 @@ function useAb(f,slot){
     case'beam':f.beamT=d.dur;f.beamTick=0;sfx('beam',d.dur);break;
     case'meteor':{const T=tgtPos.clone();T.y=0;meteorAt(T,d,f,false);if(D.online&&f.isPlayer)onlFx('met',T,d.radius);break;}
     case'blades':for(let w=0;w<d.waves;w++)D.sched.push({t:w*.24,fn:()=>{if(D.over)return;const a=aimOf(f,d,(!f.isPlayer&&f.tgt&&f.tgt.alive)?f.tgt.pos:o.pos);
-      for(let i=0;i<d.count;i++){const v=a.aim.clone().applyAxisAngle(UP,(i-(d.count-1)/2)*.09);spawnBolt(f,a.tipW,v,d);}sfx('shing');}});break;
+      for(let i=0;i<d.count;i++){const v=a.aim.clone().applyAxisAngle(UP,(i-(d.count-1)/2)*.14);spawnBolt(f,a.tipW,v,d);}sfx('shing');}});break;
     case'aura':f.auraT=d.dur;sfx('ready');ringFX(f.pos,3,0xffd23f);break;}
   if(D.online&&f.isPlayer){D.animN++;D.animSt=st||'';if(d.kind==='quake'||d.kind==='heal')onlFx(d.kind,f.pos,d.radius||2.4);}
   return true;}
@@ -1915,7 +1917,7 @@ if(IOS&&!STANDALONE){const rb=document.getElementById('rotBtn');if(rb)rb.textCon
 if(STANDALONE)['fsBtn','mFs','fsDuel','rotBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.hidden=true;});
 $('#rotHint').addEventListener('click',()=>$('#rotHint').classList.add('gone'));$('#overHome').addEventListener('click',()=>{$('#over').hidden=true;if(ONLINE)onlLeave();openMenu();});
 renderSeg();
-if(location.hash==='#dev')window.SA={quickDuel:(at='p',df='q')=>{if(ONLINE)onlLeave();newGame();leaveMenu();sitDown();setTimeout(()=>openVS({fr:1,fc:3,tr:6,tc:3},{t:at,c:'w'},{t:df,c:'b'}),900);},state:()=>({mode,D:D?{php:D.p.hp,ehp:D.e.hp,start:D.start,pch:D.p.ch,ech:D.e.ch,clones:D.clones.filter(c=>c.alive).length,met:D.meteors.length}:null}),ult:()=>{if(D){D.p.ch=100;ultReq=true;}},spec:()=>{if(D){D.p.cdS=0;specReq=true;}},eult:()=>{if(D)D.e.ch=100;},promo:()=>askPromo(()=>{}),net:()=>RM&&RM.stat?RM.stat():null,hit:()=>{if(D&&!D.over)hurt(D.e,9999,D.p);},rec:()=>({rec:S.rec.join(' '),over:!!S.over,turn:S.turn,big:$('#bBig').textContent}),npub:x=>onlPub(x),npeer:()=>{const p=onlPeer();return p?p.presence:null;},fin:()=>finish('Schachmatt!','Herr Holz ist matt.','win'),think:()=>{document.querySelectorAll('.think').forEach(x=>x.classList.add('on'));$('#statusT').textContent=OPP_NAME+' überlegt …';},mus:()=>({mSched,lofi,SD,get AC(){return AC},set:(ac,nb,g)=>{AC=ac;NB=nb;musicGain=g;roomGain=g;sfxGain=g;}})};
+if(location.hash==='#dev')window.SA={quickDuel:(at='p',df='q')=>{if(ONLINE)onlLeave();newGame();leaveMenu();sitDown();setTimeout(()=>openVS({fr:1,fc:3,tr:6,tc:3},{t:at,c:'w'},{t:df,c:'b'}),900);},state:()=>({mode,D:D?{php:D.p.hp,ehp:D.e.hp,start:D.start,pch:D.p.ch,ech:D.e.ch,clones:D.clones.filter(c=>c.alive).length,met:D.meteors.length}:null}),ult:()=>{if(D){D.p.ch=100;ultReq=true;}},spec:()=>{if(D){D.p.cdS=0;specReq=true;}},eult:()=>{if(D)D.e.ch=100;},promo:()=>askPromo(()=>{}),net:()=>RM&&RM.stat?RM.stat():null,step:(n,dt=.05)=>{for(let i=0;i<n&&D&&mode==='duel';i++)duelUpdate(dt);return D?{php:+D.p.hp.toFixed(1),ehp:+D.e.hp.toFixed(1),t:+D.t.toFixed(1),over:!!D.over}:null;},hit:()=>{if(D&&!D.over)hurt(D.e,9999,D.p);},rec:()=>({rec:S.rec.join(' '),over:!!S.over,turn:S.turn,big:$('#bBig').textContent}),npub:x=>onlPub(x),npeer:()=>{const p=onlPeer();return p?p.presence:null;},fin:()=>finish('Schachmatt!','Herr Holz ist matt.','win'),think:()=>{document.querySelectorAll('.think').forEach(x=>x.classList.add('on'));$('#statusT').textContent=OPP_NAME+' überlegt …';},mus:()=>({mSched,lofi,SD,get AC(){return AC},set:(ac,nb,g)=>{AC=ac;NB=nb;musicGain=g;roomGain=g;sfxGain=g;}})};
 let topView=coarse;
 function setView(top){topView=top;orb.az=0;orb.el=top?1.32:.8;updView();if(mode==='chess')seatCam(false);}
 function updView(){const b=document.querySelector('#viewBtn');if(b)b.textContent='Ansicht: '+(topView?'Von oben':'Schräg');}
