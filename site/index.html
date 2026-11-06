@@ -4,56 +4,172 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Bubatzbande · Spiele</title>
-<meta name="theme-color" content="#0e110f">
+<meta name="theme-color" content="#0b0810">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0e110f;--txt:#eef3ee;--mut:#8d998f;--acc:#5ee08a}
+:root{--bg:#0b0810;--txt:#f4e4c1;--mut:#b8a788;--gold:#d4af37;--gold2:#f0d37a}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%;background:var(--bg);color:var(--txt);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
-header{text-align:center;padding:8px 0 18px}
-h1{font-size:clamp(26px,6vw,44px);letter-spacing:-.02em;font-weight:800}
-h1 span{color:var(--acc)}
-header p{color:var(--mut);margin-top:4px}
-.cards{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:1100px;width:100%;margin:0 auto}
-.card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;min-height:340px;padding:18px;border-radius:20px;overflow:hidden;color:inherit;text-decoration:none;border:1px solid rgba(255,255,255,.08);transition:transform .15s,border-color .15s}
-.card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.22)}
-.card:active{transform:scale(.98)}
-.chess{background:radial-gradient(120% 80% at 50% 20%,#3a2c52 0%,#1a1424 55%,#100e15 100%)}
-.war{background:radial-gradient(120% 80% at 50% 20%,#3d5232 0%,#1b2417 55%,#0f130d 100%)}
-.art{position:absolute;inset:0 0 40% 0;display:flex;align-items:center;justify-content:center;font-size:clamp(70px,16vw,150px);line-height:1;filter:drop-shadow(0 10px 20px rgba(0,0,0,.5))}
-.war .art{gap:4px;font-size:clamp(40px,9vw,90px)}
-.tag{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:99px;background:rgba(255,255,255,.1)}
-.new{background:var(--acc);color:#0b1a10}
-h2{font-size:clamp(20px,4vw,30px);font-weight:800;letter-spacing:-.01em}
-.card p{color:#c3ccc5;font-size:clamp(12px,2.6vw,15px)}
-.play{margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:14px;font-weight:800;font-size:17px;letter-spacing:.04em;background:#fff;color:#111}
-.chess .play{background:#c9a7ff}
-.war .play{background:var(--acc)}
-@media (max-width:520px){.card{min-height:300px;padding:12px;border-radius:16px}.play{font-size:15px;padding:11px}.card p{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}}
+html{background:var(--bg)}
+html,body{min-height:100%;color:var(--txt);font:15px/1.45 Georgia,serif}
+body{background:transparent}
+body{position:relative;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));overflow-x:hidden}
+/* Szene im Hintergrund */
+.sky{position:fixed;inset:0;z-index:-3;background:linear-gradient(#0b0816 0%,#1c1430 35%,#4a2440 62%,#9a4a4a 82%,#d9824e 100%)}
+.sun{position:fixed;left:50%;bottom:16vh;width:60vmin;height:60vmin;transform:translate(-50%,50%);z-index:-3;border-radius:50%;background:radial-gradient(circle,rgba(255,215,150,.85) 0%,rgba(255,170,100,.35) 18%,rgba(255,140,90,0) 60%)}
+.stars{position:fixed;inset:0 0 50% 0;z-index:-3;background-image:radial-gradient(1.2px 1.2px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 28% 8%,#fff,transparent),radial-gradient(1.4px 1.4px at 46% 22%,#fff,transparent),radial-gradient(1px 1px at 63% 12%,#fff,transparent),radial-gradient(1.3px 1.3px at 78% 26%,#fff,transparent),radial-gradient(1px 1px at 90% 9%,#fff,transparent),radial-gradient(1px 1px at 6% 35%,#fff,transparent),radial-gradient(1px 1px at 55% 4%,#fff,transparent),radial-gradient(1.2px 1.2px at 36% 32%,#fff,transparent);opacity:.7}
+.land{position:fixed;left:0;right:0;bottom:0;z-index:-2;width:100%;height:55vh}
+.embers{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.embers i{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:#ffb35c;box-shadow:0 0 6px 2px rgba(255,150,60,.7);animation:rise linear infinite;opacity:0}
+@keyframes rise{0%{transform:translate(0,0);opacity:0}10%{opacity:1}100%{transform:translate(var(--dx),-105vh);opacity:0}}
+.shade{position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 30%,rgba(0,0,0,.55) 100%)}
+
+header{text-align:center;padding:6px 0 22px}
+.crest{font-size:13px;letter-spacing:.5em;color:var(--gold);font-family:"Cinzel",serif;margin-bottom:6px;opacity:.9}
+h1{font-family:"Cinzel Decorative","Cinzel",Georgia,serif;font-weight:900;font-size:clamp(30px,8vw,72px);line-height:1;letter-spacing:.03em;background:linear-gradient(180deg,#fff6d6 0%,#f0d37a 40%,#b8902c 70%,#7a5a14 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #2a1a08) drop-shadow(0 0 24px rgba(240,180,80,.35))}
+.sub{font-family:"Cinzel",serif;color:var(--mut);margin-top:10px;letter-spacing:.18em;text-transform:uppercase;font-size:clamp(11px,2.6vw,14px)}
+.rule{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:12px;color:var(--gold)}
+.rule::before,.rule::after{content:"";height:1px;width:min(22vw,160px);background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+.cards{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1100px;width:100%;margin:0 auto}
+.card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:9px;min-height:400px;padding:20px;border-radius:14px;overflow:hidden;color:inherit;text-decoration:none;border:2px solid #7a6230;outline:1px solid rgba(212,175,55,.35);outline-offset:-8px;box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 0 60px rgba(0,0,0,.5);transition:transform .2s,box-shadow .2s,border-color .2s}
+.card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(8,5,3,.92) 78%);z-index:0}
+.card>*{position:relative;z-index:1}
+.card:hover{transform:translateY(-5px);border-color:var(--gold2);box-shadow:0 26px 60px rgba(0,0,0,.6),0 0 30px rgba(240,190,90,.25),inset 0 0 60px rgba(0,0,0,.5)}
+.card:active{transform:scale(.985)}
+.corner{position:absolute;width:22px;height:22px;border-color:var(--gold);border-style:solid;z-index:2}
+.c1{top:12px;left:12px;border-width:2px 0 0 2px}.c2{top:12px;right:12px;border-width:2px 2px 0 0}.c3{bottom:12px;left:12px;border-width:0 0 2px 2px}.c4{bottom:12px;right:12px;border-width:0 2px 2px 0}
+.chess{background:radial-gradient(90% 60% at 50% 25%,#5a3f86 0%,#251a3a 50%,#120d1c 100%)}
+.war{background:linear-gradient(#1c1430,#5a2a44 55%,#b5603f)}
+.art{position:absolute!important;inset:0 0 34% 0;display:flex;align-items:center;justify-content:center;z-index:0!important}
+.art svg{width:100%;height:100%}
+.knight{font-size:clamp(90px,20vw,190px);line-height:1;color:#f4ecff;text-shadow:0 0 40px rgba(180,140,255,.6),0 12px 30px rgba(0,0,0,.7);animation:float 5s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+.tag{align-self:flex-start;font-family:"Cinzel",serif;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:4px;border:1px solid rgba(212,175,55,.6);color:var(--gold2);background:rgba(20,12,6,.6)}
+.new{background:linear-gradient(#f0d37a,#b8902c);color:#2a1a08;border-color:#f0d37a}
+h2{font-family:"Cinzel",serif;font-size:clamp(20px,4.2vw,34px);font-weight:800;letter-spacing:.02em;color:#fff3d4;text-shadow:0 2px 0 #000}
+.card p{color:#dccba6;font-size:clamp(12px,2.5vw,15px)}
+.play{margin-top:6px;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-radius:8px;font-family:"Cinzel",serif;font-weight:800;font-size:18px;letter-spacing:.14em;border:1px solid var(--gold2);background:linear-gradient(#f0d37a,#b8902c);color:#2a1a08;box-shadow:0 3px 0 #5a4214,0 0 0 rgba(240,190,90,0);transition:box-shadow .2s}
+.chess .play{background:linear-gradient(#d9c2ff,#8b63d6);border-color:#e6d6ff;box-shadow:0 3px 0 #3c2766}
+.card:hover .play{box-shadow:0 3px 0 #5a4214,0 0 22px rgba(240,190,90,.55)}
+.chess:hover .play{box-shadow:0 3px 0 #3c2766,0 0 22px rgba(180,140,255,.55)}
+footer{text-align:center;color:rgba(244,228,193,.45);font-family:"Cinzel",serif;font-size:11px;letter-spacing:.2em;margin-top:18px}
+@media (max-width:560px){
+  .cards{gap:10px}
+  .card{min-height:340px;padding:12px;border-radius:10px;outline-offset:-6px}
+  .corner{width:14px;height:14px}.c1,.c2{top:8px}.c3,.c4{bottom:8px}.c1,.c3{left:8px}.c2,.c4{right:8px}
+  .play{font-size:14px;padding:11px;letter-spacing:.1em}
+  .card p{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  .tag{font-size:9px;padding:3px 7px}
+}
+@media (prefers-reduced-motion:reduce){.embers,.knight{animation:none}.embers{display:none}}
 </style>
 </head>
 <body>
+<div class="sky"></div><div class="stars"></div><div class="sun"></div>
+<svg class="land" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <path d="M0 260 L90 190 L170 240 L260 150 L360 230 L450 170 L560 240 L650 140 L760 220 L860 160 L960 230 L1060 170 L1200 230 V500 H0Z" fill="#3e2440" opacity=".9"/>
+  <path d="M0 320 L120 260 L230 300 L340 250 L470 310 L600 270 L720 315 L850 262 L980 305 L1100 268 L1200 300 V500 H0Z" fill="#2a1830"/>
+  <!-- Burg links -->
+  <g fill="#160d1a">
+    <rect x="60" y="270" width="190" height="120"/>
+    <rect x="80" y="190" width="56" height="200"/><rect x="190" y="210" width="44" height="180"/>
+    <path d="M76 190 L108 140 L140 190Z"/><path d="M186 210 L212 170 L238 210Z"/>
+    <path d="M60 270 h12 v-10 h12 v10 h12 v-10 h12 v10 h12 v-10 h12 v10 h12 v-10 h12 v10 h12 v-10 h12 v10 h12 v-10 h12 v10 h12 v-10 h12 v10 h10 v10 H60Z"/>
+    <path d="M108 140 v-26 l22 7 -22 7" />
+  </g>
+  <!-- Burg rechts -->
+  <g fill="#160d1a">
+    <rect x="950" y="280" width="200" height="110"/>
+    <rect x="1060" y="180" width="62" height="210"/><rect x="965" y="225" width="44" height="165"/>
+    <path d="M1056 180 h10 v-12 h10 v12 h10 v-12 h10 v12 h10 v-12 h10 v12 h6 v8 h-66Z"/>
+    <path d="M961 225 L987 185 L1013 225Z"/>
+    <path d="M1091 168 v-26 l-22 7 22 7"/>
+  </g>
+  <g fill="#ffbf6a" opacity=".85"><rect x="104" y="220" width="5" height="9"/><rect x="208" y="240" width="4" height="8"/><rect x="1088" y="210" width="5" height="9"/><rect x="984" y="250" width="4" height="8"/></g>
+  <path d="M0 380 Q200 350 400 372 T800 366 T1200 378 V500 H0Z" fill="#0f0a12"/>
+  <g fill="#0b070d">
+    <path d="M300 380 l14 -40 14 40Z"/><path d="M330 384 l12 -32 12 32Z"/><path d="M820 376 l14 -42 14 42Z"/><path d="M850 380 l11 -30 11 30Z"/><path d="M520 372 l10 -28 10 28Z"/><path d="M660 376 l12 -34 12 34Z"/>
+  </g>
+</svg>
+<div class="embers" id="embers"></div>
+<div class="shade"></div>
+
 <header>
-  <h1>Bubatz<span>bande</span></h1>
-  <p>Such dir aus, was du zocken willst</p>
+  <div class="crest">✦ ⚔ ✦</div>
+  <h1>Bubatzbande</h1>
+  <div class="sub">Wähle dein Schlachtfeld</div>
+  <div class="rule">♛</div>
 </header>
 <main class="cards">
   <a class="card chess" href="schach/">
-    <div class="art">♞</div>
+    <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
+    <div class="art"><div class="knight">♞</div></div>
     <span class="tag">3D · Schach</span>
     <h2>Schlagabtausch</h2>
-    <p>Schach im Wohnzimmer gegen Herrn Holz. Wird geschlagen, kämpfen beide Figuren im Ego-Duell.</p>
+    <p>Schach im Wohnzimmer gegen Herrn Holz. Wird eine Figur geschlagen, kämpfen beide im Ego-Duell um ihr Leben.</p>
     <span class="play">▶ PLAY</span>
   </a>
   <a class="card war" href="krieg/">
-    <div class="art">🏚️⚔️🏰</div>
+    <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
+    <div class="art">
+      <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <defs>
+          <radialGradient id="ws" cx="50%" cy="78%" r="45%"><stop offset="0" stop-color="#ffd9a0" stop-opacity=".9"/><stop offset="1" stop-color="#ff9a5a" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="400" height="260" fill="url(#ws)"/>
+        <path d="M0 200 L60 150 L120 190 L190 130 L260 185 L330 145 L400 180 V260 H0Z" fill="#4a2440"/>
+        <!-- grüne Burg -->
+        <g>
+          <rect x="18" y="150" width="96" height="80" fill="#4d4a52"/>
+          <rect x="30" y="98" width="38" height="132" fill="#57545c"/>
+          <path d="M18 150 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 v5 H18Z" fill="#5f5c64"/>
+          <path d="M28 98 h7 v-7 h7 v7 h7 v-7 h7 v7 h7 v-7 h5 v6 H28Z" fill="#66636b"/>
+          <path d="M49 91 v-24" stroke="#2a2018" stroke-width="2"/><path d="M49 67 q12 3 22 0 v12 q-10 3 -22 0Z" fill="#3fae5f"/>
+          <path d="M84 230 v-26 a12 12 0 0 1 24 0 v26Z" fill="#120c08"/>
+          <rect x="42" y="160" width="14" height="30" fill="#1f5e33"/><path d="M42 190 l7 6 7 -6Z" fill="#1f5e33"/>
+        </g>
+        <!-- rote Burg -->
+        <g>
+          <rect x="286" y="150" width="96" height="80" fill="#4d4a52"/>
+          <rect x="332" y="98" width="38" height="132" fill="#57545c"/>
+          <path d="M286 150 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 v5 H286Z" fill="#5f5c64"/>
+          <path d="M330 98 h7 v-7 h7 v7 h7 v-7 h7 v7 h7 v-7 h5 v6 H330Z" fill="#66636b"/>
+          <path d="M351 91 v-24" stroke="#2a2018" stroke-width="2"/><path d="M351 67 q-12 3 -22 0 v12 q10 3 22 0Z" fill="#c8432f"/>
+          <path d="M292 230 v-26 a12 12 0 0 1 24 0 v26Z" fill="#120c08"/>
+          <rect x="344" y="160" width="14" height="30" fill="#7a2218"/><path d="M344 190 l7 6 7 -6Z" fill="#7a2218"/>
+        </g>
+        <!-- gekreuzte Schwerter -->
+        <g transform="translate(200 150)">
+          <g transform="rotate(40)"><rect x="-3" y="-62" width="6" height="74" fill="#e4e7ec"/><path d="M-3 -62 L0 -70 L3 -62Z" fill="#e4e7ec"/><rect x="-14" y="10" width="28" height="5" fill="#d4af37"/><rect x="-2.5" y="15" width="5" height="16" fill="#5a3c22"/><circle cy="34" r="4" fill="#d4af37"/></g>
+          <g transform="rotate(-40)"><rect x="-3" y="-62" width="6" height="74" fill="#e4e7ec"/><path d="M-3 -62 L0 -70 L3 -62Z" fill="#e4e7ec"/><rect x="-14" y="10" width="28" height="5" fill="#d4af37"/><rect x="-2.5" y="15" width="5" height="16" fill="#5a3c22"/><circle cy="34" r="4" fill="#d4af37"/></g>
+        </g>
+        <path d="M0 228 Q200 214 400 228 V260 H0Z" fill="#2b2a1c"/>
+      </svg>
+    </div>
     <span class="tag new">Neu · Strategie</span>
     <h2>Bandenkrieg</h2>
-    <p>Die Bande gegen die Spießer. Schick deine Leute los, steig durch drei Zeitalter auf und reiß die gegnerische Basis ab.</p>
+    <p>Die Bande gegen die Spießer. Schick deine Truppen los, bau deine Holzfeste zur Königsburg aus und stürm die gegnerische Burg.</p>
     <span class="play">▶ PLAY</span>
   </a>
 </main>
+<footer>bubatzbande.de</footer>
+<script>
+(() => {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const box = document.getElementById('embers');
+  for (let i = 0; i < 26; i++) {
+    const e = document.createElement('i');
+    e.style.left = Math.random() * 100 + '%';
+    e.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
+    e.style.animationDuration = 7 + Math.random() * 9 + 's';
+    e.style.animationDelay = -Math.random() * 14 + 's';
+    const s = 2 + Math.random() * 2.5; e.style.width = e.style.height = s + 'px';
+    box.appendChild(e);
+  }
+})();
+</script>
 </body>
 </html>
