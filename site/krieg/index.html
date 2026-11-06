@@ -24,13 +24,28 @@ canvas{display:block}
 .queue{display:flex;align-items:center;gap:6px;padding:5px 10px;min-height:28px;background:var(--panel);border-top:2px solid var(--line);font-size:12px;color:var(--mut)}
 .chip{padding:2px 8px;border-radius:6px;background:#2e2114;border:1px solid #6b5228;color:var(--txt);font-weight:800;position:relative;overflow:hidden}
 .chip i{position:absolute;left:0;bottom:0;height:2px;background:var(--gold)}
-.bar{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:6px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom));background:linear-gradient(#1c140d,#120c07)}
+.bar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:6px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom));background:linear-gradient(#1c140d,#120c07)}
 .btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:52px;padding:4px;border-radius:8px;border:1px solid #6b5228;background:linear-gradient(#3a2a19,#241910);box-shadow:inset 0 1px 0 rgba(255,220,150,.15),0 2px 0 #0a0604;color:var(--txt);font:inherit;cursor:pointer;overflow:hidden}
 .btn b{font-size:13px;line-height:1.1;text-align:center;font-weight:800}
 .btn span{font-size:11px;color:var(--mut)}
 .btn .c{color:#f2cd5c;font-weight:800}
 .btn.unit{border-color:#7a6230}
 .btn.sp{border-color:#a8862f;background:linear-gradient(#4a321a,#2a1b0e)}
+.btn.shop{border-color:#a8862f}
+.btn.shop.glow{box-shadow:0 0 0 1px #f0d37a,0 0 14px rgba(240,200,90,.45)}
+.panel{position:absolute;right:8px;top:8px;bottom:8px;width:min(360px,calc(100% - 16px));overflow:auto;z-index:4;background:linear-gradient(#2a1d12f2,#18100af2);border:2px solid #a8862f;border-radius:10px;padding:8px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.panel.hide{display:none}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 8px;color:var(--gold);font-size:15px}
+.ph.sub{margin-top:8px;border-top:1px solid var(--line);padding-top:10px;font-size:13px}
+.ph .x{background:none;border:0;color:var(--mut);font-size:18px;cursor:pointer}
+.up-row{display:flex;align-items:center;gap:8px;padding:6px;border-radius:8px;background:rgba(0,0,0,.25);margin-bottom:5px}
+.up-row .ico{font-size:22px;width:30px;text-align:center}
+.up-row .txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.up-row .txt b{font-size:12px}.up-row .txt span{font-size:11px;color:var(--mut);font-family:Georgia,serif}
+.pips{display:flex;gap:3px;margin-top:3px}.pips i{width:12px;height:4px;border-radius:2px;background:#3a2c1a}.pips i.on{background:var(--gold)}
+.up-row button{min-width:70px;padding:7px 6px;border-radius:6px;border:1px solid #f0d37a;background:linear-gradient(#f0d37a,#b8902c);color:#2a1a08;font:inherit;font-weight:800;font-size:12px;cursor:pointer}
+.up-row button:disabled{opacity:.4;cursor:default}
+.crew{padding:5px 6px;font-size:12px}.crew em{color:var(--gold);font-style:normal;font-size:10px;letter-spacing:.05em}.crew span{display:block;color:var(--mut);font-family:Georgia,serif;font-size:11px}
 .btn.up{border-color:#3f6b8a;background:linear-gradient(#22303d,#151d25)}
 .btn:disabled{opacity:.42;cursor:default}
 .btn:not(:disabled):active{transform:translateY(1px);box-shadow:none}
@@ -52,7 +67,7 @@ canvas{display:block}
 .turn{display:none}
 @media (orientation:portrait) and (max-width:600px){
   .turn{display:block;position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:var(--mut);font-size:12px;padding:4px 10px;border-radius:99px;z-index:2;white-space:nowrap}
-  .bar{grid-template-columns:repeat(3,1fr)}
+  .bar{grid-template-columns:repeat(4,1fr)}
   .stat small{display:none}
 }
 @media (max-height:420px){.btn{min-height:42px}.btn span{display:none}.top{padding-top:4px;padding-bottom:4px}}
@@ -71,6 +86,7 @@ canvas{display:block}
   <div id="wrap">
     <div class="turn">Tipp: Handy quer halten</div>
     <canvas id="cv"></canvas>
+    <div class="panel hide" id="panel"></div>
     <div class="ov" id="ov">
       <div class="box" id="box"></div>
     </div>
@@ -82,29 +98,51 @@ canvas{display:block}
 'use strict';
 // ---------- Daten ----------
 const W = 1200, H = 420, GROUND = 340, BASE_FRONT = 130;
+// look = wie die Figur gezeichnet wird, k = Rolle, Rest = Fähigkeiten
 const AGES = [
   { name: 'Holzfeste', eName: 'Spießer-Lager', addHp: 0, special: 70, xpNext: 1800, income: 4,
     units: [
-      { n: 'Kobold', e: 'Hausmeister', k: 'Nah', cost: 15, hp: 55, dmg: 9, rng: 18, rate: .9, spd: 46, tr: 1.0, sz: 1 },
-      { n: 'Nille', e: 'Nachbarin', k: 'Fern', cost: 25, hp: 40, dmg: 7, rng: 150, rate: 1.2, spd: 40, tr: 1.3, sz: .95 },
-      { n: 'Mollymann', e: 'Rasenmäher-Rudi', k: 'Tank', cost: 100, hp: 280, dmg: 20, rng: 20, rate: 1.4, spd: 30, tr: 2.6, sz: 1.35 },
+      { n: 'Artur', e: 'Hausmeister', look: 'artur', k: 'Nah', cost: 15, hp: 60, dmg: 9, rng: 18, rate: .9, spd: 48, tr: 1.0, sz: 1, crit: .25,
+        info: 'Wolfskrieger · 25 % Chance auf Wolfsbiss (doppelter Schaden)' },
+      { n: 'Kobold', e: 'Nachbarin', look: 'kobold', k: 'Fern', cost: 22, hp: 40, dmg: 8, rng: 125, rate: 1.1, spd: 44, tr: 1.2, sz: .85, shot: 'fire',
+        info: 'Wirft grüne Flammen aus seinem Zauberbuch' },
+      { n: 'Nille', e: 'Rasenmäher-Rudi', look: 'nille', k: 'Tank', cost: 100, hp: 290, dmg: 22, rng: 22, rate: 1.4, spd: 30, tr: 2.6, sz: 1.3, block: .25,
+        info: 'Ritter in Vollplatte · blockt 25 % Schaden' },
     ],
     tur: { n: 'Allan', w: 'Steinschleuder', e: 'Gartenzwerg-Kanone', cost: 200, dmg: 12, rate: 1.1, rng: 340 } },
   { name: 'Steinburg', eName: 'Spießer-Burg', addHp: 400, special: 180, xpNext: 9000, income: 9,
     units: [
-      { n: 'Artur', e: 'Kontrolleur', k: 'Nah', cost: 45, hp: 160, dmg: 25, rng: 18, rate: .9, spd: 48, tr: 1.1, sz: 1.05 },
-      { n: 'LG3', e: 'Blitzer-Bert', k: 'Fern', cost: 70, hp: 110, dmg: 19, rng: 170, rate: 1.1, spd: 42, tr: 1.4, sz: 1 },
-      { n: 'Fokuhilamann', e: 'Bauzaun-Bodo', k: 'Tank', cost: 280, hp: 780, dmg: 54, rng: 20, rate: 1.4, spd: 32, tr: 2.8, sz: 1.45 },
+      { n: 'Grauer Geist', e: 'Kontrolleur', look: 'geist', k: 'Nah', cost: 45, hp: 140, dmg: 26, rng: 18, rate: .9, spd: 54, tr: 1.1, sz: 1, dodge: .3,
+        info: 'Schwebt · weicht 30 % aller Angriffe aus' },
+      { n: 'Mollymann', e: 'Blitzer-Bert', look: 'molly', k: 'Fern', cost: 75, hp: 100, dmg: 18, rng: 165, rate: 1.3, spd: 40, tr: 1.4, sz: 1, splash: 45, shot: 'crystal',
+        info: 'Kristallmagier · Flächenschaden' },
+      { n: 'Fokuhilamann', e: 'Bauzaun-Bodo', look: 'fokuhila', k: 'Tank', cost: 290, hp: 760, dmg: 50, rng: 22, rate: 1.5, spd: 32, tr: 2.8, sz: 1.35, splash: 35,
+        info: 'Schmiedehammer · trifft mehrere Gegner' },
     ],
     tur: { n: 'Allan', w: 'Armbrust', e: 'Sprinkler-Turm', cost: 550, dmg: 32, rate: 1.0, rng: 360 } },
   { name: 'Königsburg', eName: 'Spießer-Zitadelle', addHp: 700, special: 480, xpNext: null, income: 20,
     units: [
-      { n: 'KräuterKönig', e: 'Ordnungsamt', k: 'Nah', cost: 130, hp: 440, dmg: 66, rng: 18, rate: .85, spd: 50, tr: 1.2, sz: 1.1 },
-      { n: 'Grauer Geist', e: 'Drohnen-Dieter', k: 'Fern', cost: 200, hp: 300, dmg: 52, rng: 190, rate: 1.0, spd: 46, tr: 1.5, sz: 1 },
-      { n: 'DonPatron', e: 'Bürokratie-Boss', k: 'Tank', cost: 750, hp: 2100, dmg: 145, rng: 22, rate: 1.4, spd: 34, tr: 3.0, sz: 1.6 },
+      { n: 'KräuterKönig', e: 'Amtsärztin', look: 'kraeuter', k: 'Heiler', cost: 160, hp: 330, dmg: 28, rng: 150, rate: 1.2, spd: 42, tr: 1.5, sz: 1.05, heal: 70, shot: 'leaf',
+        info: 'Heilt verletzte Verbündete mit seinem Kräuterstab' },
+      { n: 'DonPatron', e: 'Steuerprüfer', look: 'don', k: 'Fern', cost: 210, hp: 300, dmg: 55, rng: 190, rate: 1.0, spd: 44, tr: 1.5, sz: 1.05, goldBonus: .5, shot: 'coin',
+        info: 'Wirft Goldmünzen · +50 % Gold für seine Kills' },
+      { n: 'König', e: 'Bürokratie-Boss', look: 'koenig', k: 'Held', cost: 900, hp: 2600, dmg: 160, rng: 24, rate: 1.3, spd: 32, tr: 3.2, sz: 1.6, aura: .25, max: 1,
+        info: 'Held, nur einer gleichzeitig · Truppen in seiner Nähe +25 % Schaden' },
     ],
     tur: { n: 'Allan', w: 'Ballista', e: 'Aktenstapel-Katapult', cost: 1500, dmg: 85, rate: .9, rng: 380 } },
 ];
+// Upgrades: jede Figur der Bande steuert was bei
+const UPG = [
+  { id: 'dmg', ico: '⚒', n: 'Fokuhilas Schmiede', d: '+15 % Schaden für alle Truppen', base: 120, max: 5 },
+  { id: 'hp', ico: '🛡', n: 'Nilles Rüstkammer', d: '+15 % Leben für neue Truppen', base: 120, max: 5 },
+  { id: 'gold', ico: '💰', n: 'LG3s Goldtisch', d: '+30 % Goldeinkommen', base: 100, max: 5 },
+  { id: 'wall', ico: '🏰', n: 'Burgmauern', d: '+25 % Burg-Leben und Reparatur', base: 150, max: 5 },
+  { id: 'tur', ico: '🐺', n: 'Allans Training', d: 'Turm +25 % Schaden, schießt schneller', base: 150, max: 5 },
+  { id: 'sp', ico: '👑', n: 'Königsruf', d: 'Pfeilhagel +30 % Schaden, 5 s kürzer', base: 200, max: 4 },
+  { id: 'herb', ico: '🌿', n: 'Kräutergarten', d: 'Burg heilt sich langsam selbst', base: 180, max: 3 },
+  { id: 'xp', ico: '📖', n: 'Kobolds Zauberbuch', d: '+25 % Sterne pro Kill', base: 140, max: 4 },
+];
+const upgCost = (s, u) => Math.round(u.base * Math.pow(2, s.up[u.id]));
 const DIFF = { leicht: { mult: .7, label: 'Leicht' }, normal: { mult: 1, label: 'Normal' }, schwer: { mult: 1.35, label: 'Schwer' } };
 const SP_CD = 45, START_GOLD = 175, BASE_HP = 500, MAX_Q = 5;
 const COL = [
@@ -118,25 +156,34 @@ try { diff = localStorage.getItem('bk_diff') || 'normal'; } catch (e) {}
 if (!DIFF[diff]) diff = 'normal';
 
 function mkSide(i) {
-  return { i, gold: START_GOLD, xp: 0, age: 0, hp: BASE_HP, maxhp: BASE_HP, queue: [], tq: 0, tur: -1, turCd: 0, spCd: 20, aiT: 1, aiNext: null, kills: 0 };
+  const up = {}; for (const u of UPG) up[u.id] = 0;
+  return { i, gold: START_GOLD, xp: 0, age: 0, hp: BASE_HP, maxhp: BASE_HP, queue: [], tq: 0, tur: -1, turCd: 0, spCd: 20, aiT: 1, aiNext: null, kills: 0, up, shake: 0 };
 }
 function newGame() {
+  const pn = document.getElementById('panel'); if (pn) { pn.classList.add('hide'); pn.dataset.html = ''; }
   S = { t: 0, speed: 1, paused: false, over: false, started: true, sides: [mkSide(0), mkSide(1)], units: [], shots: [], fx: [], flash: [] };
 }
 const mult = s => s.i === 1 ? DIFF[diff].mult : 1;
 const baseX = side => side === 0 ? BASE_FRONT : W - BASE_FRONT;
+const spMax = s => SP_CD - 5 * s.up.sp;
 
 // ---------- Aktionen ----------
-function enqueue(s, idx) {
+function heroCount(s, n) { return S.units.filter(u => u.side === s.i && u.n === n).length + s.queue.filter(q => q.n === n).length; }
+function canEnqueue(s, idx) {
   const u = AGES[s.age].units[idx];
-  if (s.gold < u.cost || s.queue.length >= MAX_Q) return false;
+  return s.gold >= u.cost && s.queue.length < MAX_Q && !(u.max && heroCount(s, u.n) >= u.max);
+}
+function enqueue(s, idx) {
+  if (!canEnqueue(s, idx)) return false;
+  const u = AGES[s.age].units[idx];
   s.gold -= u.cost;
   s.queue.push({ ...u, age: s.age });
   return true;
 }
 function spawn(s, u) {
   const sx = s.i === 0 ? BASE_FRONT - 20 : W - BASE_FRONT + 20;
-  S.units.push({ id: uid++, side: s.i, x: sx, ...u, maxhp: u.hp, r: 9 * u.sz, cd: .3, anim: 0, walk: Math.random() * 6 });
+  const hp = Math.round(u.hp * (1 + .15 * s.up.hp));
+  S.units.push({ id: uid++, side: s.i, x: sx, ...u, hp, maxhp: hp, r: 9 * u.sz, cd: .3, anim: 0, walk: Math.random() * 6 });
 }
 function spawnFree(s) {
   const sx = s.i === 0 ? BASE_FRONT - 20 : W - BASE_FRONT + 20;
@@ -146,9 +193,20 @@ function buyTurret(s) {
   const t = AGES[s.age].tur;
   if (s.tur >= s.age || s.gold < t.cost) return false;
   s.gold -= t.cost; s.tur = s.age; s.turCd = .5;
-  if (s.i === 0) floatText(70, GROUND - 170, 'Allan ist oben!', COL[0].light);
+  if (s.i === 0) floatText(70, GROUND - 200, 'Allan bezieht den Turm!', COL[0].light);
   return true;
 }
+function buyUpgrade(s, id) {
+  const u = UPG.find(x => x.id === id), c = upgCost(s, u);
+  if (s.up[id] >= u.max || s.gold < c) return false;
+  s.gold -= c; s.up[id]++;
+  if (id === 'wall') { const add = Math.round(s.maxhp * .25); s.maxhp += add; s.hp = Math.min(s.maxhp, s.hp + add + Math.round(s.maxhp * .1)); }
+  if (id === 'hp') for (const v of S.units) if (v.side === s.i) { const add = Math.round(v.maxhp * .15); v.maxhp += add; v.hp += add; }
+  if (s.i === 0) floatText(200, GROUND - 120, u.ico + ' ' + u.n + ' ' + romans(s.up[id]), '#f0d37a', 1.6);
+  else floatText(W - 200, GROUND - 120, '📜 Spießer rüsten auf', COL[1].light, 1.4);
+  return true;
+}
+const romans = n => ['', 'I', 'II', 'III', 'IV', 'V'][n] || n;
 function ageUp(s) {
   const A = AGES[s.age];
   if (!A.xpNext || s.xp < A.xpNext) return false;
@@ -161,24 +219,28 @@ function ageUp(s) {
 }
 function special(s) {
   if (s.spCd > 0) return false;
-  s.spCd = SP_CD;
-  const dmg = AGES[s.age].special;
+  s.spCd = spMax(s);
+  const dmg = AGES[s.age].special * (1 + .3 * s.up.sp);
   S.flash.push({ t: .6, col: s.i === 0 ? '#9dffb9' : '#ffb39f', a: .35 });
   for (const u of S.units) if (u.side !== s.i && u.hp > 0) {
-    hurt(u, dmg, s.i);
+    hurt(u, dmg, s.i, null, true);
     S.fx.push({ x: u.x, y: GROUND - 20 * u.sz, t: .7, kind: 'rain', dir: s.i === 0 ? 1 : -1, col: COL[s.i].light });
   }
   floatText(W / 2, 70, s.i === 0 ? '👑 Der König ruft: Pfeilhagel!' : '📜 Erlass der Spießer: Pfeilhagel!', COL[s.i].light, 1.8);
   return true;
 }
-function hurt(v, dmg, bySide) {
+// Schaden mit Ausweichen, Blocken und Gold-Bonus
+function hurt(v, dmg, bySide, src, unblockable) {
   if (v.hp <= 0) return;
-  v.hp -= dmg;
+  if (!unblockable && v.dodge && Math.random() < v.dodge) { S.fx.push({ x: v.x, y: GROUND - 55 * v.sz, t: .6, max: .6, kind: 'txt', txt: 'weg!', col: '#bfe9ff', small: true }); return; }
+  if (v.block) dmg *= 1 - v.block;
+  v.hp -= dmg; v.hit = .12;
   if (v.hp <= 0) {
     const s = S.sides[bySide];
-    const g = Math.round(v.cost * 1.25), x = Math.round(v.cost * 4);
+    let g = Math.round(v.cost * 1.25 * (src && src.goldBonus ? 1 + src.goldBonus : 1));
+    const x = Math.round(v.cost * 4 * (1 + .25 * s.up.xp));
     s.gold += g; s.xp += x; s.kills++;
-    if (bySide === 0) floatText(v.x, GROUND - 60 * v.sz, '+' + g, '#f5c542');
+    if (bySide === 0) floatText(v.x, GROUND - 60 * v.sz, '+' + g + (src && src.goldBonus ? ' 💰' : ''), '#f5c542');
     S.fx.push({ x: v.x, y: GROUND - 20, t: .5, kind: 'poof', col: COL[v.side].main });
   }
 }
@@ -197,20 +259,48 @@ function ai(s, dt) {
   if (s.tur < s.age && S.t > 35 && s.gold >= AGES[s.age].tur.cost + 40) buyTurret(s);
   const threat = S.units.filter(u => u.side === 0 && u.x > W * .5).length;
   if (s.spCd <= 0 && (threat >= 5 || (s.hp < s.maxhp * .45 && threat >= 2))) special(s);
+  // ab und zu ein Upgrade, wenn Gold übrig ist
+  if (S.t > 50 && Math.random() < .12) {
+    const pool = ['dmg', 'hp', 'gold', 'wall', 'tur', 'dmg', 'hp'].map(id => UPG.find(u => u.id === id)).filter(u => s.up[u.id] < Math.min(u.max, { leicht: 2, normal: 3, schwer: 5 }[diff]));
+    const u = pool[Math.floor(Math.random() * pool.length)];
+    if (u && s.gold >= upgCost(s, u) + 120) buyUpgrade(s, u.id);
+  }
   if (s.queue.length < 3) {
     if (s.aiNext == null) { const r = Math.random(); s.aiNext = r < .5 ? 0 : r < .82 ? 1 : 2; }
     if (enqueue(s, s.aiNext)) s.aiNext = null;
-    else if (s.aiNext === 2 && Math.random() < .15) s.aiNext = null; // nicht ewig auf den Tank sparen
+    else if (s.aiNext === 2 && (Math.random() < .15 || !canEnqueue({ ...s, gold: 1e9 }, 2))) s.aiNext = null;
   }
 }
 
 // ---------- Update ----------
+function auraBonus(u) {
+  for (const k of S.units) if (k.aura && k.side === u.side && k !== u && k.hp > 0 && Math.abs(k.x - u.x) < 130) return 1 + k.aura;
+  return 1;
+}
+function strike(u, target) {
+  const s = S.sides[u.side];
+  let dmg = u.dmg * (1 + .15 * s.up.dmg) * auraBonus(u);
+  if (u.crit && Math.random() < u.crit) { dmg *= 2; S.fx.push({ x: u.x, y: GROUND - 58 * u.sz, t: .6, max: .6, kind: 'txt', txt: 'Wolfsbiss!', col: '#ffd27a', small: true }); }
+  const dir = u.side === 0 ? 1 : -1;
+  if (u.k !== 'Nah' && u.k !== 'Tank' && u.k !== 'Held') {
+    const tx = target === 'base' ? baseX(1 - u.side) + dir * 20 : target.x;
+    const ty = target === 'base' ? GROUND - 50 : GROUND - 22 * target.sz;
+    S.shots.push({ x1: u.x + dir * 8, y1: GROUND - 28 * u.sz, x2: tx, y2: ty, t: 0, dur: .32, col: COL[u.side].main, kind: u.shot || 'arrow' });
+  }
+  if (target === 'base') { hurtBase(1 - u.side, dmg); return; }
+  hurt(target, dmg, u.side, u);
+  if (u.splash) {
+    for (const v of S.units) if (v !== target && v.side !== u.side && v.hp > 0 && Math.abs(v.x - target.x) < u.splash) hurt(v, dmg * .6, u.side, u);
+    S.fx.push({ x: target.x, y: GROUND - 18, t: .45, kind: u.look === 'molly' ? 'crystalBoom' : 'quake', col: u.look === 'molly' ? '#c38bff' : '#ffb35c' });
+  }
+}
 function update(dt) {
   S.t += dt;
   for (const s of S.sides) {
-    s.gold += AGES[s.age].income * mult(s) * dt * .5;
+    s.gold += AGES[s.age].income * mult(s) * (1 + .3 * s.up.gold) * dt * .5;
     s.xp += 2 * mult(s) * dt;
-    s.spCd = Math.max(0, s.spCd - dt); s.shake = Math.max(0, (s.shake || 0) - dt);
+    if (s.up.herb && s.hp > 0) s.hp = Math.min(s.maxhp, s.hp + 1.5 * s.up.herb * (s.age + 1) * dt);
+    s.spCd = Math.max(0, s.spCd - dt); s.shake = Math.max(0, s.shake - dt);
     if (s.queue.length) {
       s.tq += dt;
       if (s.tq >= s.queue[0].tr) {
@@ -227,9 +317,9 @@ function update(dt) {
         let best = null, bd = 1e9;
         for (const u of S.units) if (u.side !== s.i && u.hp > 0) { const d = Math.abs(u.x - tx); if (d < bd) { bd = d; best = u; } }
         if (best && bd <= t.rng) {
-          s.turCd = t.rate;
+          s.turCd = t.rate / (1 + .1 * s.up.tur);
           S.shots.push({ x1: tx, y1: tp.y - 18, x2: best.x, y2: GROUND - 22 * best.sz, t: 0, dur: .3, col: COL[s.i].main, kind: ['stone', 'bolt', 'bolt'][s.tur] });
-          hurt(best, t.dmg, s.i);
+          hurt(best, t.dmg * (1 + .25 * s.up.tur), s.i);
         }
       }
     }
@@ -237,8 +327,18 @@ function update(dt) {
   // Einheiten
   for (const u of S.units) {
     if (u.hp <= 0) continue;
-    u.cd -= dt; u.anim = Math.max(0, u.anim - dt);
+    u.cd -= dt; u.anim = Math.max(0, u.anim - dt); u.hit = Math.max(0, (u.hit || 0) - dt);
     const dir = u.side === 0 ? 1 : -1;
+    // Heiler: erst heilen, dann kämpfen
+    if (u.heal && u.cd <= 0) {
+      let pat = null, worst = .9;
+      for (const f of S.units) if (f.side === u.side && f.hp > 0 && Math.abs(f.x - u.x) < 160 && f.hp / f.maxhp < worst) { worst = f.hp / f.maxhp; pat = f; }
+      if (pat) {
+        pat.hp = Math.min(pat.maxhp, pat.hp + u.heal * (1 + .15 * S.sides[u.side].up.dmg));
+        u.cd = u.rate; u.anim = .3;
+        S.fx.push({ x: pat.x, y: GROUND - 30 * pat.sz, t: .7, kind: 'heal', col: '#8dff9e' });
+      }
+    }
     let tgt = null, tgap = 1e9;
     for (const v of S.units) {
       if (v.side === u.side || v.hp <= 0) continue;
@@ -250,19 +350,9 @@ function update(dt) {
     if (tgt && tgap <= u.rng && tgap <= bgap) attack = tgt;
     else if (bgap <= u.rng) attack = 'base';
     if (attack) {
-      if (u.cd <= 0) {
-        u.cd = u.rate; u.anim = .18;
-        if (attack === 'base') {
-          hurtBase(1 - u.side, u.dmg);
-          if (u.k === 'Fern') S.shots.push({ x1: u.x, y1: GROUND - 26 * u.sz, x2: baseX(1 - u.side) + dir * 20, y2: GROUND - 50, t: 0, dur: .3, col: COL[u.side].main, kind: 'arrow' });
-        } else {
-          if (u.k === 'Fern') S.shots.push({ x1: u.x, y1: GROUND - 26 * u.sz, x2: attack.x, y2: GROUND - 22 * attack.sz, t: 0, dur: .3, col: COL[u.side].main, kind: 'arrow' });
-          hurt(attack, u.dmg, u.side);
-        }
-      }
+      if (u.cd <= 0) { u.cd = u.rate; u.anim = .18; strike(u, attack); }
       continue;
     }
-    // Blockiert durch eigene Leute vorne?
     let blocked = false;
     for (const f of S.units) {
       if (f === u || f.side !== u.side || f.hp <= 0) continue;
@@ -489,9 +579,9 @@ function drawBase(side) {
     const p = turretPos(side), dir = side === 0 ? 1 : -1, c = COL[side];
     ctx.save(); ctx.translate(p.x, p.y); ctx.scale(dir, 1);
     if (s.tur === 2) { ctx.fillStyle = '#5c3f25'; ctx.fillRect(-6, -10, 30, 6); ctx.strokeStyle = '#3a2716'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(18, -7, 10, -1.3, 1.3); ctx.stroke(); }
-    ctx.fillStyle = c.dark; rr(-6, -20, 12, 16, 3); ctx.fill();
-    ctx.fillStyle = '#e8c39e'; ctx.beginPath(); ctx.arc(0, -25, 5.5, 0, 7); ctx.fill();
-    ctx.fillStyle = '#777'; ctx.beginPath(); ctx.arc(0, -27, 6, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = side === 0 ? '#3b3640' : c.dark; rr(-6, -20, 12, 16, 3); ctx.fill();
+    if (side === 0) { ctx.save(); ctx.translate(0, 13); ctx.scale(.9, .9); wolfHead('#8a5a32', '#6a4024'); ctx.restore(); }
+    else { ctx.fillStyle = '#e8c39e'; ctx.beginPath(); ctx.arc(0, -25, 5.5, 0, 7); ctx.fill(); ctx.fillStyle = '#777'; ctx.beginPath(); ctx.arc(0, -27, 6, Math.PI, 0); ctx.fill(); }
     ctx.strokeStyle = s.tur === 0 ? '#6b4a2c' : '#4a4a4a'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(4, -14); ctx.lineTo(14, -18); ctx.stroke();
     ctx.restore();
     ctx.fillStyle = '#f4e4c1'; ctx.font = `700 10px ${FONT}`; ctx.textAlign = 'center';
@@ -501,84 +591,255 @@ function drawBase(side) {
   ctx.fillText(side === 0 ? 'Bandenburg' : 'Spießerfeste', m(65), GROUND + 50);
 }
 
+// ---------- Figuren der Bande ----------
+// Alle Figuren werden nach rechts blickend gezeichnet, Boden bei y = 0.
+const SKIN = '#e8c39e';
+function P(pts, col) { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i + 1]); ctx.closePath(); ctx.fill(); }
+function C(x, y, r, col) { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); }
+function E(x, y, rx, ry, col) { ctx.fillStyle = col; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, 7); ctx.fill(); }
+function L(x1, y1, x2, y2, col, w) { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
+function glow(x, y, r, col) { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2); }
+function legs(leg, bob, col, w = 3.4) { ctx.lineCap = 'round'; L(-3, -11, -3 + leg, bob, col, w); L(3, -11, 3 - leg, bob, col, w); }
+function sword(x, y, ang, len = 16) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+  ctx.fillStyle = '#5a3c22'; ctx.fillRect(-1, -1, 2, 5);
+  ctx.fillStyle = '#d4af37'; ctx.fillRect(-3.5, -2, 7, 2);
+  P([-1.3, -2, -1.3, -len, 0, -len - 2, 1.3, -len, 1.3, -2], '#e4e7ec');
+  ctx.restore();
+}
+function wolfHead(fur, dark) {
+  P([-4, -42, -3, -51, 1, -43], fur); P([1, -43, 4, -50, 6, -41], fur);
+  P([-2, -45, -2.5, -49, 0, -44], '#3a2a2a');
+  C(0, -38, 6.2, fur);
+  P([3, -41, 13, -37.5, 12, -35, 3, -33], fur);
+  P([3, -35, 12, -35, 11, -33, 4, -32.5], dark);
+  C(12.6, -37, 1.4, '#111');
+  P([7, -33, 8, -30.5, 9, -33], '#fff'); P([10, -33, 10.8, -31, 11.4, -33], '#fff');
+  glow(4, -40, 4, 'rgba(255,220,60,.8)'); C(4, -40, 1.2, '#ffd23c');
+}
+
+const LOOKS = {
+  kobold(u, c, atk, leg, bob, t) {
+    legs(leg * .8, bob, '#3d2a1a', 3);
+    P([-6, -30, 6, -30, 9, -9, -9, -9], '#7a3b2a');
+    ctx.fillStyle = '#5a2a1c'; ctx.fillRect(-8, -14, 16, 2);
+    // Zauberbuch
+    ctx.fillStyle = '#4b2a5c'; ctx.fillRect(-12, -26, 7, 9); ctx.fillStyle = '#d4af37'; ctx.fillRect(-12, -26, 1.5, 9);
+    // Kopf mit Spitzohren und langer Nase
+    P([-4, -41, -15, -48, -5, -36], '#5f9a3c');
+    C(0, -38, 7, '#6fae4a');
+    P([5, -40, 15, -37, 5, -35], '#5f9a3c');
+    C(3, -41, 1.5, '#ffe14a'); C(3.3, -41, .7, '#111');
+    L(1, -34, 4, -33.5, '#2d4a1f', 1);
+    // grüne Flamme in der Hand
+    const f = 1 + Math.sin(t * 18 + u.id) * .15 + atk * .5;
+    glow(10, -26, 10 * f, 'rgba(120,255,110,.55)');
+    E(10, -27, 3 * f, 5 * f, '#6cff5a'); E(10, -26, 1.5 * f, 2.5 * f, '#e2ffd0');
+  },
+  artur(u, c, atk, leg, bob) {
+    legs(leg, bob, '#2b2830');
+    P([-7, -32, 7, -32, 6, -11, -6, -11], '#3b3640');
+    E(-5, -31, 6, 4, '#2b2830'); E(5, -31, 5, 3.5, '#24222a');
+    ctx.fillStyle = '#5a4a3a'; ctx.fillRect(-7, -15, 14, 2.5);
+    wolfHead('#8e939a', '#6a6e75');
+    sword(6, -23, -1.1 + atk * 1.6, 17);
+  },
+  nille(u, c, atk, leg, bob) {
+    legs(leg, bob, '#9aa0a8', 4);
+    rr(-8, -33, 16, 22, 4); ctx.fillStyle = '#c4c9d1'; ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(-6, -31, 3, 18);
+    E(-6, -32, 6, 4, '#b3b8c0'); E(6, -32, 6, 4, '#aab0b8');
+    ctx.fillStyle = '#7a7f87'; ctx.fillRect(-8, -15, 16, 2.5);
+    // Helm
+    rr(-7, -48, 14, 15, 4); ctx.fillStyle = '#c9ced6'; ctx.fill();
+    ctx.fillStyle = '#1b1b1b'; ctx.fillRect(0, -42, 7, 1.8); ctx.fillRect(3, -40, 1.5, 4);
+    P([-6, -48, -2, -55, 1, -48], c.main);
+    // großes Schwert über der Schulter
+    ctx.save(); ctx.translate(3, -30); ctx.rotate(-.6 + atk * 1.9);
+    ctx.fillStyle = '#5a3c22'; ctx.fillRect(-1.5, -2, 3, 8);
+    ctx.fillStyle = '#d4af37'; ctx.fillRect(-5, -3, 10, 2.5);
+    P([-2, -3, -2, -30, 0, -34, 2, -30, 2, -3], '#eef1f5');
+    ctx.restore();
+  },
+  geist(u, c, atk, leg, bob, t) {
+    const fl = Math.sin(t * 3 + u.id) * 2.5 - 6;
+    ctx.translate(0, fl);
+    ctx.globalAlpha = .88;
+    ctx.fillStyle = '#7d8088'; ctx.beginPath(); ctx.moveTo(-1, -52);
+    ctx.quadraticCurveTo(10, -50, 9, -34); ctx.lineTo(11, -6);
+    for (let i = 0; i < 5; i++) ctx.lineTo(9 - i * 4.5 - 2, -2 - ((i + Math.floor(t * 6)) % 2) * 4), ctx.lineTo(9 - i * 4.5 - 4, -6);
+    ctx.lineTo(-12, -6); ctx.quadraticCurveTo(-11, -48, -1, -52); ctx.fill();
+    ctx.fillStyle = '#6a6d75'; ctx.beginPath(); ctx.moveTo(-6, -46); ctx.quadraticCurveTo(-8, -26, -10, -8); ctx.lineTo(-6, -8); ctx.quadraticCurveTo(-4, -26, -2, -44); ctx.fill();
+    E(3, -39, 5.5, 6.5, '#0d0d12');
+    ctx.globalAlpha = 1;
+    glow(1.5, -40, 5, 'rgba(90,240,255,.8)'); glow(5.5, -40, 5, 'rgba(90,240,255,.8)');
+    C(1.5, -40, 1.1, '#bff8ff'); C(5.5, -40, 1.1, '#bff8ff');
+    // Geisterhand
+    const reach = 8 + atk * 8;
+    ctx.globalAlpha = .8; L(6, -26, 6 + reach, -26 + atk * 4, '#9a9da5', 3); ctx.globalAlpha = 1;
+  },
+  molly(u, c, atk, leg, bob, t) {
+    legs(leg * .6, bob, '#1a1a2a', 3);
+    P([-6, -32, 6, -32, 10, -5, -10, -5], '#283c8c');
+    ctx.fillStyle = '#f5d76e'; for (const [x, y] of [[-4, -24], [3, -18], [-6, -11], [5, -9], [0, -28]]) { ctx.fillRect(x, y, 1.6, 1.6); }
+    C(0, -38, 6, SKIN);
+    ctx.fillStyle = '#2a1a14'; for (const [x, y] of [[-5, -43], [-1, -45], [3, -44], [-6, -39], [-4, -46], [1, -47]]) C(x, y, 2.6, '#2a1a14');
+    C(3.5, -38, 1, '#111');
+    // schwebender Kristall
+    const cy = -46 + Math.sin(t * 3 + u.id) * 3, cx = 13 + atk * 4;
+    glow(cx, cy, 12 + atk * 6, 'rgba(190,120,255,.6)');
+    P([cx, cy - 7, cx + 4, cy, cx, cy + 7, cx - 4, cy], '#b57bff');
+    P([cx, cy - 7, cx + 4, cy, cx, cy], '#e3c8ff');
+    L(5, -26, 9, -30, SKIN, 2.5);
+  },
+  fokuhila(u, c, atk, leg, bob) {
+    legs(leg, bob, '#3b2b1d', 4);
+    rr(-7, -32, 14, 21, 3); ctx.fillStyle = '#c27b3e'; ctx.fill();
+    P([-6, -27, 6, -27, 7, -10, -7, -10], '#5a3c22');
+    C(0, -38, 6, SKIN);
+    // Vokuhila: kurz vorne, lang hinten
+    ctx.fillStyle = '#5a3418'; ctx.beginPath(); ctx.arc(0, -40, 6.4, Math.PI * .95, Math.PI * 2.05); ctx.fill();
+    P([-6, -40, -2, -40, -4, -30, -10, -28], '#5a3418');
+    ctx.fillStyle = '#d43a2a'; ctx.fillRect(-6.5, -42, 13, 2.2);
+    C(3.5, -38, 1, '#111'); L(1.5, -34.5, 4.5, -34.5, '#7a4a2a', 1);
+    // Schmiedehammer
+    ctx.save(); ctx.translate(2, -28); ctx.rotate(-.7 + atk * 2.3);
+    ctx.fillStyle = '#6b4a2c'; ctx.fillRect(-1.5, -24, 3, 26);
+    ctx.fillStyle = '#4a4d52'; ctx.fillRect(-7, -31, 14, 9);
+    ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.fillRect(-7, -31, 14, 2);
+    ctx.restore();
+  },
+  don(u, c, atk, leg, bob, t) {
+    legs(leg, bob, '#141418');
+    rr(-7, -32, 14, 21, 3); ctx.fillStyle = '#1e1e24'; ctx.fill();
+    P([-2, -32, 2, -32, 0, -25], '#f2f2f2'); P([-.8, -30, .8, -30, 1, -22, 0, -20, -1, -22], '#b31b1b');
+    // Goldbeutel
+    C(-9, -18, 4.5, '#c49a2c'); P([-11, -23, -7, -23, -8, -21, -10, -21], '#8a6a1d');
+    C(0, -38, 6, SKIN);
+    E(3.5, -34.5, 4, 1.6, '#3a2418');
+    C(3.5, -38.5, 1, '#111');
+    // Pfeife mit Rauch
+    L(5, -33, 11, -32, '#5a3c22', 1.6); ctx.fillStyle = '#5a3c22'; ctx.fillRect(10, -35, 3, 3.5);
+    for (let i = 0; i < 3; i++) { const p = ((t * .7 + i / 3) % 1); ctx.globalAlpha = .45 * (1 - p); C(12 + p * 4, -37 - p * 14, 1.5 + p * 2.5, '#cfcfcf'); }
+    ctx.globalAlpha = 1;
+    // Zylinder mit rotem Band
+    ctx.fillStyle = '#111'; ctx.fillRect(-9, -44.5, 18, 2.2); ctx.fillRect(-5.5, -56, 11, 12);
+    ctx.fillStyle = '#b31b1b'; ctx.fillRect(-5.5, -47.5, 11, 2.2);
+    const th = atk > 0 ? 1 : 0; C(7 + th * 4, -26 - th * 4, 2, '#f0c94a');
+  },
+  kraeuter(u, c, atk, leg, bob, t) {
+    legs(leg * .6, bob, '#5a4a3a', 3);
+    P([-6, -32, 6, -32, 9, -4, -9, -4], '#ecebe4');
+    ctx.fillStyle = '#3f8f4a'; ctx.fillRect(-9, -6, 18, 2); ctx.fillRect(-1, -32, 2, 27);
+    C(0, -38, 6, SKIN);
+    P([-4, -40, -11, -44, -4, -36], SKIN);
+    C(3.5, -38.5, 1, '#111');
+    // Blätterkrone
+    for (let i = 0; i < 5; i++) { const a = Math.PI + i * Math.PI / 4; E(Math.cos(a) * 6, -41 + Math.sin(a) * 5 - 2, 2.2, 3.5, i % 2 ? '#5cbf4f' : '#3f9a3a'); }
+    // goldener Stab mit grünem Licht
+    L(10, -4, 10, -50, '#d4af37', 2.2);
+    const pulse = 1 + Math.sin(t * 4 + u.id) * .15 + atk * .8;
+    glow(10, -52, 10 * pulse, 'rgba(110,255,120,.65)'); C(10, -52, 2.8, '#b8ffb0');
+    L(5, -24, 10, -26, SKIN, 2.4);
+  },
+  koenig(u, c, atk, leg, bob) {
+    legs(leg, bob, '#3a1a14', 4.2);
+    // roter Mantel mit Hermelin
+    P([-6, -34, -14, -4, 2, -6], '#9b1c22');
+    ctx.fillStyle = '#f4f1ea'; ctx.fillRect(-15, -7, 14, 3); ctx.fillStyle = '#111'; for (let x = -13; x < -2; x += 4) ctx.fillRect(x, -6.5, 1.2, 1.5);
+    rr(-9, -33, 18, 23, 6); ctx.fillStyle = '#7a1a1f'; ctx.fill();
+    ctx.fillStyle = '#d4af37'; ctx.fillRect(-9, -16, 18, 3);
+    E(-7, -32, 6, 3.5, '#f4f1ea'); E(6, -32, 5, 3, '#f4f1ea');
+    C(0, -39, 6.5, SKIN);
+    // weißer Bart, Grinsen
+    P([-4, -37, 7, -37, 6, -30, 1, -27, -3, -31], '#f1efe9');
+    L(2, -35, 6, -35.5, '#7a3a2a', 1.1);
+    C(3.8, -40, 1.1, '#111');
+    // Krone
+    P([-6, -45, -6, -51, -3, -48, 0, -53, 3, -48, 6, -51, 6, -45], '#e2b93b');
+    C(0, -47, 1.2, '#d1203a'); C(-4, -46.5, .9, '#2a7fd1'); C(4, -46.5, .9, '#2aa84a');
+    // Zepter-Streitkolben
+    ctx.save(); ctx.translate(7, -24); ctx.rotate(-.9 + atk * 1.5);
+    ctx.fillStyle = '#b8902c'; ctx.fillRect(-1.2, -18, 2.4, 20);
+    C(0, -20, 4, '#e2b93b'); C(0, -20, 1.6, '#d1203a');
+    ctx.restore();
+  },
+};
+
+// Gegner: einheitliche Spießer-Soldaten in Rot
+function drawSoldier(u, c, atk, leg, bob) {
+  const K = u.k === 'Held' ? 'Tank' : u.k === 'Heiler' ? 'Fern' : u.k;
+  legs(leg, bob, K === 'Tank' ? '#6d6d6d' : '#3b2b1d');
+  if (K === 'Fern') P([-5, -33, -11, -9, 2, -11], c.dark);
+  rr(-7, -32, 14, 21, 3); ctx.fillStyle = K === 'Tank' ? '#8b8f96' : K === 'Nah' ? '#9a9da3' : '#6d5136'; ctx.fill();
+  ctx.fillStyle = c.main; ctx.fillRect(-4, -31, 8, 19);
+  ctx.fillStyle = '#d4af37'; ctx.fillRect(-7, -15, 14, 2);
+  C(0, -38, 6, SKIN);
+  if (K === 'Nah') { ctx.fillStyle = '#a9adb3'; ctx.beginPath(); ctx.arc(0, -39.5, 6.6, Math.PI, 0); ctx.fill(); ctx.fillRect(2.5, -40, 1.6, 6); }
+  else if (K === 'Fern') { ctx.fillStyle = c.dark; ctx.beginPath(); ctx.moveTo(-7, -34); ctx.quadraticCurveTo(-6, -47, 2, -47); ctx.quadraticCurveTo(7, -45, 6, -40); ctx.lineTo(2, -41); ctx.quadraticCurveTo(-2, -38, -4, -33); ctx.fill(); }
+  else { rr(-7, -46, 14, 13, 3); ctx.fillStyle = '#9ca0a7'; ctx.fill(); ctx.fillStyle = '#1b1b1b'; ctx.fillRect(1, -41, 6, 1.6); }
+  C(3, -38, 1, '#111');
+  if (u.k === 'Held') P([-6, -46, -6, -51, -3, -48, 0, -53, 3, -48, 6, -51, 6, -46], '#9aa0a8');
+  if (K === 'Nah') { C(-7, -22, 5.5, c.dark); sword(6, -24, -1.1 + atk * 1.6); }
+  else if (u.k === 'Heiler') { L(10, -4, 10, -48, '#9a7a4a', 2); glow(10, -50, 7, 'rgba(255,120,100,.6)'); }
+  else if (K === 'Fern') {
+    ctx.strokeStyle = '#7a5530'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(5, -24, 11, -1.25, 1.25); ctx.stroke();
+    if (atk === 0) L(1, -24, 17, -24, '#c9a16a', 1.2);
+  } else {
+    ctx.save(); ctx.translate(-2, -26); ctx.rotate(-1.1 + atk * 1.4);
+    ctx.fillStyle = '#5a3c22'; ctx.fillRect(-1.2, -20, 2.4, 22); ctx.fillStyle = '#7a7e85'; ctx.fillRect(-5, -24, 10, 6);
+    ctx.restore();
+    P([5, -34, 15, -34, 15, -20, 10, -6, 5, -20], c.main);
+  }
+}
+
 function drawUnit(u) {
   const c = COL[u.side], dir = u.side === 0 ? 1 : -1, sz = u.sz;
   const moving = u.anim <= 0;
   const bob = moving ? Math.abs(Math.sin(u.walk)) * 1.6 : 0;
-  const atk = u.anim > 0 ? u.anim / .18 : 0;
-  const lunge = u.k !== 'Fern' ? 5 * atk : 0;
+  const atk = u.anim > 0 ? Math.min(1, u.anim / .18) : 0;
+  const melee = u.k === 'Nah' || u.k === 'Tank' || u.k === 'Held';
+  const lunge = melee ? 5 * atk : 0;
   const leg = moving ? Math.sin(u.walk) * 5 : 0;
   ctx.save(); ctx.translate(u.x, GROUND); ctx.scale(dir * sz, sz);
-  // Schatten
-  ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 1, 10, 2.5, 0, 0, 7); ctx.fill();
-  ctx.translate(lunge, -bob);
-  ctx.lineCap = 'round';
-  // Beine
-  ctx.strokeStyle = u.k === 'Tank' ? '#6d6d6d' : '#3b2b1d'; ctx.lineWidth = 3.4;
-  ctx.beginPath(); ctx.moveTo(-3, -11); ctx.lineTo(-3 + leg, bob); ctx.moveTo(3, -11); ctx.lineTo(3 - leg, bob); ctx.stroke();
-  if (u.k === 'Fern') {
-    // Umhang
-    ctx.fillStyle = c.dark; ctx.beginPath(); ctx.moveTo(-5, -33); ctx.lineTo(-11, -9); ctx.lineTo(2, -11); ctx.fill();
-  }
-  // Rüstung / Wappenrock
-  ctx.fillStyle = u.k === 'Tank' ? '#8b8f96' : u.k === 'Nah' ? '#9a9da3' : '#6d5136';
-  rr(-7, -32, 14, 21, 3); ctx.fill();
-  ctx.fillStyle = c.main; ctx.fillRect(-4, -31, 8, 19);
-  ctx.fillStyle = '#d4af37'; ctx.fillRect(-7, -15, 14, 2);
-  // Kopf
-  ctx.fillStyle = '#e8c39e'; ctx.beginPath(); ctx.arc(0, -38, 6, 0, 7); ctx.fill();
-  if (u.k === 'Nah') {
-    ctx.fillStyle = '#a9adb3'; ctx.beginPath(); ctx.arc(0, -39.5, 6.6, Math.PI, 0); ctx.fill();
-    ctx.fillRect(2.5, -40, 1.6, 6);
-    ctx.fillStyle = c.main; ctx.fillRect(-1, -48, 2, 3);
-  } else if (u.k === 'Fern') {
-    ctx.fillStyle = c.dark; ctx.beginPath(); ctx.moveTo(-7, -34); ctx.quadraticCurveTo(-6, -47, 2, -47); ctx.quadraticCurveTo(7, -45, 6, -40); ctx.lineTo(2, -41); ctx.quadraticCurveTo(-2, -38, -4, -33); ctx.fill();
-  } else {
-    ctx.fillStyle = '#9ca0a7'; rr(-7, -46, 14, 13, 3); ctx.fill();
-    ctx.fillStyle = '#1b1b1b'; ctx.fillRect(1, -41, 6, 1.6);
-    ctx.fillStyle = c.main; ctx.beginPath(); ctx.moveTo(-2, -46); ctx.quadraticCurveTo(-8, -54, -12, -50); ctx.quadraticCurveTo(-6, -50, -2, -44); ctx.fill();
-  }
-  ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(3, -38, 1, 0, 7); ctx.fill();
-  // Waffen
-  if (u.k === 'Nah') {
-    // Rundschild hinten
-    ctx.fillStyle = c.dark; ctx.beginPath(); ctx.arc(-7, -22, 5.5, 0, 7); ctx.fill();
-    ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 1; ctx.stroke();
-    // Schwert
-    const ang = -1.1 + atk * 1.6;
-    ctx.save(); ctx.translate(6, -24); ctx.rotate(ang);
-    ctx.fillStyle = '#5a3c22'; ctx.fillRect(-1, -1, 2, 5);
-    ctx.fillStyle = '#d4af37'; ctx.fillRect(-3.5, -2, 7, 2);
-    ctx.fillStyle = '#e4e7ec'; ctx.beginPath(); ctx.moveTo(-1.2, -2); ctx.lineTo(-1.2, -16); ctx.lineTo(0, -18); ctx.lineTo(1.2, -16); ctx.lineTo(1.2, -2); ctx.fill();
-    ctx.restore();
-  } else if (u.k === 'Fern') {
-    ctx.strokeStyle = '#7a5530'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(5, -24, 11, -1.25, 1.25); ctx.stroke();
-    const pull = atk > 0 ? 0 : 4;
-    ctx.strokeStyle = 'rgba(240,240,240,.8)'; ctx.lineWidth = .8;
-    ctx.beginPath(); ctx.moveTo(5 + 11 * Math.cos(-1.25), -24 + 11 * Math.sin(-1.25)); ctx.lineTo(5 - pull, -24); ctx.lineTo(5 + 11 * Math.cos(1.25), -24 + 11 * Math.sin(1.25)); ctx.stroke();
-    if (atk === 0) { ctx.strokeStyle = '#c9a16a'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(1, -24); ctx.lineTo(17, -24); ctx.stroke(); }
-  } else {
-    // Streithammer hinten
-    const ang = -.5 - atk * -1.4;
-    ctx.save(); ctx.translate(-2, -26); ctx.rotate(ang - .6);
-    ctx.fillStyle = '#5a3c22'; ctx.fillRect(-1.2, -20, 2.4, 22);
-    ctx.fillStyle = '#7a7e85'; ctx.fillRect(-5, -24, 10, 6);
-    ctx.restore();
-    // Großer Wappenschild vorne
-    ctx.fillStyle = c.main; ctx.beginPath(); ctx.moveTo(5, -34); ctx.lineTo(15, -34); ctx.lineTo(15, -20); ctx.quadraticCurveTo(15, -10, 10, -6); ctx.quadraticCurveTo(5, -10, 5, -20); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.fillStyle = c.dark; ctx.fillRect(9, -31, 2, 18); ctx.fillRect(6.5, -25, 7, 2);
-  }
+  ctx.fillStyle = 'rgba(0,0,0,.3)'; E(0, 1, 10, 2.5, 'rgba(0,0,0,.3)');
+  ctx.strokeStyle = c.main; ctx.globalAlpha = .7; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(0, 1, 10, 2.8, 0, 0, 7); ctx.stroke(); ctx.globalAlpha = 1;
+  ctx.translate(lunge, -bob); ctx.lineCap = 'round';
+  if (u.side === 0 && LOOKS[u.look]) LOOKS[u.look](u, c, atk, leg, bob, S.t);
+  else drawSoldier(u, c, atk, leg, bob);
+  if (u.hit > 0) { ctx.globalCompositeOperation = 'source-atop'; ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fillRect(-20, -60, 40, 62); ctx.globalCompositeOperation = 'source-over'; }
   ctx.restore();
-  // Name und Lebensbalken (nicht gespiegelt)
-  const top = GROUND - (u.k === 'Tank' ? 56 : 50) * sz - bob;
-  ctx.fillStyle = 'rgba(244,228,193,.9)'; ctx.font = `700 ${Math.round(8 + sz * 1.5)}px ${FONT}`; ctx.textAlign = 'center';
-  ctx.fillText(u.side === 0 ? u.n : u.e, u.x, top - 6);
+  const top = GROUND - (u.k === 'Tank' || u.k === 'Held' ? 58 : 54) * sz - bob;
+  ctx.fillStyle = 'rgba(244,228,193,.92)'; ctx.font = `700 ${Math.round(8 + sz * 1.5)}px ${FONT}`; ctx.textAlign = 'center';
+  ctx.fillText((u.max ? '♛ ' : '') + (u.side === 0 ? u.n : u.e), u.x, top - 6);
   if (u.hp < u.maxhp) {
     const w = 24 * sz;
     ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(u.x - w / 2, top - 3, w, 3);
     ctx.fillStyle = c.main; ctx.fillRect(u.x - w / 2, top - 3, w * Math.max(0, u.hp / u.maxhp), 3);
+  }
+}
+
+// LG3 am Goldtisch und Fokuhilas Amboss vor der Burg, sobald die Upgrades gekauft sind
+function drawCamp() {
+  const s = S.sides[0];
+  if (s.up.dmg > 0) {
+    const x = 160;
+    ctx.fillStyle = '#3a3d42'; ctx.fillRect(x - 10, GROUND - 14, 20, 5); ctx.fillRect(x - 4, GROUND - 9, 8, 9); P([x + 10, GROUND - 14, x + 16, GROUND - 12, x + 10, GROUND - 10], '#3a3d42');
+    if (Math.sin(S.t * 3) > .7) for (let i = 0; i < 4; i++) C(x + Math.sin(i * 2 + S.t * 9) * 8, GROUND - 18 - i * 3, 1, '#ffb35c');
+    for (let i = 0; i < s.up.dmg; i++) C(x - 8 + i * 4, GROUND - 3, 1.2, '#f0d37a');
+  }
+  if (s.up.gold > 0) {
+    const x = 196;
+    ctx.save(); ctx.translate(x + 8, GROUND); ctx.scale(-.8, .8);
+    legs(0, 0, '#3b2b1d');
+    rr(-7, -32, 14, 21, 3); ctx.fillStyle = '#2f6b3a'; ctx.fill();
+    L(0, -28, 0, -20, '#7a5530', 1.5); C(0, -28, 2.5, '#4a9a4a');
+    C(0, -38, 6, SKIN); P([-4, -37, 6, -37, 4, -31, -2, -31], '#4a3020'); ctx.fillStyle = '#4a3020'; ctx.beginPath(); ctx.arc(0, -40, 6, Math.PI, 0); ctx.fill();
+    C(3, -38.5, 1, '#111');
+    ctx.restore();
+    ctx.fillStyle = '#6b4a2c'; ctx.fillRect(x - 14, GROUND - 14, 24, 3); ctx.fillRect(x - 12, GROUND - 11, 2, 11); ctx.fillRect(x + 6, GROUND - 11, 2, 11);
+    for (let i = 0; i < Math.min(4, s.up.gold + 1); i++) for (let j = 0; j <= i % 3; j++) E(x - 9 + i * 5, GROUND - 16 - j * 2, 2.2, 1, '#f0c94a');
+    ctx.fillStyle = 'rgba(244,228,193,.75)'; ctx.font = `700 9px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText('LG3', x, GROUND - 36);
   }
 }
 
@@ -587,6 +848,10 @@ function drawShot(sh) {
   const pos = q => [sh.x1 + (sh.x2 - sh.x1) * q, sh.y1 + (sh.y2 - sh.y1) * q - Math.sin(q * Math.PI) * arc];
   const [x, y] = pos(p), [x2, y2] = pos(Math.min(1, p + .04));
   if (sh.kind === 'stone') { ctx.fillStyle = '#8d8a85'; ctx.beginPath(); ctx.arc(x, y, 4, 0, 7); ctx.fill(); return; }
+  if (sh.kind === 'fire') { glow(x, y, 10, 'rgba(120,255,110,.7)'); C(x, y, 3.5, '#6cff5a'); C(x, y, 1.6, '#e2ffd0'); return; }
+  if (sh.kind === 'crystal') { glow(x, y, 12, 'rgba(190,120,255,.7)'); P([x, y - 5, x + 3, y, x, y + 5, x - 3, y], '#d5a8ff'); return; }
+  if (sh.kind === 'leaf') { ctx.save(); ctx.translate(x, y); ctx.rotate(p * 12); E(0, 0, 4, 2, '#5cbf4f'); ctx.restore(); return; }
+  if (sh.kind === 'coin') { E(x, y, 3.5 * Math.abs(Math.cos(p * 14)) + .6, 3.5, '#f0c94a'); return; }
   const a = Math.atan2(y2 - y, x2 - x), L = sh.kind === 'bolt' ? 18 : 13;
   ctx.save(); ctx.translate(x, y); ctx.rotate(a);
   ctx.strokeStyle = '#c9a16a'; ctx.lineWidth = sh.kind === 'bolt' ? 2.6 : 1.5;
@@ -625,16 +890,22 @@ function draw() {
     ctx.beginPath(); ctx.ellipse(x, y, 70, 10, 0, 0, 7); ctx.ellipse(x + 30, y - 6, 40, 9, 0, 0, 7); ctx.fill();
   }
   if (!S) return;
-  drawBase(0); drawBase(1);
+  drawBase(0); drawBase(1); drawCamp();
   const list = [...S.units].sort((a, b) => a.sz - b.sz);
   for (const u of list) drawUnit(u);
   for (const sh of S.shots) drawShot(sh);
   for (const f of S.fx) {
     if (f.kind === 'txt') {
       const p = 1 - f.t / f.max;
-      ctx.globalAlpha = Math.min(1, f.t * 2); ctx.fillStyle = f.col; ctx.font = `800 16px ${FONT}`; ctx.textAlign = 'center';
+      ctx.globalAlpha = Math.min(1, f.t * 2); ctx.fillStyle = f.col; ctx.font = `800 ${f.small ? 11 : 16}px ${FONT}`; ctx.textAlign = 'center';
       ctx.shadowColor = 'rgba(0,0,0,.9)'; ctx.shadowBlur = 4;
       ctx.fillText(f.txt, f.x, f.y - p * 30); ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+    } else if (f.kind === 'heal') {
+      const p = 1 - f.t / .7; ctx.globalAlpha = 1 - p; ctx.fillStyle = f.col; ctx.font = `800 14px ${FONT}`; ctx.textAlign = 'center';
+      ctx.fillText('+', f.x - 6, f.y - p * 22); ctx.fillText('+', f.x + 6, f.y - 6 - p * 18); ctx.globalAlpha = 1;
+    } else if (f.kind === 'crystalBoom' || f.kind === 'quake') {
+      const p = 1 - f.t / .45; ctx.globalAlpha = 1 - p; ctx.strokeStyle = f.col; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(f.x, GROUND, 8 + p * 40, 3 + p * 8, 0, 0, 7); ctx.stroke(); ctx.globalAlpha = 1;
     } else if (f.kind === 'rain') {
       const p = 1 - f.t / .7;
       for (let i = 0; i < 4; i++) {
@@ -672,7 +943,30 @@ function makeBtn(key, cls, onClick) {
 [0, 1, 2].forEach(i => makeBtn('u' + i, 'unit', () => enqueue(S.sides[0], i)));
 makeBtn('tur', 'tur', () => buyTurret(S.sides[0]));
 makeBtn('sp', 'sp', () => special(S.sides[0]));
+makeBtn('shop', 'shop', () => togglePanel());
 makeBtn('up', 'up', () => ageUp(S.sides[0]));
+const panel = $('panel');
+function togglePanel(force) { const open = force ?? panel.classList.contains('hide'); panel.classList.toggle('hide', !open); if (open) renderPanel(); }
+function renderPanel() {
+  if (!S || panel.classList.contains('hide')) return;
+  const p = S.sides[0];
+  const rows = UPG.map(u => {
+    const lvl = p.up[u.id], maxed = lvl >= u.max, c = upgCost(p, u);
+    const pips = Array.from({ length: u.max }, (_, i) => `<i class="${i < lvl ? 'on' : ''}"></i>`).join('');
+    return `<div class="up-row"><div class="ico">${u.ico}</div><div class="txt"><b>${u.n}</b><span>${u.d}</span><div class="pips">${pips}</div></div>
+      <button data-up="${u.id}" ${maxed || p.gold < c ? 'disabled' : ''}>${maxed ? 'Max' : c + ' 💰'}</button></div>`;
+  }).join('');
+  const crew = AGES[p.age].units.map(u => `<div class="crew"><b>${u.n}</b> <em>${u.k}</em><span>${u.info}</span></div>`).join('');
+  const html = `<div class="ph"><b>⚒ Upgrades</b><button class="x" data-close>✕</button></div>${rows}
+    <div class="ph sub"><b>Deine Bande · ${AGES[p.age].name}</b></div>${crew}
+    <div class="crew"><b>Allan</b> <em>Turm</em><span>Wolfsschütze auf dem Turm · ${AGES[p.age].tur.w}</span></div>`;
+  if (panel.dataset.html !== html) { panel.innerHTML = html; panel.dataset.html = html; }
+}
+panel.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || !S || S.over) return;
+  if (b.dataset.close !== undefined) return togglePanel(false);
+  if (b.dataset.up && buyUpgrade(S.sides[0], b.dataset.up)) { renderPanel(); refreshUi(true); }
+});
 
 function setBtn(b, title, sub, dis, cdFrac) {
   const t = b.children[0], s = b.children[1];
@@ -690,11 +984,16 @@ function refreshUi(force) {
   $('xp').textContent = Math.floor(p.xp);
   $('xpn').textContent = A.xpNext ? ' / ' + A.xpNext : ' max';
   $('age').textContent = A.name;
-  A.units.forEach((u, i) => setBtn(btns['u' + i], u.n, `${u.k} · <span class="c">${u.cost}💰</span>`, p.gold < u.cost || p.queue.length >= MAX_Q));
+  A.units.forEach((u, i) => { const b = btns['u' + i]; b.title = u.info; const hero = u.max && heroCount(p, u.n) >= u.max;
+    setBtn(b, u.n, hero ? 'im Feld ♛' : `${u.k} · <span class="c">${u.cost}💰</span>`, !canEnqueue(p, i)); });
+  const canUp = UPG.some(u => p.up[u.id] < u.max && p.gold >= upgCost(p, u));
+  setBtn(btns.shop, '⚒ Upgrades', canUp ? '<span class="c">verfügbar</span>' : 'Schmiede & Co.', false);
+  btns.shop.classList.toggle('glow', canUp);
+  renderPanel();
   const T = A.tur;
   if (p.tur >= p.age) setBtn(btns.tur, 'Allan', T.w + ' ✓', true);
   else setBtn(btns.tur, p.tur < 0 ? 'Allan holen' : 'Allan upgraden', `${T.w} · <span class="c">${T.cost}💰</span>`, p.gold < T.cost);
-  setBtn(btns.sp, '👑 König ruft', p.spCd > 0 ? Math.ceil(p.spCd) + ' s' : 'Bereit!', p.spCd > 0, p.spCd > 0 ? 1 - p.spCd / SP_CD : 0);
+  setBtn(btns.sp, '👑 König ruft', p.spCd > 0 ? Math.ceil(p.spCd) + ' s' : 'Bereit!', p.spCd > 0, p.spCd > 0 ? 1 - p.spCd / spMax(p) : 0);
   if (A.xpNext) setBtn(btns.up, '⬆ ' + AGES[p.age + 1].name, `${A.xpNext} ⭐`, p.xp < A.xpNext, Math.min(1, p.xp / A.xpNext));
   else setBtn(btns.up, 'Top-Zeitalter', 'erreicht', true);
   const q = $('queue');
@@ -713,6 +1012,7 @@ document.addEventListener('keydown', e => {
   else if (k === 't') buyTurret(S.sides[0]);
   else if (k === 's') special(S.sides[0]);
   else if (k === 'a') ageUp(S.sides[0]);
+  else if (k === 'u') togglePanel();
   else return;
   refreshUi(true);
 });
@@ -734,10 +1034,11 @@ function showMenu(kind, win) {
     box.innerHTML = `<h1>Bandenkrieg</h1>
       <div class="orn">✦ ⚔ ✦</div><p>Die Bubatzbande gegen die Spießer. Stürm ihre Feste, bevor sie deine Burg schleifen.</p>
       <ul>
-        <li><b>Truppen schicken:</b> Schwertkämpfer, Bogenschützen und Schildträger kosten Gold und ziehen von allein los.</li>
+        <li><b>Deine Bande:</b> Artur, Kobold, Nille, Grauer Geist, Mollymann, Fokuhilamann, KräuterKönig, DonPatron und am Ende der König selbst. Jeder hat seine eigene Fähigkeit.</li>
         <li><b>Gold & Sterne</b> gibt's für jeden besiegten Gegner.</li>
+        <li><b>Upgrades:</b> Fokuhilas Schmiede, Nilles Rüstkammer, LG3s Goldtisch und mehr machen deine Bande stärker.</li>
         <li><b>Aufsteigen:</b> Mit genug Sternen wird aus deiner Holzfeste eine Steinburg und dann die Königsburg, mit stärkeren Leuten.</li>
-        <li><b>Allan</b> bezieht den Turm und schießt mit Schleuder, Armbrust oder Ballista.</li>
+        <li><b>Allan</b>, der Wolfsschütze, bezieht den Turm und schießt mit Schleuder, Armbrust oder Ballista.</li>
         <li><b>König ruft:</b> Pfeilhagel auf alle Gegner, dann 45 s Pause.</li>
       </ul>
       ${diffButtons()}
@@ -785,7 +1086,7 @@ resize();
 showMenu('start');
 requestAnimationFrame(loop);
 // Zum Testen per Konsole
-window.BK = { get S() { return S; }, newGame, update, enqueue, special, ageUp, buyTurret, AGES };
+window.BK = { get S() { return S; }, newGame, update, enqueue, special, ageUp, buyTurret, buyUpgrade, AGES, UPG };
 </script>
 </body>
 </html>
