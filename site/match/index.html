@@ -100,12 +100,6 @@ main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
 .go:hover{filter:brightness(1.12)}
 .go.alt{background:linear-gradient(#202e1a,#0f170c);color:var(--gold2);box-shadow:0 0 0 3px #070a05,0 0 0 4px #4a3c18}
 .row{display:flex;gap:10px}.row .go{flex:1}
-.levels{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0 4px}
-.lv{position:relative;aspect-ratio:1;border-radius:50%;border:2px solid var(--gold);background:radial-gradient(circle at 40% 35%,#3e7530,#16300f 70%);color:#f8e9b4;font:800 20px "Cinzel",serif;cursor:pointer;box-shadow:0 0 0 3px #070a05,0 6px 14px rgba(0,0,0,.6)}
-.lv:hover{filter:brightness(1.15)}
-.lv.lock{background:#141a10;border-color:#4a3c18;color:#5a5440;cursor:default}
-.lv.cur{box-shadow:0 0 0 3px #070a05,0 0 0 5px #9fe36a,0 0 20px rgba(140,230,90,.6)}
-.lv i{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);font-style:normal;font-size:12px;letter-spacing:-1px;color:#ffd36a;text-shadow:0 1px 0 #000;white-space:nowrap}
 .bigstars{font-size:44px;letter-spacing:6px;margin:6px 0;color:#3a3418}
 .bigstars span{display:inline-block;transform:scale(0);animation:star .4s forwards}
 .bigstars span.on{color:#ffd36a;text-shadow:0 0 18px rgba(255,200,80,.8)}
@@ -113,6 +107,38 @@ main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
 .how{text-align:left;font-size:13.5px;color:#e2d2ad;margin:12px 0 0;padding-left:18px}
 .how li{margin:5px 0}.how b{color:var(--gold2);font-family:"Cinzel",serif}
 .heroimg{display:block;width:calc(100% + 40px);margin:-22px -20px 6px;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent);max-height:190px;object-fit:cover;object-position:50% 30%}
+
+.cell.moss2::after{background:radial-gradient(circle at 30% 30%,#5a9a34,#24481a 55%,#122a0e);box-shadow:inset 0 0 0 3px rgba(150,220,90,.55),inset 0 0 10px rgba(0,0,0,.8)}
+.goal .moss.m2{background:radial-gradient(circle at 35% 35%,#5a9a34,#24481a 60%,#122a0e);box-shadow:inset 0 0 0 2px rgba(150,220,90,.6)}
+.tile.lock .in::before{content:"";position:absolute;inset:-2%;z-index:2;border-radius:22%;pointer-events:none;border:3px solid #9aa2ab;
+  background:linear-gradient(45deg,transparent 43%,#b8c0c8 43% 49%,#5a6068 49% 52%,transparent 52%),linear-gradient(-45deg,transparent 43%,#b8c0c8 43% 49%,#5a6068 49% 52%,transparent 52%);box-shadow:inset 0 0 8px rgba(0,0,0,.6)}
+.tile.crown .in{animation:crown 1.6s ease-in-out infinite}
+@keyframes crown{50%{filter:drop-shadow(0 0 8px rgba(255,210,100,.9))}}
+.tile.nope .in{animation:nope .3s}
+@keyframes nope{25%{transform:translateX(-8%)}75%{transform:translateX(8%)}}
+.saga{position:relative;height:120px;margin:10px -6px 4px}
+.saga svg{position:absolute;inset:0;width:100%;height:100%}
+.saga path{fill:none;stroke:#7a6128;stroke-width:5;stroke-dasharray:2 12;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.node{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 15px "Cinzel",serif;border:2px solid #4a3c18;background:#141a10;color:#6a6450;box-shadow:0 0 0 3px #070a05,0 6px 12px rgba(0,0,0,.6)}
+.node.done{background:radial-gradient(circle at 40% 35%,#f0d37a,#a8862f 70%);border-color:#fff3c4;color:#2a1a06}
+.node.done i{position:absolute;bottom:-14px;font-style:normal;font-size:10px;letter-spacing:-1px;color:#ffd36a;white-space:nowrap;text-shadow:0 1px 0 #000}
+.node.now{width:52px;height:52px;margin:-26px 0 0 -26px;background:radial-gradient(circle at 40% 35%,#6ac04a,#1c3f15 75%);border-color:#c8f59a;color:#fff;font-size:19px;z-index:2;animation:nowG 1.4s ease-in-out infinite}
+@keyframes nowG{50%{box-shadow:0 0 0 3px #070a05,0 0 0 6px rgba(160,240,110,.5),0 0 26px rgba(140,230,90,.8)}}
+.node .me{position:absolute;top:-34px;width:30px;height:30px;border-radius:50%;border:2px solid #f0d37a;object-fit:cover;object-position:50% 15%;box-shadow:0 3px 8px rgba(0,0,0,.7);animation:bob 1.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.node em{position:absolute;top:-12px;right:-10px;font-style:normal;font-size:14px;filter:drop-shadow(0 1px 2px #000)}
+.node.boss{border-color:#a8442e}.node.boss.lock{background:radial-gradient(circle,#3a140e,#140806)}
+.lvcard{background:rgba(0,0,0,.35);border:1px solid rgba(212,175,55,.35);border-radius:10px;padding:10px 12px;margin-top:8px}
+.lvcard.boss{border-color:#c8543a;background:linear-gradient(rgba(60,16,10,.55),rgba(0,0,0,.4))}
+.lvh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.lvh b{font:900 19px "Cinzel",serif;color:var(--gold2)}.lvh span{font-size:13px;color:var(--mut)}
+.lvcard.nx .lvh b{font-size:14px}
+.spx{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:8px}.spx:empty{display:none}
+.spx span{font:800 11px "Cinzel",serif;padding:3px 8px;border-radius:10px;background:#1c2a14;border:1px solid #4a6a2a;color:#cfeaa8}
+.spx .bs{background:#4a140e;border-color:#c8543a;color:#ffc4b0}
+.lvcard .goals .goal{background:rgba(0,0,0,.4)}
+.tip{font-size:13px;color:#cfeaa8 !important;margin:8px 0 0 !important}
+.howd{margin-top:10px}.howd summary{cursor:pointer;color:var(--gold2);font:800 13px "Cinzel",serif;list-style:none}.howd summary::-webkit-details-marker{display:none}
+.box .heroimg+h2,.ba-head+h2{margin-top:-4px}
 /* Layout */
 @media (max-aspect-ratio:1/1){
   main{flex-direction:column;gap:12px;justify-content:center}
@@ -156,13 +182,23 @@ main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
       <path d="M32 30 C36 38 42 42 40 50 C38 56 35 58 32 58 C27 58 24 54 24 49 C24 43 30 40 32 30Z" fill="#ffe9a0"/></symbol>
     <symbol id="t6" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" fill="#ffffff" opacity=".12"/><path d="M32 3 L40 24 L61 32 L40 40 L32 61 L24 40 L3 32 L24 24Z" fill="url(#gStar)" stroke="#2a1a3a" stroke-width="1.5"/>
       <path d="M32 14 L36 28 L50 32 L36 36 L32 50 L28 36 L14 32 L28 28Z" fill="#fff" opacity=".75"/></symbol>
+    <linearGradient id="gWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8904a"/><stop offset="1" stop-color="#6a3e18"/></linearGradient>
+    <linearGradient id="gCrown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".5" stop-color="#f0c94a"/><stop offset="1" stop-color="#9a6a10"/></linearGradient>
+    <symbol id="t7" viewBox="0 0 64 64"><circle cx="32" cy="34" r="28" fill="#ffd36a" opacity=".18"/><path d="M8 22 L20 34 L32 12 L44 34 L56 22 L51 50 L13 50Z" fill="url(#gCrown)" stroke="#6a4a0a" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="12" y="48" width="40" height="8" rx="2" fill="#c8962a" stroke="#6a4a0a" stroke-width="1.8"/><circle cx="32" cy="38" r="5" fill="#d63a5a" stroke="#6a0a1a" stroke-width="1.2"/><circle cx="20" cy="42" r="3.2" fill="#3fa0e8"/><circle cx="44" cy="42" r="3.2" fill="#4caa3c"/>
+      <circle cx="8" cy="22" r="3.5" fill="#fff2b0"/><circle cx="32" cy="12" r="3.5" fill="#fff2b0"/><circle cx="56" cy="22" r="3.5" fill="#fff2b0"/><path d="M16 28 L22 38" stroke="#fff" stroke-width="2" opacity=".55" stroke-linecap="round"/></symbol>
+    <symbol id="t8" viewBox="0 0 64 64"><rect x="6" y="8" width="52" height="50" rx="5" fill="url(#gWood)" stroke="#3a1e08" stroke-width="2.2"/>
+      <path d="M6 24 H58 M6 41 H58" stroke="#4a2a10" stroke-width="2"/><path d="M10 12 L54 54 M54 12 L10 54" stroke="#5a3412" stroke-width="3" opacity=".75"/>
+      <circle cx="12" cy="14" r="2" fill="#2a1a08"/><circle cx="52" cy="14" r="2" fill="#2a1a08"/><circle cx="12" cy="52" r="2" fill="#2a1a08"/><circle cx="52" cy="52" r="2" fill="#2a1a08"/><path d="M10 11 H40" stroke="#f0c890" stroke-width="2" opacity=".45"/></symbol>
+    <symbol id="t9" viewBox="0 0 64 64"><use href="#t8"/><rect x="5" y="20" width="54" height="8" rx="2" fill="#8a929a" stroke="#2a3038" stroke-width="1.6"/><rect x="5" y="38" width="54" height="8" rx="2" fill="#8a929a" stroke="#2a3038" stroke-width="1.6"/>
+      <circle cx="12" cy="24" r="1.8" fill="#dfe6ee"/><circle cx="52" cy="24" r="1.8" fill="#dfe6ee"/><circle cx="12" cy="42" r="1.8" fill="#dfe6ee"/><circle cx="52" cy="42" r="1.8" fill="#dfe6ee"/></symbol>
   </defs>
 </svg>
 <div id="app">
   <div class="top">
     <a href="../" title="Zur Spielauswahl">←</a>
     <h1>Kräuter-Match</h1>
-    <button id="btnLevels" title="Levelauswahl">Level</button>
+    <button id="btnLevels" title="Karte">Karte</button>
   </div>
   <main>
     <div class="side">
@@ -194,44 +230,74 @@ const HELPERS = [
   { id: 'fokuhila', img: 'fokuhila', n: 'Fokuhila', d: 'Hammer: zerschlägt 3×3', feed: 2, need: 22 },
   { id: 'molly', img: 'molly', n: 'Mollymann', d: 'Kristall: räumt eine Farbe ab', feed: 1, need: 26 },
 ];
-// Levels: Ziele sind Steine sammeln (Typ: Anzahl) und/oder Moos entfernen
-const MOSS = {
+const CROWN = 7, CRATE = 8;
+// Muster für Moos, Kisten und Ketten
+const PAT = {
   center: (x, y) => x >= 2 && x <= 5 && y >= 2 && y <= 5,
   rows: (x, y) => y >= 5,
   frame: (x, y) => x === 0 || y === 0 || x === 7 || y === 7,
   x: (x, y) => x === y || x === 7 - y,
   diamond: (x, y) => Math.abs(x - 3.5) + Math.abs(y - 3.5) <= 3,
   full: () => true,
+  mid: (x, y) => (y === 3 || y === 4) && x >= 1 && x <= 6,
+  corners: (x, y) => (x < 2 || x > 5) && (y < 2 || y > 5),
+  sides: (x, y) => (x <= 1 || x >= 6) && y >= 4,
+  ring: (x, y) => (x === 1 || x === 6 || y === 1 || y === 6) && x >= 1 && x <= 6 && y >= 1 && y <= 6,
+  plus: (x, y) => x === 3 || x === 4 || y === 3 || y === 4,
+  low: (x, y) => y >= 4,
+  checker: (x, y) => (x + y) % 2 === 0 && y >= 3,
+  bottom: (x, y) => y >= 6,
+  cols: (x, y) => (x === 1 || x === 3 || x === 4 || x === 6) && y >= 3,
 };
+// Level 1–20 von Hand, danach wird jedes Level aus seiner Nummer gebaut (immer gleich, aber immer schwerer)
 const LEVELS = [
-  { moves: 20, goals: { 0: 15 } },
-  { moves: 20, goals: { 2: 18, 1: 12 } },
-  { moves: 22, moss: 'center' },
-  { moves: 22, goals: { 3: 18, 4: 18 } },
-  { moves: 24, moss: 'rows', goals: { 0: 20 } },
-  { moves: 22, goals: { 5: 26, 2: 22 } },
-  { moves: 25, moss: 'frame' },
-  { moves: 24, goals: { 1: 24, 4: 24 } },
-  { moves: 25, moss: 'x', goals: { 2: 25 } },
-  { moves: 26, moss: 'diamond', goals: { 0: 30, 3: 30 } },
-  { moves: 27, goals: { 0: 26, 1: 26, 5: 26 } },
-  { moves: 30, moss: 'full' },
+  { moves: 20, goals: { 0: 12 }, kinds: 5, tip: 'Tausch zwei Steine, bis drei gleiche in einer Reihe liegen.' },
+  { moves: 20, goals: { 2: 15, 1: 10 }, kinds: 5 },
+  { moves: 22, moss: 'center', kinds: 5, tip: 'Neu: Moos. Mach einen Treffer auf dem Feld, dann ist es weg.' },
+  { moves: 20, goals: { 3: 18, 4: 18 }, kinds: 5 },
+  { moves: 22, crowns: 1, kinds: 5, tip: 'Neu: Königskrone. Bring sie bis in die unterste Reihe.' },
+  { moves: 22, moss: 'rows', goals: { 0: 18 }, kinds: 5 },
+  { moves: 24, crates: 'mid', kinds: 5, tip: 'Neu: Spießer-Kisten. Ein Treffer direkt daneben zerschlägt sie.' },
+  { moves: 22, crowns: 2, goals: { 5: 20 }, kinds: 5 },
+  { moves: 24, moss: 'frame' },
+  { moves: 25, moss: 'diamond', crates: 'corners', goals: { 2: 22 }, boss: 1 },
+  { moves: 24, locks: 'checker', goals: { 1: 22 }, tip: 'Neu: Ketten. Verkettete Steine lassen sich nicht tauschen. Ein Treffer sprengt die Kette.' },
+  { moves: 25, moss2: 'center', tip: 'Neu: Dickes Moos. Braucht zwei Treffer.' },
+  { moves: 24, crates: 'mid', hp: 2, tip: 'Neu: Eisenkisten halten zwei Schläge aus.' },
+  { moves: 26, crowns: 2, locks: 'checker' },
+  { moves: 26, moss: 'x', goals: { 0: 25, 3: 25 } },
+  { moves: 27, crates: 'ring', crowns: 2 },
+  { moves: 26, locks: 'plus', moss: 'frame' },
+  { moves: 30, moss2: 'low' },
+  { moves: 25, goals: { 0: 26, 1: 26, 5: 26 }, crates: 'corners', hp: 2 },
+  { moves: 32, moss2: 'diamond', crowns: 2, locks: 'frame', boss: 1 },
 ];
+const PK = ['center', 'rows', 'frame', 'x', 'diamond', 'mid', 'plus', 'low', 'cols', 'ring', 'bottom'];
+const CK = ['mid', 'corners', 'sides', 'ring', 'checker', 'bottom', 'cols'];
 function levelDef(n) {
-  if (n <= LEVELS.length) return LEVELS[n - 1];
-  // danach: endlose Höhle mit zufälligen Zielen
-  const r = mulberry(n * 977), k = n - LEVELS.length;
-  const goals = {}; const a = Math.floor(r() * 6); let b = Math.floor(r() * 6); if (b === a) b = (b + 1) % 6;
-  goals[a] = Math.min(40, 22 + k * 2); goals[b] = Math.min(36, 18 + k * 2);
-  const mk = Object.keys(MOSS); const moss = r() < .5 ? mk[Math.floor(r() * (mk.length - 1))] : null;
-  return { moves: 26 + Math.min(8, Math.floor(k / 2)), goals, moss };
+  if (n <= LEVELS.length) return { kinds: 6, ...LEVELS[n - 1] };
+  const r = mulberry(n * 977 + 13), d = n - LEVELS.length, boss = n % 10 === 0;
+  const pick = a => a[Math.floor(r() * a.length)];
+  const def = { kinds: 6, moves: 26 - Math.min(5, Math.floor(d / 12)) + (boss ? 3 : 0), boss: boss ? 1 : 0 };
+  const types = ['goals', 'moss', 'crowns', 'crates']; const main = pick(types);
+  const breather = n % 10 === 1 || n % 10 === 2;
+  const extra = Math.max(0, Math.min(2, (r() < .5 + d * .012 ? 1 : 0) + (boss ? 1 : 0) + (d > 25 && r() < .35 ? 1 : 0) - (breather ? 1 : 0)));
+  const use = new Set([main]); for (let i = 0; i < extra; i++) use.add(pick(['goals', 'moss', 'crowns', 'crates', 'locks']));
+  const dbl = r() < Math.min(.6, .25 + d * .015);
+  if (use.has('goals')) { const k = 2 + (r() < .35 ? 1 : 0), amt = Math.min(38, 22 + Math.floor(d * .5)); def.goals = {}; const ks = [0, 1, 2, 3, 4, 5].sort(() => r() - .5); for (let i = 0; i < k; i++) def.goals[ks[i]] = amt - i * 2; }
+  if (use.has('moss')) def[dbl ? 'moss2' : 'moss'] = pick(dbl ? ['center', 'diamond', 'mid', 'ring', 'bottom'] : PK);
+  if (use.has('crowns')) def.crowns = Math.min(4, 2 + Math.floor(d / 12) + (r() < .3 ? 1 : 0));
+  if (use.has('crates')) { def.crates = pick(CK); if (r() < Math.min(.7, .15 + d * .02)) def.hp = 2; }
+  if (use.has('locks')) def.locks = pick(['checker', 'frame', 'plus', 'rows', 'cols', 'x']);
+  if (use.size > 2) def.moves += 2;
+  return def;
 }
 function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
 // ---------- Speicher ----------
-let save = { unlocked: 1, stars: {} };
-try { const j = JSON.parse(localStorage.getItem('km_save') || 'null'); if (j && j.unlocked) save = j; } catch (e) {}
-const persist = () => { try { localStorage.setItem('km_save', JSON.stringify(save)); } catch (e) {} };
+let save = { level: 1, stars: {}, t: 0 };
+try { const j = JSON.parse(localStorage.getItem('km_save') || 'null'); if (j && (j.level || j.unlocked)) save = { stars: {}, ...j, level: j.level || j.unlocked }; } catch (e) {}
+const persist = (cloud) => { save.t = Date.now(); try { localStorage.setItem('km_save', JSON.stringify(save)); } catch (e) {} if (cloud !== false && window.BB && BB.cloud) BB.cloud.put('match', save); };
 
 // ---------- Zustand ----------
 const $ = id => document.getElementById(id);
@@ -246,7 +312,10 @@ function newTile(t, sp = null) {
   paint(tile); boardEl.appendChild(el); return tile;
 }
 function paint(tile) {
-  tile.el.querySelector('.in').innerHTML = ico(tile.sp === 'star' ? STAR : tile.t);
+  tile.el.querySelector('.in').innerHTML = ico(tile.sp === 'star' ? STAR : tile.t === CRATE ? (tile.hp > 1 ? 9 : 8) : tile.t);
+  tile.el.classList.toggle('lock', !!tile.lock);
+  tile.el.classList.toggle('crate', tile.t === CRATE);
+  tile.el.classList.toggle('crown', tile.t === CROWN);
   tile.el.classList.toggle('sp-h', tile.sp === 'h');
   tile.el.classList.toggle('sp-v', tile.sp === 'v');
   tile.el.classList.toggle('sp-b', tile.sp === 'b');
@@ -258,17 +327,28 @@ function place(tile, x, y, dur) {
   tile.el.style.transform = `translate(${x * 100}%,${y * 100}%)`;
 }
 const at = (x, y) => (x >= 0 && y >= 0 && x < N && y < N) ? G.grid[y][x] : null;
-const kind = tile => !tile ? -1 : tile.sp === 'star' ? STAR : tile.t;
+const kind = tile => !tile ? -1 : tile.sp === 'star' ? STAR : tile.t >= CROWN ? -1 : tile.t;
+const fixed = t => !!t && (t.t === CRATE || !!t.lock);
+const plain = t => !!t && !t.sp && t.t < CROWN;
+const onBoard = k => { let c = 0; for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = G.grid[y][x]; if (t && t.t === k) c++; } return c; };
 
 function randKind(x, y) {
   for (let tries = 0; tries < 30; tries++) {
-    const t = Math.floor(Math.random() * KINDS);
+    const t = Math.floor(Math.random() * (G ? G.kinds : KINDS));
     const l1 = at(x - 1, y), l2 = at(x - 2, y), u1 = at(x, y - 1), u2 = at(x, y - 2);
     if (l1 && l2 && kind(l1) === t && kind(l2) === t) continue;
     if (u1 && u2 && kind(u1) === t && kind(u2) === t) continue;
     return t;
   }
-  return Math.floor(Math.random() * KINDS);
+  return Math.floor(Math.random() * (G ? G.kinds : KINDS));
+}
+// Nachfüllen: ab und zu fällt eine Krone von oben rein
+function spawnKind(x, y) {
+  if (G.crownsSpawned < G.crownTotal) {
+    const ob = onBoard(CROWN);
+    if (ob === 0 || (ob < 2 && Math.random() < .12)) { G.crownsSpawned++; return CROWN; }
+  }
+  return randKind(x, y);
 }
 
 function startLevel(n) {
@@ -277,23 +357,31 @@ function startLevel(n) {
   boardEl.innerHTML = '';
   const def = levelDef(n);
   const CBm = id => window.BB && BB.cardVal ? BB.cardVal(id) : 0;
-  G = { n, def, grid: [], moves: def.moves + Math.round(CBm('mr-mollymann')), score: 0, goals: { ...(def.goals || {}) }, moss: [], mossLeft: 0, busy: false, sel: null, charge: [0, 0, 0], armed: -1, over: false, idle: 0,
+  G = { n, def, kinds: def.kinds || KINDS, grid: [], moves: def.moves + Math.round(CBm('mr-mollymann')), score: 0, goals: { ...(def.goals || {}) }, moss: [], mossLeft: 0, busy: false, sel: null, charge: [0, 0, 0], armed: -1, over: false, idle: 0,
+    crownTotal: def.crowns || 0, crownsLeft: def.crowns || 0, crownsSpawned: 0, cratesLeft: 0,
     t2: def.moves * 300, t3: def.moves * 520 };
   for (let y = 0; y < N; y++) {
     G.moss.push([]);
     for (let x = 0; x < N; x++) {
       const c = document.createElement('div'); c.className = 'cell' + ((x + y) % 2 ? '' : ' a'); c.style.left = x * 12.5 + '%'; c.style.top = y * 12.5 + '%';
-      const m = def.moss && MOSS[def.moss](x, y); if (m) { c.classList.add('moss'); G.mossLeft++; }
-      G.moss[y].push(m ? c : null); boardEl.appendChild(c);
+      const hp = def.moss2 && PAT[def.moss2](x, y) ? 2 : def.moss && PAT[def.moss](x, y) ? 1 : 0;
+      if (hp) { c.classList.add('moss'); if (hp > 1) c.classList.add('moss2'); G.mossLeft += hp; }
+      G.moss[y].push(hp ? { el: c, hp } : null); boardEl.appendChild(c);
     }
   }
   for (let y = 0; y < N; y++) { G.grid.push([]); for (let x = 0; x < N; x++) G.grid[y].push(null); }
-  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = newTile(randKind(x, y)); G.grid[y][x] = t; place(t, x, y - N - 1, 0); }
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    let t;
+    if (def.crates && PAT[def.crates](x, y) && y > 0) { t = newTile(CRATE); t.hp = def.hp || 1; paint(t); G.cratesLeft++; }
+    else { t = newTile(randKind(x, y)); if (def.locks && PAT[def.locks](x, y) && y > 0) { t.lock = true; paint(t); } }
+    G.grid[y][x] = t; place(t, x, y - N - 1, 0);
+  }
+  if (G.crownTotal) { const cx = 1 + Math.floor(Math.random() * 6), t = G.grid[0][cx]; t.t = CROWN; t.lock = false; paint(t); G.crownsSpawned = 1; }
   boardEl.offsetWidth;
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) place(G.grid[y][x], x, y, .35 + (N - y) * .04);
   if (!hasMove()) shuffle();
   renderHud(); renderHelpers();
-  shout('Level ' + n);
+  shout(def.boss ? 'Boss-Level!' : 'Level ' + n);
 }
 
 // ---------- Treffer finden ----------
@@ -347,6 +435,7 @@ function findMove() {
     for (const [dx, dy] of [[1, 0], [0, 1]]) {
       const x2 = x + dx, y2 = y + dy; if (x2 >= N || y2 >= N) continue;
       const a = at(x, y), b = at(x2, y2);
+      if (fixed(a) || fixed(b)) continue;
       if (a.sp === 'star' || b.sp === 'star' || (a.sp && b.sp)) return [[x, y], [x2, y2]];
       swapModel([x, y], [x2, y2]);
       const ok = lineAt(x, y) || lineAt(x2, y2);
@@ -359,7 +448,7 @@ function findMove() {
 const hasMove = () => !!findMove();
 function shuffle() {
   for (let n = 0; n < 50; n++) {
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = G.grid[y][x]; if (!t.sp) t.t = -1; }
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = G.grid[y][x]; if (!t.sp && t.t < CROWN) t.t = -1; }
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = G.grid[y][x]; if (t.t === -1 && !t.sp) t.t = randKind(x, y); }
     if (!findRuns().length && hasMove()) break;
   }
@@ -371,6 +460,7 @@ async function trySwap(a, b) {
   if (G.busy || G.over) return;
   G.busy = true; clearHint(); select(null);
   const ta = at(a[0], a[1]), tb = at(b[0], b[1]);
+  if (fixed(ta) || fixed(tb)) { const f = fixed(ta) ? ta : tb; f.el.classList.remove('nope'); f.el.offsetWidth; f.el.classList.add('nope'); G.busy = false; return; }
   swapModel(a, b); place(ta, b[0], b[1], .16); place(tb, a[0], a[1], .16);
   await wait(170);
   // Spezial-Kombis
@@ -381,7 +471,7 @@ async function trySwap(a, b) {
     else if (ta.sp === 'star' || tb.sp === 'star') {
       const st = ta.sp === 'star' ? ta : tb, other = st === ta ? tb : ta;
       set.set(st.x + ',' + st.y, [st.x, st.y]); st.fired = true;
-      const tt = other.t;
+      const tt = other.t < CROWN ? other.t : mostCommon();
       for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = at(x, y); if (t.sp !== 'star' && t.t === tt) { set.set(x + ',' + y, [x, y]); if (other.sp && t !== other) { t.sp = other.sp === 'b' ? 'b' : (Math.random() < .5 ? 'h' : 'v'); paint(t); } } }
       shout('Mollymanns Kristall!');
     } else { set.set(ta.x + ',' + ta.y, [ta.x, ta.y]); set.set(tb.x + ',' + tb.y, [tb.x, tb.y]); }
@@ -408,6 +498,7 @@ function endTurn() {
 async function resolve(swapCells) {
   let cascade = 0;
   for (;;) {
+    if (dropCrowns()) { await wait(300); await settle(); continue; }
     const runs = findRuns(); if (!runs.length) break;
     const groups = groupRuns(runs), set = new Map(), make = [];
     for (const g of groups) {
@@ -433,7 +524,7 @@ async function resolve(swapCells) {
     for (const m of make) {
       const k = m.anchor[0] + ',' + m.anchor[1]; set.delete(k);
       const t = at(m.anchor[0], m.anchor[1]);
-      if (t.sp && !t.fired) { set.set(k, m.anchor); continue; }
+      if ((t.sp && !t.fired) || t.lock) { set.set(k, m.anchor); continue; }
       collect(t, m.anchor[0], m.anchor[1]);
       t.sp = m.sp; t.fired = false; t.fresh = true; paint(t);
       t.el.classList.remove('born'); t.el.offsetWidth; t.el.classList.add('born');
@@ -461,25 +552,53 @@ async function clearCells(set, cascade) {
     G.score += add.length * 20;
   }
   if (set.size >= 12) shake();
+  // Kisten: Treffer direkt daneben oder drauf
+  const hits = new Map();
   for (const [x, y] of set.values()) {
-    const t = at(x, y); if (!t || t.fresh) continue;
+    const t = at(x, y); if (!t) continue;
+    if (t.t === CRATE) { hits.set(x + ',' + y, [x, y]); continue; }
+    if (t.t < CROWN && !t.fresh) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const o = at(x + dx, y + dy); if (o && o.t === CRATE) hits.set((x + dx) + ',' + (y + dy), [x + dx, y + dy]); }
+  }
+  for (const [x, y] of set.values()) {
+    const t = at(x, y); if (!t || t.fresh || t.t >= CROWN) continue;
+    if (t.lock) { t.lock = false; paint(t); mossHit(x, y); t.el.classList.remove('born'); t.el.offsetWidth; t.el.classList.add('born'); continue; }
     collect(t, x, y);
-    G.grid[y][x] = null;
-    t.el.classList.add('pop');
-    setTimeout(() => t.el.remove(), 280);
+    removeTile(t, x, y);
+  }
+  for (const [x, y] of hits.values()) {
+    const t = at(x, y); if (!t || t.t !== CRATE) continue;
+    t.hp--; G.score += 80;
+    if (t.hp <= 0) { G.cratesLeft--; mossHit(x, y); removeTile(t, x, y); boom(x, y, 1.3); }
+    else { paint(t); t.el.classList.remove('nope'); t.el.offsetWidth; t.el.classList.add('nope'); }
   }
   renderHud(); renderHelpers();
   await wait(240);
 }
+function removeTile(t, x, y) { G.grid[y][x] = null; t.el.classList.add('pop'); setTimeout(() => t.el.remove(), 280); }
+function mossHit(x, y) {
+  const m = G.moss[y][x]; if (!m || m.hp <= 0) return;
+  m.hp--; G.mossLeft--;
+  if (m.hp === 1) m.el.classList.remove('moss2'); else m.el.classList.add('gone');
+}
+// Kronen in der untersten Reihe sind gerettet
+function dropCrowns() {
+  let any = false;
+  for (let x = 0; x < N; x++) {
+    const t = at(x, N - 1);
+    if (t && t.t === CROWN) { any = true; G.crownsLeft--; G.score += 1000; floatPts(x, N - 1, 1000); removeTile(t, x, N - 1); shout('Krone gerettet!'); }
+  }
+  if (any) renderHud();
+  return any;
+}
 function collect(t, x, y) {
   if (t.sp !== 'star' && G.goals[t.t] > 0) G.goals[t.t]--;
-  const m = G.moss[y][x]; if (m && !m.classList.contains('gone')) { m.classList.add('gone'); G.mossLeft--; }
+  mossHit(x, y);
   const chg = 1 + (window.BB && BB.cardVal ? BB.cardVal('baumgeist') / 100 : 0);
   HELPERS.forEach((h, i) => { if (t.sp !== 'star' && t.t === h.feed) G.charge[i] = Math.min(h.need, G.charge[i] + chg); });
 }
 function mostCommon() {
   const c = new Array(KINDS).fill(0);
-  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = at(x, y); if (t && t.sp !== 'star') c[t.t]++; }
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = at(x, y); if (t && t.sp !== 'star' && t.t < CROWN) c[t.t]++; }
   return c.indexOf(Math.max(...c));
 }
 // Schwerkraft und Nachfüllen
@@ -493,7 +612,7 @@ async function settle() {
     }
     const missing = write + 1;
     for (let k = 0; k < missing; k++) {
-      const y = write - k, t = newTile(randKind(x, y));
+      const y = write - k, t = newTile(spawnKind(x, y));
       place(t, x, y - missing - 1, 0); G.grid[y][x] = t;
     }
   }
@@ -589,7 +708,9 @@ function renderHud() {
   [[ 's1', firstGoal, won() ], ['s2', G.t2 / max * 100, G.score >= G.t2], ['s3', G.t3 / max * 100, G.score >= G.t3]].forEach(([id, p, on]) => { const e = $(id); e.style.left = p + '%'; e.classList.toggle('on', !!on); });
   const g = [];
   for (const [t, n] of Object.entries(G.goals)) g.push(`<div class="goal ${n <= 0 ? 'done' : ''}" title="${NAMES[t]}">${ico(t)}<b>${n <= 0 ? '✓' : n}</b></div>`);
-  if (G.def.moss) g.push(`<div class="goal ${G.mossLeft <= 0 ? 'done' : ''}" title="Moos"><div class="moss"></div><b>${G.mossLeft <= 0 ? '✓' : G.mossLeft}</b></div>`);
+  if (G.def.moss || G.def.moss2) g.push(`<div class="goal ${G.mossLeft <= 0 ? 'done' : ''}" title="Moos"><div class="moss"></div><b>${G.mossLeft <= 0 ? '✓' : G.mossLeft}</b></div>`);
+  if (G.crownTotal) g.push(`<div class="goal ${G.crownsLeft <= 0 ? 'done' : ''}" title="Kronen">${ico(CROWN)}<b>${G.crownsLeft <= 0 ? '✓' : G.crownsLeft}</b></div>`);
+  if (G.def.crates) g.push(`<div class="goal ${G.cratesLeft <= 0 ? 'done' : ''}" title="Kisten">${ico(G.def.hp > 1 ? 9 : CRATE)}<b>${G.cratesLeft <= 0 ? '✓' : G.cratesLeft}</b></div>`);
   $('goals').innerHTML = g.join('');
 }
 function renderHelpers() {
@@ -609,7 +730,7 @@ function boom(x, y, s) { const d = document.createElement('div'); d.className = 
 function shake() { boardEl.classList.remove('shake'); boardEl.offsetWidth; boardEl.classList.add('shake'); }
 
 // ---------- Sieg & Niederlage ----------
-const won = () => G && Object.values(G.goals).every(v => v <= 0) && G.mossLeft <= 0;
+const won = () => G && Object.values(G.goals).every(v => v <= 0) && G.mossLeft <= 0 && G.crownsLeft <= 0 && G.cratesLeft <= 0;
 async function win() {
   G.over = true; G.busy = true;
   shout('Geschafft!');
@@ -617,7 +738,8 @@ async function win() {
   // Bonusrunde: übrige Züge werden zu Linien-Steinen
   let left = Math.min(G.moves, 12);
   while (left-- > 0) {
-    const cells = []; for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (!at(x, y).sp) cells.push([x, y]);
+    const cells = []; for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (plain(at(x, y)) && !at(x, y).lock) cells.push([x, y]);
+    if (!cells.length) break;
     const c = cells[Math.floor(Math.random() * cells.length)]; const t = at(c[0], c[1]);
     t.sp = Math.random() < .5 ? 'h' : 'v'; paint(t); G.moves--; G.score += 150; renderHud();
     const set = new Map([[c[0] + ',' + c[1], c]]);
@@ -626,14 +748,16 @@ async function win() {
   G.score += G.moves * 150; G.moves = 0; renderHud();
   const stars = G.score >= G.t3 ? 3 : G.score >= G.t2 ? 2 : 1;
   save.stars[G.n] = Math.max(save.stars[G.n] || 0, stars);
-  save.unlocked = Math.max(save.unlocked, G.n + 1);
+  const first = G.n >= save.level;
+  save.level = Math.max(save.level, G.n + 1);
   save.best = Math.max(save.best || 0, G.score);
   persist();
   if (window.BB) {
     const total = Object.values(save.stars).reduce((a, b) => a + b, 0);
-    BB.record('match', total, { lv: save.unlocked - 1 });
-    if (BB.earn) BB.earn(10 + stars * 5, `Kräuter-Level ${G.n} geschafft`);
+    BB.record('match', total, { lv: save.level - 1 });
+    if (BB.earn && first) BB.earn((10 + stars * 5) * (G.def.boss ? 2 : 1), `Kräuter-Level ${G.n} geschafft`);
     if (stars === 3) BB.unlock('match_3'); if (G.n >= 10) BB.unlock('match_10'); if (total >= 30) BB.unlock('match_30');
+    if (G.n >= 25) BB.unlock('match_25'); if (G.n >= 50) BB.unlock('match_50'); if (G.def.boss) BB.unlock('match_boss');
   }
   G.busy = false;
   showMenu('win', stars);
@@ -643,60 +767,77 @@ function lose() { G.over = true; showMenu('lose'); }
 // ---------- Menüs ----------
 const ov = $('ov'), box = $('box');
 function hideMenu() { ov.classList.add('hide'); }
-function levelGrid() {
-  const max = Math.max(save.unlocked + 2, 15), out = [];
-  for (let i = 1; i <= max; i++) {
-    const st = save.stars[i] || 0, lock = i > save.unlocked;
-    out.push(`<button class="lv ${lock ? 'lock' : ''} ${i === save.unlocked ? 'cur' : ''}" data-l="${i}" ${lock ? 'disabled' : ''}>${lock ? '🔒' : i}${st ? `<i>${'★'.repeat(st)}</i>` : ''}</button>`);
-  }
-  return `<div class="levels">${out.join('')}</div>`;
+const mossIco = (two) => `<div class="moss ${two ? 'm2' : ''}"></div>`;
+function goalChips(def) {
+  const g = Object.entries(def.goals || {}).map(([t, n]) => `<div class="goal">${ico(t)}<b>${n}</b></div>`);
+  if (def.moss || def.moss2) { let c = 0; for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) c += def.moss2 && PAT[def.moss2](x, y) ? 2 : def.moss && PAT[def.moss](x, y) ? 1 : 0; g.push(`<div class="goal">${mossIco(!!def.moss2)}<b>${c}</b></div>`); }
+  if (def.crowns) g.push(`<div class="goal">${ico(CROWN)}<b>${def.crowns}</b></div>`);
+  if (def.crates) { let c = 0; for (let y = 1; y < N; y++) for (let x = 0; x < N; x++) if (PAT[def.crates](x, y)) c++; g.push(`<div class="goal">${ico(def.hp > 1 ? 9 : 8)}<b>${c}</b></div>`); }
+  return `<div class="goals">${g.join('')}</div>`;
 }
-function bindLevels() { box.querySelectorAll('[data-l]').forEach(b => b.onclick = () => startLevel(+b.dataset.l)); }
-function goalText(def) {
-  const p = Object.entries(def.goals || {}).map(([t, n]) => `${n} ${NAMES[t]}`);
-  if (def.moss) p.push('alles Moos entfernen');
-  return p.join(' · ');
+function specials(def) {
+  const out = [];
+  if (def.boss) out.push('<span class="bs">💀 Boss-Level</span>');
+  if (def.moss2) out.push('<span>Dickes Moos</span>'); else if (def.moss) out.push('<span>Moos</span>');
+  if (def.crowns) out.push('<span>👑 Kronen</span>');
+  if (def.crates) out.push(`<span>${def.hp > 1 ? 'Eisenkisten' : 'Kisten'}</span>`);
+  if (def.locks) out.push('<span>⛓ Ketten</span>');
+  return out.join('');
+}
+const nodeIco = def => def.boss ? '💀' : def.crowns ? '👑' : def.crates ? '📦' : def.locks ? '⛓' : (def.moss || def.moss2) ? '🌿' : '';
+function saga() {
+  const cur = save.level, from = Math.max(1, cur - 3), pts = [];
+  for (let i = 0; i < 7; i++) { const n = from + i; pts.push({ n, x: (i + .5) / 7 * 700, y: 60 + Math.sin(i * 1.15 + from * .6) * 30 }); }
+  const path = pts.map((p, i) => (i ? 'L' : 'M') + p.x.toFixed(0) + ' ' + p.y.toFixed(0)).join(' ');
+  return `<div class="saga"><svg viewBox="0 0 700 120" preserveAspectRatio="none"><path d="${path}" /></svg>${pts.map(p => {
+    const d = levelDef(p.n), st = save.stars[p.n] || 0, done = p.n < cur, now = p.n === cur;
+    return `<div class="node ${done ? 'done' : now ? 'now' : 'lock'} ${d.boss ? 'boss' : ''}" style="left:${p.x / 7}%;top:${p.y / 1.2}%">
+      ${now ? `<img class="me" src="../krieg/img/kobold.jpg" alt="">` : ''}<b>${p.n}</b>${done ? `<i>${'★'.repeat(st)}</i>` : !now && nodeIco(d) ? `<em>${nodeIco(d)}</em>` : ''}</div>`;
+  }).join('')}</div>`;
 }
 function showMenu(kind, stars) {
   ov.classList.remove('hide');
+  const running = G && !G.over;
   if (kind === 'start') {
-    box.innerHTML = `${window.BBArt ? BBArt.head('match') : ''}<h2>Kräuter-Match</h2><div class="orn">✦ 🌿 ✦</div>
-      <p>Tausch Kräuter, Kristalle und Gold, bis drei gleiche in einer Reihe liegen. Die Bande hilft dir dabei.</p>
-      <button class="go" id="go">▶ ${save.unlocked > 1 ? 'Weiter mit Level ' + save.unlocked : 'PLAY'}</button>
-      <button class="go alt" id="lvls">Levelauswahl</button>
-      <ul class="how">
+    const n = running ? G.n : save.level, def = levelDef(n);
+    box.innerHTML = `${window.BBArt ? BBArt.head('match') : ''}<h2>Kräuter-Match</h2>
+      ${saga()}
+      <div class="lvcard ${def.boss ? 'boss' : ''}"><div class="lvh"><b>Level ${n}</b><span>${def.moves} Züge</span></div>
+        <div class="spx">${specials(def)}</div>${goalChips(def)}
+        ${def.tip ? `<p class="tip">✨ ${def.tip}</p>` : ''}</div>
+      ${running ? '<div class="row"><button class="go alt" id="re">Neu starten</button><button class="go" id="go">▶ Weiter</button></div>' : `<button class="go" id="go">▶ Level ${n} spielen</button>`}
+      <details class="howd"><summary>So geht's</summary><ul class="how">
         <li><b>4 in einer Reihe</b> ergibt einen Linien-Stein, der die ganze Reihe abräumt.</li>
         <li><b>L- oder T-Form</b> ergibt eine Bombe für 3×3.</li>
         <li><b>5 in einer Reihe</b> ergibt Mollymanns Kristall. Tausch ihn mit einem Stein, dann verschwindet diese Farbe komplett.</li>
         <li><b>Die Bande:</b> Kobold, Fokuhila und Mollymann laden sich mit ihren Steinen auf und helfen mit Spezialangriffen.</li>
-        <li><b>Moos</b> verschwindet, wenn du darauf einen Treffer landest.</li>
-      </ul>`;
-    $('go').onclick = () => startLevel(save.unlocked);
-    $('lvls').onclick = () => showMenu('levels');
-  } else if (kind === 'levels') {
-    box.innerHTML = `<h2>Levelauswahl</h2><div class="orn">✦ 🌿 ✦</div>${levelGrid()}<button class="go alt" id="back">Zurück</button>`;
-    bindLevels(); $('back').onclick = () => G && !G.over ? hideMenu() : showMenu('start');
+        <li><b>Specials:</b> Moos, Königskronen, Spießer-Kisten und Ketten. Die Level werden immer kniffliger, alle 10 Level wartet ein Boss.</li>
+        <li><b>Fortschritt</b> wird mit deinem Account gespeichert.</li>
+      </ul></details>`;
+    $('go').onclick = () => running ? hideMenu() : startLevel(save.level);
+    if ($('re')) $('re').onclick = () => { G.over = true; startLevel(G.n); };
   } else if (kind === 'win') {
-    const next = G.n + 1;
+    const next = levelDef(G.n + 1);
     box.innerHTML = `<h2>Level ${G.n} geschafft!</h2>
       <div class="bigstars">${[1, 2, 3].map((s, i) => `<span class="${s <= stars ? 'on' : ''}" style="animation-delay:${.2 + i * .25}s">★</span>`).join('')}</div>
       <p><b class="c" style="color:var(--gold2);font-size:22px">${G.score}</b> Punkte</p>
-      <p style="color:var(--mut);font-size:13px">Nächstes Ziel: ${goalText(levelDef(next))}</p>
-      <div class="row"><button class="go alt" id="again">Nochmal</button><button class="go" id="next">Level ${next} ▶</button></div>
-      ${window.BB ? '<button class="go alt" id="bbBoard" style="margin-top:10px">🏆 Bestenliste</button>' : ''}`;
+      <div class="lvcard nx ${next.boss ? 'boss' : ''}"><div class="lvh"><b>Als Nächstes: Level ${G.n + 1}</b></div><div class="spx">${specials(next)}</div>${goalChips(next)}</div>
+      <button class="go" id="next">Weiter ▶</button>
+      ${window.BB ? '<button class="go alt" id="bbBoard">🏆 Bestenliste</button>' : ''}`;
     if ($('bbBoard')) $('bbBoard').onclick = () => BB.open('board', 'match');
-    $('again').onclick = () => startLevel(G.n); $('next').onclick = () => startLevel(next);
+    $('next').onclick = () => showMenu('start');
   } else if (kind === 'lose') {
     box.innerHTML = `<h2>Keine Züge mehr</h2><div class="orn">✦ 🌿 ✦</div>
-      <p>Knapp daneben. Noch offen: ${[...Object.entries(G.goals).filter(([, n]) => n > 0).map(([t, n]) => n + ' ' + NAMES[t]), ...(G.mossLeft > 0 ? [G.mossLeft + ' Moos'] : [])].join(' · ')}</p>
-      <div class="row"><button class="go alt" id="lvls">Level</button><button class="go" id="again">Nochmal</button></div>`;
-    $('again').onclick = () => startLevel(G.n); $('lvls').onclick = () => showMenu('levels');
+      <p>Knapp daneben. Noch offen: ${[...Object.entries(G.goals).filter(([, n]) => n > 0).map(([t, n]) => n + ' ' + NAMES[t]), ...(G.mossLeft > 0 ? [G.mossLeft + ' Moos'] : []), ...(G.crownsLeft > 0 ? [G.crownsLeft + ' Kronen'] : []), ...(G.cratesLeft > 0 ? [G.cratesLeft + ' Kisten'] : [])].join(' · ')}</p>
+      <div class="row"><button class="go alt" id="map">Zur Karte</button><button class="go" id="again">Nochmal</button></div>`;
+    $('again').onclick = () => startLevel(G.n); $('map').onclick = () => showMenu('start');
   }
 }
-$('btnLevels').onclick = () => { if (!G || !G.busy) showMenu('levels'); };
+$('btnLevels').onclick = () => { if (!G || !G.busy) showMenu('start'); };
 showMenu('start');
+if (window.BB && BB.cloud && BB.loggedIn) BB.cloud.get('match').then(c => { if (c && c.level && ((c.t || 0) > (save.t || 0) || c.level > save.level)) { save = { stars: {}, ...c, level: Math.max(c.level, save.level) }; persist(false); if (!G || G.over) showMenu('start'); } }).catch(() => {});
 // Zum Testen
-window.KM = { get G() { return G; }, startLevel, trySwap, findMove, useHelper, win };
+window.KM = { get G() { return G; }, get save() { return save; }, persist, levelDef, startLevel, trySwap, findMove, useHelper, win };
 </script>
 </body>
 </html>
