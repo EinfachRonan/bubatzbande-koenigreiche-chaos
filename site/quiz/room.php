@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!is_array($in)) fail('json');
 }
 $now = microtime(true);
-$AV = ['artur', 'kobold', 'nille', 'runen', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'];
+$AV = ['artur', 'kobold', 'nille', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'];
 
 function clean($s, $max) {
   $s = trim(strip_tags((string) $s));

@@ -196,7 +196,7 @@ h3{font:800 15px "Cinzel",serif;color:var(--gold2);margin:16px 0 8px;letter-spac
 'use strict';
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const CHAR = { artur: 'Artur', kobold: 'Kobold', nille: 'Nille', runen: 'Runenmutant', geist: 'Grauer Geist', molly: 'Mollymann', lg3: 'LG3', fokuhila: 'Fokuhilamann', kraeuter: 'KräuterKönig', don: 'DonPatron', koenig: 'König', allan: 'Allan', marwin: 'Marwin' };
+const CHAR = { artur: 'Artur', kobold: 'Kobold', nille: 'Nille', geist: 'Grauer Geist', molly: 'Mollymann', lg3: 'LG3', fokuhila: 'Fokuhilamann', kraeuter: 'KräuterKönig', don: 'DonPatron', koenig: 'König', allan: 'Allan', marwin: 'Marwin' };
 const KEYS = Object.keys(CHAR);
 const img = k => `../krieg/img/${k}.jpg`;
 const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
@@ -207,6 +207,7 @@ const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (
 
 // ---------- Menü ----------
 const cfg = ls.get('kd_cfg', null) || { mode: 'bot', diff: 1, av: [window.BB && BB.profile.name ? BB.profile.av : 'artur', 'don'] };
+cfg.av = cfg.av.map((k, i) => CHAR[k] ? k : ['artur', 'don'][i]);
 if (cfg.av[0] === cfg.av[1]) cfg.av[1] = KEYS.find(k => k !== cfg.av[0]);
 function menu() {
   $('#menu').classList.remove('hidden'); $('#game').classList.add('hidden'); $('#end').classList.add('hidden');

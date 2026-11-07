@@ -5,7 +5,7 @@
   const ROOT = new URL('.', document.currentScript ? document.currentScript.src : location.href).href;
   const API = ROOT + 'api/bb.php';
   const IMG = k => ROOT + 'krieg/img/' + k + '.jpg';
-  const CHAR = { artur: 'Artur', kobold: 'Kobold', nille: 'Nille', runen: 'Runenmutant', geist: 'Grauer Geist', molly: 'Mollymann', lg3: 'LG3', fokuhila: 'Fokuhilamann', kraeuter: 'KräuterKönig', don: 'DonPatron', koenig: 'König', allan: 'Allan', marwin: 'Marwin' };
+  const CHAR = { artur: 'Artur', kobold: 'Kobold', nille: 'Nille', geist: 'Grauer Geist', molly: 'Mollymann', lg3: 'LG3', fokuhila: 'Fokuhilamann', kraeuter: 'KräuterKönig', don: 'DonPatron', koenig: 'König', allan: 'Allan', marwin: 'Marwin' };
   const AV = Object.keys(CHAR);
   const fmtTime = s => { s = Math.max(0, s); const m = Math.floor(s / 60), r = s - m * 60; return m + ':' + (r < 10 ? '0' : '') + r.toFixed(1); };
   const GAMES = {

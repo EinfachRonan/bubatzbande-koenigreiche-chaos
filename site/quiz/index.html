@@ -170,7 +170,7 @@ textarea{min-height:240px;font-size:14px;line-height:1.5;resize:vertical}
 'use strict';
 const $ = s => document.querySelector(s), V = $('#view');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const AV = ['artur', 'kobold', 'nille', 'runen', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'];
+const AV = ['artur', 'kobold', 'nille', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'];
 const avImg = (k, cls = 'avi') => `<img class="${cls}" src="../krieg/img/${esc(k)}.jpg" alt="">`;
 const SYM = ['▲', '◆', '●', '■'];
 const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
@@ -292,6 +292,7 @@ function joinView(code = '') {
   stopPoll();
   const bp = window.BB && BB.profile;
   let av = ls.get('bq_av', bp && bp.name ? bp.av : AV[Math.floor(Math.random() * AV.length)]);
+  if (!AV.includes(av)) av = 'artur';
   V.innerHTML = `<div class="panel">
     <div class="title" style="font-size:30px">Mitspielen</div><div class="orn">✦ 📱 ✦</div>
     <h3>Code vom Bildschirm</h3><input type="text" class="codeIn" id="code" maxlength="4" autocomplete="off" autocapitalize="characters" value="${esc(code)}" placeholder="ABCD">

@@ -186,8 +186,6 @@ const AGES = [
         info: 'Grüne Flammen aus dem Zauberstab · klaut bei jedem Treffer 2 Gold' },
       { n: 'Nille', e: 'Zeitungsjunge', look: 'nille', k: 'Schleicher', cost: 45, hp: 50, dmg: 12, rng: 18, rate: 1, spd: 60, tr: 1.4, sz: .95, sneak: true, max: 2,
         info: 'Kleine Nille · schleicht an allen Gegnern vorbei und sticht direkt die Burg an (max. 2 gleichzeitig)' },
-      { n: 'Runenmutant', e: 'Rasenmäher-Rudi', look: 'runen', k: 'Tank', cost: 100, hp: 300, dmg: 22, rng: 22, rate: 1.4, spd: 30, tr: 2.6, sz: 1.3, rage: true,
-        info: 'Runenwut · je weniger Leben, desto härter schlägt er (bis doppelt)' },
     ],
     tur: { n: 'Allan', w: 'Steinschleuder', e: 'Gartenzwerg-Kanone', cost: 200, dmg: 12, rate: 1.1, rng: 340 } },
   { name: 'Steinburg', eName: 'Spießer-Burg', addHp: 400, special: 180, xpNext: 9000, income: 9,
@@ -405,7 +403,6 @@ function auraBonus(u) {
 function strike(u, target) {
   const s = S.sides[u.side];
   let dmg = u.dmg * (1 + .15 * s.up.dmg) * auraBonus(u);
-  if (u.rage) dmg *= 2 - Math.max(0, u.hp / u.maxhp);
   if (u.steal) s.gold += u.steal;
   if (u.crit && Math.random() < u.crit) { dmg *= 2; S.fx.push({ x: u.x, y: GROUND - 58 * u.sz, t: .6, max: .6, kind: 'txt', txt: 'Wolfsbiss!', col: '#ffd27a', small: true }); }
   const dir = u.side === 0 ? 1 : -1;
@@ -880,7 +877,7 @@ function drawBase(side) {
 
 // ---------- Kartenbilder ----------
 const IMG = {};
-for (const k of ['artur', 'kobold', 'nille', 'runen', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin',
+for (const k of ['artur', 'kobold', 'nille', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin',
   'hammer', 'mantel', 'goldregen', 'werkzeug', 'befehl', 'nebel', 'zirkel', 'krone']) { const im = new Image(); im.src = 'img/' + k + '.jpg'; IMG[k] = im; }
 function drawMedal(x, y, r, key, alpha = 1) {
   const im = IMG[key]; if (!im || !im.complete || !im.naturalWidth) return;
@@ -1058,32 +1055,6 @@ const LOOKS = {
     P([-1, -2, 0, -12, 1, -2], '#dfe3e8');
     ctx.restore();
   },
-  runen(u, c, atk, leg, bob, t) {
-    legs(leg, bob, '#3a2a1c', 4.4);
-    // Fellschurz
-    P([-8, -16, 8, -16, 9, -7, -9, -7], '#5a4630');
-    // nackter, muskulöser Oberkörper
-    torso(-9, -34, 18, 20, '#c99a76');
-    ctx.strokeStyle = 'rgba(120,70,40,.55)'; ctx.lineWidth = .8; ctx.beginPath();
-    ctx.moveTo(0, -32); ctx.lineTo(0, -20); ctx.moveTo(-6, -27); ctx.quadraticCurveTo(-3, -24, 0, -26); ctx.moveTo(6, -27); ctx.quadraticCurveTo(3, -24, 0, -26); ctx.stroke();
-    E(-7, -33, 6.5, 4, '#4a3a2a'); E(7, -33, 6, 3.6, '#3f3122');
-    // leuchtende Runen
-    const gl = .55 + Math.sin(t * 4 + u.id) * .3;
-    ctx.strokeStyle = `rgba(140,255,120,${gl})`; ctx.lineWidth = 1.1; ctx.beginPath();
-    ctx.moveTo(-5, -25); ctx.lineTo(-3, -22); ctx.lineTo(-5, -19); ctx.moveTo(4, -26); ctx.lineTo(4, -20); ctx.moveTo(2.5, -24); ctx.lineTo(5.5, -22); ctx.stroke();
-    // Glatze und Vollbart
-    C(0, -40, 6.5, '#c99a76');
-    ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.ellipse(-1.5, -44, 3, 1.6, -.3, 0, 7); ctx.fill();
-    P([-5, -38, 7, -38, 6, -29, 1, -27, -4, -31], '#3a2a1c');
-    C(3.6, -41, 1.1, '#111'); L(1.5, -43, 5.5, -42.5, '#3a2a1c', 1.4);
-    // Streitaxt
-    ctx.save(); ctx.translate(6, -26); ctx.rotate(-.5 + atk * 2.2);
-    ctx.fillStyle = '#5a3c22'; ctx.fillRect(-1.4, -26, 2.8, 30);
-    ctx.fillStyle = '#8a8f96'; ctx.beginPath(); ctx.moveTo(1, -25); ctx.quadraticCurveTo(12, -28, 11, -16); ctx.quadraticCurveTo(6, -19, 1, -17); ctx.fill();
-    ctx.fillStyle = `rgba(140,255,120,${gl})`; ctx.fillRect(5, -23, 1.2, 3.5);
-    ctx.restore();
-    arm(-3, -30, 6, -26, '#c99a76');
-  },
   geist(u, c, atk, leg, bob, t) {
     const fl = Math.sin(t * 3 + u.id) * 2.5 - 6;
     ctx.translate(0, fl);
@@ -1258,7 +1229,7 @@ function drawSoldier(u, c, atk, leg, bob) {
 }
 
 const UC = document.createElement('canvas'), SC = document.createElement('canvas');
-const POSE = new Map(), ANIM_LOOKS = new Set(['kobold', 'geist', 'molly', 'kraeuter', 'runen']);
+const POSE = new Map(), ANIM_LOOKS = new Set(['kobold', 'geist', 'molly', 'kraeuter']);
 const OUTL = [[-1, 0], [1, 0], [0, -1], [0, 1], [-.7, -.7], [.7, .7]];
 // Licht von oben/zur Sonne hin, Schatten unten, dann dunkle Silhouette für die Kontur
 function shadeCanvas(g, SZ, R, top, bottom, toward, flash) {
@@ -1627,12 +1598,12 @@ function showMenu(kind, win) {
     box.innerHTML = `<div class="heroWrap"><img class="hero" src="img/hero.jpg" alt="Die Bubatzbande"></div><div class="inner">
       <h1>Bandenkrieg</h1>
       <div class="orn">✦ ⚔ ✦</div><p>Die Bubatzbande gegen die Spießer. Stürm ihre Feste, bevor sie deine Burg schleifen.</p>
-      <div class="crewstrip">${['artur', 'kobold', 'nille', 'runen', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'].map(k => `<img src="img/${k}.jpg" alt="">`).join('')}</div>
+      <div class="crewstrip">${['artur', 'kobold', 'nille', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'].map(k => `<img src="img/${k}.jpg" alt="">`).join('')}</div>
       ${diffButtons()}
       <button class="go" id="go">▶ PLAY</button>
       <details class="how"><summary>So geht's</summary>
       <ul>
-        <li><b>Deine Bande:</b> 11 Kämpfer aus Königreiche & Chaos, jeder mit eigener Fähigkeit. Kleine Nille schleicht an allen vorbei, LG3 lässt beim Tod einen Baumgeist wachsen.</li>
+        <li><b>Deine Bande:</b> 10 Kämpfer aus Königreiche & Chaos, jeder mit eigener Fähigkeit. Kleine Nille schleicht an allen vorbei, LG3 lässt beim Tod einen Baumgeist wachsen.</li>
         <li><b>Gold & Sterne</b> gibt's für jeden besiegten Gegner.</li>
         <li><b>Marwin der Pionier</b> baut ein Katapult auf Allans Turm, in fünf Stufen bis zum Königskatapult mit Brandsteinen. Jeder dritte Stein fliegt direkt auf die feindliche Burg.</li>
         <li><b>Upgrades:</b> Fokuhilas Schmiede, Schattenmantel, Goldregen und mehr machen deine Bande stärker.</li>

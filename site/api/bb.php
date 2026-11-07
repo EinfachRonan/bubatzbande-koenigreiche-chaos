@@ -13,7 +13,7 @@ $GAMES = [
   'schach' => ['asc' => true,  'min' => 5, 'max' => 36000],
 ];
 $ACH = ['profil', 'krieg_win', 'krieg_hart', 'krieg_fast', 'krieg_kills', 'match_3', 'match_10', 'match_30', 'quiz_10', 'quiz_perfekt', 'quiz_party', 'duell_win', 'duell_hart', 'duell_null', 'duell_prost', 'schach_win', 'schach_duelle', 'allrounder'];
-$AV = ['artur', 'kobold', 'nille', 'runen', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'];
+$AV = ['artur', 'kobold', 'nille', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'];
 
 $dir = __DIR__ . '/data';
 if (!is_dir($dir)) {
@@ -34,7 +34,8 @@ function cleanMeta($m) {
   return $o;
 }
 function load($h) { rewind($h); $d = json_decode(stream_get_contents($h), true); if (!is_array($d)) $d = []; $d += ['users' => []]; return $d; }
-function pub($u, $id) { return ['id' => $id, 'user' => $u['user'], 'name' => $u['name'], 'av' => $u['av'], 'img' => $u['img'] ?? 0, 'best' => (object) ($u['best'] ?? []), 'ach' => (object) ($u['ach'] ?? []), 'stats' => (object) ($u['stats'] ?? [])]; }
+function avOk($a) { return in_array($a, $GLOBALS['AV'], true) ? $a : 'artur'; }
+function pub($u, $id) { return ['id' => $id, 'user' => $u['user'], 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'best' => (object) ($u['best'] ?? []), 'ach' => (object) ($u['ach'] ?? []), 'stats' => (object) ($u['stats'] ?? [])]; }
 function nameTaken($d, $name, $except) {
   $l = mb_strtolower($name);
   foreach ($d['users'] as $id => $u) if ($id !== $except && (mb_strtolower($u['name']) === $l || $u['ul'] === $l)) return true;
@@ -61,7 +62,7 @@ if ($a === 'top') {
   $asc = $GAMES[$g]['asc']; $rows = [];
   foreach ($d['users'] as $id => $u) {
     $b = $u['best'][$g] ?? null; if (!$b) continue;
-    $rows[] = ['id' => $id, 'name' => $u['name'], 'av' => $u['av'], 'img' => $u['img'] ?? 0, 's' => $b['s'], 'm' => $b['m'] ?? null, 't' => $b['t'] ?? 0];
+    $rows[] = ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 's' => $b['s'], 'm' => $b['m'] ?? null, 't' => $b['t'] ?? 0];
   }
   usort($rows, fn($x, $y) => $asc ? ($x['s'] <=> $y['s'] ?: $x['t'] <=> $y['t']) : ($y['s'] <=> $x['s'] ?: $x['t'] <=> $y['t']));
   $me = $_GET['u'] ?? ''; $mine = null;
