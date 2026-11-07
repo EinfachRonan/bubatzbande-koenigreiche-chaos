@@ -149,6 +149,29 @@ canvas#cv{box-shadow:0 0 0 1px rgba(212,175,55,.25),0 0 50px rgba(0,0,0,.8)}
 .stats span{font-size:11px;color:var(--mut)}
 @media (max-height:520px){.hero{max-height:130px;object-fit:cover;object-position:50% 22%}.box .inner{margin-top:-14px}.box h1{font-size:26px}.crewstrip img{width:30px;height:30px}}
 @media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.box h1{font-size:28px}}
+.mtabs{display:flex;gap:4px;margin:12px 0 8px;background:#0b1108;border:1px solid #3a3216;border-radius:9px;padding:3px}
+.mtabs button{flex:1;padding:8px 4px;border:0;border-radius:7px;background:none;color:#cbbd94;font:800 12.5px "Cinzel",serif;cursor:pointer;white-space:nowrap}
+.mtabs button.on{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;box-shadow:inset 0 0 0 1px #d4af37}
+.mtabs em{font-style:normal;background:#d4af37;color:#1a1206;border-radius:9px;padding:0 6px;font-size:11px;margin-left:2px}
+.cmap{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 8px;position:relative}
+.cn{padding:7px 2px 5px;border-radius:9px;border:1px solid #4a3c18;background:linear-gradient(#18230f,#0c1209);color:#f0d37a;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.cn b{font:900 17px "Cinzel",serif}.cn.boss{border-color:#8a3b2a;background:linear-gradient(#2a140e,#140a07)}
+.cn.on{border-color:#f0d37a;box-shadow:0 0 0 2px rgba(240,211,122,.35),0 0 14px rgba(212,175,55,.3)}
+.cn:disabled{opacity:.4;cursor:default}
+.stars{letter-spacing:1px;font-size:11px;color:#4a4430}.stars i{font-style:normal}.stars i.on{color:#f0d37a;text-shadow:0 0 6px rgba(240,211,122,.6)}
+.cinfo{text-align:left;background:rgba(0,0,0,.3);border:1px solid #3a3216;border-radius:9px;padding:10px 12px;margin-bottom:8px}
+.cinfo h3{margin:0 0 3px;font:800 15px "Cinzel",serif;color:#f0d37a}.cinfo p{margin:0 0 7px;font-size:13px}
+.ctags{display:flex;flex-wrap:wrap;gap:4px}.ctags span{font-size:11px;padding:2px 7px;border-radius:9px;background:#2a1712;color:#f2a593;border:1px solid #5a2a1e}
+.chint{font-size:11px;color:#a89a70;margin-top:6px}.ctot{font-size:12px;color:#a89a70;margin-top:6px}
+.rpts{background:rgba(0,0,0,.3);border:1px solid #3a3216;border-radius:9px;padding:9px;margin-bottom:8px}.rpts b{color:#f0d37a;font:900 20px "Cinzel",serif;margin-left:4px}.rpts small{display:block;font-size:11.5px;color:#a89a70;margin-top:2px}
+.rat{display:flex;flex-direction:column;gap:6px}
+.rr{display:flex;align-items:center;gap:9px;text-align:left;background:linear-gradient(#141e0e,#0a0f07);border:1px solid #3a3216;border-radius:9px;padding:7px 9px}
+.ri{font-size:22px;width:30px;text-align:center}.rt{flex:1;min-width:0}.rt b{display:block;font-size:13.5px;color:#f0d37a}.rt small{font-size:11.5px;color:#cbbd94}
+.pips{display:flex;gap:3px;margin-top:3px}.pips i{width:14px;height:5px;border-radius:3px;background:#2a2a1a}.pips i.on{background:linear-gradient(90deg,#7fd36a,#3e7530)}
+.rr button{padding:8px 10px;border-radius:8px;border:1px solid #d4af37;background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;font:800 12px inherit;cursor:pointer;white-space:nowrap}
+.rr button:disabled{opacity:.45;cursor:default;border-color:#5a4a1c}
+.cres{margin:6px 0 10px}.cres b{display:block;color:#f0d37a;font-family:"Cinzel",serif}.cres small{color:#cbbd94}.cbig .stars{font-size:34px;letter-spacing:6px}
+@media(max-width:520px){.box.start .crewstrip{display:none}.box.start .orn{display:none}}
 </style>
 </head>
 <body>
@@ -247,17 +270,53 @@ let S = null, diff = 'normal', uid = 0;
 try { diff = localStorage.getItem('bk_diff') || 'normal'; } catch (e) {}
 if (!DIFF[diff]) diff = 'normal';
 
+// ---------- Kampagne & Kriegsrat ----------
+const CAMP = [
+  { n: 'Der Gartenzaun', e: 'Ein paar Spießer meckern über die Hecke. Aufwärmen.', m: .6, g: .8, hp: .8, dk: 'leicht' },
+  { n: 'Ordnungsamt rückt an', e: 'Erste Strafzettel fliegen. Zeig ihnen die Bande.', m: .75, g: 1, hp: .9, dk: 'leicht' },
+  { n: 'Schrebergarten-Krieg', e: 'Der Gartenverein hat aufgerüstet.', m: .9, g: 1, hp: 1, dk: 'normal' },
+  { n: 'Boss: Blitzer-Bert', e: 'Der Hausmeister aller Spießer. Dicke Mauern, viel Gold.', m: 1.05, g: 1.4, hp: 1.5, dk: 'normal', boss: 1 },
+  { n: 'Die Amtsstube', e: 'Formulare in dreifacher Ausführung. Und Katapulte.', m: 1.1, g: 1.2, hp: 1.2, dk: 'normal' },
+  { n: 'Bürokratie-Nebel', e: 'Sie bilden schneller aus, als du gucken kannst.', m: 1.25, g: 1.3, hp: 1.3, dk: 'schwer' },
+  { n: 'Steuerprüfer-Festung', e: 'Jede Münze wird geprüft. Ihre Burg steht wie ein Bunker.', m: 1.35, g: 1.4, hp: 1.7, dk: 'schwer' },
+  { n: 'Boss: Der Bürokratie-Boss', e: 'Das Ende aller Spießer. Hol dir die Krone der Bande.', m: 1.5, g: 1.6, hp: 2.2, dk: 'schwer', boss: 1 },
+];
+const RAT = [
+  { id: 'kasse', n: 'Kriegskasse', i: '💰', fx: '+10 % Startgold' },
+  { id: 'mauer', n: 'Dicke Mauern', i: '🏰', fx: '+8 % Burg-HP' },
+  { id: 'drill', n: 'Fokuhilas Drill', i: '⚔', fx: '+5 % Schaden' },
+  { id: 'werk', n: 'Marwins Werkstatt', i: '🪨', fx: '−10 % Katapultkosten' },
+  { id: 'ausb', n: 'Schnelle Ausbildung', i: '⏱', fx: '−8 % Ausbildungszeit' },
+];
+const RAT_MAX = 5, ratCost = l => l + 1;
+let CP = null, mode = 'camp', cur = 0, lastRes = null;
+try { CP = JSON.parse(localStorage.getItem('bk_camp')); } catch (e) {}
+if (!CP || !Array.isArray(CP.stars)) CP = { stars: [], pts: 0, up: {}, t: 0 };
+for (const r of RAT) CP.up[r.id] = CP.up[r.id] || 0;
+try { mode = localStorage.getItem('bk_mode') || 'camp'; } catch (e) {}
+const RU = id => CP.up[id] || 0;
+const unlocked = i => i === 0 || (CP.stars[i - 1] || 0) > 0;
+const totalStars = () => CP.stars.reduce((a, b) => a + (b || 0), 0);
+function saveCamp() { CP.t = Date.now(); try { localStorage.setItem('bk_camp', JSON.stringify(CP)); } catch (e) {} if (window.BB && BB.cloud) BB.cloud.put('krieg', CP); }
+cur = Math.min(CAMP.length - 1, CAMP.findIndex((c, i) => !CP.stars[i]) < 0 ? CAMP.length - 1 : CAMP.findIndex((c, i) => !CP.stars[i]));
+const inCamp = () => S && S.camp != null;
+
 const CB = id => window.BB && BB.cardVal ? BB.cardVal(id) / 100 : 0;
 function mkSide(i) {
   const up = {}; for (const u of UPG) up[u.id] = 0;
-  const hp0 = Math.round(BASE_HP * (i === 0 ? 1 + CB('der-koenig-von-deutschland') : 1));
-  return { i, gold: Math.round(START_GOLD * (i === 0 ? 1 + CB('artur-king-kebab') : 1)), xp: 0, age: 0, hp: hp0, maxhp: hp0, queue: [], tq: 0, tur: -1, turCd: 0, cat: 0, catCd: 0, catAnim: 0, spCd: 20, aiT: 1, aiNext: null, kills: 0, up, shake: 0 };
+  const b = S0camp != null ? CAMP[S0camp] : null;
+  const hp0 = Math.round(BASE_HP * (i === 0 ? (1 + CB('der-koenig-von-deutschland')) * (1 + .08 * RU('mauer')) : b ? b.hp : 1));
+  return { i, gold: Math.round(START_GOLD * (i === 0 ? (1 + CB('artur-king-kebab')) * (1 + .1 * RU('kasse')) : b ? b.g : 1)), xp: 0, age: 0, hp: hp0, maxhp: hp0, queue: [], tq: 0, tur: -1, turCd: 0, cat: 0, catCd: 0, catAnim: 0, spCd: 20, aiT: 1, aiNext: null, kills: 0, up, shake: 0 };
 }
-function newGame() {
+let S0camp = null;
+function newGame(ci) {
+  S0camp = ci == null ? null : ci;
+  if (ci != null) diff = CAMP[ci].dk; else { try { diff = localStorage.getItem('bk_diff') || 'normal'; } catch (e) {} if (!DIFF[diff]) diff = 'normal'; }
   const pn = document.getElementById('panel'); if (pn) { pn.classList.add('hide'); pn.dataset.html = ''; }
-  S = { t: 0, speed: 1, paused: false, over: false, started: true, sides: [mkSide(0), mkSide(1)], units: [], dead: [], shots: [], fx: [], flash: [], burns: [] };
+  S = { t: 0, speed: 1, paused: false, over: false, started: true, sides: [mkSide(0), mkSide(1)], units: [], dead: [], shots: [], fx: [], flash: [], burns: [], camp: S0camp };
 }
-const mult = s => s.i === 1 ? DIFF[diff].mult : 1;
+const mult = s => s.i === 1 ? (S && S.camp != null ? CAMP[S.camp].m : DIFF[diff].mult) : 1;
+const catCost = s => Math.round(CAT.cost[s.cat] * (s.i === 0 ? 1 - .1 * RU('werk') : 1));
 const baseX = side => side === 0 ? BASE_FRONT : W - BASE_FRONT;
 const spMax = s => SP_CD - 5 * s.up.sp;
 
@@ -272,7 +331,7 @@ function enqueue(s, idx) {
   if (!canEnqueue(s, idx)) return false;
   const u = AGES[s.age].units[idx];
   s.gold -= u.cost;
-  s.queue.push({ ...u, age: s.age });
+  s.queue.push({ ...u, age: s.age, tr: u.tr * (s.i === 0 ? 1 - .08 * RU('ausb') : 1) });
   return true;
 }
 function spawn(s, u) {
@@ -294,7 +353,7 @@ function buyTurret(s) {
 }
 function buyCat(s) {
   if (s.tur < 0 || s.cat >= 5) return false;
-  const c = CAT.cost[s.cat]; if (s.gold < c) return false;
+  const c = catCost(s); if (s.gold < c) return false;
   s.gold -= c; s.cat++; s.catCd = Math.min(s.catCd, 1.2);
   if (s.i === 0) floatText(130, GROUND - 250, 'Marwin baut: ' + CAT.names[s.cat] + '!', '#f0d37a', 2);
   else floatText(W - 130, GROUND - 250, 'Die Spießer bauen ein Katapult', COL[1].light, 1.6);
@@ -386,7 +445,7 @@ function ai(s, dt) {
     const u = pool[Math.floor(Math.random() * pool.length)];
     if (u && s.gold >= upgCost(s, u) + 120) buyUpgrade(s, u.id);
   }
-  if (s.tur >= 0 && s.cat < { leicht: 1, normal: 2, schwer: 4 }[diff] && S.t > 80 && s.gold >= CAT.cost[s.cat] + 150 && Math.random() < .1) buyCat(s);
+  if (s.tur >= 0 && s.cat < { leicht: 1, normal: 2, schwer: 4 }[diff] && S.t > 80 && s.gold >= catCost(s) + 150 && Math.random() < .1) buyCat(s);
   if (s.queue.length < 3) {
     const U = AGES[s.age].units;
     if (s.aiNext == null || s.aiNext >= U.length) {
@@ -406,7 +465,7 @@ function auraBonus(u) {
 }
 function strike(u, target) {
   const s = S.sides[u.side];
-  let dmg = u.dmg * (1 + .15 * s.up.dmg) * auraBonus(u) * (s.i === 0 ? 1 + CB('allan-king-kebab') : 1);
+  let dmg = u.dmg * (1 + .15 * s.up.dmg) * auraBonus(u) * (s.i === 0 ? (1 + CB('allan-king-kebab')) * (1 + .05 * RU('drill')) : 1);
   if (u.steal) s.gold += u.steal;
   if (u.crit && Math.random() < u.crit) { dmg *= 2; S.fx.push({ x: u.x, y: GROUND - 58 * u.sz, t: .6, max: .6, kind: 'txt', txt: 'Wolfsbiss!', col: '#ffd27a', small: true }); }
   const dir = u.side === 0 ? 1 : -1;
@@ -1551,7 +1610,7 @@ function refreshUi(force) {
   const cb = btns.cat; cb.title = p.cat < 5 ? CAT.next[p.cat] : CAT.names[5];
   if (p.tur < 0) setBtn(cb, 'Katapult', 'erst Allan holen', true);
   else if (p.cat >= 5) setBtn(cb, 'Katapult V', 'Königskatapult ✓', true);
-  else setBtn(cb, p.cat ? 'Katapult ' + romans(p.cat + 1) : 'Katapult', `${p.cat ? 'Upgrade' : 'bauen'} · <span class="c">${CAT.cost[p.cat]}💰</span>`, p.gold < CAT.cost[p.cat]);
+  else setBtn(cb, p.cat ? 'Katapult ' + romans(p.cat + 1) : 'Katapult', `${p.cat ? 'Upgrade' : 'bauen'} · <span class="c">${catCost(p)}💰</span>`, p.gold < catCost(p));
   const canUp = UPG.some(u => p.up[u.id] < u.max && p.gold >= upgCost(p, u));
   setBtn(btns.shop, 'Upgrades', canUp ? '<span class="c">verfügbar</span>' : 'Schmiede & Co.', false);
   btns.shop.classList.toggle('glow', canUp);
@@ -1603,8 +1662,8 @@ function showMenu(kind, win) {
       <h1>Bandenkrieg</h1>
       <div class="orn">✦ ⚔ ✦</div><p>Die Bubatzbande gegen die Spießer. Stürm ihre Feste, bevor sie deine Burg schleifen.</p>
       <div class="crewstrip">${['artur', 'kobold', 'nille', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'].map(k => `<img src="img/${k}.jpg" alt="">`).join('')}</div>
-      ${diffButtons()}
-      <button class="go" id="go">▶ PLAY</button>
+      <div class="mtabs">${[['camp', '⚔ Kampagne'], ['frei', 'Freies Spiel'], ['rat', '🛡 Kriegsrat']].map(([k, l]) => `<button data-m="${k}" class="${k === mode ? 'on' : ''}">${l}${k === 'rat' && CP.pts ? ` <em>${CP.pts}</em>` : ''}</button>`).join('')}</div>
+      <div id="mbody"></div>
       <details class="how"><summary>So geht's</summary>
       <ul>
         <li><b>Deine Bande:</b> 10 Kämpfer aus Königreiche & Chaos, jeder mit eigener Fähigkeit. Kleine Nille schleicht an allen vorbei, LG3 lässt beim Tod einen Baumgeist wachsen.</li>
@@ -1617,8 +1676,11 @@ function showMenu(kind, win) {
       </ul>
       </details>
       <a class="ghost" href="../">← Zur Spielauswahl</a></div>`;
-    bindDiff();
-    $('go').onclick = () => { newGame(); hideMenu(); refreshUi(true); };
+    box.querySelectorAll('[data-m]').forEach(b => b.onclick = () => {
+      mode = b.dataset.m; try { localStorage.setItem('bk_mode', mode); } catch (e) {}
+      box.querySelectorAll('[data-m]').forEach(x => x.classList.toggle('on', x === b)); drawMode();
+    });
+    drawMode();
   } else if (kind === 'pause') {
     box.innerHTML = `<h1>Pause</h1><div class="orn">✦ ⚔ ✦</div>
       <button class="go" id="go">▶ Weiter</button>
@@ -1631,24 +1693,71 @@ function showMenu(kind, win) {
     box.innerHTML = `<img class="banner ${win ? 'win' : 'loss'}" src="img/${win ? 'win' : 'loss'}.webp" alt="${win ? 'Gewonnen' : 'Verloren'}">
       <p>${win ? 'Die Spießerfeste ist gefallen. Die Bande feiert bis zum Morgengrauen. 🌿' : 'Die Spießer haben deine Burg gestürmt. Beim nächsten Mal holst du sie dir.'}</p>
       <div class="stats"><div><b>${mins}:${secs}</b><span>Zeit</span></div><div><b>${p.kills}</b><span>Gegner besiegt</span></div><div><b>${AGES[p.age].name}</b><span>Zeitalter</span></div><div><b>${p.cat ? romans(p.cat) : '–'}</b><span>Katapult</span></div></div>
-      ${diffButtons()}
-      <button class="go" id="go">Nochmal</button>
+      ${S.camp != null ? campEnd(win) : diffButtons() + '<button class="go" id="go">Nochmal</button>'}
       ${window.BB ? '<button class="go alt" id="bbBoard">🏆 Bestenliste</button>' : ''}
       <a class="ghost" href="../">← Zur Spielauswahl</a>`;
     if ($('bbBoard')) $('bbBoard').onclick = () => BB.open('board', 'krieg');
-    bindDiff();
-    $('go').onclick = () => { newGame(); hideMenu(); refreshUi(true); };
+    if (S.camp != null) {
+      const ci = S.camp, nx = ci + 1 < CAMP.length && unlocked(ci + 1) ? ci + 1 : ci;
+      $('go').onclick = () => { cur = nx; startBattle(nx); };
+      if ($('again')) $('again').onclick = () => startBattle(ci);
+      $('toMap').onclick = () => { cur = nx; mode = win && CP.pts ? 'rat' : 'camp'; showMenu('start'); };
+    } else {
+      bindDiff();
+      $('go').onclick = () => { newGame(); hideMenu(); refreshUi(true); };
+    }
   }
 }
 function hideMenu() { ov.classList.add('hide'); }
+function startBattle(ci) { newGame(ci); hideMenu(); refreshUi(true); floatText(W / 2, GROUND - 230, 'Schlacht ' + (ci + 1) + ': ' + CAMP[ci].n, '#f0d37a', 2.5); }
+const starRow = (n, max = 3) => '<span class="stars">' + Array.from({ length: max }, (_, i) => `<i class="${i < n ? 'on' : ''}">★</i>`).join('') + '</span>';
+function drawMode() {
+  const mb = $('mbody'); if (!mb) return;
+  if (mode === 'frei') {
+    mb.innerHTML = diffButtons() + '<button class="go" id="go">▶ PLAY</button>';
+    bindDiff(); $('go').onclick = () => { newGame(); hideMenu(); refreshUi(true); };
+  } else if (mode === 'camp') {
+    const b = CAMP[cur];
+    mb.innerHTML = `<div class="cmap">${CAMP.map((c, i) => `<button data-c="${i}" class="cn ${i === cur ? 'on' : ''} ${c.boss ? 'boss' : ''}" ${unlocked(i) ? '' : 'disabled'}><b>${unlocked(i) ? (c.boss ? '💀' : i + 1) : '🔒'}</b>${starRow(CP.stars[i] || 0)}</button>`).join('')}</div>
+      <div class="cinfo"><h3>${cur + 1}. ${b.n}</h3><p>${b.e}</p>
+      <div class="ctags"><span>Gegner ×${b.m.toFixed(2)}</span><span>Burg ×${b.hp}</span><span>Gold ×${b.g}</span></div>
+      <div class="chint">★ Sieg · ★ Burg über 50 % · ★ unter 12 Min</div></div>
+      <button class="go" id="go">▶ Schlacht starten</button>
+      <div class="ctot">${totalStars()} / ${CAMP.length * 3} ★ gesammelt</div>`;
+    mb.querySelectorAll('[data-c]').forEach(x => x.onclick = () => { cur = +x.dataset.c; drawMode(); });
+    $('go').onclick = () => startBattle(cur);
+  } else {
+    mb.innerHTML = `<div class="rpts">Kriegspunkte: <b>${CP.pts}</b><small>Gibt's für Siege und neue Sterne in der Kampagne. Gilt in allen Schlachten.</small></div>
+      <div class="rat">${RAT.map(r => { const l = RU(r.id), c = ratCost(l), mx = l >= RAT_MAX;
+        return `<div class="rr"><span class="ri">${r.i}</span><div class="rt"><b>${r.n}</b><small>${r.fx} pro Stufe</small><div class="pips">${Array.from({ length: RAT_MAX }, (_, i) => `<i class="${i < l ? 'on' : ''}"></i>`).join('')}</div></div>
+        <button data-r="${r.id}" ${mx || CP.pts < c ? 'disabled' : ''}>${mx ? 'Max' : c + ' KP'}</button></div>`; }).join('')}</div>`;
+    mb.querySelectorAll('[data-r]').forEach(x => x.onclick = () => {
+      const id = x.dataset.r, c = ratCost(RU(id)); if (CP.pts < c || RU(id) >= RAT_MAX) return;
+      CP.pts -= c; CP.up[id]++; saveCamp(); showMenu('start');
+    });
+  }
+}
+function campEnd(win) {
+  const r = lastRes || { st: 0, nw: 0, kp: 0 }, ci = S.camp, last = ci + 1 >= CAMP.length;
+  return `<div class="cres"><div class="cbig">${starRow(r.st)}</div><b>Schlacht ${ci + 1}: ${CAMP[ci].n}</b>
+    ${win ? `<small>${r.kp ? '+' + r.kp + ' Kriegspunkte' : 'Keine neuen Sterne'}${r.nw ? ' · ' + r.nw + ' neue ★' : ''}</small>` : '<small>Rüste im Kriegsrat auf und versuch es nochmal.</small>'}</div>
+    ${win && !last ? '<button class="go" id="go">▶ Nächste Schlacht</button><button class="go alt" id="again">Nochmal für mehr ★</button>' : `<button class="go" id="go">${win ? 'Nochmal' : '↻ Nochmal'}</button>`}
+    <button class="go alt" id="toMap">${win && CP.pts ? '🛡 Kriegsrat' : '🗺 Zur Karte'}</button>`;
+}
 function endGame(win) {
   S.over = true; const g = S;
+  if (S.camp != null) {
+    const ci = S.camp, p = S.sides[0], st = win ? 1 + (p.hp / p.maxhp > .5 ? 1 : 0) + (S.t < 720 ? 1 : 0) : 0;
+    const old = CP.stars[ci] || 0, nw = Math.max(0, st - old), kp = win ? 1 + nw * 2 + (CAMP[ci].boss && !old ? 3 : 0) : 0;
+    CP.stars[ci] = Math.max(old, st); CP.pts += kp; lastRes = { st, nw, kp }; saveCamp();
+    if (win && window.BB && BB.earn) BB.earn(40 + ci * 15 + nw * 10, 'Schlacht ' + (ci + 1) + ' gewonnen');
+  }
   if (win && window.BB) {
     const p = S.sides[0], pts = { leicht: 1000, normal: 2000, schwer: 3500 }[diff] + Math.max(0, 1500 - Math.round(S.t)) + p.kills * 3;
     BB.record('krieg', pts, { d: DIFF[diff].label, t: Math.round(S.t) });
     BB.unlock('krieg_win'); if (diff === 'schwer') BB.unlock('krieg_hart'); if (S.t < 600) BB.unlock('krieg_fast');
   }
-  if (window.BB && BB.earn) BB.earn(win ? { leicht: 30, normal: 60, schwer: 100 }[diff] : 10, win ? 'Bandenkrieg gewonnen' : 'Tapfer gekämpft');
+  if (S.camp == null && window.BB && BB.earn) BB.earn(win ? { leicht: 30, normal: 60, schwer: 100 }[diff] : 10, win ? 'Bandenkrieg gewonnen' : 'Tapfer gekämpft');
   if (window.BB && S.sides[0].kills >= 120) BB.unlock('krieg_kills'); setTimeout(() => { if (S === g) showMenu('end', win); }, 900); }
 
 // ---------- Loop ----------
@@ -1670,9 +1779,10 @@ AGES[0].units.forEach((u, i) => { setPic(btns['u' + i], u.look); setBtn(btns['u'
 setBtn(btns.tur, 'Allan', AGES[0].tur.w, true); setBtn(btns.cat, 'Katapult', 'erst Allan holen', true);
 setBtn(btns.sp, 'König ruft', 'Bereit!', true); setBtn(btns.up, '⬆ ' + AGES[1].name, AGES[0].xpNext + ' ⭐', true); setBtn(btns.shop, 'Upgrades', 'Schmiede & Co.', true);
 showMenu('start');
+if (window.BB && BB.cloud && BB.loggedIn) BB.cloud.get('krieg').then(c => { if (c && Array.isArray(c.stars) && (c.t || 0) > (CP.t || 0)) { CP = c; for (const r of RAT) CP.up[r.id] = CP.up[r.id] || 0; try { localStorage.setItem('bk_camp', JSON.stringify(CP)); } catch (e) {} if (!S) showMenu('start'); } }).catch(() => {});
 requestAnimationFrame(loop);
 // Zum Testen per Konsole
-window.BK = { get S() { return S; }, newGame, update, enqueue, special, ageUp, buyTurret, buyUpgrade, buyCat, AGES, UPG, CAT };
+window.BK = { get S() { return S; }, CP: () => CP, endGame, newGame, update, enqueue, special, ageUp, buyTurret, buyUpgrade, buyCat, AGES, UPG, CAT };
 </script>
 </body>
 </html>
