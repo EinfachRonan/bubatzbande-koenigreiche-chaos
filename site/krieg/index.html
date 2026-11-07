@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>Bandenkrieg</title>
-<meta name="theme-color" content="#0e0a07">
+<meta name="theme-color" content="#0b1108">
 <link rel="apple-touch-icon" href="../icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
@@ -90,6 +90,64 @@ canvas{display:block}
   .top{gap:5px}.stat{padding:4px 7px}
 }
 @media (max-height:420px){.btn{min-height:44px;gap:5px;padding:3px 5px}.btn span{font-size:10px}.btn b{font-size:11.5px}.btn .pic{width:32px;height:32px}.btn .pic canvas{width:32px;height:32px}.top{padding-top:4px;padding-bottom:4px}}
+
+/* ===== Königreiche & Chaos ===== */
+:root{--bg:#070a06;--panel:#0f160c;--line:#4a3c18;--txt:#f1e6c8;--mut:#a59a7c;--gold:#d4af37;--gold2:#f0d37a;--xp:#a8dcff}
+html,body{background:var(--bg)}
+.top{background:linear-gradient(#19220f,#0b1108);border-bottom:1px solid #7a6128;box-shadow:0 1px 0 rgba(212,175,55,.25),0 8px 24px rgba(0,0,0,.65);position:relative;z-index:6}
+.top a,.top button{background:linear-gradient(#1f2c19,#0f170c);border:1px solid #7a6128;color:var(--gold2);box-shadow:inset 0 1px 0 rgba(240,211,122,.15)}
+.stat{background:rgba(0,0,0,.5);border:1px solid #5a4a1c;box-shadow:inset 0 1px 0 rgba(240,211,122,.08)}
+.gold{color:#f6d36a}
+#wrap{background:#050704;overflow:hidden}
+#wrap::before{content:"";position:absolute;inset:-30px;background:url(img/hoehle.jpg) center/cover;filter:blur(16px) brightness(.6) saturate(1.1);z-index:0}
+#wrap>canvas{position:relative;z-index:1}
+canvas#cv{box-shadow:0 0 0 1px rgba(212,175,55,.25),0 0 50px rgba(0,0,0,.8)}
+.queue{background:linear-gradient(#0f160c,#0a0f08);border-top:1px solid #7a6128;color:var(--mut)}
+.chip{background:linear-gradient(#22311b,#141e10);border:1px solid #7a6128}
+.bar{background:linear-gradient(#0e150b,#070a05);border-top:1px solid rgba(212,175,55,.2)}
+.btn{background:linear-gradient(#202e1a,#0f170c);border:1px solid #8a6d32;border-radius:6px;box-shadow:inset 0 1px 0 rgba(240,211,122,.18),0 3px 0 #040603,0 4px 10px rgba(0,0,0,.45)}
+.btn::before{content:"";position:absolute;inset:3px;border:1px solid rgba(212,175,55,.16);border-radius:4px;pointer-events:none}
+.btn:not(:disabled):hover{border-color:var(--gold2);box-shadow:inset 0 1px 0 rgba(240,211,122,.25),0 0 16px rgba(120,210,90,.22),0 3px 0 #040603}
+.btn b{color:#f8eed2;text-shadow:0 1px 0 #000}
+.btn .c{color:#f6d36a}
+.btn .pic{border:1px solid #c49a3a;border-radius:5px;box-shadow:0 0 0 1px #000,0 2px 6px rgba(0,0,0,.6);background:#0b1009}
+.btn.unit .pic,.btn.up .pic{background:#0b1009}
+.btn.sp{background:linear-gradient(#2c3a16,#141c0a);border-color:#b8902c}
+.btn.cat{background:linear-gradient(#2a2a16,#15140a)}
+.btn .cd{background:linear-gradient(90deg,#7ec85a,#f0d37a);height:3px;box-shadow:0 0 6px rgba(160,230,110,.6)}
+.btn:disabled{opacity:.5;filter:saturate(.5)}
+.top .btn.tb{background:linear-gradient(#202e1a,#0f170c);border-color:#8a6d32}
+.top .btn.tb.up{background:linear-gradient(#1a2a2c,#0c1517);border-color:#6a8a8a}
+.top .btn.tb.glow,.btn.shop.glow{box-shadow:0 0 0 1px var(--gold2),0 0 18px rgba(240,200,90,.5)}
+.panel{background:linear-gradient(rgba(17,26,13,.97),rgba(8,12,6,.97));border:1px solid #c49a3a;outline:1px solid #3a3418;outline-offset:3px;border-radius:8px}
+.ph{color:var(--gold2);font-family:"Cinzel",serif}
+.up-row{background:rgba(255,255,255,.025);border:1px solid rgba(212,175,55,.14)}
+.up-row button{background:linear-gradient(#3b6e2e,#1d4116);color:#f6e7b0;border:1px solid #d4af37;box-shadow:inset 0 1px 0 rgba(255,240,180,.3)}
+.pips i.on{background:linear-gradient(#f0d37a,#b8902c);box-shadow:0 0 4px rgba(240,211,122,.6)}
+.ov{background:radial-gradient(ellipse at 50% 40%,rgba(8,14,6,.55),rgba(2,3,2,.93))}
+.box{background:linear-gradient(#131c0f,#090d07);border:1px solid #d4af37;outline:1px solid #4a3c18;outline-offset:5px;border-radius:10px;box-shadow:0 30px 90px rgba(0,0,0,.85),inset 0 0 70px rgba(0,0,0,.55);max-width:620px}
+.box::before,.box::after{content:"✦";position:absolute;top:8px;color:var(--gold);font-size:12px;opacity:.7}
+.box::before{left:12px}.box::after{right:12px}
+.box.start{padding:0;overflow:hidden auto}
+.box.start::before,.box.start::after{display:none}
+.heroWrap{position:relative}
+.hero{display:block;width:100%;height:auto;-webkit-mask-image:linear-gradient(#000 72%,transparent);mask-image:linear-gradient(#000 72%,transparent)}
+.box .inner{padding:0 22px 20px;margin-top:-26px;position:relative}
+.box h1{font-size:34px;filter:drop-shadow(0 2px 0 #000) drop-shadow(0 0 18px rgba(212,175,55,.3))}
+.go{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border:1px solid #d4af37;border-radius:6px;font-family:"Cinzel",serif;letter-spacing:.16em;text-shadow:0 1px 0 #0a1406;box-shadow:inset 0 1px 0 rgba(255,240,180,.35),0 0 0 3px #070a05,0 0 0 4px #7a6128,0 8px 24px rgba(60,150,50,.3);margin-top:14px}
+.go:hover{filter:brightness(1.12)}
+.go.alt{background:linear-gradient(#202e1a,#0f170c);color:var(--gold2);box-shadow:0 0 0 3px #070a05,0 0 0 4px #4a3c18}
+.diff button{background:linear-gradient(#1a2614,#0e150b);border:1px solid #5a4a1c;color:var(--txt)}
+.diff button.on{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border-color:#d4af37;box-shadow:0 0 12px rgba(100,190,70,.3)}
+.crewstrip img{border-color:#d4af37;box-shadow:0 0 0 2px #070a05,0 3px 10px rgba(0,0,0,.6)}
+.banner{display:block;width:calc(100% + 30px);max-width:none;margin:-6px -15px 4px;filter:drop-shadow(0 12px 30px rgba(0,0,0,.75))}
+.banner.loss{filter:drop-shadow(0 12px 30px rgba(0,0,0,.75)) brightness(.92)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 4px}
+.stats div{background:rgba(0,0,0,.35);border:1px solid rgba(212,175,55,.2);border-radius:6px;padding:8px 4px}
+.stats b{display:block;font-family:"Cinzel",serif;color:var(--gold2);font-size:16px}
+.stats span{font-size:11px;color:var(--mut)}
+@media (max-height:520px){.hero{max-height:130px;object-fit:cover;object-position:50% 22%}.box .inner{margin-top:-14px}.box h1{font-size:26px}.crewstrip img{width:30px;height:30px}}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.box h1{font-size:28px}}
 </style>
 </head>
 <body>
@@ -218,6 +276,7 @@ function spawn(s, u) {
   const sx = s.i === 0 ? BASE_FRONT - 20 : W - BASE_FRONT + 20;
   const hp = Math.round(u.hp * (1 + .15 * s.up.hp));
   S.units.push({ id: uid++, side: s.i, x: sx, ...u, hp, maxhp: hp, r: 9 * u.sz, cd: .3, anim: 0, walk: Math.random() * 6, born: S.t });
+  S.fx.push({ x: sx, y: GROUND - 6, t: .45, kind: 'quake', col: s.i === 0 ? '#9fe3b2' : '#f2a593' });
 }
 function spawnFree(s) {
   const sx = s.i === 0 ? BASE_FRONT - 20 : W - BASE_FRONT + 20;
@@ -240,6 +299,7 @@ function buyCat(s) {
 }
 function catImpact(sh) {
   const k = sh.cat;
+  S.quake = Math.max(S.quake || 0, k.siege ? .18 : k.fire ? .32 : .24);
   if (k.siege) {
     hurtBase(1 - k.side, k.dmg);
     S.fx.push({ x: sh.x2, y: sh.y2, t: .6, kind: 'boom', col: '#e0d6c2' });
@@ -291,6 +351,7 @@ function hurt(v, dmg, bySide, src, unblockable) {
   if (!unblockable && v.dodge && Math.random() < v.dodge) { S.fx.push({ x: v.x, y: GROUND - 55 * v.sz, t: .6, max: .6, kind: 'txt', txt: 'weg!', col: '#bfe9ff', small: true }); return; }
   if (v.block) dmg *= 1 - v.block;
   v.hp -= dmg; v.hit = .12;
+  if (dmg >= 4 && S.fx.length < 150) S.fx.push({ x: v.x + (Math.random() - .5) * 8, y: GROUND - 66 * v.sz * VIS, t: .7, kind: 'num', txt: Math.round(dmg), dx: Math.random() - .5, big: dmg >= 60, col: v.side === 0 ? '#ff9a7a' : dmg >= 60 ? '#ffd36a' : '#fff1c4' });
   if (S.fx.length < 160) S.fx.push({ x: v.x + (Math.random() - .5) * 8, y: GROUND - 26 * v.sz * VIS, t: .28, kind: 'spark', col: v.side === 0 ? '#ffe2a0' : '#fff2c8' });
   if (v.hp <= 0) {
     const s = S.sides[bySide];
@@ -361,6 +422,7 @@ function strike(u, target) {
 }
 function update(dt) {
   S.t += dt;
+  if (S.quake > 0) S.quake = Math.max(0, S.quake - dt);
   for (const s of S.sides) {
     s.gold += AGES[s.age].income * mult(s) * (1 + .3 * s.up.gold) * dt * .5;
     s.xp += 2 * mult(s) * dt;
@@ -492,7 +554,7 @@ function update(dt) {
 // ---------- Zeichnen ----------
 const cv = document.getElementById('cv'), wrap = document.getElementById('wrap');
 let ctx = cv.getContext('2d');
-const VIS = 1.25; // Figuren größer zeichnen als ihre Spielfläche
+const VIS = 1.4; // Figuren größer zeichnen als ihre Spielfläche
 let scale = 1, dpr = 1;
 function resize() {
   dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -515,7 +577,33 @@ function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 10139
 
 // ---------- Hintergrund (einmal vorgerendert) ----------
 const BG_RES = 2;
+const HOEHLE = new Image(); HOEHLE.src = 'img/hoehle.jpg';
+HOEHLE.onload = () => { BG = null; };
+const CAVE = () => HOEHLE.complete && HOEHLE.naturalWidth > 0;
 function makeBg() {
+  if (!CAVE()) return makeBgOutdoor();
+  const c = document.createElement('canvas'); c.width = W * BG_RES; c.height = H * BG_RES;
+  const g = c.getContext('2d'); g.scale(BG_RES, BG_RES);
+  // Bild so legen, dass der Steinboden auf Höhe des Schlachtfelds liegt
+  const sc = W / HOEHLE.naturalWidth, ih = HOEHLE.naturalHeight * sc, off = GROUND - 500 * sc;
+  g.drawImage(HOEHLE, 0, off, W, ih);
+  // etwas aufhellen und wärmer machen, damit die Figuren gut lesbar sind
+  g.globalCompositeOperation = 'screen';
+  g.save(); g.translate(W / 2, GROUND - 10); g.scale(1, .32);
+  const lane = g.createRadialGradient(0, 0, 0, 0, 0, 640); lane.addColorStop(0, 'rgba(255,200,120,.20)'); lane.addColorStop(.6, 'rgba(255,190,110,.07)'); lane.addColorStop(1, 'rgba(255,190,110,0)');
+  g.fillStyle = lane; g.fillRect(-W, -800, W * 2, 1600); g.restore();
+  const tun = g.createRadialGradient(W * .52, 210, 10, W * .52, 210, 260); tun.addColorStop(0, 'rgba(120,220,90,.16)'); tun.addColorStop(1, 'rgba(120,220,90,0)');
+  g.fillStyle = tun; g.fillRect(0, 0, W, H);
+  g.globalCompositeOperation = 'source-over';
+  // oben abdunkeln für die Lebensbalken
+  const top = g.createLinearGradient(0, 0, 0, 120); top.addColorStop(0, 'rgba(4,6,3,.65)'); top.addColorStop(1, 'rgba(4,6,3,0)');
+  g.fillStyle = top; g.fillRect(0, 0, W, 120);
+  // weicher Kontaktschatten entlang der Laufbahn
+  const lg = g.createLinearGradient(0, GROUND - 4, 0, GROUND + 14); lg.addColorStop(0, 'rgba(0,0,0,0)'); lg.addColorStop(.5, 'rgba(0,0,0,.18)'); lg.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = lg; g.fillRect(0, GROUND - 4, W, 18);
+  return c;
+}
+function makeBgOutdoor() {
   const c = document.createElement('canvas'); c.width = W * BG_RES; c.height = H * BG_RES;
   const g = c.getContext('2d'); g.scale(BG_RES, BG_RES);
   const R = rng(7);
@@ -662,6 +750,39 @@ function makeCastle(side, age) {
 
 let BG = null, FG = null; const CASTLES = [[], []];
 function makeFg() {
+  if (!CAVE()) return makeFgOutdoor();
+  const c = document.createElement('canvas'); c.width = W * BG_RES; c.height = H * BG_RES;
+  const g = c.getContext('2d'); g.scale(BG_RES, BG_RES);
+  const R = rng(42);
+  const fg = g.createLinearGradient(0, GROUND + 24, 0, H); fg.addColorStop(0, 'rgba(3,5,2,0)'); fg.addColorStop(1, 'rgba(3,5,2,.78)');
+  g.fillStyle = fg; g.fillRect(0, GROUND + 24, W, H - GROUND - 24);
+  // Farne und Kräuter im Vordergrund
+  const fern = (x, y, h, lean, col) => {
+    g.strokeStyle = col; g.fillStyle = col; g.lineWidth = 1.6;
+    g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + lean * .4, y - h * .6, x + lean, y - h); g.stroke();
+    for (let i = 1; i < 9; i++) {
+      const q = i / 9, px = x + lean * q * q, py = y - h * q, l = (1 - q) * h * .32 + 3;
+      g.beginPath(); g.ellipse(px - l * .5, py + 1, l * .55, 1.6, -.5, 0, 7); g.fill();
+      g.beginPath(); g.ellipse(px + l * .5, py + 1, l * .55, 1.6, .5, 0, 7); g.fill();
+    }
+  };
+  for (const [x0, x1, n] of [[0, 230, 9], [970, 1200, 9], [380, 820, 5]]) {
+    for (let i = 0; i < n; i++) {
+      const x = x0 + R() * (x1 - x0), y = H + 4, h = 30 + R() * (x0 === 380 ? 20 : 55);
+      fern(x, y, h, (R() - .5) * 40, R() < .5 ? '#0f1a0b' : '#15230f');
+    }
+  }
+  // leuchtende Pilze
+  for (let i = 0; i < 9; i++) {
+    const x = R() < .5 ? R() * 220 : 980 + R() * 220, y = H - 8 - R() * 30, r = 2 + R() * 2.5;
+    const gl = g.createRadialGradient(x, y - r, 0, x, y - r, r * 5); gl.addColorStop(0, 'rgba(140,255,120,.35)'); gl.addColorStop(1, 'rgba(140,255,120,0)');
+    g.fillStyle = gl; g.fillRect(x - r * 5, y - r * 6, r * 10, r * 10);
+    g.fillStyle = '#2b3a20'; g.fillRect(x - .6, y - r, 1.2, r + 2);
+    g.fillStyle = '#9dff8a'; g.beginPath(); g.ellipse(x, y - r, r, r * .6, 0, Math.PI, 0); g.fill();
+  }
+  return c;
+}
+function makeFgOutdoor() {
   const c = document.createElement('canvas'); c.width = W * BG_RES; c.height = H * BG_RES;
   const g = c.getContext('2d'); g.scale(BG_RES, BG_RES);
   const R = rng(99);
@@ -693,7 +814,16 @@ function outlineCanvas(c, px, col) {
   og.drawImage(c, 0, 0);
   return out;
 }
-function buildArt() { BG = makeBg(); FG = makeFg(); for (const s of [0, 1]) for (let a = 0; a < 3; a++) CASTLES[s][a] = outlineCanvas(makeCastle(s, a), 2.2, '#1a0f0b'); }
+function tintCastle(c, side) {
+  if (!CAVE()) return c;
+  const g = c.getContext('2d'); g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-atop';
+  g.fillStyle = 'rgba(14,22,10,.42)'; g.fillRect(0, 0, c.width, c.height);
+  const w = g.createLinearGradient(side === 0 ? c.width : 0, 0, side === 0 ? 0 : c.width, 0);
+  w.addColorStop(0, 'rgba(255,180,90,.22)'); w.addColorStop(.5, 'rgba(255,180,90,0)');
+  g.fillStyle = w; g.fillRect(0, 0, c.width, c.height);
+  g.restore(); return c;
+}
+function buildArt() { BG = makeBg(); FG = makeFg(); for (const s of [0, 1]) for (let a = 0; a < 3; a++) CASTLES[s][a] = outlineCanvas(tintCastle(makeCastle(s, a), 0), 2.2, '#0d0805'); }
 
 function drawFlag(x, y, side, t, big) {
   const c = COL[side], dir = side === 0 ? 1 : -1, L = big ? 30 : 22;
@@ -742,8 +872,7 @@ function drawBase(side) {
     ctx.strokeStyle = s.tur === 0 ? '#6b4a2c' : '#4a4a4a'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(4, -14); ctx.lineTo(14, -18); ctx.stroke();
     ctx.restore();
     ctx.fillStyle = '#f4e4c1'; ctx.font = `700 10px ${FONT}`; ctx.textAlign = 'center';
-    ctx.textAlign = side === 0 ? 'left' : 'right';
-    ctx.fillText(side === 0 ? AGES[s.tur].tur.n : AGES[s.tur].tur.e, side === 0 ? Math.max(6, p.x - 14) : Math.min(W - 6, p.x + 14), p.y - (s.cat ? 52 : 38));
+    if (side === 0 && !s.cat) outText(AGES[s.tur].tur.n, p.x, p.y - 38);
   }
   drawCatapult(side);
 }
@@ -1138,10 +1267,10 @@ function shadeCanvas(g, SZ, R, top, bottom, toward, flash) {
   v.addColorStop(0, 'rgba(255,226,180,.22)'); v.addColorStop(.45, 'rgba(255,226,180,0)'); v.addColorStop(.75, 'rgba(25,12,35,.12)'); v.addColorStop(1, 'rgba(25,12,35,.42)');
   g.fillStyle = v; g.fillRect(0, 0, SZ, SZ);
   const hx = g.createLinearGradient(toward > 0 ? SZ / 2 + 22 : SZ / 2 - 22, 0, SZ / 2, 0);
-  hx.addColorStop(0, 'rgba(255,170,100,.32)'); hx.addColorStop(1, 'rgba(255,170,100,0)');
+  hx.addColorStop(0, 'rgba(255,180,100,.34)'); hx.addColorStop(1, 'rgba(255,170,100,0)');
   g.fillStyle = hx; g.fillRect(0, 0, SZ, SZ);
   const hs = g.createLinearGradient(toward > 0 ? SZ / 2 - 22 : SZ / 2 + 22, 0, SZ / 2, 0);
-  hs.addColorStop(0, 'rgba(20,10,30,.28)'); hs.addColorStop(1, 'rgba(20,10,30,0)');
+  hs.addColorStop(0, 'rgba(60,140,50,.22)'); hs.addColorStop(1, 'rgba(20,10,30,0)');
   g.fillStyle = hs; g.fillRect(0, 0, SZ, SZ);
   if (flash) { g.fillStyle = 'rgba(255,255,255,.55)'; g.fillRect(0, 0, SZ, SZ); }
   g.globalCompositeOperation = 'source-over';
@@ -1212,7 +1341,7 @@ function drawUnit(u, dead) {
   if (dead) return;
   const top = GROUND - ({ kobold: 64, lg3: 60 }[u.look] || (u.k === 'Tank' || u.k === 'Held' ? 58 : 54)) * sz - bob;
   // Name nur kurz nach dem Spawnen (Helden immer)
-  const age = S.t - (u.born || 0), na = u.k === 'Held' ? 1 : Math.max(0, Math.min(1, (2.6 - age) / .6));
+  const age = S.t - (u.born || 0), na = u.k === 'Held' ? 1 : u.side === 1 ? 0 : Math.max(0, Math.min(1, (2.6 - age) / .6));
   if (na > 0) {
     ctx.globalAlpha = na; ctx.fillStyle = '#f4e4c1'; ctx.font = `700 ${Math.round(9 + u.sz * 1.5)}px ${FONT}`; ctx.textAlign = 'center';
     outText((u.k === 'Held' ? '♛ ' : '') + (u.side === 0 ? u.n : u.e), u.x, top - 8);
@@ -1284,26 +1413,52 @@ function drawHud() {
   }
 }
 
+// schwebende Sporen und Glühwürmchen
+const MOTE = (() => { const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.25, 'rgba(255,255,255,.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 32, 32); return c; })();
+const MOTE_T = { gruen: null, gold: null };
+for (const [k, col] of [['gruen', '#9dff7a'], ['gold', '#ffd27a']]) { const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d'); g.drawImage(MOTE, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, 32, 32); MOTE_T[k] = c; }
+const MOTES = Array.from({ length: 46 }, (_, i) => ({ x: Math.random() * W, y: 60 + Math.random() * (GROUND + 40), vx: (Math.random() - .5) * 6, vy: -4 - Math.random() * 8, r: 3 + Math.random() * 6, ph: Math.random() * 7, gold: i % 4 === 0 }));
+let moteT = performance.now();
+function drawMotes() {
+  const now = performance.now(), dt = Math.min(.05, (now - moteT) / 1000); moteT = now;
+  for (const m of MOTES) {
+    m.x += (m.vx + Math.sin(now / 1300 + m.ph) * 5) * dt; m.y += m.vy * dt;
+    if (m.y < 40) { m.y = GROUND + 50; m.x = Math.random() * W; }
+    if (m.x < -10) m.x = W + 10; if (m.x > W + 10) m.x = -10;
+    ctx.globalAlpha = .35 + Math.sin(now / 500 + m.ph * 3) * .3;
+    ctx.drawImage(m.gold ? MOTE_T.gold : MOTE_T.gruen, m.x - m.r, m.y - m.r, m.r * 2, m.r * 2);
+  }
+  ctx.globalAlpha = 1;
+}
 function draw() {
   ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
   if (!BG) buildArt();
+  if (S && S.quake > 0) { const q = Math.min(1, S.quake / .3) * 3.5; ctx.fillStyle = '#050704'; ctx.fillRect(0, 0, W, H); ctx.translate((Math.random() - .5) * q, (Math.random() - .5) * q); }
   ctx.drawImage(BG, 0, 0, W, H);
-  // Wolken
-  const t = S ? S.t : performance.now() / 1000;
-  ctx.fillStyle = 'rgba(255,190,170,.13)';
-  for (let i = 0; i < 6; i++) {
-    const x = ((i * 260 + t * (6 + i)) % (W + 300)) - 150, y = 50 + (i * 37) % 110;
-    ctx.beginPath(); ctx.ellipse(x, y, 70, 10, 0, 0, 7); ctx.ellipse(x + 30, y - 6, 40, 9, 0, 0, 7); ctx.fill();
+  if (!CAVE()) {
+    const t = S ? S.t : performance.now() / 1000;
+    ctx.fillStyle = 'rgba(255,190,170,.13)';
+    for (let i = 0; i < 6; i++) {
+      const x = ((i * 260 + t * (6 + i)) % (W + 300)) - 150, y = 50 + (i * 37) % 110;
+      ctx.beginPath(); ctx.ellipse(x, y, 70, 10, 0, 0, 7); ctx.ellipse(x + 30, y - 6, 40, 9, 0, 0, 7); ctx.fill();
+    }
   }
-  if (!S) return;
+  if (!S) { drawMotes(); ctx.drawImage(FG, 0, 0, W, H); return; }
   drawBase(0); drawBase(1); drawCamp();
   drawBurns();
   for (const d of S.dead) drawUnit(d, d);
   const list = [...S.units].sort((a, b) => a.sz - b.sz);
   for (const u of list) drawUnit(u);
   for (const sh of S.shots) drawShot(sh);
+  drawMotes();
   for (const f of S.fx) {
-    if (f.kind === 'txt') {
+    if (f.kind === 'num') {
+      const p = 1 - f.t / .7;
+      ctx.globalAlpha = Math.min(1, f.t * 3); ctx.fillStyle = f.col; ctx.font = `800 ${f.big ? 15 : 11}px ${FONT}`; ctx.textAlign = 'center';
+      outText(f.txt, f.x + f.dx * p * 12, f.y - p * 22 - Math.sin(p * Math.PI) * 6); ctx.globalAlpha = 1;
+    } else if (f.kind === 'txt') {
       const p = 1 - f.t / f.max;
       ctx.globalAlpha = Math.min(1, f.t * 2); ctx.fillStyle = f.col; ctx.font = `800 ${f.small ? 11 : 16}px ${FONT}`; ctx.textAlign = 'center';
       outText(f.txt, f.x, f.y - p * 30); ctx.globalAlpha = 1;
@@ -1341,6 +1496,7 @@ function draw() {
   const v = ctx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, W * .7);
   v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.45)');
   ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
   drawHud();
 }
 
@@ -1465,8 +1621,10 @@ function bindDiff() {
 }
 function showMenu(kind, win) {
   ov.classList.remove('hide');
+  box.className = 'box ' + kind;
   if (kind === 'start') {
-    box.innerHTML = `<h1>Bandenkrieg</h1>
+    box.innerHTML = `<div class="heroWrap"><img class="hero" src="img/hero.jpg" alt="Die Bubatzbande"></div><div class="inner">
+      <h1>Bandenkrieg</h1>
       <div class="orn">✦ ⚔ ✦</div><p>Die Bubatzbande gegen die Spießer. Stürm ihre Feste, bevor sie deine Burg schleifen.</p>
       <div class="crewstrip">${['artur', 'kobold', 'nille', 'runen', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'].map(k => `<img src="img/${k}.jpg" alt="">`).join('')}</div>
       ${diffButtons()}
@@ -1482,7 +1640,7 @@ function showMenu(kind, win) {
         <li><b>König ruft:</b> Pfeilhagel auf alle Gegner, dann 45 s Pause.</li>
       </ul>
       </details>
-      <a class="ghost" href="../">← Zur Spielauswahl</a>`;
+      <a class="ghost" href="../">← Zur Spielauswahl</a></div>`;
     bindDiff();
     $('go').onclick = () => { newGame(); hideMenu(); refreshUi(true); };
   } else if (kind === 'pause') {
@@ -1494,9 +1652,9 @@ function showMenu(kind, win) {
     $('re').onclick = () => showMenu('start');
   } else if (kind === 'end') {
     const p = S.sides[0], mins = Math.floor(S.t / 60), secs = String(Math.floor(S.t % 60)).padStart(2, '0');
-    box.innerHTML = `<h1>${win ? 'Sieg!' : 'Niederlage'}</h1>
-      <p>${win ? 'Die Spießerfeste ist gefallen. Die Bande feiert bis zum Morgengrauen. 🌿' : 'Die Spießer haben deine Burg gestürmt. 💀'}</p>
-      <p style="color:var(--mut)">Zeit ${mins}:${secs} · ${p.kills} Gegner besiegt · ${AGES[p.age].name} · ${DIFF[diff].label}</p>
+    box.innerHTML = `<img class="banner ${win ? 'win' : 'loss'}" src="img/${win ? 'win' : 'loss'}.webp" alt="${win ? 'Gewonnen' : 'Verloren'}">
+      <p>${win ? 'Die Spießerfeste ist gefallen. Die Bande feiert bis zum Morgengrauen. 🌿' : 'Die Spießer haben deine Burg gestürmt. Beim nächsten Mal holst du sie dir.'}</p>
+      <div class="stats"><div><b>${mins}:${secs}</b><span>Zeit</span></div><div><b>${p.kills}</b><span>Gegner besiegt</span></div><div><b>${AGES[p.age].name}</b><span>Zeitalter</span></div><div><b>${p.cat ? romans(p.cat) : '–'}</b><span>Katapult</span></div></div>
       ${diffButtons()}
       <button class="go" id="go">Nochmal</button>
       <a class="ghost" href="../">← Zur Spielauswahl</a>`;

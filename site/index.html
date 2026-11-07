@@ -45,6 +45,11 @@ h1{font-family:"Cinzel Decorative","Cinzel",Georgia,serif;font-weight:900;font-s
 .war{background:linear-gradient(#1c1430,#5a2a44 55%,#b5603f)}
 .art{position:absolute!important;inset:0 0 34% 0;display:flex;align-items:center;justify-content:center;z-index:0!important}
 .art svg{width:100%;height:100%}
+.war .art{inset:0 0 30% 0}.war .art img{width:100%;height:100%;object-fit:cover;object-position:50% 30%;-webkit-mask-image:linear-gradient(#000 60%,transparent);mask-image:linear-gradient(#000 60%,transparent);transition:transform .6s}
+.war:hover .art img{transform:scale(1.04)}
+.war{background:linear-gradient(#0e140b,#060805)}
+.war .play{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border-color:#d4af37;box-shadow:0 3px 0 #0a1406}
+.war:hover .play{box-shadow:0 3px 0 #0a1406,0 0 22px rgba(100,190,70,.5)}
 .knight{font-size:clamp(90px,20vw,190px);line-height:1;color:#f4ecff;text-shadow:0 0 40px rgba(180,140,255,.6),0 12px 30px rgba(0,0,0,.7);animation:float 5s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-8px)}}
 .faces{display:flex;gap:0}.faces img{width:34px;height:34px;border-radius:50%;border:2px solid #d4af37;object-fit:cover;object-position:50% 15%;margin-right:-6px;box-shadow:0 2px 8px rgba(0,0,0,.6)}
@@ -116,41 +121,7 @@ footer{text-align:center;color:rgba(244,228,193,.45);font-family:"Cinzel",serif;
   </a>
   <a class="card war" href="krieg/">
     <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
-    <div class="art">
-      <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        <defs>
-          <radialGradient id="ws" cx="50%" cy="78%" r="45%"><stop offset="0" stop-color="#ffd9a0" stop-opacity=".9"/><stop offset="1" stop-color="#ff9a5a" stop-opacity="0"/></radialGradient>
-        </defs>
-        <rect width="400" height="260" fill="url(#ws)"/>
-        <path d="M0 200 L60 150 L120 190 L190 130 L260 185 L330 145 L400 180 V260 H0Z" fill="#4a2440"/>
-        <!-- grüne Burg -->
-        <g>
-          <rect x="18" y="150" width="96" height="80" fill="#4d4a52"/>
-          <rect x="30" y="98" width="38" height="132" fill="#57545c"/>
-          <path d="M18 150 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 v5 H18Z" fill="#5f5c64"/>
-          <path d="M28 98 h7 v-7 h7 v7 h7 v-7 h7 v7 h7 v-7 h5 v6 H28Z" fill="#66636b"/>
-          <path d="M49 91 v-24" stroke="#2a2018" stroke-width="2"/><path d="M49 67 q12 3 22 0 v12 q-10 3 -22 0Z" fill="#3fae5f"/>
-          <path d="M84 230 v-26 a12 12 0 0 1 24 0 v26Z" fill="#120c08"/>
-          <rect x="42" y="160" width="14" height="30" fill="#1f5e33"/><path d="M42 190 l7 6 7 -6Z" fill="#1f5e33"/>
-        </g>
-        <!-- rote Burg -->
-        <g>
-          <rect x="286" y="150" width="96" height="80" fill="#4d4a52"/>
-          <rect x="332" y="98" width="38" height="132" fill="#57545c"/>
-          <path d="M286 150 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 h8 v-7 h8 v7 v5 H286Z" fill="#5f5c64"/>
-          <path d="M330 98 h7 v-7 h7 v7 h7 v-7 h7 v7 h7 v-7 h5 v6 H330Z" fill="#66636b"/>
-          <path d="M351 91 v-24" stroke="#2a2018" stroke-width="2"/><path d="M351 67 q-12 3 -22 0 v12 q10 3 22 0Z" fill="#c8432f"/>
-          <path d="M292 230 v-26 a12 12 0 0 1 24 0 v26Z" fill="#120c08"/>
-          <rect x="344" y="160" width="14" height="30" fill="#7a2218"/><path d="M344 190 l7 6 7 -6Z" fill="#7a2218"/>
-        </g>
-        <!-- gekreuzte Schwerter -->
-        <g transform="translate(200 150)">
-          <g transform="rotate(40)"><rect x="-3" y="-62" width="6" height="74" fill="#e4e7ec"/><path d="M-3 -62 L0 -70 L3 -62Z" fill="#e4e7ec"/><rect x="-14" y="10" width="28" height="5" fill="#d4af37"/><rect x="-2.5" y="15" width="5" height="16" fill="#5a3c22"/><circle cy="34" r="4" fill="#d4af37"/></g>
-          <g transform="rotate(-40)"><rect x="-3" y="-62" width="6" height="74" fill="#e4e7ec"/><path d="M-3 -62 L0 -70 L3 -62Z" fill="#e4e7ec"/><rect x="-14" y="10" width="28" height="5" fill="#d4af37"/><rect x="-2.5" y="15" width="5" height="16" fill="#5a3c22"/><circle cy="34" r="4" fill="#d4af37"/></g>
-        </g>
-        <path d="M0 228 Q200 214 400 228 V260 H0Z" fill="#2b2a1c"/>
-      </svg>
-    </div>
+    <div class="art"><img src="krieg/img/hero.jpg" alt="Die Bubatzbande"></div>
     <span class="tag new">Neu · Strategie</span>
     <div class="faces"><img src="krieg/img/artur.jpg" alt=""><img src="krieg/img/kobold.jpg" alt=""><img src="krieg/img/koenig.jpg" alt=""><img src="krieg/img/molly.jpg" alt=""><img src="krieg/img/lg3.jpg" alt=""><img src="krieg/img/don.jpg" alt=""></div>
     <h2>Bandenkrieg</h2>
