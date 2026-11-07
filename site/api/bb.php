@@ -11,8 +11,10 @@ $GAMES = [
   'quiz'   => ['asc' => false, 'min' => 1, 'max' => 40000],
   'duell'  => ['asc' => false, 'min' => 1, 'max' => 200000],
   'schach' => ['asc' => true,  'min' => 5, 'max' => 36000],
+  'runner' => ['asc' => false, 'min' => 1, 'max' => 5000000],
+  'hof'    => ['asc' => false, 'min' => 1, 'max' => 1e18],
 ];
-$ACH = ['profil', 'krieg_win', 'krieg_hart', 'krieg_fast', 'krieg_kills', 'match_3', 'match_10', 'match_30', 'quiz_10', 'quiz_perfekt', 'quiz_party', 'duell_win', 'duell_hart', 'duell_null', 'duell_prost', 'schach_win', 'schach_duelle', 'allrounder'];
+$ACH = ['profil', 'krieg_win', 'krieg_hart', 'krieg_fast', 'krieg_kills', 'match_3', 'match_10', 'match_30', 'quiz_10', 'quiz_perfekt', 'quiz_party', 'duell_win', 'duell_hart', 'duell_null', 'duell_prost', 'schach_win', 'schach_duelle', 'allrounder', 'runner_1000', 'runner_5000', 'runner_gold', 'hof_klick', 'hof_10k', 'hof_mio', 'hof_bande'];
 $AV = ['artur', 'kobold', 'nille', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'];
 
 $dir = __DIR__ . '/data';
@@ -188,6 +190,19 @@ if ($a === 'inv_done') {
   $iid = (string) ($in['iid'] ?? '');
   $U['inv'] = array_values(array_filter($U['inv'] ?? [], fn($x) => $x['id'] !== $iid));
   $finish(['ok' => 1]);
+}
+
+// Spielstände in der Cloud (z. B. Bandenhof)
+if ($a === 'gput') {
+  $g = (string) ($in['g'] ?? ''); $data = (string) ($in['data'] ?? '');
+  if (!in_array($g, ['hof'], true) || strlen($data) > 40000) $stop('bad');
+  $U['gs'][$g] = ['d' => $data, 't' => time()];
+  $finish(['ok' => 1]);
+}
+if ($a === 'gget') {
+  $g = (string) ($in['g'] ?? '');
+  $x = $U['gs'][$g] ?? null;
+  $finish(['data' => $x ? $x['d'] : null, 't' => $x ? $x['t'] : 0]);
 }
 
 if ($a === 'save') {

@@ -12,12 +12,11 @@
 <style>
 :root{--txt:#f4e6c6;--mut:#b5a07c;--gold:#d4af37;--gold2:#f0d37a;--line:#7a6128;--wood:#2a1a0e;--p0:#7fd65a;--p1:#ff8a5c}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{background:#140c06}
+html{background:#070a05}
 html,body{height:100%;color:var(--txt);font:16px/1.4 Georgia,serif;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-body{background:
-  radial-gradient(ellipse at 50% 35%,rgba(255,170,70,.20),rgba(0,0,0,0) 55%),
-  radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0) 40%,rgba(0,0,0,.75) 100%),
-  repeating-linear-gradient(90deg,#2b1a0d 0 70px,#1d1108 70px 73px,#33200f 73px 140px,#1d1108 140px 143px);}
+body{background:transparent}
+body::before{content:"";position:fixed;inset:-40px;z-index:-2;background:url(../krieg/img/hoehle.jpg) center/cover;filter:blur(12px) brightness(.42) sepia(.25)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 35%,rgba(255,170,70,.14),transparent 55%),radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,.7) 100%)}
 button{font:inherit;color:inherit;cursor:pointer}
 .c{font-family:"Cinzel",Georgia,serif}
 .hidden{display:none!important}
@@ -26,8 +25,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* Menü */
 #menu{flex-direction:column;align-items:center;overflow-y:auto;padding:max(12px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom))}
 .top{width:100%;max-width:640px;display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.top a{color:var(--gold2);text-decoration:none;background:linear-gradient(#3a2614,#1e1208);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font:800 14px "Cinzel",serif}
-.panel{width:100%;max-width:640px;background:linear-gradient(rgba(36,22,10,.95),rgba(16,10,5,.96));border:1px solid var(--gold);outline:1px solid #3a2a12;outline-offset:4px;border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.8);padding:20px;margin:auto 0}
+.top a{color:var(--gold2);text-decoration:none;background:linear-gradient(#1f2c19,#0f170c);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font:800 14px "Cinzel",serif}
+.panel{width:100%;max-width:640px;background:linear-gradient(rgba(19,28,15,.95),rgba(9,13,7,.96));border:1px solid var(--gold);outline:1px solid #3a3418;outline-offset:4px;border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.8);padding:20px;margin:auto 0}
 .title{text-align:center;font:900 clamp(32px,8vw,52px) "Cinzel Decorative","Cinzel",serif;background:linear-gradient(#fff6d6,#f0d37a 45%,#b8902c);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #000) drop-shadow(0 0 18px rgba(240,170,60,.35));line-height:1.05}
 .mugs{text-align:center;font-size:52px;line-height:1;margin-bottom:4px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
 .mugs span{display:inline-block;animation:clink 2.4s ease-in-out infinite}
@@ -38,9 +37,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 .orn{text-align:center;color:var(--gold);letter-spacing:.4em;font-size:12px}
 h3{font:800 15px "Cinzel",serif;color:var(--gold2);margin:16px 0 8px;letter-spacing:.04em}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{flex:1;min-width:120px;padding:11px 12px;border-radius:9px;border:1px solid #5a4420;background:#1a1009;font:800 14px "Cinzel",serif;text-align:center}
+.chip{flex:1;min-width:120px;padding:11px 12px;border-radius:9px;border:1px solid #4a3c18;background:#0e150b;font:800 14px "Cinzel",serif;text-align:center}
 .chip small{display:block;font:12px Georgia,serif;color:var(--mut);margin-top:2px}
-.chip.on{border-color:var(--gold);background:linear-gradient(#7a3d14,#3d1d08);color:#fff0c8;box-shadow:0 0 14px rgba(240,150,60,.3)}
+.chip.on{border-color:var(--gold);background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;box-shadow:0 0 14px rgba(120,200,80,.25)}
 .chip.on small{color:#f2d8b0}
 .avs{display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:7px}
 .av{aspect-ratio:1;border-radius:50%;border:2px solid #3a2a12;padding:0;overflow:hidden;background:#100a05;position:relative}
@@ -52,13 +51,13 @@ h3{font:800 15px "Cinzel",serif;color:var(--gold2);margin:16px 0 8px;letter-spac
 .games div{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.25);border:1px solid #3a2a12;font-size:13px;color:#e6d3ab}
 .games i{font-style:normal;font-size:22px}
 .go{display:block;width:100%;margin-top:16px;padding:15px;border:1px solid var(--gold);border-radius:8px;background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;font:800 19px "Cinzel",serif;letter-spacing:.12em;box-shadow:inset 0 1px 0 rgba(255,240,180,.35),0 0 0 3px #0a0603,0 0 0 4px var(--line),0 8px 24px rgba(60,150,50,.3)}
-.go.alt{background:linear-gradient(#3a2614,#1e1208);color:var(--gold2)}
+.go.alt{background:linear-gradient(#1f2c19,#0f170c);color:var(--gold2)}
 .go:hover{filter:brightness(1.12)}
 .note{font-size:12.5px;color:var(--mut);text-align:center;margin-top:12px}
 
 /* Spiel */
 #game{flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-.lane{position:relative;flex:1;display:flex;flex-direction:column;margin:6px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(rgba(30,18,8,.86),rgba(14,8,4,.9));box-shadow:inset 0 0 40px rgba(0,0,0,.6),0 10px 30px rgba(0,0,0,.5);overflow:hidden;touch-action:none;cursor:pointer;min-height:0}
+.lane{position:relative;flex:1;display:flex;flex-direction:column;margin:6px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(rgba(19,28,15,.88),rgba(9,13,7,.92));box-shadow:inset 0 0 40px rgba(0,0,0,.6),0 10px 30px rgba(0,0,0,.5);overflow:hidden;touch-action:none;cursor:pointer;min-height:0}
 .lane.p0{border-color:#4c7a32}.lane.p1{border-color:#8a4422}
 .lane.press{box-shadow:inset 0 0 0 3px rgba(240,211,122,.5),inset 0 0 40px rgba(0,0,0,.6)}
 #L1{order:0}.mid{order:1}#L0{order:2}
@@ -165,7 +164,7 @@ h3{font:800 15px "Cinzel",serif;color:var(--gold2);margin:16px 0 8px;letter-spac
 <section class="screen" id="menu">
   <div class="top"><a href="../">← Spiele</a></div>
   <div class="panel">
-    <div class="mugs"><span>🍺</span><span>🍺</span></div>
+    <div id="duArt"></div>
     <div class="title">Kneipen-Duell</div><div class="orn">✦ ⚔ ✦</div>
     <p class="sub">Ein Tresen, zwei Typen, vier Disziplinen. Wer zuerst 3 Runden holt, ist Kneipenkönig.</p>
     <div class="games"><div><i>🍺</i>Bier zapfen</div><div><i>🫗</i>Krug schieben</div><div><i>🥂</i>Prost-Duell</div><div><i>💪</i>Armdrücken</div></div>
@@ -191,6 +190,7 @@ h3{font:800 15px "Cinzel",serif;color:var(--gold2);margin:16px 0 8px;letter-spac
 
 <section class="screen hidden" id="end"><div class="panel end" id="endBox"></div></section>
 
+<script src="../art.js"></script>
 <script src="../bb.js"></script>
 <script>
 'use strict';
@@ -210,6 +210,7 @@ const cfg = ls.get('kd_cfg', null) || { mode: 'bot', diff: 1, av: [window.BB && 
 cfg.av = cfg.av.map((k, i) => CHAR[k] ? k : ['artur', 'don'][i]);
 if (cfg.av[0] === cfg.av[1]) cfg.av[1] = KEYS.find(k => k !== cfg.av[0]);
 function menu() {
+  if (window.BBArt && !$('#duArt').firstChild) $('#duArt').innerHTML = BBArt.head('duell');
   $('#menu').classList.remove('hidden'); $('#game').classList.add('hidden'); $('#end').classList.add('hidden');
   const draw = () => {
     document.querySelectorAll('#modes .chip').forEach(b => b.classList.toggle('on', b.dataset.m === cfg.mode));

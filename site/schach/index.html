@@ -18,7 +18,7 @@
 <title>Schlagabtausch</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@400;700;800&family=Noto+Sans+Symbols+2&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Cinzel:wght@600;800&family=Cinzel+Decorative:wght@700;900&family=M+PLUS+Rounded+1c:wght@400;700;800&family=Noto+Sans+Symbols+2&display=swap">
 <style>
 :root{--vh:1vh}@supports (height:1dvh){:root{--vh:1dvh}}
 /* Layout: Vollbild-3D-Canvas, HUD-Schichten pro Spielmodus (walk / chess / vs / duel) */
@@ -410,6 +410,31 @@ body[data-mode="chess"]{background:
 #turnPop.on{animation:turnIn 2.6s cubic-bezier(.2,1.4,.4,1) forwards;pointer-events:auto;cursor:pointer}
 @keyframes turnIn{0%{opacity:0;transform:translate(-50%,-50%) rotate(-3deg) scale(.4)}12%{opacity:1;transform:translate(-50%,-50%) rotate(-3deg) scale(1.06)}20%{transform:translate(-50%,-50%) rotate(-3deg) scale(1)}82%{opacity:1;transform:translate(-50%,-50%) rotate(-2deg) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(-2deg) scale(.9)}}
 body:not([data-mode="chess"]) #turnPop{display:none}
+
+/* Bubatzbande-Look für Menüs */
+.overlay{background:radial-gradient(ellipse at 50% 40%,rgba(10,16,7,.6),rgba(5,8,4,.95))}
+#start{background:#070a05}
+#start::before{inset:-40px;background:url(../krieg/img/hoehle.jpg) center/cover;filter:blur(12px) brightness(.4)}
+#start::after{display:none}
+#start .card,#setup .card,#over .card{background:linear-gradient(rgba(19,28,15,.96),rgba(9,13,7,.97));border:1px solid #d4af37;outline:1px solid #3a3418;outline-offset:4px;border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.8);padding:20px;max-width:600px}
+.sa-art{margin:-20px -20px 0!important}
+.overlay .title{font-family:"Cinzel Decorative","Cinzel",Georgia,serif!important;font-weight:900!important;text-transform:none;font-size:clamp(34px,8vw,56px)!important;line-height:1.05;background:linear-gradient(#fff6d6,#f0d37a 45%,#b8902c);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 2px 0 #000) drop-shadow(0 0 18px rgba(212,175,55,.3))}
+.overlay .title span,.overlay .title br+span{color:transparent!important}
+.overlay .label{color:#f0d37a;font-family:"Cinzel",Georgia,serif;letter-spacing:.08em}
+.overlay .lede,.overlay .pnote{color:#e2d2ad;font-family:Georgia,serif}
+.mbig{border:1px solid #8a6d32!important;border-radius:10px!important;background:linear-gradient(#202e1a,#0f170c)!important;box-shadow:inset 0 1px 0 rgba(240,211,122,.15),0 4px 12px rgba(0,0,0,.5)!important}
+.mbig b{font-family:"Cinzel",Georgia,serif!important;font-weight:800!important;text-transform:none!important;color:#f0d37a;font-size:21px!important}
+.mbig small{color:#a99d7e!important;font-family:Georgia,serif}
+.mbig:hover{border-color:#f0d37a!important}
+.mbig.primary{background:linear-gradient(#3e7530,#1c3f15)!important;border-color:#d4af37!important}.mbig.primary b{color:#f8e9b4}.mbig.primary small{color:#cfe4bf!important}
+.overlay .btn{border-radius:8px!important;background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border:1px solid #d4af37;font-family:"Cinzel",Georgia,serif;letter-spacing:.06em}
+.overlay .btn.ghost{background:linear-gradient(#1f2c19,#0f170c);color:#f0d37a;border:1px solid #7a6128!important}
+.overlay .seg{border:1px solid #7a6128!important;border-radius:8px!important}
+.overlay .seg button{color:#f1e6c8;font-family:"Cinzel",Georgia,serif}.overlay .seg button[aria-pressed="true"]{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4}
+.sc{background:linear-gradient(rgba(19,28,15,.97),rgba(9,13,7,.97))!important;border:1px solid #d4af37!important;border-radius:12px!important}
+.sct,.bigcode{font-family:"Cinzel",Georgia,serif!important;font-weight:800!important;color:#f0d37a}
+.overlay summary{color:#f0d37a;font-family:"Cinzel",Georgia,serif}
+
 </style>
 
 <canvas id="c" tabindex="0" aria-label="3D-Spielansicht"></canvas>
@@ -417,6 +442,7 @@ body:not([data-mode="chess"]) #turnPop{display:none}
 
 <div class="overlay" id="start">
   <div class="card menu">
+    <div class="ba-head sa-art" data-ba="schach"></div>
     <div class="label">Schach im Wohnzimmer · echte Regeln · 10 Min + 3 Sek</div>
     <h1 class="title">Schlag<br><span>abtausch</span></h1>
     <p class="lede">Schach nach echten Regeln. Aber jedes Schlagen ist nur ein Versuch: Erst muss deine Figur das Duell in Ego-Sicht gewinnen. Verliert der Angreifer, fliegt er selbst vom Brett.</p>
@@ -551,6 +577,7 @@ body:not([data-mode="chess"]) #turnPop{display:none}
   <button class="tbtn main" id="tAtk">Angriff</button>
 </div></div>
 
+<script src="../art.js"></script>
 <script src="../bb.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>

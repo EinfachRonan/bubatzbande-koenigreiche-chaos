@@ -1,15 +1,19 @@
 # Bubatzbande · Spiele
 
-bubatzbande.de zeigt eine Spielauswahl mit fünf Spielen:
+bubatzbande.de zeigt eine Spielauswahl mit sieben Spielen:
 
 - **Schlagabtausch** (`site/schach/`): Schach im 3D-Wohnzimmer gegen Herrn Holz. Jedes Schlagen wird als Ego-Duell ausgekämpft. Three.js über CDN, Online-Modus über `net.php`.
 - **Bandenkrieg** (`site/krieg/`): Strategie im Stil von Age of War. Die Bubatzbande gegen die Spießer, drei Zeitalter, Allan als Turm, „König ruft" als Spezialangriff.
 
 - **Kräuter-Match** (`site/match/`): Match-3 mit Bande-Helfern, 12 Level und dann endlos.
 - **Bubatz-Quiz** (`site/quiz/`): Party-Quiz mit Raum-Code (Host am TV, Antworten am Handy über `room.php`), Solo, Ein-Gerät-Modus, eigene Fragen.
+- **Kobold-Runner** (`site/runner/`): Endlos-Runner in der Kräuterhöhle (Canvas, 3 Spuren).
+- **Bandenhof** (`site/hof/`): Idle-Aufbau mit Offline-Ertrag, Spielstand auch im Konto.
 - **Kneipen-Duell** (`site/duell/`): 1 gegen 1 an einem Handy oder gegen den Wirt: Bier zapfen, Krug schieben, Prost-Duell, Armdrücken.
 
 **Konten & Bestenliste:** `site/bb.js` (Anmeldung, Profil mit Name und Profilbild, Erfolge, Bestenlisten) und `site/api/bb.php`. Konten liegen auf dem Server in `site/api/data/` (nicht im Repo, wird beim Deploy nicht gelöscht).
+
+Die Titelbilder aller Spiele kommen aus `site/art.js` (Startseite und Spielmenüs).
 
 Die Startseite ist `site/index.html`. Alles ist statisch, ohne Build-Schritt.
 

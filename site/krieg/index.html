@@ -131,6 +131,7 @@ canvas#cv{box-shadow:0 0 0 1px rgba(212,175,55,.25),0 0 50px rgba(0,0,0,.8)}
 .box.start{padding:0;overflow:hidden auto}
 .box.start::before,.box.start::after{display:none}
 .heroWrap{position:relative}
+@media (max-height:560px){.heroWrap .ba{aspect-ratio:16/6}}
 .hero{display:block;width:100%;height:auto;-webkit-mask-image:linear-gradient(#000 72%,transparent);mask-image:linear-gradient(#000 72%,transparent)}
 .box .inner{padding:0 22px 20px;margin-top:-26px;position:relative}
 .box h1{font-size:34px;filter:drop-shadow(0 2px 0 #000) drop-shadow(0 0 18px rgba(212,175,55,.3))}
@@ -171,6 +172,7 @@ canvas#cv{box-shadow:0 0 0 1px rgba(212,175,55,.25),0 0 50px rgba(0,0,0,.8)}
   <div class="queue" id="queue">Ausbildung: –</div>
   <div class="bar" id="bar"></div>
 </div>
+<script src="../art.js"></script>
 <script src="../bb.js"></script>
 <script>
 'use strict';
@@ -1595,7 +1597,7 @@ function showMenu(kind, win) {
   ov.classList.remove('hide');
   box.className = 'box ' + kind;
   if (kind === 'start') {
-    box.innerHTML = `<div class="heroWrap"><img class="hero" src="img/hero.jpg" alt="Die Bubatzbande"></div><div class="inner">
+    box.innerHTML = `<div class="heroWrap">${window.BBArt ? BBArt.html('krieg', true) : '<img class="hero" src="img/hero.jpg" alt="">'}</div><div class="inner">
       <h1>Bandenkrieg</h1>
       <div class="orn">✦ ⚔ ✦</div><p>Die Bubatzbande gegen die Spießer. Stürm ihre Feste, bevor sie deine Burg schleifen.</p>
       <div class="crewstrip">${['artur', 'kobold', 'nille', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'].map(k => `<img src="img/${k}.jpg" alt="">`).join('')}</div>

@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bandenhof · Bubatzbande</title>
+<meta name="theme-color" content="#070a05">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<link rel="icon" href="../icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--txt:#f1e6c8;--mut:#a99d7e;--gold:#d4af37;--gold2:#f0d37a;--line:#7a6128;--g1:#3e7530;--g2:#1c3f15}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:#070a05}
+html,body{min-height:100%;color:var(--txt);font:15px/1.4 Georgia,serif}
+body{min-height:100vh;min-height:100dvh;-webkit-user-select:none;user-select:none}
+body::before{content:"";position:fixed;inset:-40px;z-index:-2;background:url(../krieg/img/hoehle.jpg) 80% 60%/cover;filter:blur(12px) brightness(.4) sepia(.15)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 30%,rgba(240,190,90,.1),transparent 55%),radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,.7) 100%)}
+button{font:inherit;color:inherit;cursor:pointer}
+.c{font-family:"Cinzel",Georgia,serif}
+.top{position:sticky;top:0;z-index:5;background:linear-gradient(rgba(25,34,15,.97),rgba(11,17,8,.95));border-bottom:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.6);padding-top:env(safe-area-inset-top)}
+.bar{display:flex;align-items:center;gap:10px;padding:8px 12px}
+.bar a,.bar button{color:var(--gold2);text-decoration:none;background:linear-gradient(#1f2c19,#0f170c);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font:800 14px "Cinzel",serif}
+.bar h1{font:900 18px "Cinzel Decorative","Cinzel",serif;background:linear-gradient(#fff3c4,#d4af37 60%,#8a6a1d);-webkit-background-clip:text;background-clip:text;color:transparent;margin-right:auto;white-space:nowrap}
+.res{display:flex;gap:6px;padding:0 12px 10px}
+.res>div{flex:1;min-width:0;padding:7px 10px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid #3a3418}
+.res>div.gold{flex:1.5;border-color:#8a6d32;background:linear-gradient(rgba(60,44,10,.5),rgba(0,0,0,.35))}
+.res b{display:block;font:800 18px "Cinzel",serif;color:#fff3c4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res .gold b{font-size:22px;color:#ffe9a0}
+.res small{font-size:11.5px;color:var(--mut);white-space:nowrap}
+.res small.full{color:#ff9a7a}
+main{max-width:760px;margin:0 auto;padding:12px 12px max(24px,env(safe-area-inset-bottom))}
+.head{border-radius:12px;overflow:hidden;border:1px solid var(--gold);outline:1px solid #3a3418;outline-offset:4px;box-shadow:0 18px 50px rgba(0,0,0,.7);margin-bottom:14px}
+.head .ba{aspect-ratio:16/7}
+h2{display:flex;align-items:center;gap:12px;font:800 17px "Cinzel",serif;color:var(--gold2);letter-spacing:.06em;margin:18px 0 10px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+.blds{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bld{position:relative;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;background:linear-gradient(#162011,#0a0f07);border:1px solid #8a6d32;box-shadow:0 10px 28px rgba(0,0,0,.55)}
+.bld .scene{position:relative;height:118px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;touch-action:manipulation;background:radial-gradient(ellipse at 50% 70%,var(--glow),transparent 70%),linear-gradient(#0f170b,#0a0f07);border-bottom:1px solid rgba(212,175,55,.35);overflow:hidden}
+.bld .scene:active{filter:brightness(1.25)}
+.bld .scene img{width:74px;height:74px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:3px solid var(--gold);box-shadow:0 0 0 2px #0a0d06,0 6px 14px rgba(0,0,0,.6);transition:transform .1s}
+.bld .scene.hit img{transform:scale(.92)}
+.bld .ico{font-size:46px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.6))}
+.forge .ico{animation:hammer .9s ease-in-out infinite;transform-origin:80% 80%}
+@keyframes hammer{0%,100%{transform:rotate(-25deg)}40%{transform:rotate(18deg)}}
+.garden .ico{animation:sway 2.6s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes sway{50%{transform:rotate(8deg)}}
+.market .ico{animation:bounce 1.4s ease-in-out infinite}
+@keyframes bounce{50%{transform:translateY(-7px)}}
+.store .ico{font-size:52px}
+.bld.off .ico{animation:none;opacity:.45}
+.spark{position:absolute;width:4px;height:4px;border-radius:50%;background:#ffcf6a;box-shadow:0 0 6px #ff9a2a;animation:spk .7s ease-out forwards;pointer-events:none}
+@keyframes spk{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+.tap{position:absolute;right:8px;bottom:6px;font:800 10.5px "Cinzel",serif;color:rgba(241,230,200,.6);letter-spacing:.06em}
+.lv{position:absolute;left:8px;top:8px;padding:2px 8px;border-radius:99px;background:rgba(0,0,0,.6);border:1px solid #8a6d32;font:800 12px "Cinzel",serif;color:var(--gold2)}
+.bld .info{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.bld h3{font:800 16px "Cinzel",serif;color:#fff3d4;line-height:1.15}
+.bld h3 small{display:block;font:12px Georgia,serif;color:var(--mut);margin-top:2px}
+.rate{font-size:13px;color:#cfe4bf}.rate b{color:#9fe36a;font-family:"Cinzel",serif}
+.prog{height:6px;border-radius:4px;background:#0a0f07;border:1px solid #2e2a14;overflow:hidden}.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4caa3c,#f0d37a)}
+.up{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;border-radius:8px;border:1px solid var(--gold);background:linear-gradient(var(--g1),var(--g2));color:#f8e9b4;font:800 13.5px "Cinzel",serif;letter-spacing:.03em;box-shadow:inset 0 1px 0 rgba(255,240,180,.3)}
+.up:disabled{filter:grayscale(.7) brightness(.65);cursor:default}
+.up small{font:12px Georgia,serif;opacity:.85}
+.crew{display:grid;grid-template-columns:1fr;gap:8px}
+.hire{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:linear-gradient(#162011,#0a0f07);border:1px solid #4a3c18}
+.hire img{width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:2px solid #8a6d32;flex:none}
+.hire .t{flex:1;min-width:0}.hire b{display:block;font:800 15px "Cinzel",serif;color:#fff3d4}.hire span{font-size:13px;color:#cdbf9c}
+.hire button{flex:none;min-width:110px;padding:9px 10px;border-radius:8px;border:1px solid var(--gold);background:linear-gradient(var(--g1),var(--g2));color:#f8e9b4;font:800 13px "Cinzel",serif}
+.hire button:disabled{filter:grayscale(.7) brightness(.65);cursor:default}
+.hire.on{border-color:var(--gold);background:linear-gradient(#24300f,#10160a)}.hire.on img{border-color:var(--gold2);box-shadow:0 0 12px rgba(240,211,122,.5)}
+.hire.on .ok{flex:none;min-width:110px;text-align:center;font:800 13px "Cinzel",serif;color:#9fe36a}
+.hire.lock{opacity:.5}
+.stat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.stat div{padding:10px;border-radius:10px;background:rgba(0,0,0,.3);border:1px solid #3a3418;text-align:center}.stat b{display:block;font:800 17px "Cinzel",serif;color:#fff3c4}.stat span{font-size:12px;color:var(--mut)}
+.float{position:fixed;z-index:20;pointer-events:none;font:800 17px "Cinzel",serif;color:#ffe9a0;text-shadow:0 2px 0 #000,0 0 10px rgba(240,200,90,.8);animation:flt 1s ease-out forwards}
+@keyframes flt{to{transform:translateY(-50px);opacity:0}}
+.ov{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,4,.8);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.ov.hide{display:none}
+.panel{width:100%;max-width:440px;background:linear-gradient(rgba(19,28,15,.97),rgba(9,13,7,.98));border:1px solid var(--gold);outline:1px solid #3a3418;outline-offset:4px;border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.85);padding:20px;text-align:center}
+.panel .t1{font:900 26px "Cinzel Decorative","Cinzel",serif;background:linear-gradient(#fff6d6,#f0d37a 45%,#b8902c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.panel .big{font:900 36px "Cinzel",serif;color:#ffe9a0;margin:10px 0 4px;text-shadow:0 0 22px rgba(240,200,90,.5)}
+.panel p{color:#e2d2ad;margin:6px 0}
+.go{display:block;width:100%;margin-top:14px;padding:13px;border:1px solid var(--gold);border-radius:8px;background:linear-gradient(var(--g1),var(--g2));color:#f8e9b4;font:800 17px "Cinzel",serif;letter-spacing:.1em}
+.note{font-size:12.5px;color:var(--mut);text-align:center;margin-top:16px}
+@media (max-width:520px){.blds{gap:10px}.bld .scene{height:104px}.bld .scene img{width:62px;height:62px}.bld .ico{font-size:38px}.bld h3{font-size:14.5px}.up{font-size:12.5px;padding:8px 6px}.res b{font-size:16px}.res .gold b{font-size:19px}.hire button,.hire.on .ok{min-width:96px}}
+@media (prefers-reduced-motion:reduce){.bld .ico{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="bar"><a href="../" title="Zur Spielauswahl">←</a><h1>Bandenhof</h1><button id="btnBoard">🏆</button></div>
+  <div class="res">
+    <div class="gold"><small>Gold</small><b id="rGold">0</b><small id="rGoldS">+0/s</small></div>
+    <div><small>Kräuter</small><b id="rHerb">0</b><small id="rHerbS"></small></div>
+    <div><small>Waffen</small><b id="rArm">0</b><small id="rArmS"></small></div>
+  </div>
+</div>
+<main>
+  <div class="head" id="head"></div>
+  <h2>Dein Hof</h2>
+  <div class="blds" id="blds"></div>
+  <h2>Bande anheuern</h2>
+  <div class="crew" id="crew"></div>
+  <h2>Statistik</h2>
+  <div class="stat" id="stat"></div>
+  <p class="note">Der Hof arbeitet weiter, wenn du weg bist. Bis zu 8 Stunden mit halber Kraft, mit dem Grauen Geist 24 Stunden mit voller Kraft.</p>
+</main>
+<div class="ov hide" id="ov"><div class="panel" id="box"></div></div>
+
+<script src="../art.js"></script>
+<script src="../bb.js"></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const IMG = k => `../krieg/img/${k}.jpg`;
+function fmt(n) {
+  if (!isFinite(n)) return '∞';
+  if (n < 10) return (Math.floor(n * 10) / 10).toLocaleString('de-DE');
+  if (n < 1e6) return Math.floor(n).toLocaleString('de-DE');
+  const u = [[1e15, 'Brd'], [1e12, 'Bio'], [1e9, 'Mrd'], [1e6, 'Mio']].find(x => n >= x[0]);
+  return (n / u[0]).toLocaleString('de-DE', { maximumFractionDigits: n / u[0] < 100 ? 2 : 1 }) + ' ' + u[1];
+}
+
+// ---------- Spieldaten ----------
+const BLD = {
+  garden: { name: 'Kräutergarten', who: 'LG3', img: 'lg3', ico: '🌿', glow: 'rgba(120,230,90,.3)', cost: [15, 1.17], tapTxt: 'Tippen: ernten' },
+  forge: { name: 'Schmiede', who: 'Fokuhilamann', img: 'fokuhila', ico: '⚒️', glow: 'rgba(255,150,60,.32)', cost: [60, 1.19], tapTxt: 'Tippen: hämmern' },
+  market: { name: 'Marktstand', who: 'DonPatron', img: 'don', ico: '💰', glow: 'rgba(240,200,90,.32)', cost: [30, 1.18], tapTxt: 'Tippen: verkaufen' },
+  store: { name: 'Vorratskeller', who: 'mehr Platz für Ware', img: null, ico: '📦', glow: 'rgba(180,160,120,.25)', cost: [40, 1.55], tapTxt: '' }
+};
+const CREW = [
+  { id: 'artur', name: 'Artur', perk: 'Wache am Tor: alle Werkstätten +25 %', cost: 400 },
+  { id: 'kobold', name: 'Kobold', perk: 'Goldfinger: Marktpreise +30 %', cost: 2500 },
+  { id: 'kraeuter', name: 'KräuterKönig', perk: 'Königsdünger: Kräuter ×2', cost: 9000 },
+  { id: 'marwin', name: 'Marwin', perk: 'Baumeister: Ausbauen 15 % billiger', cost: 25000 },
+  { id: 'molly', name: 'Mollymann', perk: 'Kristallklingen: Waffen ×2', cost: 70000 },
+  { id: 'geist', name: 'Grauer Geist', perk: 'Nachtschicht: offline volle Kraft, bis 24 h', cost: 180000 },
+  { id: 'allan', name: 'Allan', perk: 'Wolfskarawane: Markt verkauft doppelt so viel', cost: 450000 },
+  { id: 'nille', name: 'Nille', perk: 'Feine Finger: Waffen bringen +50 % Gold', cost: 1.2e6 },
+  { id: 'koenig', name: 'König', perk: 'Königliches Siegel: alles ×2', cost: 5e6 }
+];
+const fresh = () => ({ gold: 30, herbs: 0, arms: 0, earned: 0, lv: { garden: 1, forge: 0, market: 1, store: 1 }, crew: {}, t: Date.now(), start: Date.now(), taps: 0, v: 1 });
+let S;
+try { S = JSON.parse(localStorage.getItem('bh_save') || 'null'); } catch (e) { S = null; }
+if (!S || !S.lv) S = fresh();
+
+const has = id => !!S.crew[id];
+const all = () => (has('artur') ? 1.25 : 1) * (has('koenig') ? 2 : 1);
+const herbRate = () => S.lv.garden * .8 * all() * (has('kraeuter') ? 2 : 1);
+const armRate = () => S.lv.forge * .22 * all() * (has('molly') ? 2 : 1);
+const sellCap = () => S.lv.market * 1.4 * all() * (has('allan') ? 2 : 1);
+const cap = () => Math.floor(100 * Math.pow(1.7, S.lv.store - 1));
+const pHerb = () => 1 * (has('kobold') ? 1.3 : 1);
+const pArm = () => 6 * (has('kobold') ? 1.3 : 1) * (has('nille') ? 1.5 : 1);
+const cost = k => Math.ceil(BLD[k].cost[0] * Math.pow(BLD[k].cost[1], S.lv[k] - (k === 'forge' ? 0 : 1)) * (has('marwin') ? .85 : 1));
+
+// Eine Sekunde (oder dt) Hof
+let lastSold = { h: 0, a: 0 };
+function sim(dt) {
+  const c = cap();
+  S.herbs = Math.min(c, S.herbs + herbRate() * dt);
+  S.arms = Math.min(c, S.arms + armRate() * dt);
+  let budget = sellCap() * dt;
+  const a = Math.min(S.arms, budget); S.arms -= a; budget -= a;
+  const h = Math.min(S.herbs, budget); S.herbs -= h;
+  const g = a * pArm() + h * pHerb();
+  S.gold += g; S.earned += g;
+  lastSold = { h: h / dt, a: a / dt };
+  return g;
+}
+// Durchschnittlicher Ertrag pro Sekunde (für Anzeige)
+function goldRate() {
+  const sellA = Math.min(armRate(), sellCap()), sellH = Math.min(herbRate(), sellCap() - sellA);
+  return sellA * pArm() + Math.max(0, sellH) * pHerb();
+}
+
+// ---------- Offline-Ertrag ----------
+function offline() {
+  const now = Date.now(), gone = (now - (S.t || now)) / 1000;
+  S.t = now;
+  if (gone < 30) return;
+  const maxT = has('geist') ? 24 * 3600 : 8 * 3600, eff = has('geist') ? 1 : .5;
+  const T = Math.min(gone, maxT);
+  const steps = Math.min(4000, Math.ceil(T)), dt = T / steps;
+  let got = 0;
+  for (let i = 0; i < steps; i++) got += sim(dt * eff);
+  if (got < 1) return;
+  const h = Math.floor(gone / 3600), m = Math.floor(gone % 3600 / 60);
+  showOv(`<div class="t1">Willkommen zurück</div><p>Du warst ${h ? h + ' Std. ' : ''}${m} Min. weg. Die Bande hat weitergearbeitet${eff < 1 ? ' (mit halber Kraft)' : ''}.</p>
+    <div class="big">+${fmt(got)} 🪙</div>${gone > maxT ? `<p style="font-size:13px;color:var(--mut)">Gezählt werden höchstens ${maxT / 3600} Stunden.</p>` : ''}
+    <button class="go" id="ok">Einsammeln</button>`);
+  $('#ok').onclick = () => { $('#ov').classList.add('hide'); render(); };
+}
+function showOv(h) { $('#box').innerHTML = h; $('#ov').classList.remove('hide'); }
+
+// ---------- Anzeige ----------
+function render() {
+  $('#head').innerHTML = window.BBArt && !$('#head').firstChild ? BBArt.html('hof') : $('#head').innerHTML;
+  const L = S.lv;
+  $('#blds').innerHTML = Object.entries(BLD).map(([k, b]) => {
+    const off = k === 'forge' && L.forge === 0;
+    const rate = k === 'garden' ? `<b>${fmt(herbRate())}</b> Kräuter/s` : k === 'forge' ? (off ? 'Noch nicht gebaut' : `<b>${fmt(armRate())}</b> Waffen/s`) : k === 'market' ? `verkauft bis <b>${fmt(sellCap())}</b>/s` : `Platz: <b>${fmt(cap())}</b> je Ware`;
+    return `<div class="bld ${k} ${off ? 'off' : ''}" style="--glow:${b.glow}">
+      <div class="scene" data-tap="${k}">${b.img ? `<img src="${IMG(b.img)}" alt="">` : ''}<span class="ico">${b.ico}</span>${L[k] ? `<span class="lv">Stufe ${L[k]}</span>` : ''}${b.tapTxt && !off ? `<span class="tap">${b.tapTxt}</span>` : ''}</div>
+      <div class="info"><h3>${b.name}<small>${b.who}</small></h3><div class="rate" id="rate-${k}">${rate}</div>${k !== 'store' ? `<div class="prog"><i id="pg-${k}"></i></div>` : ''}
+      <button class="up" data-up="${k}">${off ? 'Bauen' : 'Ausbauen'} <small>· ${fmt(cost(k))} 🪙</small></button></div></div>`;
+  }).join('');
+  let lockNext = false;
+  $('#crew').innerHTML = CREW.map(c => {
+    const on = has(c.id), lock = !on && lockNext; if (!on) lockNext = true;
+    return `<div class="hire ${on ? 'on' : ''} ${lock ? 'lock' : ''}"><img src="${IMG(c.id)}" alt=""><div class="t"><b>${c.name}</b><span>${c.perk}</span></div>
+      ${on ? '<span class="ok">✓ dabei</span>' : `<button data-hire="${c.id}" ${lock ? 'disabled' : ''}>${lock ? '🔒' : fmt(c.cost) + ' 🪙'}</button>`}</div>`;
+  }).join('');
+  document.querySelectorAll('[data-up]').forEach(b => b.onclick = () => upgrade(b.dataset.up));
+  document.querySelectorAll('[data-hire]').forEach(b => b.onclick = () => hire(b.dataset.hire));
+  document.querySelectorAll('[data-tap]').forEach(el => el.onpointerdown = e => tap(el.dataset.tap, e, el));
+  tick(0);
+}
+function tick(dt) {
+  if (dt) sim(dt);
+  $('#rGold').textContent = fmt(S.gold);
+  $('#rGoldS').textContent = '+' + fmt(goldRate()) + '/s';
+  const c = cap();
+  $('#rHerb').textContent = fmt(S.herbs); $('#rArm').textContent = fmt(S.arms);
+  const hs = $('#rHerbS'), as = $('#rArmS');
+  hs.textContent = S.herbs >= c - .01 ? 'Lager voll!' : `max ${fmt(c)}`; hs.className = S.herbs >= c - .01 ? 'full' : '';
+  as.textContent = S.arms >= c - .01 ? 'Lager voll!' : `max ${fmt(c)}`; as.className = S.arms >= c - .01 ? 'full' : '';
+  document.querySelectorAll('[data-up]').forEach(b => b.disabled = S.gold < cost(b.dataset.up));
+  let first = true;
+  document.querySelectorAll('[data-hire]').forEach(b => { const c2 = CREW.find(x => x.id === b.dataset.hire); if (first) { b.disabled = S.gold < c2.cost; first = false; } });
+  const now = performance.now() / 1000;
+  for (const [k, sp] of [['garden', 1.4], ['forge', 1.1], ['market', .9]]) { const p = $('#pg-' + k); if (p) p.style.width = (k === 'forge' && !S.lv.forge ? 0 : (now * sp % 1) * 100) + '%'; }
+  const st = $('#stat');
+  const days = Math.floor((Date.now() - S.start) / 864e5);
+  st.innerHTML = `<div><b>${fmt(S.earned)}</b><span>Gold verdient</span></div><div><b>${Object.keys(S.crew).length}/${CREW.length}</b><span>Bande</span></div><div><b>${days ? days + ' T.' : 'heute'}</b><span>Hof seit</span></div>`;
+}
+function float(txt, x, y) {
+  const f = document.createElement('div'); f.className = 'float'; f.textContent = txt;
+  f.style.left = (x - 20) + 'px'; f.style.top = (y - 20) + 'px'; document.body.appendChild(f); setTimeout(() => f.remove(), 1000);
+}
+function sparks(el, x, y) {
+  const r = el.getBoundingClientRect();
+  for (let i = 0; i < 8; i++) {
+    const s = document.createElement('i'); s.className = 'spark';
+    s.style.left = (x - r.left) + 'px'; s.style.top = (y - r.top) + 'px';
+    s.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px'); s.style.setProperty('--dy', (-Math.random() * 60 - 10) + 'px');
+    el.appendChild(s); setTimeout(() => s.remove(), 700);
+  }
+}
+function tap(k, e, el) {
+  const x = e.clientX, y = e.clientY;
+  el.classList.add('hit'); setTimeout(() => el.classList.remove('hit'), 90);
+  S.taps++;
+  if (k === 'garden') { const n = Math.min(cap() - S.herbs, 1 + S.lv.garden * .5); S.herbs += n; float('+' + fmt(n) + ' 🌿', x, y); }
+  else if (k === 'forge') { if (!S.lv.forge) return; const n = Math.min(cap() - S.arms, .3 + S.lv.forge * .15); S.arms += n; float('+' + fmt(n) + ' ⚔️', x, y); sparks(el, x, y); }
+  else if (k === 'market') {
+    let n = 2 + S.lv.market, g = 0;
+    const a = Math.min(S.arms, n); S.arms -= a; n -= a; const h = Math.min(S.herbs, n); S.herbs -= h;
+    g = a * pArm() + h * pHerb(); S.gold += g; S.earned += g;
+    float(g > 0 ? '+' + fmt(g) + ' 🪙' : 'Nichts zu verkaufen', x, y);
+  }
+  if (S.taps === 100 && window.BB) BB.unlock('hof_klick');
+  tick(0);
+}
+function upgrade(k) {
+  const c = cost(k); if (S.gold < c) return;
+  S.gold -= c; S.lv[k]++; save(); render();
+  try { navigator.vibrate && navigator.vibrate(20); } catch (e) {}
+}
+function hire(id) {
+  const c = CREW.find(x => x.id === id); if (!c || S.gold < c.cost || has(id)) return;
+  S.gold -= c.cost; S.crew[id] = Date.now(); save(); render();
+  if (window.BB) { BB.toast(`<b>${esc(c.name)}</b> ist jetzt auf deinem Hof!`, '🤝'); if (Object.keys(S.crew).length === CREW.length) BB.unlock('hof_bande'); }
+}
+
+// ---------- Speichern ----------
+let lastRec = 0;
+function save() {
+  S.t = Date.now();
+  try { localStorage.setItem('bh_save', JSON.stringify(S)); } catch (e) {}
+}
+function report(now) {
+  if (!window.BB || S.earned < 1) return;
+  if (S.earned > lastRec * 1.02 || !lastRec) { BB.record('hof', Math.floor(S.earned), { b: Object.keys(S.crew).length }); lastRec = S.earned; }
+  if (S.earned >= 1e4) BB.unlock('hof_10k'); if (S.earned >= 1e6) BB.unlock('hof_mio');
+  if (BB.cloud) BB.cloud.put('hof', S, now);
+}
+$('#btnBoard').onclick = () => window.BB && BB.open('board', 'hof');
+document.addEventListener('visibilitychange', () => { if (document.hidden) { save(); report(true); } else { offline(); render(); } });
+addEventListener('pagehide', () => { save(); report(true); });
+
+// ---------- Start ----------
+(async () => {
+  // Spielstand aus dem Konto holen, wenn dort mehr verdient wurde (anderes Gerät)
+  if (window.BB && BB.cloud && BB.loggedIn) {
+    try { const c = await BB.cloud.get('hof'); if (c && c.lv && (c.earned || 0) > (S.earned || 0)) { S = c; } } catch (e) {}
+  }
+  offline(); render(); save();
+  let last = performance.now();
+  setInterval(() => { const n = performance.now(); tick(Math.min(1, (n - last) / 1000)); last = n; }, 200);
+  setInterval(() => { save(); report(); }, 15000);
+  setTimeout(report, 3000);
+})();
+window.BH = { get S() { return S; }, sim, render, offline };
+</script>
+</body>
+</html>

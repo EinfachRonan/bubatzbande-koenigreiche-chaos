@@ -4,197 +4,150 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Bubatzbande · Spiele</title>
-<meta name="theme-color" content="#0b0810">
+<meta name="theme-color" content="#070a05">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0b0810;--txt:#f4e4c1;--mut:#b8a788;--gold:#d4af37;--gold2:#f0d37a}
+:root{--bg:#070a05;--txt:#f1e6c8;--mut:#a99d7e;--gold:#d4af37;--gold2:#f0d37a;--line:#7a6128;--g1:#3e7530;--g2:#1c3f15}
 *{box-sizing:border-box;margin:0;padding:0}
 html{background:var(--bg)}
 html,body{min-height:100%;color:var(--txt);font:15px/1.45 Georgia,serif}
-body{background:transparent}
-body{position:relative;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));overflow-x:hidden}
-/* Szene im Hintergrund */
-.sky{position:fixed;inset:0;z-index:-3;background:linear-gradient(#0b0816 0%,#1c1430 35%,#4a2440 62%,#9a4a4a 82%,#d9824e 100%)}
-.sun{position:fixed;left:50%;bottom:16vh;width:60vmin;height:60vmin;transform:translate(-50%,50%);z-index:-3;border-radius:50%;background:radial-gradient(circle,rgba(255,215,150,.85) 0%,rgba(255,170,100,.35) 18%,rgba(255,140,90,0) 60%)}
-.stars{position:fixed;inset:0 0 50% 0;z-index:-3;background-image:radial-gradient(1.2px 1.2px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 28% 8%,#fff,transparent),radial-gradient(1.4px 1.4px at 46% 22%,#fff,transparent),radial-gradient(1px 1px at 63% 12%,#fff,transparent),radial-gradient(1.3px 1.3px at 78% 26%,#fff,transparent),radial-gradient(1px 1px at 90% 9%,#fff,transparent),radial-gradient(1px 1px at 6% 35%,#fff,transparent),radial-gradient(1px 1px at 55% 4%,#fff,transparent),radial-gradient(1.2px 1.2px at 36% 32%,#fff,transparent);opacity:.7}
-.land{position:fixed;left:0;right:0;bottom:0;z-index:-2;width:100%;height:55vh}
-.embers{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-.embers i{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:#ffb35c;box-shadow:0 0 6px 2px rgba(255,150,60,.7);animation:rise linear infinite;opacity:0}
-@keyframes rise{0%{transform:translate(0,0);opacity:0}10%{opacity:1}100%{transform:translate(var(--dx),-105vh);opacity:0}}
-.shade{position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 30%,rgba(0,0,0,.55) 100%)}
+body{min-height:100vh;min-height:100dvh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-40px;z-index:-3;background:url(krieg/img/hoehle.jpg) center/cover;filter:blur(14px) brightness(.38) saturate(1.1)}
+body::after{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 50% 25%,rgba(140,220,90,.10),transparent 55%),radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,.7) 100%)}
+.motes{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.motes i{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:#cfff8a;box-shadow:0 0 6px 2px rgba(150,240,90,.55);animation:rise linear infinite;opacity:0}
+.motes i:nth-child(3n){background:#f0d37a;box-shadow:0 0 6px 2px rgba(240,200,90,.55)}
+@keyframes rise{0%{transform:translate(0,0);opacity:0}12%{opacity:.9}100%{transform:translate(var(--dx),-105vh);opacity:0}}
 
-header{text-align:center;padding:6px 0 22px}
-.crest{font-size:13px;letter-spacing:.5em;color:var(--gold);font-family:"Cinzel",serif;margin-bottom:6px;opacity:.9}
-h1{font-family:"Cinzel Decorative","Cinzel",Georgia,serif;font-weight:900;font-size:clamp(30px,8vw,72px);line-height:1;letter-spacing:.03em;background:linear-gradient(180deg,#fff6d6 0%,#f0d37a 40%,#b8902c 70%,#7a5a14 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #2a1a08) drop-shadow(0 0 24px rgba(240,180,80,.35))}
-.sub{font-family:"Cinzel",serif;color:var(--mut);margin-top:10px;letter-spacing:.18em;text-transform:uppercase;font-size:clamp(11px,2.6vw,14px)}
-.rule{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:12px;color:var(--gold)}
-.rule::before,.rule::after{content:"";height:1px;width:min(22vw,160px);background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+/* Kopfzeile */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) 10px max(14px,env(safe-area-inset-left));padding-top:max(10px,env(safe-area-inset-top));background:linear-gradient(rgba(10,14,7,.94),rgba(10,14,7,.82));border-bottom:1px solid rgba(212,175,55,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.logo{display:flex;align-items:center;gap:9px;margin-right:auto;text-decoration:none}
+.logo img{width:34px;height:34px;border-radius:8px;border:1px solid var(--line)}
+.logo b{font:900 19px "Cinzel Decorative","Cinzel",serif;background:linear-gradient(#fff3c4,#d4af37 60%,#8a6a1d);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.lb{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:99px;border:1px solid var(--line);background:linear-gradient(#1f2c19,#0f170c);color:var(--gold2);font:800 14px "Cinzel",serif;cursor:pointer}
 
-.cards{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1100px;width:100%;margin:0 auto}
-.card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:9px;min-height:380px;padding:20px;border-radius:14px;overflow:hidden;color:inherit;text-decoration:none;border:2px solid #7a6230;outline:1px solid rgba(212,175,55,.35);outline-offset:-8px;box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 0 60px rgba(0,0,0,.5);transition:transform .2s,box-shadow .2s,border-color .2s}
-.card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(8,5,3,.92) 78%);z-index:0}
-.card>*{position:relative;z-index:1}
-.card:hover{transform:translateY(-5px);border-color:var(--gold2);box-shadow:0 26px 60px rgba(0,0,0,.6),0 0 30px rgba(240,190,90,.25),inset 0 0 60px rgba(0,0,0,.5)}
-.card:active{transform:scale(.985)}
-.corner{position:absolute;width:22px;height:22px;border-color:var(--gold);border-style:solid;z-index:2}
-.c1{top:12px;left:12px;border-width:2px 0 0 2px}.c2{top:12px;right:12px;border-width:2px 2px 0 0}.c3{bottom:12px;left:12px;border-width:0 0 2px 2px}.c4{bottom:12px;right:12px;border-width:0 2px 2px 0}
-.chess{background:radial-gradient(90% 60% at 50% 25%,#5a3f86 0%,#251a3a 50%,#120d1c 100%)}
-.war{background:linear-gradient(#1c1430,#5a2a44 55%,#b5603f)}
-.art{position:absolute!important;inset:0 0 34% 0;display:flex;align-items:center;justify-content:center;z-index:0!important}
-.art svg{width:100%;height:100%}
-.war .art{inset:0 0 30% 0}.war .art img{width:100%;height:100%;object-fit:cover;object-position:50% 30%;-webkit-mask-image:linear-gradient(#000 60%,transparent);mask-image:linear-gradient(#000 60%,transparent);transition:transform .6s}
-.war:hover .art img{transform:scale(1.04)}
-.war{background:linear-gradient(#0e140b,#060805)}
-.war .play{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border-color:#d4af37;box-shadow:0 3px 0 #0a1406}
-.war:hover .play{box-shadow:0 3px 0 #0a1406,0 0 22px rgba(100,190,70,.5)}
-.match{background:radial-gradient(80% 60% at 50% 30%,#2c4a22,#0e170b 70%,#070a05)}
-.gems{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:min(78%,300px);transform:rotate(-6deg)}
-.gems b{aspect-ratio:1;border-radius:22%;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,3.4vw,30px);background:linear-gradient(#2a3b20,#121c0e);border:1px solid #5d4a20;box-shadow:inset 0 2px 0 rgba(255,240,180,.15),0 4px 10px rgba(0,0,0,.6)}
-.gems b.hi{border-color:#f0d37a;box-shadow:0 0 14px rgba(240,211,122,.7),inset 0 2px 0 rgba(255,240,180,.3);animation:pulse 1.6s ease-in-out infinite}
-@keyframes pulse{50%{transform:scale(1.08)}}
-.quiz{background:radial-gradient(80% 60% at 50% 30%,#3a2a12,#14100a 70%,#080605)}
-.qart{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:min(80%,320px)}
-.qart .q{grid-column:1/3;text-align:center;font:800 clamp(14px,2.6vw,22px) "Cinzel",serif;color:#fff3c4;padding:10px;border:1px solid #d4af37;border-radius:8px;background:rgba(10,8,4,.7)}
-.qart i{font-style:normal;color:#fff;font-size:clamp(16px,3vw,26px);display:flex;align-items:center;justify-content:center;height:clamp(34px,6vw,54px);border-radius:8px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.25)}
-.qart i:nth-of-type(1){background:linear-gradient(#d4473a,#9a2a20)}.qart i:nth-of-type(2){background:linear-gradient(#2f7fc0,#1c4f80)}.qart i:nth-of-type(3){background:linear-gradient(#c9a227,#8a6c10)}.qart i:nth-of-type(4){background:linear-gradient(#2e9a52,#1a6634);box-shadow:0 0 0 3px #fff3c4,0 0 18px rgba(255,240,180,.6)}
-.match .art,.quiz .art{inset:5% 0 48% 0}
-.gems{width:min(62%,250px)}.qart{width:min(66%,270px)}
-.match .play,.quiz .play{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border-color:#d4af37;box-shadow:0 3px 0 #0a1406}
-.duell{grid-column:1/-1;min-height:320px;background:radial-gradient(70% 70% at 50% 30%,#5a3410,#1e1006 70%,#0c0603)}
-.duell .art{inset:0 0 40% 0}
-.vs{display:flex;align-items:center;gap:clamp(10px,4vw,40px);font-size:clamp(54px,11vw,110px);line-height:1;filter:drop-shadow(0 10px 18px rgba(0,0,0,.6))}
-.vs span{display:inline-block;animation:clink 2.6s ease-in-out infinite}
-.vs span:last-child{animation-name:clink2}
-.vs b{font:900 clamp(24px,5vw,44px) "Cinzel Decorative","Cinzel",serif;color:#f0d37a;text-shadow:0 0 20px rgba(240,180,80,.6)}
-@keyframes clink{0%,70%,100%{transform:translateX(0) rotate(0)}82%{transform:translateX(18px) rotate(16deg)}}
-@keyframes clink2{0%,70%,100%{transform:scaleX(-1) translateX(0) rotate(0)}82%{transform:scaleX(-1) translateX(18px) rotate(16deg)}}
-.duell .play{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border-color:#d4af37;box-shadow:0 3px 0 #0a1406}
-.bar{position:absolute;top:max(12px,env(safe-area-inset-top));right:14px;display:flex;gap:8px;z-index:5}
-.bar .lb{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:99px;border:1px solid #7a6128;background:linear-gradient(#2a1e0c,#140e06);color:var(--gold2);font:800 14px "Cinzel",serif;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.5)}
-.knight{font-size:clamp(90px,20vw,190px);line-height:1;color:#f4ecff;text-shadow:0 0 40px rgba(180,140,255,.6),0 12px 30px rgba(0,0,0,.7);animation:float 5s ease-in-out infinite}
-@keyframes float{50%{transform:translateY(-8px)}}
-.faces{display:flex;gap:0}.faces img{width:34px;height:34px;border-radius:50%;border:2px solid #d4af37;object-fit:cover;object-position:50% 15%;margin-right:-6px;box-shadow:0 2px 8px rgba(0,0,0,.6)}
-.tag{align-self:flex-start;font-family:"Cinzel",serif;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:4px;border:1px solid rgba(212,175,55,.6);color:var(--gold2);background:rgba(20,12,6,.6)}
-.new{background:linear-gradient(#f0d37a,#b8902c);color:#2a1a08;border-color:#f0d37a}
-h2{font-family:"Cinzel",serif;font-size:clamp(20px,4.2vw,34px);font-weight:800;letter-spacing:.02em;color:#fff3d4;text-shadow:0 2px 0 #000}
-.card p{color:#dccba6;font-size:clamp(12px,2.5vw,15px)}
-.play{margin-top:6px;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-radius:8px;font-family:"Cinzel",serif;font-weight:800;font-size:18px;letter-spacing:.14em;border:1px solid var(--gold2);background:linear-gradient(#f0d37a,#b8902c);color:#2a1a08;box-shadow:0 3px 0 #5a4214,0 0 0 rgba(240,190,90,0);transition:box-shadow .2s}
-.chess .play{background:linear-gradient(#d9c2ff,#8b63d6);border-color:#e6d6ff;box-shadow:0 3px 0 #3c2766}
-.card:hover .play{box-shadow:0 3px 0 #5a4214,0 0 22px rgba(240,190,90,.55)}
-.chess:hover .play{box-shadow:0 3px 0 #3c2766,0 0 22px rgba(180,140,255,.55)}
-footer{text-align:center;color:rgba(244,228,193,.45);font-family:"Cinzel",serif;font-size:11px;letter-spacing:.2em;margin-top:18px}
-@media (max-width:560px){
-  .bar{position:static;justify-content:center;margin-bottom:6px}.duell{min-height:300px}
-  .cards{gap:10px}
-  .card{min-height:340px;padding:12px;border-radius:10px;outline-offset:-6px}
-  .corner{width:14px;height:14px}.c1,.c2{top:8px}.c3,.c4{bottom:8px}.c1,.c3{left:8px}.c2,.c4{right:8px}
-  .play{font-size:14px;padding:11px;letter-spacing:.1em}
-  .card p{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-  .tag{font-size:9px;padding:3px 7px}
-  .gems{gap:3px;width:80%}.qart{gap:4px;width:84%}.qart .q{padding:5px;font-size:12px}.qart i{height:26px;font-size:14px}.gems b{font-size:14px}
-  .match .art,.quiz .art{inset:6% 0 50% 0}.gems b:nth-child(n+11){display:none}
-  .faces img{width:24px;height:24px;margin-right:-5px;border-width:1.5px}
+/* Held-Bereich */
+.hero{position:relative;max-width:1180px;margin:18px auto 0;padding:0 16px}
+.heroimg{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--gold);outline:1px solid #3a3418;outline-offset:5px;box-shadow:0 30px 80px rgba(0,0,0,.75)}
+.heroimg img{display:block;width:100%;aspect-ratio:1400/481;object-fit:cover}
+.heroimg::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(7,10,5,.92)),radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(0,0,0,.45))}
+.heroin{position:absolute;left:16px;right:16px;bottom:0;padding:18px 26px;display:flex;align-items:flex-end;gap:16px;z-index:1}
+.heroin p{font-size:clamp(14px,1.8vw,18px);color:#efe2bf;max-width:560px;text-shadow:0 2px 6px #000}
+.heroin p b{color:var(--gold2);font-family:"Cinzel",serif}
+.stats{display:flex;gap:8px;margin-left:auto;cursor:pointer}
+.stats div{min-width:84px;text-align:center;padding:8px 12px;border-radius:10px;background:rgba(8,12,6,.78);border:1px solid rgba(212,175,55,.5)}
+.stats b{display:block;font:800 22px "Cinzel",serif;color:#fff3c4;line-height:1.1}.stats span{font-size:11px;color:var(--mut);letter-spacing:.06em;text-transform:uppercase}
+
+.sec{max-width:1180px;margin:30px auto 12px;padding:0 16px;display:flex;align-items:center;gap:14px}
+.sec h2{font:800 clamp(18px,2.4vw,24px) "Cinzel",serif;color:var(--gold2);letter-spacing:.06em;white-space:nowrap}
+.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+
+/* Spielkarten */
+.grid{max-width:1180px;margin:0 auto;padding:0 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+@media (min-width:1000px){.grid{grid-template-columns:repeat(6,1fr)}.card{grid-column:span 2}.card.wide{grid-column:span 3}.card.wide .ba{aspect-ratio:16/8}.card.wide .ba-quiz .ans{top:33%}.card.wide .ba-quiz .ans i{height:7cqw;font-size:3.6cqw}.card.wide .ba-quiz .crowd img{width:7cqw;height:7cqw}.card.wide .ba-quiz .q{top:8%;font-size:3.4cqw;padding:1.6cqw}}
+.card{position:relative;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;background:linear-gradient(#141d10,#0a0f07);border:1px solid #8a6d32;outline:1px solid #2e2a14;outline-offset:4px;box-shadow:0 18px 44px rgba(0,0,0,.6);transition:transform .25s,border-color .25s,box-shadow .25s}
+.card:hover{transform:translateY(-6px);border-color:var(--gold2);box-shadow:0 26px 60px rgba(0,0,0,.7),0 0 34px rgba(212,175,55,.22)}
+.card:hover .ba-bg{transform:scale(1.06)}
+.card .art{position:relative;border-bottom:1px solid rgba(212,175,55,.45)}
+.card .art::after{content:"";position:absolute;left:12%;right:12%;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
+.badge{position:absolute;top:10px;left:10px;z-index:6;font:800 11px "Cinzel",serif;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:5px;background:linear-gradient(#f0d37a,#b8902c);color:#2a1a08;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.body{display:flex;flex-direction:column;gap:8px;padding:14px 16px 16px;flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chips span{font-size:11.5px;padding:3px 9px;border-radius:99px;border:1px solid rgba(212,175,55,.35);color:#d9c9a0;background:rgba(0,0,0,.25)}
+.card h3{font:800 25px "Cinzel",serif;color:#fff3d4;letter-spacing:.01em;line-height:1.1}
+.card p{color:#cdbf9c;font-size:14.5px;flex:1}
+.foot{display:flex;align-items:center;gap:10px;margin-top:4px}
+.best{font-size:12.5px;color:var(--mut);line-height:1.25}.best b{display:block;font:800 16px "Cinzel",serif;color:#fff3c4}
+.play{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;border:1px solid var(--gold);background:linear-gradient(var(--g1),var(--g2));color:#f8e9b4;font:800 15px "Cinzel",serif;letter-spacing:.14em;box-shadow:inset 0 1px 0 rgba(255,240,180,.3),0 0 0 2px #070a05,0 0 0 3px #4a3c18;transition:box-shadow .2s}
+.card:hover .play{box-shadow:inset 0 1px 0 rgba(255,240,180,.3),0 0 0 2px #070a05,0 0 0 3px var(--gold),0 0 22px rgba(120,210,80,.45)}
+
+footer{text-align:center;color:rgba(241,230,200,.45);font:12px "Cinzel",serif;letter-spacing:.2em;margin:34px 0 22px;padding-bottom:env(safe-area-inset-bottom)}
+@media (max-width:700px){
+  .logo b{font-size:16px}.lb span{display:none}
+  .hero{margin-top:12px;padding:0 12px}.heroimg{border-radius:12px;outline-offset:3px}
+  .heroimg img{aspect-ratio:16/9;object-position:50% 30%}
+  .heroin{position:static;padding:12px 2px 0;flex-direction:column;align-items:stretch;gap:10px}
+  .heroimg::after{background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(0,0,0,.4))}
+  .stats{margin:0}.stats div{flex:1;min-width:0}
+  .grid{grid-template-columns:1fr;padding:0 12px;gap:16px}.sec{padding:0 12px;margin-top:22px}
+  .card h3{font-size:22px}
 }
-@media (prefers-reduced-motion:reduce){.embers,.knight{animation:none}.embers{display:none}}
+@media (prefers-reduced-motion:reduce){.motes{display:none}}
 </style>
 </head>
 <body>
-<div class="sky"></div><div class="stars"></div><div class="sun"></div>
-<svg class="land" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-  <path d="M0 260 L90 190 L170 240 L260 150 L360 230 L450 170 L560 240 L650 140 L760 220 L860 160 L960 230 L1060 170 L1200 230 V500 H0Z" fill="#3e2440" opacity=".9"/>
-  <path d="M0 320 L120 260 L230 300 L340 250 L470 310 L600 270 L720 315 L850 262 L980 305 L1100 268 L1200 300 V500 H0Z" fill="#2a1830"/>
-  <!-- Burg links -->
-  <g fill="#160d1a">
-    <rect x="60" y="270" width="190" height="120"/>
-    <rect x="80" y="190" width="56" height="200"/><rect x="190" y="210" width="44" height="180"/>
-    <path d="M76 190 L108 140 L140 190Z"/><path d="M186 210 L212 170 L238 210Z"/>
-    <path d="M60 270 h12 v-10 h12 v10 h12 v-10 h12 v10 h12 v-10 h12 v10 h12 v-10 h12 v10 h12 v-10 h12 v10 h12 v-10 h12 v10 h12 v-10 h12 v10 h10 v10 H60Z"/>
-    <path d="M108 140 v-26 l22 7 -22 7" />
-  </g>
-  <!-- Burg rechts -->
-  <g fill="#160d1a">
-    <rect x="950" y="280" width="200" height="110"/>
-    <rect x="1060" y="180" width="62" height="210"/><rect x="965" y="225" width="44" height="165"/>
-    <path d="M1056 180 h10 v-12 h10 v12 h10 v-12 h10 v12 h10 v-12 h10 v12 h6 v8 h-66Z"/>
-    <path d="M961 225 L987 185 L1013 225Z"/>
-    <path d="M1091 168 v-26 l-22 7 22 7"/>
-  </g>
-  <g fill="#ffbf6a" opacity=".85"><rect x="104" y="220" width="5" height="9"/><rect x="208" y="240" width="4" height="8"/><rect x="1088" y="210" width="5" height="9"/><rect x="984" y="250" width="4" height="8"/></g>
-  <path d="M0 380 Q200 350 400 372 T800 366 T1200 378 V500 H0Z" fill="#0f0a12"/>
-  <g fill="#0b070d">
-    <path d="M300 380 l14 -40 14 40Z"/><path d="M330 384 l12 -32 12 32Z"/><path d="M820 376 l14 -42 14 42Z"/><path d="M850 380 l11 -30 11 30Z"/><path d="M520 372 l10 -28 10 28Z"/><path d="M660 376 l12 -34 12 34Z"/>
-  </g>
-</svg>
-<div class="embers" id="embers"></div>
-<div class="shade"></div>
-
-<div class="bar"><span id="bbChip"></span><button class="lb" id="bbBoard">🏆 <span>Bestenliste</span></button></div>
-<header>
-  <div class="crest">✦ ⚔ ✦</div>
-  <h1>Bubatzbande</h1>
-  <div class="sub">Wähle dein Schlachtfeld</div>
-  <div class="rule">♛</div>
+<div class="motes" id="motes"></div>
+<header class="top">
+  <a class="logo" href="./"><img src="icon-180.png" alt=""><b>Bubatzbande</b></a>
+  <span id="bbChip"></span>
+  <button class="lb" id="bbBoard">🏆 <span>Bestenliste</span></button>
 </header>
-<main class="cards">
-  <a class="card chess" href="schach/">
-    <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
-    <div class="art"><div class="knight">♞</div></div>
-    <span class="tag">3D · Schach</span>
-    <h2>Schlagabtausch</h2>
-    <p>Schach im Wohnzimmer gegen Herrn Holz. Wird eine Figur geschlagen, kämpfen beide im Ego-Duell um ihr Leben.</p>
-    <span class="play">▶ PLAY</span>
-  </a>
-  <a class="card war" href="krieg/">
-    <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
-    <div class="art"><img src="krieg/img/hero.jpg" alt="Die Bubatzbande"></div>
-    <span class="tag">Strategie</span>
-    <div class="faces"><img src="krieg/img/artur.jpg" alt=""><img src="krieg/img/kobold.jpg" alt=""><img src="krieg/img/koenig.jpg" alt=""><img src="krieg/img/molly.jpg" alt=""><img src="krieg/img/lg3.jpg" alt=""><img src="krieg/img/don.jpg" alt=""></div>
-    <h2>Bandenkrieg</h2>
-    <p>Die Bande gegen die Spießer. Schick Artur, den Kobold und den Rest der Bande los, lass Marwin ein Katapult auf den Turm bauen und stürm die gegnerische Burg.</p>
-    <span class="play">▶ PLAY</span>
-  </a>
-  <a class="card match" href="match/">
-    <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
-    <div class="art"><div class="gems"><b>🌿</b><b>💎</b><b>🍄</b><b>🪙</b><b>🧪</b><b>🔥</b><b class="hi">⭐</b><b>🌿</b><b>🌿</b><b>🌿</b><b>🪙</b><b>🍄</b><b>💎</b><b>🔥</b><b>🧪</b></div></div>
-    <span class="tag new">Neu · Puzzle</span>
-    <h2>Kräuter-Match</h2>
-    <p>Tausch die Kräuter, bring drei in eine Reihe. Kobold, Fokuhila und Mollymann helfen mit Spezialkräften. Über 12 Level und dann endlos.</p>
-    <span class="play">▶ PLAY</span>
-  </a>
-  <a class="card quiz" href="quiz/">
-    <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
-    <div class="art"><div class="qart"><div class="q">Wer weiß es? 🤔</div><i>▲</i><i>◆</i><i>●</i><i>■</i></div></div>
-    <span class="tag new">Neu · Party</span>
-    <h2>Bubatz-Quiz</h2>
-    <p>Quiz für die ganze Bande: Einer hostet am TV, alle antworten am Handy mit Code. Auch solo oder mit eigenen Fragen.</p>
-    <span class="play">▶ PLAY</span>
-  </a>
-  <a class="card duell" href="duell/">
-    <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
-    <div class="art"><div class="vs"><span>🍺</span><b>VS</b><span>🍺</span></div></div>
-    <span class="tag new">Neu · 1 gegen 1</span>
-    <h2>Kneipen-Duell</h2>
-    <p>Bier zapfen, Krug schieben, Prost-Duell und Armdrücken. Zu zweit an einem Handy oder gegen den Wirt. Wer zuerst 3 Runden holt, ist Kneipenkönig.</p>
-    <span class="play">▶ PLAY</span>
-  </a>
-</main>
-<footer>bubatzbande.de</footer>
+
+<section class="hero">
+  <div class="heroimg"><img src="krieg/img/hero.jpg" alt="Die Bubatzbande: Königreiche & Chaos"></div>
+  <div class="heroin"><p id="hello"></p><div class="stats" id="stats"></div></div>
+</section>
+
+<div class="sec"><h2>Wähle dein Spiel</h2></div>
+<main class="grid" id="games"></main>
+<footer>bubatzbande.de · Königreiche & Chaos</footer>
+
+<script src="art.js"></script>
 <script src="bb.js"></script>
 <script>
-if (window.BB) { BB.chip(document.getElementById('bbChip')); document.getElementById('bbBoard').onclick = () => BB.open('board'); BB.gate(); }
+'use strict';
+const GAMES = [
+  { k: 'runner', url: 'runner/', name: 'Kobold-Runner', chips: ['Endlos', 'Solo', 'Highscore'], text: 'Der Kobold rennt durch die Kräuterhöhle, springt über Kessel, rutscht unter Balken durch und sammelt Gold. Wie weit kommst du?', badge: 'Neu', wide: 1 },
+  { k: 'hof', url: 'hof/', name: 'Bandenhof', chips: ['Aufbau', 'Idle', 'läuft auch offline'], text: 'Fokuhila schmiedet, LG3 baut Kräuter an, DonPatron verkauft. Bau den Hof aus und hol die ganze Bande dazu.', badge: 'Neu', wide: 1 },
+  { k: 'krieg', url: 'krieg/', name: 'Bandenkrieg', chips: ['Strategie', 'Solo', 'gegen die Spießer'], text: 'Schick Artur, den Kobold und den Rest der Bande los, lass Marwin ein Katapult auf den Turm bauen und stürm die Spießerburg.' },
+  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', chips: ['3D-Schach', 'Online 1 gegen 1'], text: 'Schach im Wohnzimmer gegen Herrn Holz. Wird eine Figur geschlagen, kämpfen beide im Ego-Duell um ihr Leben.' },
+  { k: 'match', url: 'match/', name: 'Kräuter-Match', chips: ['Puzzle', 'Solo', 'Level'], text: 'Drei Kräuter in eine Reihe. Kobold, Fokuhila und Mollymann helfen mit Spezialkräften, erst 12 Level, dann endlos.' },
+  { k: 'quiz', url: 'quiz/', name: 'Bubatz-Quiz', chips: ['Party', 'Online mit Code', 'Solo'], text: 'Einer hostet am TV, alle antworten am Handy. Lade deine Freunde direkt ein oder schreib eigene Fragen.', wide: 1 },
+  { k: 'duell', url: 'duell/', name: 'Kneipen-Duell', chips: ['1 gegen 1', 'Ein Handy', 'gegen den Wirt'], text: 'Bier zapfen, Krug schieben, Prost-Duell, Armdrücken. Wer zuerst 3 Runden holt, ist Kneipenkönig.', badge: 'Neu', wide: 1 }
+];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function draw() {
+  const B = window.BB, P = B ? B.profile : null;
+  document.getElementById('games').innerHTML = GAMES.map(g => {
+    const best = B && B.best(g.k), G = B && B.GAMES[g.k];
+    return `<a class="card${g.wide ? ' wide' : ''}" href="${g.url}">
+      <div class="art">${window.BBArt ? BBArt.html(g.k) : ''}${g.badge ? `<span class="badge">${g.badge}</span>` : ''}</div>
+      <div class="body"><div class="chips">${g.chips.map(c => `<span>${esc(c)}</span>`).join('')}</div>
+        <h3>${esc(g.name)}</h3><p>${esc(g.text)}</p>
+        <div class="foot">${best ? `<div class="best">Dein Bestwert<b>${B.fmt(g.k, best.s)} ${G.unit ? `<small style="font:12px Georgia,serif;color:var(--mut)">${G.unit}</small>` : ''}</b></div>` : `<div class="best">Noch kein Bestwert</div>`}
+        <span class="play">▶ PLAY</span></div></div></a>`;
+  }).join('');
+  const hello = document.getElementById('hello'), stats = document.getElementById('stats');
+  if (B && B.loggedIn) {
+    const nb = Object.keys(P.best).length;
+    hello.innerHTML = `<b>Hi ${esc(P.name)}!</b> Schön, dass du wieder da bist. ${nb < GAMES.length ? `Dir fehlen noch ${GAMES.length - nb} Spiele auf der Bestenliste.` : 'Du stehst in allen Spielen auf der Bestenliste.'}`;
+    stats.innerHTML = `<div><b>${Object.keys(P.ach).length}</b><span>Erfolge</span></div><div><b>${(P.fr || []).length}</b><span>Freunde</span></div><div><b>${nb}/${GAMES.length}</b><span>Bestwerte</span></div>`;
+    stats.onclick = () => B.open('profil');
+  } else {
+    hello.innerHTML = '<b>Willkommen in der Bande.</b> Sieben Spiele, eine Bestenliste. Sammel Erfolge, add deine Freunde und jag sie auf den Rängen.';
+    stats.innerHTML = '';
+  }
+}
+draw();
+if (window.BB) {
+  BB.chip(document.getElementById('bbChip'));
+  document.getElementById('bbBoard').onclick = () => BB.open('board');
+  let last = '';
+  BB.onChange(P => { const k = JSON.stringify([P.name, Object.keys(P.ach).length, (P.fr || []).length, P.best]); if (k !== last) { last = k; draw(); } });
+  BB.gate();
+}
 (() => {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const box = document.getElementById('embers');
-  for (let i = 0; i < 26; i++) {
+  const box = document.getElementById('motes');
+  for (let i = 0; i < 22; i++) {
     const e = document.createElement('i');
     e.style.left = Math.random() * 100 + '%';
     e.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
-    e.style.animationDuration = 7 + Math.random() * 9 + 's';
-    e.style.animationDelay = -Math.random() * 14 + 's';
-    const s = 2 + Math.random() * 2.5; e.style.width = e.style.height = s + 'px';
+    e.style.animationDuration = 9 + Math.random() * 10 + 's';
+    e.style.animationDelay = -Math.random() * 16 + 's';
     box.appendChild(e);
   }
 })();

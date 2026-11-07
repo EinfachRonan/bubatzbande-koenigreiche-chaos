@@ -13,6 +13,8 @@
     match: { name: 'Kräuter-Match', ico: '🌿', unit: 'Sterne', what: 'Sterne gesamt', url: 'match/', meta: m => m && m.lv ? `bis Level ${m.lv}` : '' },
     quiz: { name: 'Bubatz-Quiz', ico: '🎤', unit: 'Punkte', what: 'Solo-Highscore', url: 'quiz/', meta: m => m && m.n ? `${m.r}/${m.n} richtig` : '' },
     duell: { name: 'Kneipen-Duell', ico: '🍺', unit: 'Kneipenpunkte', what: 'Siege gegen den Wirt', url: 'duell/', meta: m => m && m.w ? `${m.w} Siege` : '' },
+    runner: { name: 'Kobold-Runner', ico: '🏃', unit: 'Punkte', what: 'Bester Lauf', url: 'runner/', meta: m => m && m.m ? `${m.m.toLocaleString('de-DE')} m · 🪙 ${m.c}` : '' },
+    hof: { name: 'Bandenhof', ico: '🏡', unit: 'Gold', what: 'Gold verdient', url: 'hof/', fmt: n => n >= 1e6 ? (n / (n >= 1e9 ? 1e9 : 1e6)).toLocaleString('de-DE', { maximumFractionDigits: 2 }) + (n >= 1e9 ? ' Mrd' : ' Mio') : Math.round(n).toLocaleString('de-DE'), meta: m => m && m.b != null ? `${m.b}/9 Bande` : '' },
     schach: { name: 'Schlagabtausch', ico: '♞', unit: '', what: 'Schnellster Sieg gegen Herrn Holz', url: 'schach/', asc: true, fmt: fmtTime, meta: m => m && m.d ? String(m.d) : '' }
   };
   const ACH = [
@@ -33,7 +35,14 @@
     ['duell_prost', '🤠', 'Schnellste Hand', 'Prost-Duell in unter 250 ms'],
     ['schach_win', '♚', 'Matt!', 'Herrn Holz im Schach geschlagen'],
     ['schach_duelle', '🥊', 'Duellant', '10 Ego-Duelle im Schach gewonnen'],
-    ['allrounder', '🏆', 'Allrounder', 'In allen 5 Spielen auf der Bestenliste']
+    ['runner_1000', '🏃', 'Flinker Kobold', '1.000 Punkte im Kobold-Runner'],
+    ['runner_5000', '🌀', 'Höhlenläufer', '5.000 Punkte im Kobold-Runner'],
+    ['runner_gold', '🪙', 'Goldgierig', '100 Gold in einem Lauf'],
+    ['hof_klick', '👆', 'Fleißige Hände', '100-mal auf dem Bandenhof mitgeholfen'],
+    ['hof_10k', '🏡', 'Hofbesitzer', '10.000 Gold mit dem Bandenhof verdient'],
+    ['hof_mio', '💰', 'Goldgrube', '1 Million Gold mit dem Bandenhof verdient'],
+    ['hof_bande', '🤝', 'Volle Bande', 'Alle 9 auf den Bandenhof geholt'],
+    ['allrounder', '🏆', 'Allrounder', 'In allen Spielen auf der Bestenliste']
   ];
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const hex = n => { const a = new Uint8Array(n); (crypto || window.msCrypto).getRandomValues(a); return Array.from(a, b => b.toString(16).padStart(2, '0')).join(''); };
@@ -52,7 +61,7 @@
 
   // ---------- Server ----------
   async function post(a, body) {
-    const r = await fetch(API + '?a=' + a, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign(logged() ? { id: P.id, token: P.token } : {}, body || {})) });
+    const r = await fetch(API + '?a=' + a, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign(logged() ? { id: P.id, token: P.token } : {}, body || {})) });
     let j = {}; try { j = await r.json(); } catch (e) { throw new Error('net'); }
     if (j.e === 'auth') { logoutLocal(); }
     if (!r.ok || j.e) throw new Error(j.e || 'net');
@@ -348,7 +357,7 @@
   // ---------- Freunde ----------
   let scope = 'all', viewId = null, prevTab = 'friends';
   function showUser(id) { if (id === P.id) { tab = 'profil'; return render(); } prevTab = tab; viewId = id; tab = 'user'; render(); }
-  const liteRow = (x, extra) => `<div class="bb-row bb-click" data-u="${x.id}"><img src="${avUrl(x)}" alt=""><span class="nm">${esc(x.name)}<small>🎖️ ${x.nach}/${ACH.length} Erfolge · ${Object.keys(x.best || {}).length}/5 Spiele</small></span>${extra || '<span class="s" style="font-size:20px;color:#b5a07c">›</span>'}</div>`;
+  const liteRow = (x, extra) => `<div class="bb-row bb-click" data-u="${x.id}"><img src="${avUrl(x)}" alt=""><span class="nm">${esc(x.name)}<small>🎖️ ${x.nach}/${ACH.length} Erfolge · ${Object.keys(x.best || {}).length}/${Object.keys(GAMES).length} Spiele</small></span>${extra || '<span class="s" style="font-size:20px;color:#b5a07c">›</span>'}</div>`;
   async function friends(body) {
     body.innerHTML = `<form id="bbAdd" class="bb-addrow"><input class="bb-in" id="bbTo" maxlength="16" placeholder="Benutzername deines Freundes" autocapitalize="none" spellcheck="false"><button class="bb-go" type="submit">+ Adden</button></form>
       <div class="bb-msg" id="bbFMsg"></div><div id="bbFr"><div class="bb-mut">Lade …</div></div>`;
@@ -499,7 +508,21 @@
     if (!logged() && !skip) open('login');
   }
 
+  // Spielstände im Konto (geräteübergreifend)
+  const cloudT = {};
+  const cloud = {
+    async put(g, obj, now) {
+      if (!logged()) return;
+      const data = JSON.stringify(obj), wait = 10000 - (Date.now() - (cloudT[g] || 0));
+      clearTimeout(cloudT[g + '_t']);
+      if (wait > 0 && !now) { cloudT[g + '_t'] = setTimeout(() => cloud.put(g, obj, true), wait); return; }
+      cloudT[g] = Date.now();
+      try { await post('gput', { g, data }); } catch (e) {}
+    },
+    async get(g) { if (!logged()) return null; const j = await post('gget', { g }); return j.data ? JSON.parse(j.data) : null; }
+  };
   window.BB = {
+    cloud,
     get profile() { return P; }, get loggedIn() { return logged(); }, GAMES, ACH, CHAR, AV,
     record, unlock, stat, open, close, chip, showUser: id => { open('board'); showUser(id); }, invite, roomReady, gate, toast, fmt, avatar: () => avUrl(P), onChange: f => listeners.push(f),
     best: g => P.best[g] || null, has: id => !!P.ach[id]

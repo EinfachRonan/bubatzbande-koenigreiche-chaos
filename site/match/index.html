@@ -181,6 +181,7 @@ main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
   </main>
 </div>
 <div class="ov" id="ov"><div class="box" id="box"></div></div>
+<script src="../art.js"></script>
 <script src="../bb.js"></script>
 <script>
 'use strict';
@@ -656,7 +657,7 @@ function goalText(def) {
 function showMenu(kind, stars) {
   ov.classList.remove('hide');
   if (kind === 'start') {
-    box.innerHTML = `<img class="heroimg" src="../krieg/img/hero.jpg" alt=""><h2>Kräuter-Match</h2><div class="orn">✦ 🌿 ✦</div>
+    box.innerHTML = `${window.BBArt ? BBArt.head('match') : ''}<h2>Kräuter-Match</h2><div class="orn">✦ 🌿 ✦</div>
       <p>Tausch Kräuter, Kristalle und Gold, bis drei gleiche in einer Reihe liegen. Die Bande hilft dir dabei.</p>
       <button class="go" id="go">▶ ${save.unlocked > 1 ? 'Weiter mit Level ' + save.unlocked : 'PLAY'}</button>
       <button class="go alt" id="lvls">Levelauswahl</button>

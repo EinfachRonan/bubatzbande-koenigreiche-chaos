@@ -164,6 +164,7 @@ textarea{min-height:240px;font-size:14px;line-height:1.5;resize:vertical}
 </div>
 <div id="view"></div>
 <script src="fragen.js"></script>
+<script src="../art.js"></script>
 <script src="../bb.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
@@ -221,7 +222,7 @@ function home() {
   stopPoll(); role = null; ST = null; setTop('');
   const back = ss.get('bq_role');
   V.innerHTML = `<div class="panel">
-    <img class="hero" src="../krieg/img/hero.jpg" alt="">
+    ${window.BBArt ? BBArt.head('quiz') : ''}
     <div class="title">Bubatz-Quiz</div><div class="orn">✦ 🎤 ✦</div>
     <p class="sub">Wer weiß am meisten? Spielt zusammen am TV, jeder antwortet mit dem eigenen Handy.</p>
     ${back ? `<button class="go" id="rejoin" style="margin:0 0 12px">Zurück ins laufende Spiel (${esc(back.code)})</button>` : ''}
