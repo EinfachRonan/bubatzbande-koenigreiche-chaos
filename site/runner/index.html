@@ -65,6 +65,7 @@ const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v == nu
 const rnd = (a, b) => a + Math.random() * (b - a);
 const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
 const LANE = 1.25, FAR = 44;
+const CV = id => window.BB && BB.cardVal ? BB.cardVal(id) : 0;
 
 // ---------- Bild & Projektion ----------
 let W = 0, H = 0, DPR = 1, Y0 = 0, S0 = 0, CH = 3, ZC = 2.2, F = 0;
@@ -90,7 +91,7 @@ function newGame() {
   G = {
     t: 0, dist: 0, speed: 10, coins: 0, over: false, crashT: 0,
     lane: 1, x: 0, y: 0, vy: 0, slide: 0, run: 0,
-    objs: [], next: 18, magnet: 0, shield: 0, flash: 0, shake: 0, combo: 0
+    objs: [], next: 18, magnet: 0, shield: Math.random() * 100 < CV('der-graue-geist') ? 1 : 0, flash: 0, shake: 0, combo: 0
   };
   tip('Wischen: ← → Spur, ↑ springen, ↓ rutschen', 3200);
 }
@@ -169,7 +170,7 @@ function update(dt) {
     const same = Math.abs((o.lane - 1) * LANE - G.x) < LANE * .55;
     if (!same && !(o.mag && o.type === 'coin')) continue;
     if (o.type === 'coin') { o.dead = true; G.coins++; continue; }
-    if (o.type === 'magnet') { o.dead = true; G.magnet = 10; tip('Mollymanns Kristall: Münzmagnet!', 1500); continue; }
+    if (o.type === 'magnet') { o.dead = true; G.magnet = 10 + CV('kleine-nille'); tip('Mollymanns Kristall: Münzmagnet!', 1500); continue; }
     if (o.type === 'shield') { o.dead = true; G.shield = 1; tip('Kräuterschild: hält einen Treffer aus', 1500); continue; }
     let hit = false;
     if (o.type === 'pot') hit = G.y < .72;
@@ -189,7 +190,7 @@ function crash() {
   G.over = true; G.shake = 1; G.flash = 1; buzz([80, 40, 140]);
   setTimeout(gameOver, 900);
 }
-function score() { return Math.floor(G.dist) + G.coins * 5; }
+function score() { return Math.floor((Math.floor(G.dist) + G.coins * 5) * (1 + CV('der-gruene-kobold') / 100)); }
 function hud() {
   $('#hScore').textContent = score().toLocaleString('de-DE');
   $('#hCoins').textContent = G.coins;
@@ -387,6 +388,7 @@ function menu(kind) {
       BB.record('runner', sc, { c: G.coins, m: Math.floor(G.dist) });
       if (sc >= 1000) BB.unlock('runner_1000'); if (sc >= 5000) BB.unlock('runner_5000'); if (G.coins >= 100) BB.unlock('runner_gold');
       BB.stat('runner_coins', G.coins);
+      if (BB.earn) BB.earn(Math.floor(G.coins / 4) + Math.floor(G.dist / 250), 'Kobold-Runner');
     }
     box.innerHTML = `<div class="title">${rec ? 'Neuer Rekord!' : 'Erwischt!'}</div><div class="orn">✦ 🪙 ✦</div>
       <div class="big">${sc.toLocaleString('de-DE')}</div><div class="sub">Punkte</div>

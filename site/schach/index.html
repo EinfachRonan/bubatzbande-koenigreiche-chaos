@@ -1338,7 +1338,7 @@ function commit(m,attWins,msg){
   updStatus();renderMarks();
   if(!ONLINE&&S.turn==='b'){S.busy=true;setTimeout(()=>{if(S.over)return;const bm=bookMove()||bestMove(S.board,S.ep);if(bm)aiPlay(bm);else S.busy=false;},650);}
 }
-function finish(t,s,res){S.over=true;S.busy=false;if(ONLINE)onlSave(false);const rec=recordGame(res,S.elapsed);if(res==='w'&&!ONLINE&&window.BB){BB.record('schach',Math.round(S.elapsed*10)/10,{d:(DIFF[diff]&&DIFF[diff].name)||diff});BB.unlock('schach_win');}updStatus();renderMarks();drawClock(true);setTimeout(()=>{$('#overT').textContent=t;$('#overS').textContent=s+` Spielzeit ${fmtT(S.elapsed)}.`+(rec?' Neuer Rekord für den schnellsten Sieg!':'');$('#over').hidden=false;},900);}
+function finish(t,s,res){S.over=true;S.busy=false;if(ONLINE)onlSave(false);const rec=recordGame(res,S.elapsed);if(res==='w'&&!ONLINE&&window.BB){BB.record('schach',Math.round(S.elapsed*10)/10,{d:(DIFF[diff]&&DIFF[diff].name)||diff});BB.unlock('schach_win');if(BB.earn)BB.earn(50,'Herrn Holz geschlagen');}updStatus();renderMarks();drawClock(true);setTimeout(()=>{$('#overT').textContent=t;$('#overS').textContent=s+` Spielzeit ${fmtT(S.elapsed)}.`+(rec?' Neuer Rekord für den schnellsten Sieg!':'');$('#over').hidden=false;},900);}
 
 /* ---------- Uhr ---------- */
 let clockStr='';

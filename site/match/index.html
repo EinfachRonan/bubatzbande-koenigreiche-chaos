@@ -276,7 +276,8 @@ function startLevel(n) {
   hideMenu();
   boardEl.innerHTML = '';
   const def = levelDef(n);
-  G = { n, def, grid: [], moves: def.moves, score: 0, goals: { ...(def.goals || {}) }, moss: [], mossLeft: 0, busy: false, sel: null, charge: [0, 0, 0], armed: -1, over: false, idle: 0,
+  const CBm = id => window.BB && BB.cardVal ? BB.cardVal(id) : 0;
+  G = { n, def, grid: [], moves: def.moves + Math.round(CBm('mr-mollymann')), score: 0, goals: { ...(def.goals || {}) }, moss: [], mossLeft: 0, busy: false, sel: null, charge: [0, 0, 0], armed: -1, over: false, idle: 0,
     t2: def.moves * 300, t3: def.moves * 520 };
   for (let y = 0; y < N; y++) {
     G.moss.push([]);
@@ -473,7 +474,8 @@ async function clearCells(set, cascade) {
 function collect(t, x, y) {
   if (t.sp !== 'star' && G.goals[t.t] > 0) G.goals[t.t]--;
   const m = G.moss[y][x]; if (m && !m.classList.contains('gone')) { m.classList.add('gone'); G.mossLeft--; }
-  HELPERS.forEach((h, i) => { if (t.sp !== 'star' && t.t === h.feed) G.charge[i] = Math.min(h.need, G.charge[i] + 1); });
+  const chg = 1 + (window.BB && BB.cardVal ? BB.cardVal('baumgeist') / 100 : 0);
+  HELPERS.forEach((h, i) => { if (t.sp !== 'star' && t.t === h.feed) G.charge[i] = Math.min(h.need, G.charge[i] + chg); });
 }
 function mostCommon() {
   const c = new Array(KINDS).fill(0);
@@ -630,6 +632,7 @@ async function win() {
   if (window.BB) {
     const total = Object.values(save.stars).reduce((a, b) => a + b, 0);
     BB.record('match', total, { lv: save.unlocked - 1 });
+    if (BB.earn) BB.earn(10 + stars * 5, `Kräuter-Level ${G.n} geschafft`);
     if (stars === 3) BB.unlock('match_3'); if (G.n >= 10) BB.unlock('match_10'); if (total >= 30) BB.unlock('match_30');
   }
   G.busy = false;

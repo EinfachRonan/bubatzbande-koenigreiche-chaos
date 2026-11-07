@@ -467,6 +467,7 @@ function playerEnd() {
     <button class="go" id="h">Zum Menü</button></div>`;
   if (y.rank === 1) confetti();
   if (y.rank === 1 && ST.players.length >= 2 && window.BB) BB.unlock('quiz_party');
+  if (window.BB && BB.earn && ST.players.length >= 2) BB.earn(y.rank === 1 ? 30 : 10, y.rank === 1 ? 'Quiz-Sieg' : 'Quiz-Party');
   $('#h').onclick = () => { stopPoll(); home(); };
 }
 function leave() { stopPoll(); ss.set('bq_role', null); role = null; home(); }
@@ -513,6 +514,7 @@ function solo(qs, limit) {
     const best = ls.get('bq_best', 0), rec = score > best; if (rec) ls.set('bq_best', score);
     if (window.BB) {
       BB.record('quiz', score, { r: right, n: qs.length });
+      if (BB.earn) BB.earn(right * 2, 'Quiz solo');
       if (right >= 10) BB.unlock('quiz_10'); if (right === qs.length && qs.length >= 10) BB.unlock('quiz_perfekt');
     }
     V.innerHTML = `<div class="panel res"><div class="title" style="font-size:32px">${rec ? 'Neuer Rekord!' : 'Geschafft!'}</div>

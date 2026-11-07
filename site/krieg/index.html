@@ -247,9 +247,11 @@ let S = null, diff = 'normal', uid = 0;
 try { diff = localStorage.getItem('bk_diff') || 'normal'; } catch (e) {}
 if (!DIFF[diff]) diff = 'normal';
 
+const CB = id => window.BB && BB.cardVal ? BB.cardVal(id) / 100 : 0;
 function mkSide(i) {
   const up = {}; for (const u of UPG) up[u.id] = 0;
-  return { i, gold: START_GOLD, xp: 0, age: 0, hp: BASE_HP, maxhp: BASE_HP, queue: [], tq: 0, tur: -1, turCd: 0, cat: 0, catCd: 0, catAnim: 0, spCd: 20, aiT: 1, aiNext: null, kills: 0, up, shake: 0 };
+  const hp0 = Math.round(BASE_HP * (i === 0 ? 1 + CB('der-koenig-von-deutschland') : 1));
+  return { i, gold: Math.round(START_GOLD * (i === 0 ? 1 + CB('artur-king-kebab') : 1)), xp: 0, age: 0, hp: hp0, maxhp: hp0, queue: [], tq: 0, tur: -1, turCd: 0, cat: 0, catCd: 0, catAnim: 0, spCd: 20, aiT: 1, aiNext: null, kills: 0, up, shake: 0 };
 }
 function newGame() {
   const pn = document.getElementById('panel'); if (pn) { pn.classList.add('hide'); pn.dataset.html = ''; }
@@ -404,7 +406,7 @@ function auraBonus(u) {
 }
 function strike(u, target) {
   const s = S.sides[u.side];
-  let dmg = u.dmg * (1 + .15 * s.up.dmg) * auraBonus(u);
+  let dmg = u.dmg * (1 + .15 * s.up.dmg) * auraBonus(u) * (s.i === 0 ? 1 + CB('allan-king-kebab') : 1);
   if (u.steal) s.gold += u.steal;
   if (u.crit && Math.random() < u.crit) { dmg *= 2; S.fx.push({ x: u.x, y: GROUND - 58 * u.sz, t: .6, max: .6, kind: 'txt', txt: 'Wolfsbiss!', col: '#ffd27a', small: true }); }
   const dir = u.side === 0 ? 1 : -1;
@@ -463,13 +465,13 @@ function update(dt) {
           s.catCd = CAT.rate[s.cat]; s.catAnim = .5;
           const lead = best.anim > 0 ? 0 : best.spd * .45;
           S.shots.push({ x1: cp.x + ds * 4, y1: cp.y - 34, x2: best.x + (best.side === 0 ? 1 : -1) * lead, y2: GROUND - 6, t: 0, dur: 1.1, delay: .15, arc: 120,
-            kind: s.cat >= 4 ? 'firestone' : 'boulder', big: s.cat, cat: { side: s.i, dmg: CAT.dmg[s.cat] * (1 + .1 * s.up.dmg), r: R, fire: s.cat >= 4 } });
+            kind: s.cat >= 4 ? 'firestone' : 'boulder', big: s.cat, cat: { side: s.i, dmg: CAT.dmg[s.cat] * (1 + .1 * s.up.dmg) * (s.i === 0 ? 1 + CB('marwin-der-pionier') : 1), r: R, fire: s.cat >= 4 } });
         } else {
           // Belagerung: jeder dritte Schuss oder keine Gegner in Reichweite geht auf die feindliche Burg
           const ex = baseX(1 - s.i) - ds * 10;
           s.catCd = CAT.rate[s.cat] * 1.2; s.catAnim = .5;
           S.shots.push({ x1: cp.x + ds * 4, y1: cp.y - 34, x2: ex, y2: GROUND - 60, t: 0, dur: 1.5, delay: .15, arc: 170,
-            kind: s.cat >= 4 ? 'firestone' : 'boulder', big: s.cat, cat: { side: s.i, dmg: CAT.dmg[s.cat] * .6, r: 0, fire: false, siege: true } });
+            kind: s.cat >= 4 ? 'firestone' : 'boulder', big: s.cat, cat: { side: s.i, dmg: CAT.dmg[s.cat] * .6 * (s.i === 0 ? 1 + CB('marwin-der-pionier') : 1), r: 0, fire: false, siege: true } });
         }
       }
     }
@@ -1646,6 +1648,7 @@ function endGame(win) {
     BB.record('krieg', pts, { d: DIFF[diff].label, t: Math.round(S.t) });
     BB.unlock('krieg_win'); if (diff === 'schwer') BB.unlock('krieg_hart'); if (S.t < 600) BB.unlock('krieg_fast');
   }
+  if (window.BB && BB.earn) BB.earn(win ? { leicht: 30, normal: 60, schwer: 100 }[diff] : 10, win ? 'Bandenkrieg gewonnen' : 'Tapfer gekämpft');
   if (window.BB && S.sides[0].kills >= 120) BB.unlock('krieg_kills'); setTimeout(() => { if (S === g) showMenu('end', win); }, 900); }
 
 // ---------- Loop ----------

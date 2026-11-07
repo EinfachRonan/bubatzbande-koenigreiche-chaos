@@ -478,6 +478,7 @@ function endMatch(w) {
     const s = ls.get('kd_wins', [0, 0, 0]); s[G.diff]++; ls.set('kd_wins', s);
     if (window.BB) {
       BB.record('duell', s[0] * 1 + s[1] * 3 + s[2] * 6, { w: s[0] + s[1] + s[2] });
+      if (BB.earn) BB.earn([15, 30, 50][G.diff], 'Kneipen-Duell gewonnen');
       BB.unlock('duell_win'); if (G.diff === 2) BB.unlock('duell_hart'); if (G.p[1].score === 0) BB.unlock('duell_null');
     }
   }

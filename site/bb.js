@@ -42,6 +42,9 @@
     ['hof_10k', '🏡', 'Hofbesitzer', '10.000 Gold mit dem Bandenhof verdient'],
     ['hof_mio', '💰', 'Goldgrube', '1 Million Gold mit dem Bandenhof verdient'],
     ['hof_bande', '🤝', 'Volle Bande', 'Die ganze Bande auf den Bandenhof geholt'],
+    ['karten_10', '🃏', 'Sammler', '10 verschiedene Karten gesammelt'],
+    ['karte_max', '🌟', 'Meisterkarte', 'Eine Karte auf Stufe 5 gebracht'],
+    ['karten_alle', '👑', 'Komplette Bande', 'Alle Karten gesammelt'],
     ['allrounder', '🏆', 'Allrounder', 'In allen Spielen auf der Bestenliste']
   ];
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -521,8 +524,100 @@
     },
     async get(g) { if (!logged()) return null; const j = await post('gget', { g }); return j.data ? JSON.parse(j.data) : null; }
   };
+  // ---------- Bandengold & Kartensammlung ----------
+  const RAR = { g: { n: 'Gewöhnlich', c: '#b5a07c', w: 55 }, s: { n: 'Selten', c: '#6ab0ff', w: 30 }, e: { n: 'Episch', c: '#c78bff', w: 12 }, l: { n: 'Legendär', c: '#ffb43a', w: 3 } };
+  // [id, Name, Art, Seltenheit, Effekt-Text (x = Wert bei Stufe), Wert je Stufe, Spiel]
+  const CARDS = [
+    ['der-gruene-kobold', 'Der grüne Kobold', 'char', 'e', 'Kobold-Runner: +{x} % Punkte', 6, 'runner'],
+    ['kleine-nille', 'Kleine Nille', 'char', 's', 'Kobold-Runner: Magnet hält {x} s länger', 1.5, 'runner'],
+    ['der-graue-geist', 'Der Graue Geist', 'char', 'e', 'Kobold-Runner: {x} % Chance auf Startschild', 20, 'runner'],
+    ['artur-king-kebab', 'Artur King Kebab', 'char', 's', 'Bandenkrieg: +{x} % Startgold', 8, 'krieg'],
+    ['allan-king-kebab', 'Allan King Kebab', 'char', 's', 'Bandenkrieg: Einheiten +{x} % Schaden', 4, 'krieg'],
+    ['marwin-der-pionier', 'Marwin der Pionier', 'char', 's', 'Bandenkrieg: Katapult +{x} % Schaden', 10, 'krieg'],
+    ['der-koenig-von-deutschland', 'Der König von Deutschland', 'char', 'l', 'Bandenkrieg: Burg +{x} % Leben', 8, 'krieg'],
+    ['mr-mollymann', 'Mr. Mollymann', 'char', 'e', 'Kräuter-Match: +{x} Züge pro Level', 1, 'match'],
+    ['baumgeist', 'Baumgeist', 'char', 'l', 'Kräuter-Match: Helfer laden {x} % schneller', 10, 'match'],
+    ['lg3', 'LG3', 'char', 'g', 'Bandenhof: Kräuter +{x} %', 10, 'hof'],
+    ['fokuhilamann', 'Fokuhilamann', 'char', 'g', 'Bandenhof: Waffen +{x} %', 10, 'hof'],
+    ['donpatron', 'DonPatron', 'char', 's', 'Bandenhof: Preise +{x} %', 6, 'hof'],
+    ['der-kraeuterkoenig', 'Der Kräuterkönig', 'char', 'l', 'Bandenhof: alles +{x} %', 8, 'hof'],
+    ['goldregen', 'Goldregen', 'item', 'e', '+{x} % Bandengold aus allen Spielen', 3, null],
+    ['goldene-krone', 'Goldene Krone', 'item', 'l', '+{x} % Bandengold aus allen Spielen', 4, null],
+    ['goldsack-gepluendert', 'Goldsack geplündert', 'item', 's', '+{x} % Bandengold aus allen Spielen', 2, null],
+    ['doenerpause', 'Dönerpause', 'item', 'g', '+{x} % Bandengold aus allen Spielen', 1, null],
+    ['koeniglicher-befehl', 'Königlicher Befehl', 'item', 's', '+{x} % Bandengold aus allen Spielen', 2, null],
+    ['kraeuternebel', 'Kräuternebel', 'item', 'g', '+{x} % Bandengold aus allen Spielen', 1, null],
+    ['pionier-werkzeug', 'Pionier-Werkzeug', 'item', 'g', '+{x} % Bandengold aus allen Spielen', 1, null],
+    ['grauer-fluch', 'Grauer Fluch', 'item', 'e', '+{x} % Bandengold aus allen Spielen', 3, null],
+    ['bubatz-alarm', 'Bubatz-Alarm', 'item', 'g', '+{x} % Bandengold aus allen Spielen', 1, null],
+    ['der-zoll-kommt', 'Der Zoll kommt', 'item', 's', '+{x} % Bandengold aus allen Spielen', 2, null],
+    ['kebab-koma', 'Kebab-Koma', 'item', 'g', '+{x} % Bandengold aus allen Spielen', 1, null],
+    ['kraeuterexplosion', 'Kräuterexplosion', 'item', 'e', '+{x} % Bandengold aus allen Spielen', 3, null],
+    ['falscher-koenig', 'Falscher König', 'item', 's', '+{x} % Bandengold aus allen Spielen', 2, null],
+    ['kebab-spiess', 'Kebab-Spieß', 'item', 'g', '+{x} % Bandengold aus allen Spielen', 1, null],
+    ['pionier-zirkel', 'Pionier-Zirkel', 'item', 'g', '+{x} % Bandengold aus allen Spielen', 1, null],
+    ['schattenmantel', 'Schattenmantel', 'item', 'e', '+{x} % Bandengold aus allen Spielen', 3, null],
+    ['schmiedehammer', 'Schmiedehammer', 'item', 's', '+{x} % Bandengold aus allen Spielen', 2, null]
+  ].map(([id, name, kind, r, fx, per, game]) => ({ id, name, kind, r, fx, per, game, img: ROOT + 'bande/img/' + id + '.jpg' }));
+  const NEED = [0, 0, 2, 4, 8, 15];        // Kopien für Stufe 2..5
+  const UPCOST = [0, 0, 60, 150, 400, 1000]; // Bandengold für Stufe 2..5
+  const PACKS = { beutel: { name: 'Kräuterbeutel', n: 3, cost: 120, img: 'goldsack-gepluendert' }, truhe: { name: 'Königstruhe', n: 5, cost: 400, img: 'goldene-krone', min: 'e' } };
+  const MKEY = 'bb_meta';
+  let M;
+  try { M = JSON.parse(localStorage.getItem(MKEY) || 'null'); } catch (e) { M = null; }
+  if (!M || typeof M !== 'object') M = { bg: 50, cards: {}, t: 0, day: '' };
+  M.cards = M.cards || {};
+  const msave = () => { M.t = Date.now(); try { localStorage.setItem(MKEY, JSON.stringify(M)); } catch (e) {} cloud.put('meta', M); mlisteners.forEach(f => f(M)); };
+  const mlisteners = [];
+  const lvl = id => (M.cards[id] && M.cards[id].lv) || 0;
+  const cardVal = id => { const c = CARDS.find(x => x.id === id); return c ? lvl(id) * c.per : 0; };
+  const bgBonus = () => CARDS.filter(c => c.kind === 'item').reduce((a, c) => a + lvl(c.id) * c.per, 0);
+  function earn(n, why) {
+    n = Math.round(n * (1 + bgBonus() / 100));
+    if (!(n > 0)) return 0;
+    M.bg += n; msave();
+    toast(`<b>+${n} Bandengold</b>${why ? '<br>' + esc(why) : ''}`, '🪙');
+    return n;
+  }
+  function spend(n) { if (M.bg < n) return false; M.bg -= n; msave(); return true; }
+  function rollRarity(min) {
+    const order = ['g', 's', 'e', 'l'], pool = order.slice(min ? order.indexOf(min) : 0);
+    const tot = pool.reduce((a, r) => a + RAR[r].w, 0); let x = Math.random() * tot;
+    for (const r of pool) { x -= RAR[r].w; if (x <= 0) return r; } return pool[0];
+  }
+  function openPack(type) {
+    const P0 = PACKS[type]; if (!P0 || !spend(P0.cost)) return null;
+    const out = [];
+    for (let i = 0; i < P0.n; i++) {
+      const r = rollRarity(i === 0 && P0.min ? P0.min : null);
+      const pool = CARDS.filter(c => c.r === r), c = pool[Math.floor(Math.random() * pool.length)];
+      const had = M.cards[c.id]; const isNew = !had;
+      M.cards[c.id] = had ? { lv: had.lv, n: had.n + 1 } : { lv: 1, n: 0 };
+      out.push({ card: c, isNew });
+    }
+    msave();
+    const owned = Object.keys(M.cards).length;
+    if (owned >= 10) unlock('karten_10'); if (owned >= CARDS.length) unlock('karten_alle');
+    return out;
+  }
+  function canUp(id) { const m = M.cards[id]; return m && m.lv < 5 && m.n >= NEED[m.lv + 1] && M.bg >= UPCOST[m.lv + 1]; }
+  function upCard(id) {
+    const m = M.cards[id]; if (!canUp(id)) return false;
+    M.bg -= UPCOST[m.lv + 1]; m.n -= NEED[m.lv + 1]; m.lv++; msave();
+    if (m.lv >= 5) unlock('karte_max');
+    return true;
+  }
+  // Täglicher Bandengold-Bonus
+  setTimeout(() => { const d = new Date().toDateString(); if (M.day !== d) { const first = !M.day; M.day = d; if (first) msave(); else earn(25, 'Tagesbonus fürs Vorbeischauen'); } }, 2500);
+  // Sammlung aus dem Konto holen (anderes Gerät)
+  async function mpull() {
+    if (!logged()) return;
+    try { const c = await cloud.get('meta'); if (c && c.t > (M.t || 0)) { M = Object.assign({ bg: 0, cards: {}, t: 0, day: '' }, c); try { localStorage.setItem(MKEY, JSON.stringify(M)); } catch (e) {} mlisteners.forEach(f => f(M)); } else if (M.t) cloud.put('meta', M, true); } catch (e) {}
+  }
+  setTimeout(mpull, 800);
+
   window.BB = {
-    cloud,
+    cloud, CARDS, RAR, PACKS, NEED, UPCOST, get meta() { return M; }, lvl, cardVal, bgBonus, earn, spend, openPack, canUp, upCard, onMeta: f => mlisteners.push(f),
     get profile() { return P; }, get loggedIn() { return logged(); }, GAMES, ACH, CHAR, AV,
     record, unlock, stat, open, close, chip, showUser: id => { open('board'); showUser(id); }, invite, roomReady, gate, toast, fmt, avatar: () => avUrl(P), onChange: f => listeners.push(f),
     best: g => P.best[g] || null, has: id => !!P.ach[id]

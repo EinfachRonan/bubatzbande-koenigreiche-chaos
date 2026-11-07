@@ -64,6 +64,25 @@ body::after{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;bac
 .play{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;border:1px solid var(--gold);background:linear-gradient(var(--g1),var(--g2));color:#f8e9b4;font:800 15px "Cinzel",serif;letter-spacing:.14em;box-shadow:inset 0 1px 0 rgba(255,240,180,.3),0 0 0 2px #070a05,0 0 0 3px #4a3c18;transition:box-shadow .2s}
 .card:hover .play{box-shadow:inset 0 1px 0 rgba(255,240,180,.3),0 0 0 2px #070a05,0 0 0 3px var(--gold),0 0 22px rgba(120,210,80,.45)}
 
+/* Sammlung */
+.colb{position:relative;display:flex;align-items:center;gap:22px;max-width:1148px;margin:22px auto 0;padding:16px 22px;border-radius:14px;text-decoration:none;color:inherit;background:radial-gradient(ellipse at 15% 50%,rgba(212,175,55,.18),transparent 55%),linear-gradient(#1a2412,#0a0f07);border:1px solid var(--gold);outline:1px solid #2e2a14;outline-offset:4px;box-shadow:0 18px 44px rgba(0,0,0,.6);transition:transform .25s,box-shadow .25s}
+@media (min-width:1181px){.colb{margin-left:auto;margin-right:auto}}
+@media (max-width:1180px){.colb{margin-left:16px;margin-right:16px}}
+.colb:hover{transform:translateY(-4px);box-shadow:0 26px 60px rgba(0,0,0,.7),0 0 34px rgba(212,175,55,.25)}
+.colb .fan{position:relative;flex:none;width:220px;height:130px}
+.colb .fan img{position:absolute;bottom:0;width:78px;height:110px;object-fit:cover;object-position:50% 25%;border-radius:8px;border:2px solid var(--gold);box-shadow:0 8px 18px rgba(0,0,0,.7);transition:transform .35s}
+.colb .fan img:nth-child(1){left:0;transform:rotate(-18deg) translateY(8px);border-color:#c78bff}
+.colb .fan img:nth-child(2){left:36px;transform:rotate(-9deg) translateY(2px);border-color:#ffb43a}
+.colb .fan img:nth-child(3){left:72px;z-index:2;bottom:8px;border-color:#c78bff}
+.colb .fan img:nth-child(4){left:108px;transform:rotate(9deg) translateY(2px);border-color:#6ab0ff}
+.colb .fan img:nth-child(5){left:144px;transform:rotate(18deg) translateY(8px);border-color:#c78bff}
+.colb:hover .fan img:nth-child(1){transform:rotate(-24deg) translate(-8px,6px)}.colb:hover .fan img:nth-child(5){transform:rotate(24deg) translate(8px,6px)}
+.colb .ct{flex:1;min-width:0}
+.colb h2{font:800 24px "Cinzel",serif;color:#fff3d4}
+.colb p{color:#cdbf9c;font-size:14.5px;margin-top:4px}
+.badge2{display:inline-block;font:800 10.5px "Cinzel",serif;letter-spacing:.1em;padding:3px 8px;border-radius:5px;background:linear-gradient(#f0d37a,#b8902c);color:#2a1a08;margin-bottom:4px}
+.cst{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.cst span{padding:4px 11px;border-radius:99px;background:rgba(0,0,0,.35);border:1px solid #4a3c18;font-size:13px;color:#d9c9a0}.cst b{font-family:"Cinzel",serif;color:#ffe9a0}
+@media (max-width:700px){.colb{flex-direction:column;text-align:center;margin:18px 12px 0;padding:16px}.colb .fan{width:200px;height:120px}.colb .fan img{width:70px;height:100px}.colb .fan img:nth-child(2){left:32px}.colb .fan img:nth-child(3){left:65px}.colb .fan img:nth-child(4){left:98px}.colb .fan img:nth-child(5){left:130px}.cst{justify-content:center}.colb .play{margin:0}}
 footer{text-align:center;color:rgba(241,230,200,.45);font:12px "Cinzel",serif;letter-spacing:.2em;margin:34px 0 22px;padding-bottom:env(safe-area-inset-bottom)}
 @media (max-width:700px){
   .logo b{font-size:16px}.lb span{display:none}
@@ -91,6 +110,12 @@ footer{text-align:center;color:rgba(241,230,200,.45);font:12px "Cinzel",serif;le
   <div class="heroin"><p id="hello"></p><div class="stats" id="stats"></div></div>
 </section>
 
+<a class="colb" href="bande/" id="colb">
+  <div class="fan"><img src="bande/img/der-gruene-kobold.jpg" alt=""><img src="bande/img/der-koenig-von-deutschland.jpg" alt=""><img src="bande/img/mr-mollymann.jpg" alt=""><img src="bande/img/donpatron.jpg" alt=""><img src="bande/img/der-graue-geist.jpg" alt=""></div>
+  <div class="ct"><span class="badge2">Neu</span><h2>Die Bande sammeln</h2><p>Verdien in jedem Spiel Bandengold, öffne Kräuterbeutel und sammel 30 Karten. Jede Karte macht dich in einem Spiel stärker.</p>
+    <div class="cst"><span>🪙 <b id="cbg">0</b> Bandengold</span><span>🃏 <b id="ccards">0</b>/30 Karten</span></div></div>
+  <span class="play">🃏 Zur Sammlung</span>
+</a>
 <div class="sec"><h2>Wähle dein Spiel</h2></div>
 <main class="grid" id="games"></main>
 <footer>bubatzbande.de · Königreiche & Chaos</footer>
@@ -120,6 +145,7 @@ function draw() {
         <div class="foot">${best ? `<div class="best">Dein Bestwert<b>${B.fmt(g.k, best.s)} ${G.unit ? `<small style="font:12px Georgia,serif;color:var(--mut)">${G.unit}</small>` : ''}</b></div>` : `<div class="best">Noch kein Bestwert</div>`}
         <span class="play">▶ PLAY</span></div></div></a>`;
   }).join('');
+  if (B && B.meta) { document.getElementById('cbg').textContent = B.meta.bg.toLocaleString('de-DE'); document.getElementById('ccards').textContent = Object.keys(B.meta.cards).length; }
   const hello = document.getElementById('hello'), stats = document.getElementById('stats');
   if (B && B.loggedIn) {
     const nb = Object.keys(P.best).length;
@@ -137,6 +163,7 @@ if (window.BB) {
   document.getElementById('bbBoard').onclick = () => BB.open('board');
   let last = '';
   BB.onChange(P => { const k = JSON.stringify([P.name, Object.keys(P.ach).length, (P.fr || []).length, P.best]); if (k !== last) { last = k; draw(); } });
+  if (BB.onMeta) BB.onMeta(draw);
   BB.gate();
 }
 (() => {

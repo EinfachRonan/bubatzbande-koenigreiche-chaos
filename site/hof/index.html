@@ -215,13 +215,14 @@ S = migrate(S);
 
 const has = id => !!S.crew[id];
 const fest = () => S.festT > 0 ? 2 : 1;
-const all = () => (has('artur') ? 1.25 : 1) * (has('koenig') ? 2 : 1) * fest();
-const herbRate = () => S.lv.garden * .8 * all() * (has('kraeuter') ? 2 : 1);
-const armRate = () => S.lv.forge * .22 * all() * (has('molly') ? 2 : 1);
+const all = () => (has('artur') ? 1.25 : 1) * (has('koenig') ? 2 : 1) * fest() * (1 + CV('der-kraeuterkoenig'));
+const CV = id => window.BB && BB.cardVal ? BB.cardVal(id) / 100 : 0;
+const herbRate = () => S.lv.garden * .8 * all() * (has('kraeuter') ? 2 : 1) * (1 + CV('lg3'));
+const armRate = () => S.lv.forge * .22 * all() * (has('molly') ? 2 : 1) * (1 + CV('fokuhilamann'));
 const potRate = () => S.lv.brew * .1 * all();
 const sellCap = () => S.lv.market * 1.4 * all() * (has('allan') ? 2 : 1);
 const cap = () => Math.floor(100 * Math.pow(1.7, S.lv.store - 1));
-const pm = () => has('nille') ? 1.5 : 1;
+const pm = () => (has('nille') ? 1.5 : 1) * (1 + CV('donpatron'));
 const PRICE = { herbs: () => 1 * pm(), arms: () => 6 * pm(), pots: () => 28 * pm() };
 const cost = (k, lv) => Math.ceil(BLD[k].cost[0] * Math.pow(BLD[k].cost[1], (lv ?? S.lv[k]) - (k === 'forge' || k === 'brew' ? 0 : 1)) * (has('marwin') ? .85 : 1));
 const stage = lv => lv >= 50 ? 3 : lv >= 25 ? 2 : lv >= 10 ? 1 : 0;
@@ -264,6 +265,7 @@ function levelUp() {
   if (L === 5) perks.push('Festtag: alles 60 s doppelt so schnell');
   perks.push(`Bonus: ${fmt(150 * L * L)} Gold`);
   S.gold += 150 * L * L;
+  if (window.BB && BB.earn) setTimeout(() => BB.earn(20 + L * 5, `Hof-Stufe ${L}`), 600);
   buzz([40, 60, 40]);
   showOv(`<div class="t1">Hof-Stufe ${L}!</div><p>Dein Hof wird bekannter in den Königreichen.</p><ul>${perks.map(p => `<li>${esc(p)}</li>`).join('')}</ul><button class="go" id="ok">Weiter</button>`);
   $('#ok').onclick = closeOv;
@@ -737,6 +739,7 @@ $('#goal').onclick = e => {
   const G = goal();
   if (G.p < G.n) { hint('🎯 ' + G.t, 2500); return; }
   S.gold += G.r; S.earned += G.r; S.goal++; addXp(10);
+  if (window.BB && BB.earn) BB.earn(10 + Math.min(40, S.goal * 2), 'Hof-Ziel geschafft');
   float(`+${fmt(G.r)} 🪙`, e.clientX, e.clientY + 30); scene.coins(camX + viewW() * .2, 20); buzz([30, 40, 30]);
   goalKey = ''; save(); hud();
 };
