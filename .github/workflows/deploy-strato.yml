@@ -44,7 +44,7 @@ jobs:
           lftp -u "$STRATO_USER","$STRATO_PASSWORD" -p "$STRATO_PORT" sftp://"$STRATO_HOST" <<EOF2
           set sftp:auto-confirm yes
           set ssl:verify-certificate no
-          mirror -R --delete --verbose ./site/ "$TARGET_PATH"
+          mirror -R --delete --verbose --exclude '/rooms/' ./site/ "$TARGET_PATH"
           bye
           EOF2
 

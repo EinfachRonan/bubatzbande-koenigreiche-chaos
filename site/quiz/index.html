@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bubatz-Quiz · Bubatzbande</title>
+<meta name="theme-color" content="#0b1108">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<link rel="icon" href="../icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070a06;--txt:#f1e6c8;--mut:#a59a7c;--gold:#d4af37;--gold2:#f0d37a;--line:#7a6128;--g1:#3e7530;--g2:#1c3f15}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+html,body{min-height:100%;color:var(--txt);font:16px/1.4 Georgia,serif}
+body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+body::before{content:"";position:fixed;inset:-30px;background:url(../krieg/img/hoehle.jpg) center/cover;filter:blur(12px) brightness(.45);z-index:-2}
+body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(0,0,0,0) 30%,rgba(0,0,0,.7) 100%);z-index:-1;pointer-events:none}
+button{font:inherit;color:inherit;cursor:pointer}
+.c{font-family:"Cinzel",Georgia,serif}
+.top{display:flex;align-items:center;gap:10px;padding:8px 12px;padding-top:max(8px,env(safe-area-inset-top));background:linear-gradient(#19220f,#0b1108);border-bottom:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.6)}
+.top a,.top button{color:var(--gold2);text-decoration:none;background:linear-gradient(#1f2c19,#0f170c);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font:800 14px "Cinzel",serif}
+.top h1{font:900 18px "Cinzel Decorative","Cinzel",serif;background:linear-gradient(#fff3c4,#d4af37 60%,#8a6a1d);-webkit-background-clip:text;background-clip:text;color:transparent;margin-right:auto;white-space:nowrap}
+.top .code{font:800 15px "Cinzel",serif;color:var(--gold2);letter-spacing:.2em}
+#view{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom));gap:14px;width:100%}
+.panel{width:100%;max-width:640px;background:linear-gradient(rgba(19,28,15,.94),rgba(9,13,7,.94));border:1px solid var(--gold);outline:1px solid #3a3418;outline-offset:4px;border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.8);padding:20px}
+.panel.wide{max-width:1100px}
+.hero{display:block;width:calc(100% + 40px);margin:-20px -20px 4px;border-radius:12px 12px 0 0;-webkit-mask-image:linear-gradient(#000 65%,transparent);mask-image:linear-gradient(#000 65%,transparent);max-height:210px;object-fit:cover;object-position:50% 30%}
+.title{text-align:center;font:900 clamp(30px,6vw,46px) "Cinzel Decorative","Cinzel",serif;background:linear-gradient(#fff6d6,#f0d37a 45%,#b8902c);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #000) drop-shadow(0 0 18px rgba(212,175,55,.3));line-height:1.1}
+.sub{text-align:center;color:#e2d2ad;margin:6px 0 14px}
+.orn{text-align:center;color:var(--gold);letter-spacing:.4em;font-size:12px}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mi{position:relative;text-align:left;padding:14px 14px 13px;border-radius:10px;border:1px solid #8a6d32;background:linear-gradient(#202e1a,#0f170c);box-shadow:inset 0 1px 0 rgba(240,211,122,.15),0 4px 12px rgba(0,0,0,.5);transition:transform .15s,border-color .15s}
+.mi:hover:not(:disabled){transform:translateY(-2px);border-color:var(--gold2)}
+.mi b{display:block;font:800 18px "Cinzel",serif;color:var(--gold2)}
+.mi span{font-size:13px;color:var(--mut)}
+.mi i{float:right;font-style:normal;font-size:26px;line-height:1}
+.mi.main{background:linear-gradient(#3e7530,#1c3f15);border-color:var(--gold)}
+.mi.main b{color:#f8e9b4}.mi.main span{color:#cfe4bf}
+.mi:disabled{opacity:.45;cursor:default}
+.note{font-size:13px;color:#e8b9a0;text-align:center;margin-top:10px}
+.link{display:block;margin:14px auto 0;background:none;border:0;color:var(--gold2);text-decoration:underline;font-size:14px}
+.go{display:block;width:100%;margin-top:14px;padding:14px;border:1px solid var(--gold);border-radius:8px;background:linear-gradient(var(--g1),var(--g2));color:#f8e9b4;font:800 18px "Cinzel",serif;letter-spacing:.12em;box-shadow:inset 0 1px 0 rgba(255,240,180,.35),0 0 0 3px #070a05,0 0 0 4px var(--line),0 8px 24px rgba(60,150,50,.3)}
+.go:hover:not(:disabled){filter:brightness(1.12)}
+.go:disabled{opacity:.45;cursor:default}
+.go.alt{background:linear-gradient(#202e1a,#0f170c);color:var(--gold2);box-shadow:0 0 0 3px #070a05,0 0 0 4px #4a3c18}
+.row{display:flex;gap:10px}.row>*{flex:1}
+h3{font:800 15px "Cinzel",serif;color:var(--gold2);margin:14px 0 8px;letter-spacing:.04em}
+.packs{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.pk{display:flex;align-items:center;gap:8px;padding:10px;border-radius:8px;border:1px solid #4a3c18;background:#0e150b;text-align:left;font-size:14px}
+.pk i{font-style:normal;font-size:22px}
+.pk small{display:block;color:var(--mut);font-size:11px}
+.pk.on{border-color:var(--gold);background:linear-gradient(#2b4a22,#15290f);box-shadow:0 0 12px rgba(120,200,80,.25)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:8px 14px;border-radius:99px;border:1px solid #4a3c18;background:#0e150b;font:800 14px "Cinzel",serif}
+.chip.on{border-color:var(--gold);background:linear-gradient(var(--g1),var(--g2));color:#f8e9b4}
+input[type=text],textarea{width:100%;padding:12px 14px;border-radius:8px;border:1px solid #6b5228;background:#0b1009;color:var(--txt);font:16px Georgia,serif;outline:none}
+input[type=text]:focus,textarea:focus{border-color:var(--gold2);box-shadow:0 0 0 3px rgba(212,175,55,.2)}
+input.codeIn{font:800 30px "Cinzel",serif;letter-spacing:.4em;text-align:center;text-transform:uppercase}
+textarea{min-height:240px;font-size:14px;line-height:1.5;resize:vertical}
+.avs{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:8px}
+.av{aspect-ratio:1;border-radius:50%;border:2px solid #3a3418;padding:0;overflow:hidden;background:#0b1009}
+.av img,.avi{width:100%;height:100%;object-fit:cover;object-position:50% 15%;display:block}
+.av.on{border-color:var(--gold2);box-shadow:0 0 0 3px rgba(240,211,122,.35),0 0 14px rgba(240,211,122,.5)}
+.avi{border-radius:50%;border:2px solid var(--gold);box-shadow:0 3px 10px rgba(0,0,0,.6)}
+.err{color:#ff9a7a;font-size:14px;text-align:center;min-height:20px;margin-top:8px}
+/* Lobby */
+.lobby{display:grid;grid-template-columns:minmax(260px,380px) 1fr;gap:22px;align-items:start}
+.bigcode{font:900 clamp(54px,9vw,96px) "Cinzel",serif;letter-spacing:.18em;color:#fff3c4;text-align:center;text-shadow:0 0 30px rgba(240,211,122,.45),0 3px 0 #000;line-height:1}
+.url{text-align:center;color:var(--mut);font-size:15px;margin:6px 0 12px;word-break:break-all}
+.url b{color:var(--gold2)}
+#qr{display:flex;justify-content:center}
+#qr img,#qr canvas{border:8px solid #f4ecd0;border-radius:8px;width:190px!important;height:190px!important}
+.plist{display:flex;flex-wrap:wrap;gap:12px;align-content:flex-start;min-height:160px}
+.pl{display:flex;flex-direction:column;align-items:center;gap:4px;width:84px;animation:popIn .35s}
+.pl .avi{width:62px;height:62px}
+.pl b{font:800 13px "Cinzel",serif;text-align:center;word-break:break-word}
+@keyframes popIn{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.1)}}
+.waiting{color:var(--mut);font-style:italic}
+/* Frage */
+.qhead{display:flex;align-items:center;gap:12px;width:100%;max-width:1100px}
+.qhead .nr{font:800 16px "Cinzel",serif;color:var(--gold2)}
+.qhead .pkn{color:var(--mut);font-size:14px;margin-right:auto}
+.ring{position:relative;width:74px;height:74px;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 26px "Cinzel",serif;color:#fff3c4}
+.qtext{width:100%;max-width:1100px;text-align:center;font:800 clamp(22px,4vw,44px) "Cinzel",serif;color:#fff6dc;text-shadow:0 2px 0 #000;padding:18px 20px;border-radius:12px;background:linear-gradient(rgba(19,28,15,.92),rgba(9,13,7,.92));border:1px solid var(--gold);line-height:1.25}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:1100px}
+.opt{position:relative;display:flex;align-items:center;gap:14px;padding:16px 18px;min-height:86px;border-radius:12px;border:0;color:#fff;text-align:left;font:800 clamp(16px,2.4vw,26px) "Cinzel",serif;box-shadow:inset 0 -5px 0 rgba(0,0,0,.25),0 6px 16px rgba(0,0,0,.5);transition:opacity .3s,transform .3s,filter .3s;overflow:hidden}
+.opt .sym{flex:none;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;font-size:24px}
+.opt .bar{position:absolute;left:0;bottom:0;height:7px;background:rgba(255,255,255,.65);transition:width .6s}
+.opt .cnt{margin-left:auto;font-size:.9em;opacity:.9}
+.opt.dim{opacity:.28;filter:grayscale(.6)}
+.opt.ok{transform:scale(1.03);box-shadow:0 0 0 4px #fff3c4,0 0 30px rgba(255,240,180,.6)}
+.opt.ok::after{content:"✓";position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:34px}
+.opt.ok .cnt{margin-right:40px}
+.o0{background:linear-gradient(#d4473a,#9a2a20)}.o1{background:linear-gradient(#2f7fc0,#1c4f80)}.o2{background:linear-gradient(#c9a227,#8a6c10)}.o3{background:linear-gradient(#2e9a52,#1a6634)}
+.qfoot{display:flex;align-items:center;gap:12px;width:100%;max-width:1100px;color:var(--mut)}
+.qfoot b{color:var(--gold2);font-family:"Cinzel",serif}
+.qfoot .sp{margin-left:auto}
+.small{padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:linear-gradient(#202e1a,#0f170c);color:var(--gold2);font:800 14px "Cinzel",serif}
+.small.g{background:linear-gradient(var(--g1),var(--g2));color:#f8e9b4;border-color:var(--gold)}
+.reveal{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;width:100%;max-width:1100px;align-items:start}
+.board{background:linear-gradient(rgba(19,28,15,.94),rgba(9,13,7,.94));border:1px solid var(--gold);border-radius:12px;padding:12px}
+.board h3{margin-top:0}
+.br{display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid rgba(212,175,55,.12);animation:popIn .35s}
+.br:last-child{border:0}
+.br .n{width:22px;font:800 16px "Cinzel",serif;color:var(--gold2)}
+.br .avi{width:36px;height:36px}
+.br .nm{flex:1;font:800 15px "Cinzel",serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.br .d{font-size:13px;color:#9fe36a}
+.br .s{font:800 16px "Cinzel",serif;color:#fff3c4}
+/* Spieler am Handy */
+.pq{width:100%;max-width:640px;display:flex;flex-direction:column;gap:12px;flex:1}
+.pq .qt{font:800 19px "Cinzel",serif;text-align:center;color:#fff6dc;padding:10px;border-radius:10px;background:rgba(9,13,7,.85);border:1px solid var(--line)}
+.pq .opts{flex:1;grid-template-columns:1fr 1fr;grid-auto-rows:1fr}
+.pq .opt{flex-direction:column;justify-content:center;text-align:center;font-size:17px;min-height:110px}
+.pq .opt .sym{width:52px;height:52px;font-size:30px}
+.tbar{height:8px;border-radius:6px;background:#0a0f08;border:1px solid #3a3418;overflow:hidden}
+.tbar i{display:block;height:100%;background:linear-gradient(90deg,#9fe36a,#f0d37a);transition:width .1s linear}
+.res{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.res .big{font:900 clamp(34px,9vw,54px) "Cinzel Decorative","Cinzel",serif;line-height:1.05}
+.res .big.ok{color:#9fe36a;text-shadow:0 0 30px rgba(140,230,90,.6)}
+.res .big.no{color:#ff8a6a;text-shadow:0 0 30px rgba(255,120,90,.5)}
+.res .pts{font:800 28px "Cinzel",serif;color:#fff3c4}
+.res .rank{color:var(--mut)}
+.res .avi{width:110px;height:110px}
+.streak{font:800 16px "Cinzel",serif;color:#ffb35c}
+/* Siegertreppchen */
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin:10px 0 6px}
+.pod{display:flex;flex-direction:column;align-items:center;gap:6px;width:min(30%,170px)}
+.pod .avi{width:clamp(56px,10vw,96px);height:clamp(56px,10vw,96px)}
+.pod b{font:800 clamp(14px,2vw,20px) "Cinzel",serif;text-align:center;word-break:break-word}
+.pod span{color:#fff3c4;font:800 15px "Cinzel",serif}
+.pod .step{width:100%;border-radius:8px 8px 0 0;border:1px solid var(--gold);border-bottom:0;background:linear-gradient(#3e7530,#16300f);display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font:900 34px "Cinzel",serif;color:#f8e9b4}
+.pod.p1 .step{height:150px;background:linear-gradient(#d4af37,#7a5a14);color:#2a1a08}
+.pod.p2 .step{height:110px}.pod.p3 .step{height:80px}
+.pod.p1 .avi{box-shadow:0 0 0 3px #fff3c4,0 0 30px rgba(255,220,120,.8)}
+.confetti{position:fixed;top:-20px;width:9px;height:14px;z-index:30;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(var(--r));}}
+/* Ein Gerät */
+.players{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ptag{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 12px;border-radius:99px;background:#1a2614;border:1px solid #4a3c18;font:800 14px "Cinzel",serif}
+.ptag button{background:none;border:0;color:var(--mut);font-size:16px;padding:0 6px}
+.who{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.who button{padding:10px 16px;border-radius:99px;border:1px solid #4a3c18;background:#0e150b;font:800 16px "Cinzel",serif}
+.who button.on{background:linear-gradient(var(--g1),var(--g2));border-color:var(--gold);color:#f8e9b4}
+@media (max-width:760px){
+  .lobby,.reveal{grid-template-columns:1fr}
+  .opts{gap:8px}.opt{min-height:64px;padding:10px 12px;gap:10px}.opt .sym{width:34px;height:34px;font-size:18px}
+  .ring{width:58px;height:58px}.ring b{font-size:20px}
+  .menu{grid-template-columns:1fr}
+  .panel{padding:16px}.hero{width:calc(100% + 32px);margin:-16px -16px 4px}
+}
+</style>
+</head>
+<body>
+<div class="top">
+  <a href="../" title="Zur Spielauswahl">←</a>
+  <h1>Bubatz-Quiz</h1>
+  <span class="code" id="topCode"></span>
+  <button id="btnLeave" style="display:none">Verlassen</button>
+</div>
+<div id="view"></div>
+<script src="fragen.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s), V = $('#view');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const AV = ['artur', 'kobold', 'nille', 'runen', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'];
+const avImg = (k, cls = 'avi') => `<img class="${cls}" src="../krieg/img/${esc(k)}.jpg" alt="">`;
+const SYM = ['▲', '◆', '●', '■'];
+const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const ss = { get(k) { try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch (e) { return null; } }, set(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+// ---------- Fragen ----------
+function customPack() {
+  const qs = ls.get('bq_custom', []);
+  return qs.length ? { id: 'custom', name: 'Eigene Fragen', ico: '✍️', qs } : null;
+}
+function allPacks() { const c = customPack(); return c ? [...PACKS, c] : PACKS; }
+function buildQuestions(ids, n) {
+  const pool = [];
+  for (const p of allPacks()) if (ids.includes(p.id)) for (const q of p.qs) pool.push({ q, p: p.name });
+  return shuffle(pool).slice(0, n).map(({ q, p }) => {
+    const opts = shuffle(q.slice(1).map((t, i) => ({ t, ok: i === 0 })));
+    return { q: q[0], o: opts.map(o => o.t), c: opts.findIndex(o => o.ok), p };
+  });
+}
+function parseCustom(text) {
+  const out = [], bad = [];
+  text.split('\n').forEach((line, i) => {
+    const s = line.trim(); if (!s || s.startsWith('#')) return;
+    const parts = s.split(/\s*[;|]\s*/).filter(Boolean);
+    if (parts.length >= 3 && parts.length <= 5) out.push(parts.map(x => x.slice(0, 200))); else bad.push(i + 1);
+  });
+  return { out, bad };
+}
+
+// ---------- Server ----------
+let online = false;
+async function api(a, data) {
+  const r = await fetch('room.php?a=' + a, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data || {}) });
+  let j = {}; try { j = await r.json(); } catch (e) { throw new Error('net'); }
+  if (!r.ok || j.e) throw new Error(j.e || 'net');
+  return j;
+}
+async function ping() {
+  try { const c = new AbortController(), t = setTimeout(() => c.abort(), 3500); const r = await fetch('room.php?a=ping', { cache: 'no-store', signal: c.signal }); clearTimeout(t); const j = await r.json(); return !!j.ok; } catch (e) { return false; }
+}
+const ERR = { taken: 'Der Name ist schon vergeben.', noroom: 'Diesen Raum gibt es nicht. Code prüfen!', code: 'Der Code hat 4 Buchstaben.', name: 'Bitte gib einen Namen ein.', full: 'Der Raum ist voll.', ended: 'Das Spiel ist schon vorbei.', net: 'Keine Verbindung zum Server.', late: 'Zu spät!' };
+
+// ---------- Startmenü ----------
+let role = null, ST = null, offset = 0, pollT = null, revealSent = -1, lastRendered = '';
+function setTop(code) { $('#topCode').textContent = code ? 'Code ' + code : ''; $('#btnLeave').style.display = code ? '' : 'none'; }
+function home() {
+  stopPoll(); role = null; ST = null; setTop('');
+  const back = ss.get('bq_role');
+  V.innerHTML = `<div class="panel">
+    <img class="hero" src="../krieg/img/hero.jpg" alt="">
+    <div class="title">Bubatz-Quiz</div><div class="orn">✦ 🎤 ✦</div>
+    <p class="sub">Wer weiß am meisten? Spielt zusammen am TV, jeder antwortet mit dem eigenen Handy.</p>
+    ${back ? `<button class="go" id="rejoin" style="margin:0 0 12px">Zurück ins laufende Spiel (${esc(back.code)})</button>` : ''}
+    <div class="menu">
+      <button class="mi main" id="mHost" ${online ? '' : 'disabled'}><i>📺</i><b>Party hosten</b><span>Auf TV oder Laptop starten. Alle spielen mit dem Handy.</span></button>
+      <button class="mi main" id="mJoin" ${online ? '' : 'disabled'}><i>📱</i><b>Mitspielen</b><span>Code vom Bildschirm eingeben.</span></button>
+      <button class="mi" id="mSolo"><i>🧠</i><b>Solo</b><span>Allein gegen die Uhr, mit Highscore.</span></button>
+      <button class="mi" id="mLocal"><i>🍻</i><b>Ein Gerät</b><span>Party ohne Handys: einer liest vor, alle raten.</span></button>
+    </div>
+    ${online ? '' : '<p class="note">Online-Räume sind gerade nicht erreichbar. Solo und „Ein Gerät“ gehen trotzdem.</p>'}
+    <button class="link" id="mEdit">✍️ Eigene Fragen schreiben${customPack() ? ` (${customPack().qs.length})` : ''}</button>
+  </div>`;
+  $('#mHost').onclick = () => setup('host');
+  $('#mJoin').onclick = () => joinView();
+  $('#mSolo').onclick = () => setup('solo');
+  $('#mLocal').onclick = () => setup('local');
+  $('#mEdit').onclick = editor;
+  if (back) $('#rejoin').onclick = () => { role = back; setTop(role.code); startPoll(); };
+}
+
+// ---------- Einstellungen ----------
+function setup(mode) {
+  const cfg = ls.get('bq_cfg', { packs: ['allg', 'de', 'musik', 'film', 'kuc'], n: 15, limit: 20 });
+  let players = mode === 'local' ? ls.get('bq_local_players', []) : [];
+  const render = () => {
+    const packs = allPacks();
+    cfg.packs = cfg.packs.filter(id => packs.some(p => p.id === id));
+    const avail = packs.filter(p => cfg.packs.includes(p.id)).reduce((a, p) => a + p.qs.length, 0);
+    V.innerHTML = `<div class="panel">
+      <div class="title" style="font-size:30px">${mode === 'host' ? 'Party hosten' : mode === 'solo' ? 'Solo' : 'Ein Gerät'}</div><div class="orn">✦ ⚙ ✦</div>
+      <h3>Themen</h3>
+      <div class="packs">${packs.map(p => `<button class="pk ${cfg.packs.includes(p.id) ? 'on' : ''}" data-p="${p.id}"><i>${p.ico}</i><div>${esc(p.name)}<small>${p.qs.length} Fragen</small></div></button>`).join('')}</div>
+      <h3>Anzahl Fragen</h3>
+      <div class="chips">${[10, 15, 20, 30].map(n => `<button class="chip ${cfg.n === n ? 'on' : ''}" data-n="${n}">${n}</button>`).join('')}</div>
+      ${mode !== 'local' ? `<h3>Zeit pro Frage</h3><div class="chips">${[10, 20, 30].map(n => `<button class="chip ${cfg.limit === n ? 'on' : ''}" data-l="${n}">${n} s</button>`).join('')}</div>` : ''}
+      ${mode === 'local' ? `<h3>Wer spielt mit?</h3><div class="row"><input type="text" id="pname" maxlength="16" placeholder="Name eingeben"><button class="small g" id="padd" style="flex:none">+</button></div>
+        <div class="players">${players.map((n, i) => `<span class="ptag">${esc(n)}<button data-rm="${i}">✕</button></span>`).join('')}</div>` : ''}
+      <p class="sub" style="margin:12px 0 0;font-size:13px">${avail} Fragen in der Auswahl</p>
+      <div class="err" id="err"></div>
+      <div class="row"><button class="go alt" id="back">Zurück</button><button class="go" id="start" ${!cfg.packs.length || (mode === 'local' && players.length < 1) ? 'disabled' : ''}>${mode === 'host' ? 'Raum öffnen' : 'Los geht\'s'}</button></div>
+    </div>`;
+    V.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { const id = b.dataset.p; cfg.packs = cfg.packs.includes(id) ? cfg.packs.filter(x => x !== id) : [...cfg.packs, id]; render(); });
+    V.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { cfg.n = +b.dataset.n; render(); });
+    V.querySelectorAll('[data-l]').forEach(b => b.onclick = () => { cfg.limit = +b.dataset.l; render(); });
+    V.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { players.splice(+b.dataset.rm, 1); render(); });
+    if (mode === 'local') {
+      const add = () => { const v = $('#pname').value.trim().slice(0, 16); if (v && !players.includes(v) && players.length < 12) { players.push(v); render(); setTimeout(() => $('#pname').focus(), 0); } };
+      $('#padd').onclick = add; $('#pname').onkeydown = e => { if (e.key === 'Enter') add(); };
+    }
+    $('#back').onclick = home;
+    $('#start').onclick = async () => {
+      ls.set('bq_cfg', cfg);
+      const qs = buildQuestions(cfg.packs, cfg.n);
+      if (mode === 'solo') return solo(qs, cfg.limit);
+      if (mode === 'local') { ls.set('bq_local_players', players); return local(qs, players); }
+      $('#start').disabled = true;
+      try {
+        const r = await api('create', { qs, limit: cfg.limit });
+        role = { type: 'host', code: r.code, hk: r.hk }; ss.set('bq_role', role); setTop(r.code); ST = null; startPoll();
+      } catch (e) { $('#err').textContent = ERR[e.message] || 'Raum konnte nicht erstellt werden.'; $('#start').disabled = false; }
+    };
+  };
+  render();
+}
+
+// ---------- Beitreten ----------
+function joinView(code = '') {
+  stopPoll();
+  let av = ls.get('bq_av', AV[Math.floor(Math.random() * AV.length)]);
+  V.innerHTML = `<div class="panel">
+    <div class="title" style="font-size:30px">Mitspielen</div><div class="orn">✦ 📱 ✦</div>
+    <h3>Code vom Bildschirm</h3><input type="text" class="codeIn" id="code" maxlength="4" autocomplete="off" autocapitalize="characters" value="${esc(code)}" placeholder="ABCD">
+    <h3>Dein Name</h3><input type="text" id="name" maxlength="16" autocomplete="nickname" value="${esc(ls.get('bq_name', ''))}" placeholder="z. B. Ro">
+    <h3>Wähl deine Figur</h3><div class="avs">${AV.map(k => `<button class="av ${k === av ? 'on' : ''}" data-av="${k}">${avImg(k, '')}</button>`).join('')}</div>
+    <div class="err" id="err"></div>
+    <div class="row"><button class="go alt" id="back">Zurück</button><button class="go" id="join">Beitreten</button></div>
+  </div>`;
+  V.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { av = b.dataset.av; V.querySelectorAll('[data-av]').forEach(x => x.classList.toggle('on', x === b)); });
+  $('#code').oninput = e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); };
+  $('#back').onclick = home;
+  const go = async () => {
+    const c = $('#code').value.trim().toUpperCase(), name = $('#name').value.trim();
+    if (c.length !== 4) return $('#err').textContent = ERR.code;
+    if (!name) return $('#err').textContent = ERR.name;
+    $('#join').disabled = true;
+    try {
+      const r = await api('join', { c, name, av });
+      ls.set('bq_name', name); ls.set('bq_av', av);
+      role = { type: 'player', code: c, pid: r.pid, pk: r.pk }; ss.set('bq_role', role); setTop(c); ST = null; startPoll();
+    } catch (e) { $('#err').textContent = ERR[e.message] || 'Beitreten hat nicht geklappt.'; $('#join').disabled = false; }
+  };
+  $('#join').onclick = go; $('#name').onkeydown = e => { if (e.key === 'Enter') go(); };
+  if (!code) $('#code').focus(); else $('#name').focus();
+}
+
+// ---------- Abfragen des Raums ----------
+function stopPoll() { clearTimeout(pollT); pollT = null; }
+function startPoll() { stopPoll(); poll(); }
+async function poll() {
+  if (!role) return;
+  try {
+    const auth = role.type === 'host' ? '&hk=' + role.hk : '&p=' + role.pid + '&k=' + role.pk;
+    const r = await fetch(`room.php?a=state&c=${role.code}${auth}&v=${ST ? ST.v : 0}`, { cache: 'no-store' });
+    const j = await r.json();
+    if (r.status === 404) { ss.set('bq_role', null); return msg('Raum beendet', 'Diesen Raum gibt es nicht mehr.'); }
+    offset = j.now - Date.now() / 1000;
+    if (!j.same) { ST = j; if (j.gone) { ss.set('bq_role', null); return msg('Raus', 'Du bist nicht mehr in diesem Raum.'); } render(); }
+  } catch (e) { /* kurz offline: weiter versuchen */ }
+  pollT = setTimeout(poll, 700);
+}
+const remaining = () => ST ? Math.max(0, ST.limit - (Date.now() / 1000 + offset - ST.qStart)) : 0;
+function msg(t, s) { stopPoll(); role = null; setTop(''); V.innerHTML = `<div class="panel"><div class="title" style="font-size:30px">${esc(t)}</div><p class="sub">${esc(s)}</p><button class="go" id="h">Zum Menü</button></div>`; $('#h').onclick = home; }
+
+function render() {
+  const key = role.type + ST.phase + ST.qi + (role.type === 'host' ? ST.players.length + ':' + ST.answered : (ST.you && ST.you.answered));
+  if (role.type === 'host') {
+    if (ST.phase === 'lobby') hostLobby();
+    else if (ST.phase === 'question') { if (lastRendered !== 'hq' + ST.qi) hostQuestion(); else updateAnswered(); }
+    else if (ST.phase === 'reveal') hostReveal();
+    else hostEnd();
+  } else {
+    if (ST.phase === 'lobby') playerWait();
+    else if (ST.phase === 'question') { if (ST.you && ST.you.answered) playerAnswered(); else if (lastRendered !== 'pq' + ST.qi) playerQuestion(); }
+    else if (ST.phase === 'reveal') playerReveal();
+    else playerEnd();
+  }
+  lastRendered = lastRendered || key;
+}
+
+// ---------- Host ----------
+function hostLobby() {
+  lastRendered = 'hl';
+  const url = location.origin + location.pathname + '?c=' + ST.code;
+  const prev = $('#qr') && $('#qr').dataset.code === ST.code;
+  if (!prev) {
+    V.innerHTML = `<div class="panel wide"><div class="lobby">
+      <div><div class="orn">✦ Code ✦</div><div class="bigcode">${esc(ST.code)}</div>
+        <p class="url">Öffne <b>${esc(location.host + location.pathname)}</b> am Handy und gib den Code ein, oder scann einfach:</p>
+        <div id="qr" data-code="${esc(ST.code)}"></div></div>
+      <div><h3 style="margin-top:0">Mitspieler <span id="pc"></span></h3><div class="plist" id="plist"></div>
+        <button class="go" id="startQ">▶ Los geht's</button><button class="link" id="cancel">Raum schließen</button></div>
+    </div></div>`;
+    try { new QRCode($('#qr'), { text: url, width: 380, height: 380, colorDark: '#0b1108', colorLight: '#f4ecd0', correctLevel: QRCode.CorrectLevel.M }); } catch (e) { $('#qr').innerHTML = `<p class="url">${esc(url)}</p>`; }
+    $('#startQ').onclick = () => hostOp('start');
+    $('#cancel').onclick = async () => { await hostOp('end'); leave(); };
+  }
+  $('#pc').textContent = '(' + ST.players.length + ')';
+  $('#plist').innerHTML = ST.players.length ? ST.players.map(p => `<div class="pl" title="Entfernen" data-kick="${esc(p.id)}">${avImg(p.av)}<b>${esc(p.name)}</b></div>`).join('') : '<p class="waiting">Warte auf Mitspieler …</p>';
+  $('#startQ').disabled = !ST.players.length;
+  $('#startQ').textContent = ST.players.length ? `▶ Los geht's (${ST.players.length} ${ST.players.length === 1 ? 'Spieler' : 'Spieler'})` : 'Warte auf Mitspieler';
+  V.querySelectorAll('[data-kick]').forEach(el => el.ondblclick = () => hostOp('kick', { pid: el.dataset.kick }));
+}
+async function hostOp(op, extra) { try { await api('host', { c: role.code, hk: role.hk, op, ...extra }); } catch (e) {} clearTimeout(pollT); poll(); }
+function ringSvg() { return `<div class="ring"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="rgba(0,0,0,.5)" stroke="#2a2a1c" stroke-width="4"/><circle id="rc" cx="20" cy="20" r="17" fill="none" stroke="#9fe36a" stroke-width="4" stroke-linecap="round" stroke-dasharray="106.8" stroke-dashoffset="0"/></svg><b id="rt"></b></div>`; }
+function optsHtml(q, reveal) {
+  const tot = reveal ? Math.max(1, q.counts.reduce((a, b) => a + b, 0)) : 1;
+  return q.o.map((t, i) => `<div class="opt o${i} ${reveal ? (i === q.c ? 'ok' : 'dim') : ''}"><span class="sym">${SYM[i]}</span><span>${esc(t)}</span>${reveal ? `<span class="cnt">${q.counts[i]}</span><i class="bar" style="width:${q.counts[i] / tot * 100}%"></i>` : ''}</div>`).join('');
+}
+function hostQuestion() {
+  lastRendered = 'hq' + ST.qi; revealSent = -1;
+  const q = ST.q;
+  V.innerHTML = `<div class="qhead"><span class="nr">Frage ${ST.qi + 1} / ${ST.qn}</span><span class="pkn">${esc(q.p || '')}</span>${ringSvg()}</div>
+    <div class="qtext">${esc(q.q)}</div>
+    <div class="opts">${optsHtml(q, false)}</div>
+    <div class="qfoot"><span><b id="ans">${ST.answered}</b> von <b>${ST.players.length}</b> haben geantwortet</span><span class="sp"></span><button class="small" id="skip">Auflösen</button></div>`;
+  $('#skip').onclick = () => { revealSent = ST.qi; hostOp('reveal'); };
+}
+function updateAnswered() { const a = $('#ans'); if (a) a.textContent = ST.answered; }
+function leaderboard(n) {
+  return ST.players.slice(0, n).map((p, i) => `<div class="br"><span class="n">${i + 1}</span>${avImg(p.av)}<span class="nm">${esc(p.name)}${p.streak >= 2 ? ` <span class="streak">🔥${p.streak}</span>` : ''}</span>${p.last && p.last.pts ? `<span class="d">+${p.last.pts}</span>` : ''}<span class="s">${p.score}</span></div>`).join('');
+}
+function hostReveal() {
+  if (lastRendered === 'hr' + ST.qi) return; lastRendered = 'hr' + ST.qi;
+  const q = ST.q, last = ST.qi + 1 >= ST.qn;
+  V.innerHTML = `<div class="qhead"><span class="nr">Frage ${ST.qi + 1} / ${ST.qn}</span><span class="pkn">${esc(q.p || '')}</span></div>
+    <div class="qtext">${esc(q.q)}</div>
+    <div class="reveal"><div class="opts" style="grid-template-columns:1fr">${optsHtml(q, true)}</div>
+      <div class="board"><h3>Rangliste</h3>${leaderboard(6)}</div></div>
+    <div class="qfoot"><span class="sp"></span><button class="small g" id="next">${last ? 'Zum Ergebnis ▶' : 'Nächste Frage ▶'}</button></div>`;
+  $('#next').onclick = () => hostOp('next');
+}
+function podium() {
+  const p = ST.players, slot = (i, cls) => p[i] ? `<div class="pod ${cls}">${avImg(p[i].av)}<b>${esc(p[i].name)}</b><span>${p[i].score}</span><div class="step">${i + 1}</div></div>` : `<div class="pod ${cls}"></div>`;
+  return `<div class="podium">${slot(1, 'p2')}${slot(0, 'p1')}${slot(2, 'p3')}</div>`;
+}
+function hostEnd() {
+  if (lastRendered === 'he') return; lastRendered = 'he';
+  ss.set('bq_role', null);
+  V.innerHTML = `<div class="panel wide"><div class="title">Siegerehrung</div><div class="orn">✦ 👑 ✦</div>${podium()}
+    ${ST.players.length > 3 ? `<div class="board" style="margin-top:12px">${leaderboard(40).split('</div>').slice(3).join('</div>')}</div>` : ''}
+    <div class="row" style="max-width:520px;margin:0 auto"><button class="go" id="again">Neues Spiel</button></div></div>`;
+  confetti();
+  $('#again').onclick = () => { stopPoll(); role = null; setup('host'); };
+}
+
+// ---------- Spieler ----------
+function playerWait() {
+  lastRendered = 'pw';
+  const y = ST.you;
+  V.innerHTML = `<div class="panel res">${avImg(y.av)}<div class="title" style="font-size:30px">${esc(y.name)}</div>
+    <div class="big ok" style="font-size:28px">Du bist drin!</div><p class="sub">Schau auf den Bildschirm. Gleich geht's los.<br>${ST.players.length} ${ST.players.length === 1 ? 'Spieler' : 'Spieler'} im Raum</p></div>`;
+}
+function playerQuestion() {
+  lastRendered = 'pq' + ST.qi;
+  const q = ST.q;
+  V.innerHTML = `<div class="pq"><div class="qhead"><span class="nr">Frage ${ST.qi + 1} / ${ST.qn}</span><span class="pkn"></span><b id="rt" class="c" style="color:#fff3c4;font-size:20px"></b></div>
+    <div class="tbar"><i id="tb"></i></div>
+    <div class="qt">${esc(q.q)}</div>
+    <div class="opts">${q.o.map((t, i) => `<button class="opt o${i}" data-a="${i}"><span class="sym">${SYM[i]}</span><span>${esc(t)}</span></button>`).join('')}</div></div>`;
+  V.querySelectorAll('[data-a]').forEach(b => b.onclick = async () => {
+    V.querySelectorAll('[data-a]').forEach(x => { x.disabled = true; if (x !== b) x.classList.add('dim'); });
+    try { await api('answer', { c: role.code, pid: role.pid, pk: role.pk, qi: ST.qi, a: +b.dataset.a }); ST.you.answered = true; ST.you.a = +b.dataset.a; playerAnswered(); }
+    catch (e) { if (e.message === 'already') playerAnswered(); else { V.querySelectorAll('[data-a]').forEach(x => { x.disabled = false; x.classList.remove('dim'); }); } }
+  });
+}
+function playerAnswered() {
+  if (lastRendered === 'pa' + ST.qi) return; lastRendered = 'pa' + ST.qi;
+  const a = ST.you.a;
+  V.innerHTML = `<div class="panel res"><div class="opt o${a}" style="width:120px;height:120px;justify-content:center;border-radius:20px"><span class="sym" style="width:70px;height:70px;font-size:40px">${SYM[a] || '?'}</span></div>
+    <div class="big" style="font-size:30px;color:#fff3c4">Antwort ist raus!</div><p class="sub">Daumen drücken 🤞</p></div>`;
+}
+function playerReveal() {
+  if (lastRendered === 'pr' + ST.qi) return; lastRendered = 'pr' + ST.qi;
+  const y = ST.you, l = y.last || { ok: false, pts: 0, a: -1 };
+  V.innerHTML = `<div class="panel res">
+    <div class="big ${l.ok ? 'ok' : 'no'}">${l.ok ? 'Richtig!' : l.a < 0 ? 'Zu spät!' : 'Leider falsch'}</div>
+    ${l.ok ? `<div class="pts">+${l.pts}</div>` : `<p class="sub">Richtig war: <b class="c" style="color:var(--gold2)">${esc(ST.q.o[ST.q.c])}</b></p>`}
+    ${y.streak >= 2 ? `<div class="streak">🔥 ${y.streak} richtig in Folge</div>` : ''}
+    <p class="rank">Platz <b class="c" style="color:#fff3c4;font-size:22px">${y.rank}</b> von ${ST.players.length} · ${y.score} Punkte</p></div>`;
+}
+function playerEnd() {
+  if (lastRendered === 'pe') return; lastRendered = 'pe';
+  ss.set('bq_role', null);
+  const y = ST.you;
+  V.innerHTML = `<div class="panel res">${avImg(y.av)}<div class="big ${y.rank <= 3 ? 'ok' : ''}" style="${y.rank > 3 ? 'color:#fff3c4' : ''}">Platz ${y.rank}</div>
+    <div class="pts">${y.score} Punkte</div><p class="rank">${y.rank === 1 ? 'Du bist der König der Bande! 👑' : 'von ' + ST.players.length + ' Spielern'}</p>
+    <button class="go" id="h">Zum Menü</button></div>`;
+  if (y.rank === 1) confetti();
+  $('#h').onclick = () => { stopPoll(); home(); };
+}
+function leave() { stopPoll(); ss.set('bq_role', null); role = null; home(); }
+$('#btnLeave').onclick = async () => {
+  if (role && role.type === 'host' && ST && ST.phase !== 'end' && !confirmLeave()) return;
+  if (role && role.type === 'host') try { await api('host', { c: role.code, hk: role.hk, op: 'end' }); } catch (e) {}
+  leave();
+};
+function confirmLeave() { return window.confirm ? true : true; }
+
+// Timer und automatisches Auflösen
+setInterval(() => {
+  if (!ST || ST.phase !== 'question' || !role) return;
+  const r = remaining(), t = $('#rt'), c = $('#rc'), tb = $('#tb');
+  if (t) t.textContent = Math.ceil(r);
+  if (c) { c.style.strokeDashoffset = 106.8 * (1 - r / ST.limit); c.style.stroke = r < 5 ? '#ff8a6a' : '#9fe36a'; }
+  if (tb) tb.style.width = (r / ST.limit * 100) + '%';
+  if (role.type === 'host' && revealSent !== ST.qi && (r <= 0 || (ST.players.length && ST.answered >= ST.players.length))) { revealSent = ST.qi; setTimeout(() => hostOp('reveal'), r <= 0 ? 300 : 700); }
+}, 100);
+
+// ---------- Solo ----------
+function solo(qs, limit) {
+  let i = 0, score = 0, streak = 0, right = 0, t0 = 0, timer = null, done = false;
+  const next = () => {
+    if (i >= qs.length) return end();
+    const q = qs[i]; done = false; t0 = performance.now();
+    V.innerHTML = `<div class="pq"><div class="qhead"><span class="nr">Frage ${i + 1} / ${qs.length}</span><span class="pkn">${esc(q.p)}</span><b class="c" style="color:#fff3c4">${score} P.</b></div>
+      <div class="tbar"><i id="stb"></i></div><div class="qt" style="font-size:22px">${esc(q.q)}</div>
+      <div class="opts">${q.o.map((t, k) => `<button class="opt o${k}" data-a="${k}"><span class="sym">${SYM[k]}</span><span>${esc(t)}</span></button>`).join('')}</div>
+      <div id="fb" class="streak" style="text-align:center;min-height:24px"></div></div>`;
+    V.querySelectorAll('[data-a]').forEach(b => b.onclick = () => pick(+b.dataset.a));
+    clearInterval(timer);
+    timer = setInterval(() => { const r = Math.max(0, limit - (performance.now() - t0) / 1000); const e = $('#stb'); if (e) e.style.width = r / limit * 100 + '%'; if (r <= 0) pick(-1); }, 100);
+  };
+  const pick = a => {
+    if (done) return; done = true; clearInterval(timer);
+    const q = qs[i], el = (performance.now() - t0) / 1000, ok = a === q.c;
+    V.querySelectorAll('[data-a]').forEach(b => { b.disabled = true; const k = +b.dataset.a; b.classList.add(k === q.c ? 'ok' : 'dim'); });
+    if (ok) { streak++; right++; const pts = Math.round((500 + 500 * Math.max(0, 1 - el / limit)) / 10) * 10 + Math.min(3, streak - 1) * 50; score += pts; $('#fb').textContent = `Richtig! +${pts}${streak >= 2 ? '  🔥' + streak : ''}`; }
+    else { streak = 0; $('#fb').textContent = a < 0 ? 'Zu spät!' : 'Leider falsch'; $('#fb').style.color = '#ff8a6a'; }
+    i++; setTimeout(next, 1500);
+  };
+  const end = () => {
+    const best = ls.get('bq_best', 0), rec = score > best; if (rec) ls.set('bq_best', score);
+    V.innerHTML = `<div class="panel res"><div class="title" style="font-size:32px">${rec ? 'Neuer Rekord!' : 'Geschafft!'}</div>
+      <div class="pts" style="font-size:40px">${score}</div><p class="sub">${right} von ${qs.length} richtig · Rekord: ${Math.max(best, score)}</p>
+      <div class="row" style="width:100%"><button class="go alt" id="h">Menü</button><button class="go" id="again">Nochmal</button></div></div>`;
+    if (rec && score > 0) confetti();
+    $('#h').onclick = home; $('#again').onclick = () => setup('solo');
+  };
+  next();
+}
+
+// ---------- Ein Gerät ----------
+function local(qs, players) {
+  let i = 0; const sc = Object.fromEntries(players.map(p => [p, 0]));
+  const show = () => {
+    if (i >= qs.length) return end();
+    const q = qs[i];
+    V.innerHTML = `<div class="qhead"><span class="nr">Frage ${i + 1} / ${qs.length}</span><span class="pkn">${esc(q.p)}</span></div>
+      <div class="qtext">${esc(q.q)}</div><div class="opts">${optsHtml(q, false)}</div>
+      <div class="qfoot"><span>Alle tippen laut, dann auflösen.</span><span class="sp"></span><button class="small g" id="rev">Auflösen</button></div>`;
+    $('#rev').onclick = () => {
+      V.querySelectorAll('.opt').forEach((o, k) => o.classList.add(k === q.c ? 'ok' : 'dim'));
+      const pick = new Set();
+      const foot = V.querySelector('.qfoot');
+      foot.outerHTML = `<div class="panel" style="max-width:1100px"><h3 style="margin-top:0;text-align:center">Wer lag richtig?</h3><div class="who">${players.map(p => `<button data-w="${esc(p)}">${esc(p)}</button>`).join('')}</div>
+        <div class="row" style="max-width:420px;margin:0 auto"><button class="go" id="nx">${i + 1 >= qs.length ? 'Zum Ergebnis' : 'Weiter ▶'}</button></div></div>`;
+      V.querySelectorAll('[data-w]').forEach(b => b.onclick = () => { const n = b.dataset.w; pick.has(n) ? pick.delete(n) : pick.add(n); b.classList.toggle('on'); });
+      $('#nx').onclick = () => { pick.forEach(n => sc[n] += 100); i++; show(); };
+    };
+  };
+  const end = () => {
+    ST = { players: Object.entries(sc).sort((a, b) => b[1] - a[1]).map(([name, score], k) => ({ name, score, av: AV[(players.indexOf(name) * 5) % AV.length] })) };
+    V.innerHTML = `<div class="panel wide"><div class="title">Siegerehrung</div><div class="orn">✦ 👑 ✦</div>${podium()}
+      <div class="row" style="max-width:520px;margin:0 auto"><button class="go alt" id="h">Menü</button><button class="go" id="again">Nochmal</button></div></div>`;
+    ST = null; confetti();
+    $('#h').onclick = home; $('#again').onclick = () => setup('local');
+  };
+  show();
+}
+
+// ---------- Eigene Fragen ----------
+function editor() {
+  const cur = ls.get('bq_custom', []);
+  V.innerHTML = `<div class="panel"><div class="title" style="font-size:30px">Eigene Fragen</div><div class="orn">✦ ✍️ ✦</div>
+    <p class="sub" style="font-size:14px">Eine Frage pro Zeile. Erst die Frage, dann die <b>richtige</b> Antwort, dann bis zu drei falsche. Getrennt mit <b>;</b><br>Die Antworten werden im Spiel automatisch gemischt.</p>
+    <textarea id="ta" placeholder="Wer hat beim letzten Grillen die Würste verbrannt? ; Allan ; Artur ; Nille ; Der Kobold&#10;Wie heißt unsere Stammkneipe? ; Das Okay ; Der Ochsen ; Die Linde">${esc(cur.map(q => q.join(' ; ')).join('\n'))}</textarea>
+    <div class="err" id="err"></div>
+    <div class="row"><button class="go alt" id="back">Zurück</button><button class="go" id="save">Speichern</button></div></div>`;
+  $('#back').onclick = home;
+  $('#save').onclick = () => {
+    const { out, bad } = parseCustom($('#ta').value);
+    ls.set('bq_custom', out);
+    $('#err').style.color = bad.length ? '#ff9a7a' : '#9fe36a';
+    $('#err').textContent = `${out.length} Fragen gespeichert.` + (bad.length ? ` Zeile ${bad.join(', ')} übersprungen (Frage ; richtig ; falsch …).` : ' Du findest sie jetzt als Thema „Eigene Fragen“.');
+  };
+}
+
+function confetti() {
+  const cols = ['#f0d37a', '#9fe36a', '#d4473a', '#2f7fc0', '#fff3c4'];
+  for (let i = 0; i < 90; i++) {
+    const d = document.createElement('i'); d.className = 'confetti';
+    d.style.left = Math.random() * 100 + 'vw'; d.style.background = cols[i % cols.length];
+    d.style.setProperty('--dx', (Math.random() * 200 - 100) + 'px'); d.style.setProperty('--r', (Math.random() * 1080 - 540) + 'deg');
+    d.style.animationDuration = 2.2 + Math.random() * 2.2 + 's'; d.style.animationDelay = Math.random() * .8 + 's';
+    document.body.appendChild(d); setTimeout(() => d.remove(), 5500);
+  }
+}
+
+// ---------- Start ----------
+(async () => {
+  V.innerHTML = '<p class="waiting">Lade …</p>';
+  online = location.protocol.startsWith('http') && await ping();
+  const c = new URLSearchParams(location.search).get('c');
+  if (c && online) joinView(c.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4));
+  else home();
+})();
+</script>
+</body>
+</html>

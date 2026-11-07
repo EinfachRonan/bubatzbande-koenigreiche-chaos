@@ -34,7 +34,7 @@ h1{font-family:"Cinzel Decorative","Cinzel",Georgia,serif;font-weight:900;font-s
 .rule::before,.rule::after{content:"";height:1px;width:min(22vw,160px);background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 
 .cards{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1100px;width:100%;margin:0 auto}
-.card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:9px;min-height:400px;padding:20px;border-radius:14px;overflow:hidden;color:inherit;text-decoration:none;border:2px solid #7a6230;outline:1px solid rgba(212,175,55,.35);outline-offset:-8px;box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 0 60px rgba(0,0,0,.5);transition:transform .2s,box-shadow .2s,border-color .2s}
+.card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:9px;min-height:380px;padding:20px;border-radius:14px;overflow:hidden;color:inherit;text-decoration:none;border:2px solid #7a6230;outline:1px solid rgba(212,175,55,.35);outline-offset:-8px;box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 0 60px rgba(0,0,0,.5);transition:transform .2s,box-shadow .2s,border-color .2s}
 .card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(8,5,3,.92) 78%);z-index:0}
 .card>*{position:relative;z-index:1}
 .card:hover{transform:translateY(-5px);border-color:var(--gold2);box-shadow:0 26px 60px rgba(0,0,0,.6),0 0 30px rgba(240,190,90,.25),inset 0 0 60px rgba(0,0,0,.5)}
@@ -50,6 +50,19 @@ h1{font-family:"Cinzel Decorative","Cinzel",Georgia,serif;font-weight:900;font-s
 .war{background:linear-gradient(#0e140b,#060805)}
 .war .play{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border-color:#d4af37;box-shadow:0 3px 0 #0a1406}
 .war:hover .play{box-shadow:0 3px 0 #0a1406,0 0 22px rgba(100,190,70,.5)}
+.match{background:radial-gradient(80% 60% at 50% 30%,#2c4a22,#0e170b 70%,#070a05)}
+.gems{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:min(78%,300px);transform:rotate(-6deg)}
+.gems b{aspect-ratio:1;border-radius:22%;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,3.4vw,30px);background:linear-gradient(#2a3b20,#121c0e);border:1px solid #5d4a20;box-shadow:inset 0 2px 0 rgba(255,240,180,.15),0 4px 10px rgba(0,0,0,.6)}
+.gems b.hi{border-color:#f0d37a;box-shadow:0 0 14px rgba(240,211,122,.7),inset 0 2px 0 rgba(255,240,180,.3);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.08)}}
+.quiz{background:radial-gradient(80% 60% at 50% 30%,#3a2a12,#14100a 70%,#080605)}
+.qart{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:min(80%,320px)}
+.qart .q{grid-column:1/3;text-align:center;font:800 clamp(14px,2.6vw,22px) "Cinzel",serif;color:#fff3c4;padding:10px;border:1px solid #d4af37;border-radius:8px;background:rgba(10,8,4,.7)}
+.qart i{font-style:normal;color:#fff;font-size:clamp(16px,3vw,26px);display:flex;align-items:center;justify-content:center;height:clamp(34px,6vw,54px);border-radius:8px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.25)}
+.qart i:nth-of-type(1){background:linear-gradient(#d4473a,#9a2a20)}.qart i:nth-of-type(2){background:linear-gradient(#2f7fc0,#1c4f80)}.qart i:nth-of-type(3){background:linear-gradient(#c9a227,#8a6c10)}.qart i:nth-of-type(4){background:linear-gradient(#2e9a52,#1a6634);box-shadow:0 0 0 3px #fff3c4,0 0 18px rgba(255,240,180,.6)}
+.match .art,.quiz .art{inset:5% 0 48% 0}
+.gems{width:min(62%,250px)}.qart{width:min(66%,270px)}
+.match .play,.quiz .play{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border-color:#d4af37;box-shadow:0 3px 0 #0a1406}
 .knight{font-size:clamp(90px,20vw,190px);line-height:1;color:#f4ecff;text-shadow:0 0 40px rgba(180,140,255,.6),0 12px 30px rgba(0,0,0,.7);animation:float 5s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-8px)}}
 .faces{display:flex;gap:0}.faces img{width:34px;height:34px;border-radius:50%;border:2px solid #d4af37;object-fit:cover;object-position:50% 15%;margin-right:-6px;box-shadow:0 2px 8px rgba(0,0,0,.6)}
@@ -69,6 +82,8 @@ footer{text-align:center;color:rgba(244,228,193,.45);font-family:"Cinzel",serif;
   .play{font-size:14px;padding:11px;letter-spacing:.1em}
   .card p{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
   .tag{font-size:9px;padding:3px 7px}
+  .gems{gap:3px;width:80%}.qart{gap:4px;width:84%}.qart .q{padding:5px;font-size:12px}.qart i{height:26px;font-size:14px}.gems b{font-size:14px}
+  .match .art,.quiz .art{inset:6% 0 50% 0}.gems b:nth-child(n+11){display:none}
   .faces img{width:24px;height:24px;margin-right:-5px;border-width:1.5px}
 }
 @media (prefers-reduced-motion:reduce){.embers,.knight{animation:none}.embers{display:none}}
@@ -122,10 +137,26 @@ footer{text-align:center;color:rgba(244,228,193,.45);font-family:"Cinzel",serif;
   <a class="card war" href="krieg/">
     <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
     <div class="art"><img src="krieg/img/hero.jpg" alt="Die Bubatzbande"></div>
-    <span class="tag new">Neu · Strategie</span>
+    <span class="tag">Strategie</span>
     <div class="faces"><img src="krieg/img/artur.jpg" alt=""><img src="krieg/img/kobold.jpg" alt=""><img src="krieg/img/koenig.jpg" alt=""><img src="krieg/img/molly.jpg" alt=""><img src="krieg/img/lg3.jpg" alt=""><img src="krieg/img/don.jpg" alt=""></div>
     <h2>Bandenkrieg</h2>
     <p>Die Bande gegen die Spießer. Schick Artur, den Kobold und den Rest der Bande los, lass Marwin ein Katapult auf den Turm bauen und stürm die gegnerische Burg.</p>
+    <span class="play">▶ PLAY</span>
+  </a>
+  <a class="card match" href="match/">
+    <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
+    <div class="art"><div class="gems"><b>🌿</b><b>💎</b><b>🍄</b><b>🪙</b><b>🧪</b><b>🔥</b><b class="hi">⭐</b><b>🌿</b><b>🌿</b><b>🌿</b><b>🪙</b><b>🍄</b><b>💎</b><b>🔥</b><b>🧪</b></div></div>
+    <span class="tag new">Neu · Puzzle</span>
+    <h2>Kräuter-Match</h2>
+    <p>Tausch die Kräuter, bring drei in eine Reihe. Kobold, Fokuhila und Mollymann helfen mit Spezialkräften. Über 12 Level und dann endlos.</p>
+    <span class="play">▶ PLAY</span>
+  </a>
+  <a class="card quiz" href="quiz/">
+    <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
+    <div class="art"><div class="qart"><div class="q">Wer weiß es? 🤔</div><i>▲</i><i>◆</i><i>●</i><i>■</i></div></div>
+    <span class="tag new">Neu · Party</span>
+    <h2>Bubatz-Quiz</h2>
+    <p>Quiz für die ganze Bande: Einer hostet am TV, alle antworten am Handy mit Code. Auch solo oder mit eigenen Fragen.</p>
     <span class="play">▶ PLAY</span>
   </a>
 </main>
