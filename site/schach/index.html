@@ -550,6 +550,7 @@ body:not([data-mode="chess"]) #turnPop{display:none}
   <button class="tbtn main" id="tAtk">Angriff</button>
 </div></div>
 
+<script src="../bb.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
@@ -1309,7 +1310,7 @@ function commit(m,attWins,msg){
   updStatus();renderMarks();
   if(!ONLINE&&S.turn==='b'){S.busy=true;setTimeout(()=>{if(S.over)return;const bm=bookMove()||bestMove(S.board,S.ep);if(bm)aiPlay(bm);else S.busy=false;},650);}
 }
-function finish(t,s,res){S.over=true;S.busy=false;if(ONLINE)onlSave(false);const rec=recordGame(res,S.elapsed);updStatus();renderMarks();drawClock(true);setTimeout(()=>{$('#overT').textContent=t;$('#overS').textContent=s+` Spielzeit ${fmtT(S.elapsed)}.`+(rec?' Neuer Rekord für den schnellsten Sieg!':'');$('#over').hidden=false;},900);}
+function finish(t,s,res){S.over=true;S.busy=false;if(ONLINE)onlSave(false);const rec=recordGame(res,S.elapsed);if(res==='w'&&!ONLINE&&window.BB){BB.record('schach',Math.round(S.elapsed*10)/10,{d:(DIFF[diff]&&DIFF[diff].name)||diff});BB.unlock('schach_win');}updStatus();renderMarks();drawClock(true);setTimeout(()=>{$('#overT').textContent=t;$('#overS').textContent=s+` Spielzeit ${fmtT(S.elapsed)}.`+(rec?' Neuer Rekord für den schnellsten Sieg!':'');$('#over').hidden=false;},900);}
 
 /* ---------- Uhr ---------- */
 let clockStr='';
@@ -1658,7 +1659,7 @@ function endFight(enemyDied){
   let youWon=enemyDied,attWon=D.youAtt?youWon:!youWon;
   seqStop(BATTLE,1.4);sfx('sting',youWon);
   if(enemyDied)burst(new THREE.Vector3(D.e.pos.x,1.4,D.e.pos.z),0xff4f6d,40,9,.35,.8);
-  const rec=recordDuel(D.p.t,D.e.t,D.youAtt?'Angriff':'Verteidigung',youWon,D.time);
+  const rec=recordDuel(D.p.t,D.e.t,D.youAtt?'Angriff':'Verteidigung',youWon,D.time);if(youWon&&window.BB&&BB.stat('schach_duelle')>=10)BB.unlock('schach_duelle');
   $('#banner').className='on '+(youWon?'win':'lose');$('#bBig').textContent=youWon?'Sieg':'Gefallen';
   const pn=NAMES[D.p.t],en=NAMES[D.e.t];let msg;
   if(D.youAtt)msg=youWon?`Dein ${pn} gewinnt das Duell und schlägt ${ART[D.e.t]} ${en}.`:`${en} hält stand. Dein ${pn} fliegt vom Brett.`;

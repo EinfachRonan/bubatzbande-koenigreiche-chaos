@@ -164,6 +164,7 @@ textarea{min-height:240px;font-size:14px;line-height:1.5;resize:vertical}
 </div>
 <div id="view"></div>
 <script src="fragen.js"></script>
+<script src="../bb.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 'use strict';
@@ -289,11 +290,12 @@ function setup(mode) {
 // ---------- Beitreten ----------
 function joinView(code = '') {
   stopPoll();
-  let av = ls.get('bq_av', AV[Math.floor(Math.random() * AV.length)]);
+  const bp = window.BB && BB.profile;
+  let av = ls.get('bq_av', bp && bp.name ? bp.av : AV[Math.floor(Math.random() * AV.length)]);
   V.innerHTML = `<div class="panel">
     <div class="title" style="font-size:30px">Mitspielen</div><div class="orn">✦ 📱 ✦</div>
     <h3>Code vom Bildschirm</h3><input type="text" class="codeIn" id="code" maxlength="4" autocomplete="off" autocapitalize="characters" value="${esc(code)}" placeholder="ABCD">
-    <h3>Dein Name</h3><input type="text" id="name" maxlength="16" autocomplete="nickname" value="${esc(ls.get('bq_name', ''))}" placeholder="z. B. Ro">
+    <h3>Dein Name</h3><input type="text" id="name" maxlength="16" autocomplete="nickname" value="${esc(ls.get('bq_name', '') || (bp && bp.name) || '')}" placeholder="z. B. Ro">
     <h3>Wähl deine Figur</h3><div class="avs">${AV.map(k => `<button class="av ${k === av ? 'on' : ''}" data-av="${k}">${avImg(k, '')}</button>`).join('')}</div>
     <div class="err" id="err"></div>
     <div class="row"><button class="go alt" id="back">Zurück</button><button class="go" id="join">Beitreten</button></div>
@@ -459,6 +461,7 @@ function playerEnd() {
     <div class="pts">${y.score} Punkte</div><p class="rank">${y.rank === 1 ? 'Du bist der König der Bande! 👑' : 'von ' + ST.players.length + ' Spielern'}</p>
     <button class="go" id="h">Zum Menü</button></div>`;
   if (y.rank === 1) confetti();
+  if (y.rank === 1 && ST.players.length >= 2 && window.BB) BB.unlock('quiz_party');
   $('#h').onclick = () => { stopPoll(); home(); };
 }
 function leave() { stopPoll(); ss.set('bq_role', null); role = null; home(); }
@@ -481,7 +484,7 @@ setInterval(() => {
 
 // ---------- Solo ----------
 function solo(qs, limit) {
-  let i = 0, score = 0, streak = 0, right = 0, t0 = 0, timer = null, done = false;
+  let i = 0, score = 0, streak = 0, right = 0, t0 = 0, timer = null, done = false, maxStreak = 0;
   const next = () => {
     if (i >= qs.length) return end();
     const q = qs[i]; done = false; t0 = performance.now();
@@ -497,15 +500,21 @@ function solo(qs, limit) {
     if (done) return; done = true; clearInterval(timer);
     const q = qs[i], el = (performance.now() - t0) / 1000, ok = a === q.c;
     V.querySelectorAll('[data-a]').forEach(b => { b.disabled = true; const k = +b.dataset.a; b.classList.add(k === q.c ? 'ok' : 'dim'); });
-    if (ok) { streak++; right++; const pts = Math.round((500 + 500 * Math.max(0, 1 - el / limit)) / 10) * 10 + Math.min(3, streak - 1) * 50; score += pts; $('#fb').textContent = `Richtig! +${pts}${streak >= 2 ? '  🔥' + streak : ''}`; }
+    if (ok) { streak++; right++; maxStreak = Math.max(maxStreak, streak); const pts = Math.round((500 + 500 * Math.max(0, 1 - el / limit)) / 10) * 10 + Math.min(3, streak - 1) * 50; score += pts; $('#fb').textContent = `Richtig! +${pts}${streak >= 2 ? '  🔥' + streak : ''}`; }
     else { streak = 0; $('#fb').textContent = a < 0 ? 'Zu spät!' : 'Leider falsch'; $('#fb').style.color = '#ff8a6a'; }
     i++; setTimeout(next, 1500);
   };
   const end = () => {
     const best = ls.get('bq_best', 0), rec = score > best; if (rec) ls.set('bq_best', score);
+    if (window.BB) {
+      BB.record('quiz', score, { r: right, n: qs.length });
+      if (right >= 10) BB.unlock('quiz_10'); if (right === qs.length && qs.length >= 10) BB.unlock('quiz_perfekt');
+    }
     V.innerHTML = `<div class="panel res"><div class="title" style="font-size:32px">${rec ? 'Neuer Rekord!' : 'Geschafft!'}</div>
       <div class="pts" style="font-size:40px">${score}</div><p class="sub">${right} von ${qs.length} richtig · Rekord: ${Math.max(best, score)}</p>
-      <div class="row" style="width:100%"><button class="go alt" id="h">Menü</button><button class="go" id="again">Nochmal</button></div></div>`;
+      <div class="row" style="width:100%"><button class="go alt" id="h">Menü</button><button class="go" id="again">Nochmal</button></div>
+      ${window.BB ? '<button class="link" id="bbBoard">🏆 Bestenliste</button>' : ''}</div>`;
+    if ($('#bbBoard')) $('#bbBoard').onclick = () => BB.open('board', 'quiz');
     if (rec && score > 0) confetti();
     $('#h').onclick = home; $('#again').onclick = () => setup('solo');
   };

@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Kneipen-Duell · Bubatzbande</title>
+<meta name="theme-color" content="#140c06">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<link rel="icon" href="../icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--txt:#f4e6c6;--mut:#b5a07c;--gold:#d4af37;--gold2:#f0d37a;--line:#7a6128;--wood:#2a1a0e;--p0:#7fd65a;--p1:#ff8a5c}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:#140c06}
+html,body{height:100%;color:var(--txt);font:16px/1.4 Georgia,serif;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body{background:
+  radial-gradient(ellipse at 50% 35%,rgba(255,170,70,.20),rgba(0,0,0,0) 55%),
+  radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0) 40%,rgba(0,0,0,.75) 100%),
+  repeating-linear-gradient(90deg,#2b1a0d 0 70px,#1d1108 70px 73px,#33200f 73px 140px,#1d1108 140px 143px);}
+button{font:inherit;color:inherit;cursor:pointer}
+.c{font-family:"Cinzel",Georgia,serif}
+.hidden{display:none!important}
+.screen{position:fixed;inset:0;display:flex}
+
+/* Menü */
+#menu{flex-direction:column;align-items:center;overflow-y:auto;padding:max(12px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom))}
+.top{width:100%;max-width:640px;display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.top a{color:var(--gold2);text-decoration:none;background:linear-gradient(#3a2614,#1e1208);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font:800 14px "Cinzel",serif}
+.panel{width:100%;max-width:640px;background:linear-gradient(rgba(36,22,10,.95),rgba(16,10,5,.96));border:1px solid var(--gold);outline:1px solid #3a2a12;outline-offset:4px;border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.8);padding:20px;margin:auto 0}
+.title{text-align:center;font:900 clamp(32px,8vw,52px) "Cinzel Decorative","Cinzel",serif;background:linear-gradient(#fff6d6,#f0d37a 45%,#b8902c);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #000) drop-shadow(0 0 18px rgba(240,170,60,.35));line-height:1.05}
+.mugs{text-align:center;font-size:52px;line-height:1;margin-bottom:4px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
+.mugs span{display:inline-block;animation:clink 2.4s ease-in-out infinite}
+.mugs span:last-child{transform:scaleX(-1);animation-name:clink2}
+@keyframes clink{0%,70%,100%{transform:translateX(0) rotate(0)}80%{transform:translateX(10px) rotate(14deg)}}
+@keyframes clink2{0%,70%,100%{transform:scaleX(-1) translateX(0) rotate(0)}80%{transform:scaleX(-1) translateX(10px) rotate(14deg)}}
+.sub{text-align:center;color:#e6d3ab;margin:8px 0 6px}
+.orn{text-align:center;color:var(--gold);letter-spacing:.4em;font-size:12px}
+h3{font:800 15px "Cinzel",serif;color:var(--gold2);margin:16px 0 8px;letter-spacing:.04em}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{flex:1;min-width:120px;padding:11px 12px;border-radius:9px;border:1px solid #5a4420;background:#1a1009;font:800 14px "Cinzel",serif;text-align:center}
+.chip small{display:block;font:12px Georgia,serif;color:var(--mut);margin-top:2px}
+.chip.on{border-color:var(--gold);background:linear-gradient(#7a3d14,#3d1d08);color:#fff0c8;box-shadow:0 0 14px rgba(240,150,60,.3)}
+.chip.on small{color:#f2d8b0}
+.avs{display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:7px}
+.av{aspect-ratio:1;border-radius:50%;border:2px solid #3a2a12;padding:0;overflow:hidden;background:#100a05;position:relative}
+.av img{width:100%;height:100%;object-fit:cover;object-position:50% 15%;display:block}
+.av.on{border-color:var(--gold2);box-shadow:0 0 0 3px rgba(240,211,122,.35),0 0 14px rgba(240,211,122,.5)}
+.av.taken{opacity:.25;pointer-events:none}
+.pickname{font:800 14px "Cinzel",serif;color:#fff3c4;margin-left:6px}
+.games{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+.games div{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.25);border:1px solid #3a2a12;font-size:13px;color:#e6d3ab}
+.games i{font-style:normal;font-size:22px}
+.go{display:block;width:100%;margin-top:16px;padding:15px;border:1px solid var(--gold);border-radius:8px;background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;font:800 19px "Cinzel",serif;letter-spacing:.12em;box-shadow:inset 0 1px 0 rgba(255,240,180,.35),0 0 0 3px #0a0603,0 0 0 4px var(--line),0 8px 24px rgba(60,150,50,.3)}
+.go.alt{background:linear-gradient(#3a2614,#1e1208);color:var(--gold2)}
+.go:hover{filter:brightness(1.12)}
+.note{font-size:12.5px;color:var(--mut);text-align:center;margin-top:12px}
+
+/* Spiel */
+#game{flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.lane{position:relative;flex:1;display:flex;flex-direction:column;margin:6px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(rgba(30,18,8,.86),rgba(14,8,4,.9));box-shadow:inset 0 0 40px rgba(0,0,0,.6),0 10px 30px rgba(0,0,0,.5);overflow:hidden;touch-action:none;cursor:pointer;min-height:0}
+.lane.p0{border-color:#4c7a32}.lane.p1{border-color:#8a4422}
+.lane.press{box-shadow:inset 0 0 0 3px rgba(240,211,122,.5),inset 0 0 40px rgba(0,0,0,.6)}
+#L1{order:0}.mid{order:1}#L0{order:2}
+.two #L1{transform:rotate(180deg)}
+.lhead{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid rgba(212,175,55,.15);background:rgba(0,0,0,.25)}
+.lhead img{width:34px;height:34px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:2px solid var(--gold)}
+.p0 .lhead img{border-color:var(--p0)}.p1 .lhead img{border-color:var(--p1)}
+.lhead b{font:800 15px "Cinzel",serif;color:#fff3c4}
+.lhead .key{margin-left:auto;font:800 11px "Cinzel",serif;color:var(--mut);border:1px solid #4a3818;border-radius:5px;padding:2px 6px}
+.pips{display:flex;gap:4px;margin-left:6px}.pips i{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--gold);background:rgba(0,0,0,.4)}
+.pips i.on{background:radial-gradient(circle at 35% 35%,#fff3c4,#d4af37);box-shadow:0 0 8px rgba(240,211,122,.8)}
+.stage{position:relative;flex:1;display:flex;align-items:center;justify-content:center;container-type:size;min-height:0}
+.hint{text-align:center;font-size:13px;color:var(--mut);padding:6px 10px 9px;min-height:30px}
+.mid{display:flex;align-items:center;justify-content:center;gap:12px;padding:2px 10px;font:800 13px "Cinzel",serif;color:var(--gold2);letter-spacing:.06em}
+.mid .sc{font-size:22px;color:#fff3c4;letter-spacing:.1em}
+.mid a{color:var(--mut);text-decoration:none;font-size:20px;padding:0 6px}
+/* Overlay pro Bahn */
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:14px;background:rgba(12,7,3,.82);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:5;transition:opacity .25s}
+.ov.off{opacity:0;pointer-events:none}
+.ov .ico{font-size:clamp(38px,12cqh,70px);line-height:1}
+.ov .nm{font:900 clamp(22px,5vw,34px) "Cinzel",serif;color:#fff3c4}
+.ov .ds{color:#e6d3ab;font-size:14px;max-width:420px}
+.ov .rd{margin-top:8px;font:800 15px "Cinzel",serif;color:#1a1008;background:linear-gradient(#f0d37a,#b8902c);padding:9px 18px;border-radius:99px;animation:pulse 1.2s ease-in-out infinite}
+.ov .rd.ok{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;animation:none;border:1px solid var(--gold)}
+.ov .cd{font:900 clamp(60px,30cqh,140px) "Cinzel",serif;color:#fff3c4;text-shadow:0 0 30px rgba(240,211,122,.6);animation:pop .9s ease-out}
+.ov .res{font:900 clamp(30px,8vw,52px) "Cinzel Decorative","Cinzel",serif;line-height:1.05}
+.ov .res.win{color:#9fe36a;text-shadow:0 0 30px rgba(140,230,90,.55)}
+.ov .res.lose{color:#ff8a6a;text-shadow:0 0 30px rgba(255,120,90,.45)}
+.ov .res.tie{color:#fff3c4}
+.ov .det{color:#e6d3ab;font-size:15px}
+@keyframes pulse{50%{transform:scale(1.06)}}
+@keyframes pop{0%{transform:scale(2);opacity:0}40%{transform:scale(1);opacity:1}}
+
+/* Zapfen */
+.zap{display:flex;flex-direction:column;align-items:center;height:92cqh}
+.hahn{width:18cqh;height:9cqh;border-radius:2cqh 2cqh 1cqh 1cqh;background:linear-gradient(#e8e2d0,#8d8573);box-shadow:inset 0 -2px 0 rgba(0,0,0,.3)}
+.hahn::after{content:"";display:block;width:4cqh;height:5cqh;margin:9cqh auto 0;background:linear-gradient(90deg,#9a9280,#e8e2d0,#9a9280);border-radius:0 0 1cqh 1cqh;transform:translateY(-9cqh)}
+.stream{width:2.2cqh;height:10cqh;background:linear-gradient(90deg,#d98a12,#ffd36b,#d98a12);border-radius:1cqh;opacity:0;margin-top:-4cqh}
+.stream.on{opacity:1}
+.glass{position:relative;width:30cqh;height:62cqh;border:.8cqh solid rgba(255,255,255,.55);border-top:0;border-radius:0 0 3.5cqh 3.5cqh;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.14) 30%,rgba(255,255,255,.04));margin-top:0}
+.glass::after{content:"";position:absolute;right:-12cqh;top:12cqh;width:11cqh;height:30cqh;border:.8cqh solid rgba(255,255,255,.45);border-left:0;border-radius:0 6cqh 6cqh 0}
+.beer{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(90deg,#c97a0c,#f6b93b 40%,#e09620);border-radius:0 0 2.6cqh 2.6cqh;overflow:hidden}
+.beer::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 80%,rgba(255,255,255,.5) 0 .5cqh,transparent .7cqh),radial-gradient(circle at 70% 60%,rgba(255,255,255,.5) 0 .4cqh,transparent .6cqh),radial-gradient(circle at 50% 30%,rgba(255,255,255,.5) 0 .4cqh,transparent .6cqh);background-size:100% 12cqh;animation:bub 1.4s linear infinite}
+@keyframes bub{to{background-position:0 -12cqh}}
+.foam{position:absolute;left:0;right:0;top:0;height:5cqh;background:linear-gradient(#fffaf0,#f1e2c0);border-radius:1cqh}
+.target{position:absolute;left:-14%;right:-14%;border-top:.6cqh dashed var(--gold2);filter:drop-shadow(0 0 4px rgba(240,211,122,.8))}
+.target span{position:absolute;left:100%;top:-3cqh;margin-left:1cqh;font:800 3.6cqh "Cinzel",serif;color:var(--gold2);white-space:nowrap}
+.over{position:absolute;left:-8%;right:-8%;top:-3cqh;height:6cqh;background:#fffaf0;border-radius:3cqh;opacity:0;transition:opacity .2s}
+.over.on{opacity:1;animation:spill .5s ease-out}
+@keyframes spill{0%{transform:scaleY(.2)}100%{transform:scaleY(1)}}
+
+/* Krug schieben */
+.slide{display:flex;align-items:flex-end;gap:5cqh;height:90cqh}
+.pow{position:relative;width:5cqh;height:84cqh;border-radius:3cqh;background:#0c0703;border:1px solid #5a4420;overflow:hidden}
+.pow i{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(#ffd36b,#7fd65a)}
+.pow .red{position:absolute;left:0;right:0;top:0;height:9%;background:repeating-linear-gradient(45deg,#a8321e 0 4px,#6a1a0c 4px 8px);opacity:.9}
+.counter{position:relative;width:30cqh;height:84cqh;border-radius:1.5cqh;background:linear-gradient(90deg,#4a2c12,#7a4a1e 20%,#8c5726 50%,#7a4a1e 80%,#4a2c12);box-shadow:inset 0 0 0 .6cqh #2a1608,0 6px 18px rgba(0,0,0,.6)}
+.counter::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 2px,transparent 2px 9cqh);border-radius:inherit}
+.edge{position:absolute;left:-2cqh;right:-2cqh;top:-1cqh;height:2cqh;background:linear-gradient(#f0d37a,#8a6a1d);border-radius:1cqh;box-shadow:0 0 10px rgba(240,211,122,.6)}
+.edge span{position:absolute;right:calc(100% + 1.5cqh);top:-1.5cqh;font:800 3.6cqh "Cinzel",serif;color:var(--gold2)}
+.mug{position:absolute;left:50%;bottom:0;font-size:11cqh;line-height:1;transform:translateX(-50%);filter:drop-shadow(0 1cqh 1cqh rgba(0,0,0,.7));transition:transform .5s,opacity .5s}
+.mug.fall{transform:translate(-50%,-18cqh) rotate(70deg) scale(.8);opacity:0}
+.mark{position:absolute;left:-1cqh;right:-1cqh;height:.5cqh;background:rgba(255,255,255,.6);display:none}
+
+/* Prost */
+.prost{display:flex;flex-direction:column;align-items:center;gap:4cqh}
+.lamp{width:44cqh;height:44cqh;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20cqh;background:radial-gradient(circle at 35% 30%,#ff7a5a,#8a1c0c 70%);box-shadow:0 0 40px rgba(255,80,40,.5),inset 0 -2cqh 4cqh rgba(0,0,0,.4);transition:transform .08s}
+.lamp.go{background:radial-gradient(circle at 35% 30%,#c9ff8a,#2e8a1c 70%);box-shadow:0 0 70px rgba(140,255,90,.8),inset 0 -2cqh 4cqh rgba(0,0,0,.3);transform:scale(1.08)}
+.lamp.foul{background:radial-gradient(circle at 35% 30%,#888,#333 70%);box-shadow:none}
+.pt{font:900 9cqh "Cinzel",serif;color:#fff3c4;text-shadow:0 2px 0 #000}
+
+/* Armdrücken */
+.arm{display:flex;flex-direction:column;align-items:center;gap:6cqh;width:100%}
+.lever{position:relative;width:min(70cqh,80cqw);height:5cqh;border-radius:3cqh;background:linear-gradient(#f0d37a,#8a6a1d);box-shadow:0 4px 12px rgba(0,0,0,.6);transition:transform .08s}
+.lever img{position:absolute;top:50%;width:16cqh;height:16cqh;border-radius:50%;object-fit:cover;object-position:50% 15%;border:.8cqh solid var(--gold);transform:translateY(-50%)}
+.lever img.me{right:-8cqh;border-color:var(--p0)}.lever img.op{left:-8cqh;border-color:var(--p1)}
+.p1 .lever img.me{border-color:var(--p1)}.p1 .lever img.op{border-color:var(--p0)}
+.lever span{position:absolute;left:50%;top:50%;transform:translate(-50%,-55%);font-size:14cqh}
+.tug{position:relative;width:min(80cqh,86cqw);height:4cqh;border-radius:3cqh;background:linear-gradient(90deg,#8a2a14,#3a2010 50%,#2e6a1c);border:1px solid #5a4420}
+.tug i{position:absolute;top:50%;left:50%;width:6cqh;height:6cqh;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff3c4,#d4af37);transform:translate(-50%,-50%);box-shadow:0 0 10px rgba(240,211,122,.8)}
+.tm{font:800 5cqh "Cinzel",serif;color:var(--mut)}
+
+/* Ende */
+#end{align-items:center;justify-content:center;padding:16px;background:rgba(8,5,2,.7);z-index:20}
+.end{text-align:center}
+.end img{width:clamp(110px,26vw,170px);height:clamp(110px,26vw,170px);border-radius:50%;object-fit:cover;object-position:50% 15%;border:4px solid var(--gold);box-shadow:0 0 0 4px #fff3c4,0 0 40px rgba(255,220,120,.7);margin:6px auto 10px;display:block}
+.end .big{font:900 clamp(26px,6vw,42px) "Cinzel Decorative","Cinzel",serif;color:#fff3c4;line-height:1.1}
+.end .sc{font:800 30px "Cinzel",serif;color:var(--gold2);margin:6px 0}
+.end .row{display:flex;gap:10px}.end .row>*{flex:1}
+.confetti{position:fixed;top:-20px;width:9px;height:14px;z-index:30;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(var(--r))}}
+
+@media (orientation:landscape){
+  #game{flex-direction:row;padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+  #L0{order:0}.mid{order:1}#L1{order:2}
+  .two #L1{transform:none}
+  .mid{flex-direction:column;width:74px;padding:10px 0}
+  .mid .rn{writing-mode:vertical-rl;transform:rotate(180deg)}
+}
+@media (prefers-reduced-motion:reduce){.mugs span,.beer::before,.ov .rd{animation:none}}
+</style>
+</head>
+<body>
+<section class="screen" id="menu">
+  <div class="top"><a href="../">← Spiele</a></div>
+  <div class="panel">
+    <div class="mugs"><span>🍺</span><span>🍺</span></div>
+    <div class="title">Kneipen-Duell</div><div class="orn">✦ ⚔ ✦</div>
+    <p class="sub">Ein Tresen, zwei Typen, vier Disziplinen. Wer zuerst 3 Runden holt, ist Kneipenkönig.</p>
+    <div class="games"><div><i>🍺</i>Bier zapfen</div><div><i>🫗</i>Krug schieben</div><div><i>🥂</i>Prost-Duell</div><div><i>💪</i>Armdrücken</div></div>
+    <h3>Gegner</h3>
+    <div class="chips" id="modes">
+      <button class="chip" data-m="bot">Gegen den Wirt<small>Du gegen den Computer</small></button>
+      <button class="chip" data-m="2p">2 Spieler<small>Ein Handy, jeder seine Hälfte</small></button>
+    </div>
+    <div id="diffBox"><h3>Wie hart ist der Wirt?</h3>
+      <div class="chips" id="diffs"><button class="chip" data-d="0">Leicht</button><button class="chip" data-d="1">Normal</button><button class="chip" data-d="2">Hart</button></div></div>
+    <h3>Spieler 1<span class="pickname" id="n0"></span></h3><div class="avs" id="av0"></div>
+    <h3><span id="lab1">Spieler 2</span><span class="pickname" id="n1"></span></h3><div class="avs" id="av1"></div>
+    <button class="go" id="start">🍻 Duell starten</button>
+    <p class="note" id="note"></p>
+  </div>
+</section>
+
+<section class="screen hidden" id="game">
+  <div class="lane p1" id="L1"></div>
+  <div class="mid"><a href="#" id="quit" title="Aufgeben">✕</a><span class="rn" id="rn"></span><span class="sc" id="sc">0 : 0</span></div>
+  <div class="lane p0" id="L0"></div>
+</section>
+
+<section class="screen hidden" id="end"><div class="panel end" id="endBox"></div></section>
+
+<script src="../bb.js"></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const CHAR = { artur: 'Artur', kobold: 'Kobold', nille: 'Nille', runen: 'Runenmutant', geist: 'Grauer Geist', molly: 'Mollymann', lg3: 'LG3', fokuhila: 'Fokuhilamann', kraeuter: 'KräuterKönig', don: 'DonPatron', koenig: 'König', allan: 'Allan', marwin: 'Marwin' };
+const KEYS = Object.keys(CHAR);
+const img = k => `../krieg/img/${k}.jpg`;
+const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const rnd = (a, b) => a + Math.random() * (b - a);
+const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+
+// ---------- Menü ----------
+const cfg = ls.get('kd_cfg', null) || { mode: 'bot', diff: 1, av: [window.BB && BB.profile.name ? BB.profile.av : 'artur', 'don'] };
+if (cfg.av[0] === cfg.av[1]) cfg.av[1] = KEYS.find(k => k !== cfg.av[0]);
+function menu() {
+  $('#menu').classList.remove('hidden'); $('#game').classList.add('hidden'); $('#end').classList.add('hidden');
+  const draw = () => {
+    document.querySelectorAll('#modes .chip').forEach(b => b.classList.toggle('on', b.dataset.m === cfg.mode));
+    document.querySelectorAll('#diffs .chip').forEach(b => b.classList.toggle('on', +b.dataset.d === cfg.diff));
+    $('#diffBox').classList.toggle('hidden', cfg.mode !== 'bot');
+    $('#lab1').textContent = cfg.mode === 'bot' ? 'Der Wirt' : 'Spieler 2';
+    for (const i of [0, 1]) {
+      $('#av' + i).innerHTML = KEYS.map(k => `<button class="av ${cfg.av[i] === k ? 'on' : ''} ${cfg.av[1 - i] === k ? 'taken' : ''}" data-k="${k}" title="${esc(CHAR[k])}"><img src="${img(k)}" alt=""></button>`).join('');
+      $('#n' + i).textContent = '· ' + CHAR[cfg.av[i]];
+      $('#av' + i).querySelectorAll('[data-k]').forEach(b => b.onclick = () => { cfg.av[i] = b.dataset.k; draw(); });
+    }
+    $('#note').textContent = cfg.mode === '2p'
+      ? 'Handy flach zwischen euch auf den Tresen legen, jeder tippt auf seiner Hälfte. Am PC: Taste A für Spieler 1, Taste L für Spieler 2.'
+      : 'Tippen und halten auf deiner Hälfte. Am PC geht auch die Leertaste.';
+  };
+  document.querySelectorAll('#modes .chip').forEach(b => b.onclick = () => { cfg.mode = b.dataset.m; draw(); });
+  document.querySelectorAll('#diffs .chip').forEach(b => b.onclick = () => { cfg.diff = +b.dataset.d; draw(); });
+  $('#start').onclick = () => { ls.set('kd_cfg', cfg); startMatch(); };
+  draw();
+}
+
+// ---------- Disziplinen ----------
+// Jede Disziplin: build(stage, i, G) baut die Bahn, init() Zustand, down/up(i), tick(dt), bot(dt, diff), done(), result() → {w: 0|1|-1, det: [text0, text1]}
+const GAMES = {
+  zapfen: {
+    name: 'Bier zapfen', ico: '🍺',
+    desc: 'Halt gedrückt zum Zapfen und lass los, wenn das Bier die goldene Linie erreicht. Wer näher dran ist, gewinnt. Läuft es über, hast du verloren.',
+    hint: 'Halten = zapfen · Loslassen an der Linie',
+    init() { return { target: rnd(.55, .84), f: [0, 0], hold: [false, false], done: [false, false], over: [false, false], t: 0, bt: rnd(.3, .9), bth: null }; },
+    build(st, i, s) { st.innerHTML = `<div class="zap"><div class="hahn"></div><div class="stream"></div><div class="glass"><div class="beer"><i class="foam"></i></div><div class="over"></div><div class="target" style="bottom:${s.target * 100}%"><span>Ziel</span></div></div></div>`; },
+    down(s, i) { if (!s.done[i]) s.hold[i] = true; },
+    up(s, i) { if (s.hold[i]) { s.hold[i] = false; s.done[i] = true; } },
+    tick(s, dt) {
+      s.t += dt;
+      for (const i of [0, 1]) {
+        if (s.hold[i]) { s.f[i] += (.17 + .5 * s.f[i]) * dt; if (s.f[i] >= 1) { s.f[i] = 1; s.over[i] = true; s.hold[i] = false; s.done[i] = true; buzz(80); } }
+        else if (!s.done[i] && s.t > 12) s.done[i] = true;
+      }
+    },
+    bot(s, dt, d) {
+      if (s.done[1]) return;
+      if (s.bth == null) s.bth = s.target + gauss() * [.06, .03, .013][d] - .006 * d;
+      if (!s.hold[1] && s.t > s.bt) s.hold[1] = true;
+      if (s.hold[1] && s.f[1] >= s.bth) this.up(s, 1);
+    },
+    done(s) { return s.done[0] && s.done[1]; },
+    result(s) {
+      const e = s.f.map((f, i) => s.over[i] ? 9 : Math.abs(f - s.target));
+      const det = e.map((x, i) => s.over[i] ? 'Übergelaufen! 🫠' : s.f[i] === 0 ? 'Nichts gezapft' : `${Math.round(x * 1000) / 10} % daneben${s.f[i] < s.target ? ' (zu wenig)' : ' (zu viel)'}`);
+      return { w: Math.abs(e[0] - e[1]) < .0004 ? -1 : e[0] < e[1] ? 0 : 1, det };
+    },
+    draw(s, i, st) {
+      const q = st._q || (st._q = { beer: st.querySelector('.beer'), stream: st.querySelector('.stream'), over: st.querySelector('.over') });
+      q.beer.style.height = Math.min(100, s.f[i] * 100) + '%';
+      q.stream.classList.toggle('on', s.hold[i]);
+      q.over.classList.toggle('on', s.over[i]);
+    }
+  },
+  schieben: {
+    name: 'Krug schieben', ico: '🫗',
+    desc: 'Die Kraftanzeige geht hoch und runter. Tipp im richtigen Moment, damit dein Krug so nah wie möglich an die Tresenkante rutscht. Rot heißt: Er fällt runter.',
+    hint: 'Tippen = Krug losschieben',
+    init() { return { ph: [rnd(0, 6.28), rnd(0, 6.28)], sp: rnd(3.1, 3.8), shot: [null, null], t: 0, bp: null }; },
+    build(st, i) { st.innerHTML = `<div class="slide"><div class="pow"><span class="red"></span><i></i></div><div class="counter"><div class="edge"><span>Kante</span></div><div class="mug">🍺</div></div></div>`; },
+    p(s, i) { return (1 - Math.cos(s.ph[i])) / 2; },
+    down(s, i) { if (!s.shot[i]) s.shot[i] = { d: this.p(s, i) * 1.1, t: 0 }; },
+    up() {},
+    tick(s, dt) {
+      s.t += dt;
+      for (const i of [0, 1]) {
+        if (!s.shot[i]) { s.ph[i] += s.sp * dt; if (s.t > 10) this.down(s, i); }
+        else { s.shot[i].t += dt; if (s.shot[i].d > 1 && !s.shot[i].bz && s.shot[i].t > 1.2) { s.shot[i].bz = 1; buzz(60); } }
+      }
+    },
+    bot(s, dt, d) {
+      if (s.shot[1]) return;
+      if (s.bp == null) s.bp = Math.min(.95, .885 + gauss() * [.05, .028, .012][d]);
+      const p = this.p(s, 1), rising = Math.sin(s.ph[1]) > 0;
+      if (s.t > 1.2 && rising && p >= s.bp) this.down(s, 1);
+    },
+    done(s) { return s.shot[0] && s.shot[1] && s.shot[0].t > 1.6 && s.shot[1].t > 1.6; },
+    result(s) {
+      const d = s.shot.map(x => x.d), sc = d.map(x => x > 1 ? -1 : x);
+      const det = d.map(x => x > 1 ? 'Runtergefallen! 💥' : `${Math.max(1, Math.round((1 - x) * 100))} cm vor der Kante`);
+      return { w: Math.abs(sc[0] - sc[1]) < .002 ? -1 : sc[0] > sc[1] ? 0 : 1, det };
+    },
+    draw(s, i, st) {
+      const q = st._q || (st._q = { pow: st.querySelector('.pow i'), mug: st.querySelector('.mug') });
+      const sh = s.shot[i];
+      if (!sh) { q.pow.style.height = this.p(s, i) * 100 + '%'; q.mug.style.bottom = '0'; return; }
+      q.pow.style.height = Math.min(100, sh.d / 1.1 * 100) + '%';
+      const k = Math.min(1, sh.t / 1.3), e = 1 - Math.pow(1 - k, 3);
+      const pos = Math.min(sh.d, 1.04) * e;
+      q.mug.style.bottom = `calc(${pos} * (100% - 11cqh))`;
+      q.mug.classList.toggle('fall', sh.d > 1 && k >= 1);
+    }
+  },
+  prost: {
+    name: 'Prost-Duell', ico: '🥂',
+    desc: 'Wie im Western, nur mit Bier. Warte, bis die Lampe grün wird und PROST! dasteht, dann tippen. Wer schneller ist, gewinnt. Wer zu früh tippt, verliert sofort.',
+    hint: 'Erst bei PROST tippen!',
+    init() { return { wait: rnd(1.8, 4.6), t: 0, hit: [null, null], foul: [false, false], br: null }; },
+    build(st) { st.innerHTML = `<div class="prost"><div class="lamp">🍺</div><b class="pt">Warten …</b></div>`; },
+    down(s, i) {
+      if (this.done(s)) return;
+      if (s.t < s.wait) { s.foul[i] = true; buzz(150); }
+      else if (s.hit[i] == null) s.hit[i] = s.t - s.wait;
+    },
+    up() {},
+    tick(s, dt) { const was = s.t >= s.wait; s.t += dt; if (!was && s.t >= s.wait) buzz(40); },
+    bot(s, dt, d) {
+      if (s.br == null) s.br = Math.max(.16, [.43, .33, .245][d] + gauss() * [.06, .04, .025][d]);
+      if (d === 0 && s.t < s.wait && s.t > s.wait - .02 && Math.random() < .04) return this.down(s, 1); // Wirt zuckt manchmal
+      if (s.t >= s.wait + s.br) this.down(s, 1);
+    },
+    done(s) { return s.foul[0] || s.foul[1] || s.hit[0] != null || s.hit[1] != null; },
+    result(s) {
+      if (s.foul[0] || s.foul[1]) {
+        const w = s.foul[0] && s.foul[1] ? -1 : s.foul[0] ? 1 : 0;
+        return { w, det: s.foul.map(f => f ? 'Zu früh getippt! 🙈' : 'Der andere war zu hibbelig') };
+      }
+      const w = s.hit[0] != null ? 0 : 1;
+      return { w, det: s.hit.map(h => h != null ? `${Math.round(h * 1000)} ms` : 'Zu langsam') };
+    },
+    draw(s, i, st) {
+      const q = st._q || (st._q = { lamp: st.querySelector('.lamp'), t: st.querySelector('.pt') });
+      const go = s.t >= s.wait;
+      q.lamp.classList.toggle('go', go && !s.foul[i]); q.lamp.classList.toggle('foul', s.foul[i]);
+      q.t.textContent = s.foul[i] ? 'Zu früh!' : go ? 'PROST!' : 'Warten …';
+    }
+  },
+  arm: {
+    name: 'Armdrücken', ico: '💪',
+    desc: 'Tipp so schnell du kannst auf deine Hälfte. Wer den Arm des anderen auf den Tresen drückt, gewinnt.',
+    hint: 'Tippen, tippen, tippen!',
+    init() { return { pos: 0, t: 0, bn: 0, end: false }; },
+    build(st, i, s, G) {
+      const me = G.p[i].av, op = G.p[1 - i].av;
+      st.innerHTML = `<div class="arm"><div class="lever"><img class="op" src="${img(op)}" alt=""><span>✊</span><img class="me" src="${img(me)}" alt=""></div><div class="tug"><i></i></div><div class="tm"></div></div>`;
+    },
+    down(s, i) { if (!s.end) s.pos += (i === 0 ? 1 : -1) * .042; },
+    up() {},
+    tick(s, dt) { s.t += dt; if (Math.abs(s.pos) >= 1 || s.t >= 15) s.end = true; },
+    bot(s, dt, d) {
+      const rate = [5.2, 7.2, 9.3][d] * (1 + .15 * Math.sin(s.t * 3));
+      s.bn -= dt; if (s.bn <= 0) { this.down(s, 1); s.bn = 1 / rate * rnd(.8, 1.2); }
+    },
+    done(s) { return s.end; },
+    result(s) {
+      const w = Math.abs(s.pos) < .01 ? -1 : s.pos > 0 ? 0 : 1;
+      const det = [0, 1].map(i => Math.abs(s.pos) >= 1 ? (w === i ? 'Arm auf den Tresen gedrückt!' : 'Arm liegt auf dem Tresen') : 'Zeit um, knapp nach Punkten');
+      return { w, det };
+    },
+    draw(s, i, st) {
+      const q = st._q || (st._q = { lv: st.querySelector('.lever'), k: st.querySelector('.tug i'), tm: st.querySelector('.tm') });
+      const own = Math.max(-1, Math.min(1, s.pos * (i === 0 ? 1 : -1)));
+      q.lv.style.transform = `rotate(${-own * 50}deg)`;
+      q.k.style.left = (own + 1) / 2 * 100 + '%';
+      q.tm.textContent = Math.max(0, Math.ceil(15 - s.t)) + ' s';
+    }
+  }
+};
+
+// ---------- Match ----------
+let G = null, last = 0;
+const lanes = [$('#L0'), $('#L1')];
+function startMatch() {
+  const bot = cfg.mode === 'bot';
+  G = {
+    bot, diff: cfg.diff, round: 0, phase: 'intro', t: 0,
+    p: [0, 1].map(i => ({ av: cfg.av[i], name: bot && i === 1 ? 'Wirt ' + CHAR[cfg.av[1]] : CHAR[cfg.av[i]], score: 0 })),
+    order: shuffle(Object.keys(GAMES)), ready: [false, false], held: [0, 0], res: null
+  };
+  $('#menu').classList.add('hidden'); $('#end').classList.add('hidden'); $('#game').classList.remove('hidden');
+  $('#game').classList.toggle('two', !bot);
+  lanes.forEach((L, i) => {
+    L.innerHTML = `<div class="lhead"><img src="${img(G.p[i].av)}" alt=""><b>${esc(G.p[i].name)}</b><span class="pips">${'<i></i>'.repeat(3)}</span>${matchMedia('(pointer:fine)').matches ? `<span class="key">${bot ? (i ? 'Bot' : 'Leertaste / A') : i ? 'Taste L' : 'Taste A'}</span>` : ''}</div><div class="stage"></div><div class="hint"></div><div class="ov"></div>`;
+  });
+  newRound();
+}
+function gameKey() { return G.order[G.round % G.order.length]; }
+function newRound() {
+  const g = GAMES[gameKey()];
+  G.phase = 'intro'; G.t = 0; G.ready = [false, G.bot]; G.s = g.init(); G.res = null;
+  lanes.forEach((L, i) => {
+    const st = L.querySelector('.stage'); st._q = null; g.build(st, i, G.s, G); g.draw(G.s, i, st);
+    L.querySelector('.hint').textContent = g.hint;
+    L.querySelector('.pips').innerHTML = [0, 1, 2].map(k => `<i class="${k < G.p[i].score ? 'on' : ''}"></i>`).join('');
+    showOv(i, `<div class="ico">${g.ico}</div><div class="nm">${esc(g.name)}</div><div class="ds">${esc(g.desc)}</div><div class="rd">${G.bot && i ? 'Wirt ist bereit' : 'Tippen, wenn bereit'}</div>`);
+  });
+  if (G.bot) lanes[1].querySelector('.rd').classList.add('ok');
+  $('#rn').textContent = `Runde ${G.round + 1} · ${g.name}`;
+  $('#sc').textContent = `${G.p[0].score} : ${G.p[1].score}`;
+}
+function showOv(i, html) { const o = lanes[i].querySelector('.ov'); o.innerHTML = html; o.classList.remove('off'); }
+function hideOv(i) { lanes[i].querySelector('.ov').classList.add('off'); }
+
+function press(i) {
+  if (!G || $('#game').classList.contains('hidden')) return;
+  if (G.bot && i === 1) return;
+  lanes[i].classList.add('press');
+  if (G.phase === 'intro') {
+    if (G.ready[i]) return;
+    G.ready[i] = true; const rd = lanes[i].querySelector('.rd'); if (rd) { rd.textContent = 'Bereit ✓'; rd.classList.add('ok'); }
+    if (G.ready[0] && G.ready[1]) { G.phase = 'count'; G.t = 0; }
+  } else if (G.phase === 'play') GAMES[gameKey()].down(G.s, i);
+  else if (G.phase === 'result' && G.t > 1.1) next();
+}
+function release(i) {
+  lanes[i].classList.remove('press');
+  if (G && G.phase === 'play') GAMES[gameKey()].up(G.s, i);
+}
+function next() {
+  if (G.phase !== 'result') return;
+  const win = G.p.findIndex(p => p.score >= 3);
+  if (win >= 0) return endMatch(win);
+  G.round++; newRound();
+}
+
+function loop(ts) {
+  const dt = Math.min(.05, (ts - last) / 1000 || 0); last = ts;
+  if (G && !$('#game').classList.contains('hidden')) {
+    const g = GAMES[gameKey()];
+    G.t += dt;
+    if (G.phase === 'count') {
+      const n = 3 - Math.floor(G.t / .7);
+      if (n !== G.cd) { G.cd = n; [0, 1].forEach(i => n > 0 ? showOv(i, `<div class="cd">${n}</div>`) : hideOv(i)); }
+      if (n <= 0) { G.phase = 'play'; G.t = 0; G.cd = null; if (gameKey() === 'zapfen') [0, 1].forEach(i => { if (G.held[i] && !(G.bot && i)) g.down(G.s, i); }); }
+    } else if (G.phase === 'play') {
+      g.tick(G.s, dt);
+      if (G.bot) g.bot(G.s, dt, G.diff);
+      [0, 1].forEach(i => g.draw(G.s, i, lanes[i].querySelector('.stage')));
+      if (g.done(G.s)) { G.phase = 'wait'; G.t = 0; }
+    } else if (G.phase === 'wait') {
+      [0, 1].forEach(i => g.draw(G.s, i, lanes[i].querySelector('.stage')));
+      if (G.t > .7) roundOver();
+    } else if (G.phase === 'result' && G.t > 3.6) next();
+  }
+  requestAnimationFrame(loop);
+}
+function roundOver() {
+  const g = GAMES[gameKey()], r = g.result(G.s);
+  G.phase = 'result'; G.t = 0; G.res = r;
+  if (r.w >= 0) G.p[r.w].score++;
+  if (G.bot && gameKey() === 'prost' && r.w === 0 && G.s.hit[0] != null && G.s.hit[0] < .25 && window.BB) BB.unlock('duell_prost');
+  $('#sc').textContent = `${G.p[0].score} : ${G.p[1].score}`;
+  [0, 1].forEach(i => {
+    const cls = r.w < 0 ? 'tie' : r.w === i ? 'win' : 'lose', txt = r.w < 0 ? 'Unentschieden' : r.w === i ? 'Gewonnen! 🍻' : 'Verloren';
+    showOv(i, `<div class="res ${cls}">${txt}</div><div class="det">${esc(r.det[i])}</div><div class="det" style="color:var(--mut)">Gegner: ${esc(r.det[1 - i])}</div><div class="det c" style="margin-top:6px;color:var(--gold2)">${G.p[i].score} : ${G.p[1 - i].score}</div>`);
+    lanes[i].querySelector('.pips').innerHTML = [0, 1, 2].map(k => `<i class="${k < G.p[i].score ? 'on' : ''}"></i>`).join('');
+  });
+  buzz(r.w === 0 || (!G.bot && r.w === 1) ? [40, 60, 40] : 30);
+}
+function endMatch(w) {
+  G.phase = 'end';
+  const p = G.p[w], human = !(G.bot && w === 1);
+  $('#endBox').innerHTML = `<img src="${img(p.av)}" alt=""><div class="big">${human ? `${esc(p.name)} ist Kneipenkönig! 👑` : `${esc(p.name)} gewinnt.<br>Heute zahlst du die Runde 🍺`}</div>
+    <div class="sc">${G.p[0].score} : ${G.p[1].score}</div>
+    <div class="row"><button class="go alt" id="toMenu">Menü</button><button class="go" id="again">Revanche</button></div>
+    ${window.BB && G.bot ? '<button class="go alt" id="bbBoard" style="margin-top:10px">🏆 Bestenliste</button>' : ''}`;
+  if ($('#bbBoard')) $('#bbBoard').onclick = () => BB.open('board', 'duell');
+  $('#end').classList.remove('hidden');
+  if (human) confetti();
+  if (G.bot && w === 0) {
+    const s = ls.get('kd_wins', [0, 0, 0]); s[G.diff]++; ls.set('kd_wins', s);
+    if (window.BB) {
+      BB.record('duell', s[0] * 1 + s[1] * 3 + s[2] * 6, { w: s[0] + s[1] + s[2] });
+      BB.unlock('duell_win'); if (G.diff === 2) BB.unlock('duell_hart'); if (G.p[1].score === 0) BB.unlock('duell_null');
+    }
+  }
+  $('#again').onclick = () => startMatch();
+  $('#toMenu').onclick = () => { G = null; menu(); };
+}
+function confetti() {
+  const cols = ['#f0d37a', '#9fe36a', '#ff8a5c', '#fff3c4', '#f6b93b'];
+  for (let i = 0; i < 90; i++) {
+    const d = document.createElement('i'); d.className = 'confetti';
+    d.style.left = Math.random() * 100 + 'vw'; d.style.background = cols[i % cols.length];
+    d.style.setProperty('--dx', (Math.random() * 200 - 100) + 'px'); d.style.setProperty('--r', (Math.random() * 1080 - 540) + 'deg');
+    d.style.animationDuration = 2.2 + Math.random() * 2.2 + 's'; d.style.animationDelay = Math.random() * .8 + 's';
+    document.body.appendChild(d); setTimeout(() => d.remove(), 5500);
+  }
+}
+
+// ---------- Eingabe ----------
+lanes.forEach((L, i) => {
+  L.addEventListener('pointerdown', e => { e.preventDefault(); try { L.setPointerCapture(e.pointerId); } catch (x) {} G && G.held[i]++; press(i); });
+  const up = e => { if (!G) return; G.held[i] = Math.max(0, G.held[i] - 1); if (!G.held[i]) release(i); };
+  L.addEventListener('pointerup', up); L.addEventListener('pointercancel', up);
+  L.addEventListener('contextmenu', e => e.preventDefault());
+});
+const KMAP = { KeyA: 0, Space: 0, KeyL: 1 };
+addEventListener('keydown', e => { if (!(e.code in KMAP) || !G) return; e.preventDefault(); if (e.repeat) return; const i = KMAP[e.code]; G.held[i]++; press(i); });
+addEventListener('keyup', e => { if (!(e.code in KMAP) || !G) return; const i = KMAP[e.code]; G.held[i] = 0; release(i); });
+$('#quit').onclick = e => { e.preventDefault(); G = null; menu(); };
+document.addEventListener('gesturestart', e => e.preventDefault());
+
+window.KD = { get G() { return G; }, GAMES, press, release };
+menu();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -171,6 +171,7 @@ canvas#cv{box-shadow:0 0 0 1px rgba(212,175,55,.25),0 0 50px rgba(0,0,0,.8)}
   <div class="queue" id="queue">Ausbildung: –</div>
   <div class="bar" id="bar"></div>
 </div>
+<script src="../bb.js"></script>
 <script>
 'use strict';
 // ---------- Daten ----------
@@ -1657,13 +1658,22 @@ function showMenu(kind, win) {
       <div class="stats"><div><b>${mins}:${secs}</b><span>Zeit</span></div><div><b>${p.kills}</b><span>Gegner besiegt</span></div><div><b>${AGES[p.age].name}</b><span>Zeitalter</span></div><div><b>${p.cat ? romans(p.cat) : '–'}</b><span>Katapult</span></div></div>
       ${diffButtons()}
       <button class="go" id="go">Nochmal</button>
+      ${window.BB ? '<button class="go alt" id="bbBoard">🏆 Bestenliste</button>' : ''}
       <a class="ghost" href="../">← Zur Spielauswahl</a>`;
+    if ($('bbBoard')) $('bbBoard').onclick = () => BB.open('board', 'krieg');
     bindDiff();
     $('go').onclick = () => { newGame(); hideMenu(); refreshUi(true); };
   }
 }
 function hideMenu() { ov.classList.add('hide'); }
-function endGame(win) { S.over = true; const g = S; setTimeout(() => { if (S === g) showMenu('end', win); }, 900); }
+function endGame(win) {
+  S.over = true; const g = S;
+  if (win && window.BB) {
+    const p = S.sides[0], pts = { leicht: 1000, normal: 2000, schwer: 3500 }[diff] + Math.max(0, 1500 - Math.round(S.t)) + p.kills * 3;
+    BB.record('krieg', pts, { d: DIFF[diff].label, t: Math.round(S.t) });
+    BB.unlock('krieg_win'); if (diff === 'schwer') BB.unlock('krieg_hart'); if (S.t < 600) BB.unlock('krieg_fast');
+  }
+  if (window.BB && S.sides[0].kills >= 120) BB.unlock('krieg_kills'); setTimeout(() => { if (S === g) showMenu('end', win); }, 900); }
 
 // ---------- Loop ----------
 let last = performance.now();

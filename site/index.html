@@ -63,6 +63,17 @@ h1{font-family:"Cinzel Decorative","Cinzel",Georgia,serif;font-weight:900;font-s
 .match .art,.quiz .art{inset:5% 0 48% 0}
 .gems{width:min(62%,250px)}.qart{width:min(66%,270px)}
 .match .play,.quiz .play{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border-color:#d4af37;box-shadow:0 3px 0 #0a1406}
+.duell{grid-column:1/-1;min-height:320px;background:radial-gradient(70% 70% at 50% 30%,#5a3410,#1e1006 70%,#0c0603)}
+.duell .art{inset:0 0 40% 0}
+.vs{display:flex;align-items:center;gap:clamp(10px,4vw,40px);font-size:clamp(54px,11vw,110px);line-height:1;filter:drop-shadow(0 10px 18px rgba(0,0,0,.6))}
+.vs span{display:inline-block;animation:clink 2.6s ease-in-out infinite}
+.vs span:last-child{animation-name:clink2}
+.vs b{font:900 clamp(24px,5vw,44px) "Cinzel Decorative","Cinzel",serif;color:#f0d37a;text-shadow:0 0 20px rgba(240,180,80,.6)}
+@keyframes clink{0%,70%,100%{transform:translateX(0) rotate(0)}82%{transform:translateX(18px) rotate(16deg)}}
+@keyframes clink2{0%,70%,100%{transform:scaleX(-1) translateX(0) rotate(0)}82%{transform:scaleX(-1) translateX(18px) rotate(16deg)}}
+.duell .play{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;border-color:#d4af37;box-shadow:0 3px 0 #0a1406}
+.bar{position:absolute;top:max(12px,env(safe-area-inset-top));right:14px;display:flex;gap:8px;z-index:5}
+.bar .lb{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:99px;border:1px solid #7a6128;background:linear-gradient(#2a1e0c,#140e06);color:var(--gold2);font:800 14px "Cinzel",serif;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.5)}
 .knight{font-size:clamp(90px,20vw,190px);line-height:1;color:#f4ecff;text-shadow:0 0 40px rgba(180,140,255,.6),0 12px 30px rgba(0,0,0,.7);animation:float 5s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-8px)}}
 .faces{display:flex;gap:0}.faces img{width:34px;height:34px;border-radius:50%;border:2px solid #d4af37;object-fit:cover;object-position:50% 15%;margin-right:-6px;box-shadow:0 2px 8px rgba(0,0,0,.6)}
@@ -76,6 +87,7 @@ h2{font-family:"Cinzel",serif;font-size:clamp(20px,4.2vw,34px);font-weight:800;l
 .chess:hover .play{box-shadow:0 3px 0 #3c2766,0 0 22px rgba(180,140,255,.55)}
 footer{text-align:center;color:rgba(244,228,193,.45);font-family:"Cinzel",serif;font-size:11px;letter-spacing:.2em;margin-top:18px}
 @media (max-width:560px){
+  .bar{position:static;justify-content:center;margin-bottom:6px}.duell{min-height:300px}
   .cards{gap:10px}
   .card{min-height:340px;padding:12px;border-radius:10px;outline-offset:-6px}
   .corner{width:14px;height:14px}.c1,.c2{top:8px}.c3,.c4{bottom:8px}.c1,.c3{left:8px}.c2,.c4{right:8px}
@@ -119,6 +131,7 @@ footer{text-align:center;color:rgba(244,228,193,.45);font-family:"Cinzel",serif;
 <div class="embers" id="embers"></div>
 <div class="shade"></div>
 
+<div class="bar"><span id="bbChip"></span><button class="lb" id="bbBoard">🏆 <span>Bestenliste</span></button></div>
 <header>
   <div class="crest">✦ ⚔ ✦</div>
   <h1>Bubatzbande</h1>
@@ -159,9 +172,19 @@ footer{text-align:center;color:rgba(244,228,193,.45);font-family:"Cinzel",serif;
     <p>Quiz für die ganze Bande: Einer hostet am TV, alle antworten am Handy mit Code. Auch solo oder mit eigenen Fragen.</p>
     <span class="play">▶ PLAY</span>
   </a>
+  <a class="card duell" href="duell/">
+    <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
+    <div class="art"><div class="vs"><span>🍺</span><b>VS</b><span>🍺</span></div></div>
+    <span class="tag new">Neu · 1 gegen 1</span>
+    <h2>Kneipen-Duell</h2>
+    <p>Bier zapfen, Krug schieben, Prost-Duell und Armdrücken. Zu zweit an einem Handy oder gegen den Wirt. Wer zuerst 3 Runden holt, ist Kneipenkönig.</p>
+    <span class="play">▶ PLAY</span>
+  </a>
 </main>
 <footer>bubatzbande.de</footer>
+<script src="bb.js"></script>
 <script>
+if (window.BB) { BB.chip(document.getElementById('bbChip')); document.getElementById('bbBoard').onclick = () => BB.open('board'); BB.gate(); }
 (() => {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const box = document.getElementById('embers');

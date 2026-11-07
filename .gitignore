@@ -2,3 +2,4 @@ node_modules/
 .DS_Store
 site/quiz/rooms/
 site/schach/rooms/
+site/api/data/

@@ -181,6 +181,7 @@ main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
   </main>
 </div>
 <div class="ov" id="ov"><div class="box" id="box"></div></div>
+<script src="../bb.js"></script>
 <script>
 'use strict';
 const N = 8, KINDS = 6, STAR = 6;
@@ -625,6 +626,11 @@ async function win() {
   save.unlocked = Math.max(save.unlocked, G.n + 1);
   save.best = Math.max(save.best || 0, G.score);
   persist();
+  if (window.BB) {
+    const total = Object.values(save.stars).reduce((a, b) => a + b, 0);
+    BB.record('match', total, { lv: save.unlocked - 1 });
+    if (stars === 3) BB.unlock('match_3'); if (G.n >= 10) BB.unlock('match_10'); if (total >= 30) BB.unlock('match_30');
+  }
   G.busy = false;
   showMenu('win', stars);
 }
@@ -672,7 +678,9 @@ function showMenu(kind, stars) {
       <div class="bigstars">${[1, 2, 3].map((s, i) => `<span class="${s <= stars ? 'on' : ''}" style="animation-delay:${.2 + i * .25}s">★</span>`).join('')}</div>
       <p><b class="c" style="color:var(--gold2);font-size:22px">${G.score}</b> Punkte</p>
       <p style="color:var(--mut);font-size:13px">Nächstes Ziel: ${goalText(levelDef(next))}</p>
-      <div class="row"><button class="go alt" id="again">Nochmal</button><button class="go" id="next">Level ${next} ▶</button></div>`;
+      <div class="row"><button class="go alt" id="again">Nochmal</button><button class="go" id="next">Level ${next} ▶</button></div>
+      ${window.BB ? '<button class="go alt" id="bbBoard" style="margin-top:10px">🏆 Bestenliste</button>' : ''}`;
+    if ($('bbBoard')) $('bbBoard').onclick = () => BB.open('board', 'match');
     $('again').onclick = () => startLevel(G.n); $('next').onclick = () => startLevel(next);
   } else if (kind === 'lose') {
     box.innerHTML = `<h2>Keine Züge mehr</h2><div class="orn">✦ 🌿 ✦</div>
