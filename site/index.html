@@ -47,6 +47,7 @@ h1{font-family:"Cinzel Decorative","Cinzel",Georgia,serif;font-weight:900;font-s
 .art svg{width:100%;height:100%}
 .knight{font-size:clamp(90px,20vw,190px);line-height:1;color:#f4ecff;text-shadow:0 0 40px rgba(180,140,255,.6),0 12px 30px rgba(0,0,0,.7);animation:float 5s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-8px)}}
+.faces{display:flex;gap:0}.faces img{width:34px;height:34px;border-radius:50%;border:2px solid #d4af37;object-fit:cover;object-position:50% 15%;margin-right:-6px;box-shadow:0 2px 8px rgba(0,0,0,.6)}
 .tag{align-self:flex-start;font-family:"Cinzel",serif;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:4px;border:1px solid rgba(212,175,55,.6);color:var(--gold2);background:rgba(20,12,6,.6)}
 .new{background:linear-gradient(#f0d37a,#b8902c);color:#2a1a08;border-color:#f0d37a}
 h2{font-family:"Cinzel",serif;font-size:clamp(20px,4.2vw,34px);font-weight:800;letter-spacing:.02em;color:#fff3d4;text-shadow:0 2px 0 #000}
@@ -63,6 +64,7 @@ footer{text-align:center;color:rgba(244,228,193,.45);font-family:"Cinzel",serif;
   .play{font-size:14px;padding:11px;letter-spacing:.1em}
   .card p{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
   .tag{font-size:9px;padding:3px 7px}
+  .faces img{width:24px;height:24px;margin-right:-5px;border-width:1.5px}
 }
 @media (prefers-reduced-motion:reduce){.embers,.knight{animation:none}.embers{display:none}}
 </style>
@@ -150,8 +152,9 @@ footer{text-align:center;color:rgba(244,228,193,.45);font-family:"Cinzel",serif;
       </svg>
     </div>
     <span class="tag new">Neu · Strategie</span>
+    <div class="faces"><img src="krieg/img/artur.jpg" alt=""><img src="krieg/img/kobold.jpg" alt=""><img src="krieg/img/koenig.jpg" alt=""><img src="krieg/img/molly.jpg" alt=""><img src="krieg/img/lg3.jpg" alt=""><img src="krieg/img/don.jpg" alt=""></div>
     <h2>Bandenkrieg</h2>
-    <p>Die Bande gegen die Spießer. Schick deine Truppen los, bau deine Holzfeste zur Königsburg aus und stürm die gegnerische Burg.</p>
+    <p>Die Bande gegen die Spießer. Schick Artur, den Kobold und den Rest der Bande los, lass Marwin ein Katapult auf den Turm bauen und stürm die gegnerische Burg.</p>
     <span class="play">▶ PLAY</span>
   </a>
 </main>
