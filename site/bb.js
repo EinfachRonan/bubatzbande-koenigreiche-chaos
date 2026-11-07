@@ -41,7 +41,7 @@
   // ---------- Speicher ----------
   // P: Konto (id, token) + Profil-Cache + Fortschritt. Ohne Konto wird der Fortschritt lokal gesammelt und beim Anmelden übernommen.
   const KEY = 'bb_acc';
-  const fresh = () => ({ id: null, token: null, user: '', name: '', av: 'artur', img: 0, best: {}, ach: {}, stats: {}, dirty: false });
+  const fresh = () => ({ id: null, token: null, user: '', name: '', av: 'artur', img: 0, best: {}, ach: {}, stats: {}, fr: [], req: [], sent: [], dirty: false });
   let P;
   try { P = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { P = null; }
   if (!P || typeof P !== 'object') P = fresh();
@@ -60,6 +60,7 @@
   }
   function applyMe(me) {
     P.id = me.id; P.user = me.user; P.name = me.name; P.av = me.av; P.img = me.img || 0;
+    P.fr = me.fr || []; P.req = me.req || []; P.sent = me.sent || [];
     for (const g in me.best) { if (!P.best[g] || !better(g, P.best[g].s, me.best[g].s)) P.best[g] = me.best[g]; else P.dirty = true; }
     for (const k in me.ach) P.ach[k] = P.ach[k] || me.ach[k];
     for (const k in me.stats) P.stats[k] = Math.max(P.stats[k] || 0, me.stats[k]);
@@ -129,6 +130,32 @@
 .bb-chip img{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:2px solid #f0d37a}
 .bb-chip small{font:12px Georgia,serif;color:#b5a07c;margin-left:2px}
 .bb-auth{max-width:440px;overflow:hidden}
+.bb-invs{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:9995;display:flex;flex-direction:column;gap:8px;width:min(94vw,440px)}
+.bb-invc{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:linear-gradient(#24300f,#10160a);border:1px solid #f0d37a;color:#f4e6c6;font:14px/1.3 Georgia,serif;box-shadow:0 14px 40px rgba(0,0,0,.8),0 0 24px rgba(240,211,122,.35);animation:bbDrop .45s cubic-bezier(.2,1.4,.4,1)}
+.bb-invc.out{opacity:0;transform:translateY(-20px);transition:.35s}
+.bb-invc img{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:2px solid #f0d37a;flex:none}
+.bb-invc .t{flex:1;min-width:0}.bb-invc b{font-family:Cinzel,Georgia,serif;color:#fff3c4}
+.bb-invc .a{display:flex;flex-direction:column;gap:5px}.bb-invc .a button{padding:7px 12px;border-radius:8px;border:1px solid #d4af37;font:800 12px Cinzel,Georgia,serif;cursor:pointer}
+@keyframes bbDrop{from{opacity:0;transform:translateY(-30px) scale(.9)}}
+.bb-inv-b{flex:none;padding:8px 11px;border-radius:8px;border:1px solid #d4af37;background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;font:800 12px Cinzel,Georgia,serif;cursor:pointer}
+.bb-inv-b.done{background:#1a2414;color:#9fe36a;border-color:#4c7a32}
+.bb-game{display:flex;align-items:center;gap:12px;width:100%;margin-top:8px;padding:12px 14px;border-radius:10px;border:1px solid #8a6d32;background:linear-gradient(#202e1a,#0f170c);color:#f0d37a;font:800 22px Georgia,serif;text-align:left;cursor:pointer}
+.bb-game i{font-style:normal;font-size:30px}.bb-game span{flex:1}.bb-game b{display:block;font:800 17px Cinzel,Georgia,serif;color:#fff3c4}.bb-game small{font:13px Georgia,serif;color:#b5a07c}
+.bb-tabs button{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:16px;padding:7px 4px}.bb-tabs button span{font-size:11.5px}
+.bb-auth .bb-tabs button{flex-direction:row;justify-content:center;font-size:13px;padding:9px 6px}
+.bb-dot{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#d4473a;color:#fff;font:800 12px/20px Georgia,serif;font-style:normal;box-shadow:0 0 0 2px #0a0c06}
+.bb-chip{position:relative}
+.bb-seg{display:flex;gap:4px;margin:0 auto 10px;max-width:280px;padding:3px;border-radius:99px;background:#0a0d07;border:1px solid #3a3418}
+.bb-seg button{flex:1;padding:7px;border-radius:99px;border:0;background:none;color:#b5a07c;font:800 13px Cinzel,Georgia,serif;cursor:pointer}.bb-seg button.on{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4}
+.bb-row[data-u]{cursor:pointer}.bb-row[data-u]:hover{background:rgba(212,175,55,.07)}
+.bb-addrow{display:flex;gap:8px}.bb-addrow .bb-go{width:auto;flex:none;padding:0 16px;font-size:14px;letter-spacing:.04em}
+.bb-acts{display:flex;gap:6px}.bb-acts button{width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;border:1px solid #d4af37}
+.bb-ok{background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4}.bb-no{background:#2a1410;color:#ff9a7a;border-color:#7a3a28!important}
+.bb-back{background:none;border:0;color:#f0d37a;font:800 14px Cinzel,Georgia,serif;cursor:pointer;padding:0 0 8px}
+.bb-uhead{display:flex;align-items:center;gap:14px}.bb-uhead img{width:84px;height:84px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:3px solid #d4af37;box-shadow:0 0 18px rgba(212,175,55,.4)}
+.bb-uhead b{display:block;font:900 24px Cinzel,Georgia,serif;color:#fff3c4}.bb-uhead small{display:block;color:#b5a07c;font-size:13px;margin-top:2px}
+.bb-tag{display:inline-block;margin-top:3px;padding:2px 9px;border-radius:99px;background:#1c3f15;border:1px solid #d4af37;color:#f8e9b4;font:800 11px Cinzel,Georgia,serif}
+.bb-best em{display:block;font-style:normal;font-size:11px;margin-top:2px;color:#b5a07c}.bb-best em.up{color:#ff9a7a}.bb-best em.dn{color:#9fe36a}
 .bb-hero{display:block;width:calc(100% + 36px);margin:-18px -18px 6px;max-height:170px;object-fit:cover;object-position:50% 30%;-webkit-mask-image:linear-gradient(#000 60%,transparent);mask-image:linear-gradient(#000 60%,transparent)}
 .bb-sub{text-align:center;color:#d9c9a3;font-size:14px;margin:-4px 0 14px}
 .bb-l{display:block;font-size:13px;color:#b5a07c;margin:10px 0 4px}.bb-l .bb-in{margin-top:4px}
@@ -207,13 +234,13 @@
   function render() {
     if (tab === 'login') return renderAuth();
     ov.innerHTML = `<div class="bb-box"><button class="bb-x" aria-label="Schließen">✕</button>
-      <div class="bb-h">${tab === 'board' ? 'Bestenliste' : tab === 'ach' ? 'Erfolge' : 'Dein Profil'}</div>
-      <div class="bb-tabs"><button data-t="profil">🪪 ${logged() ? 'Profil' : 'Anmelden'}</button><button data-t="board">🏆 Bestenliste</button><button data-t="ach">🎖️ ${Object.keys(P.ach).length}/${ACH.length}</button></div>
+      <div class="bb-h">${{ board: 'Bestenliste', ach: 'Erfolge', friends: 'Freunde', user: 'Profil' }[tab] || 'Dein Profil'}</div>
+      <div class="bb-tabs"><button data-t="profil">🪪<span>${logged() ? 'Profil' : 'Login'}</span></button><button data-t="board">🏆<span>Rangliste</span></button><button data-t="friends">👥<span>Freunde</span>${P.req && P.req.length ? `<i class="bb-dot">${P.req.length}</i>` : ''}</button><button data-t="ach">🎖️<span>${Object.keys(P.ach).length}/${ACH.length}</span></button></div>
       <div id="bbBody"></div></div>`;
     ov.querySelector('.bb-x').onclick = close;
-    ov.querySelectorAll('[data-t]').forEach(b => { b.classList.toggle('on', b.dataset.t === tab); b.onclick = () => { tab = b.dataset.t === 'profil' && !logged() ? 'login' : b.dataset.t; render(); }; });
+    ov.querySelectorAll('[data-t]').forEach(b => { b.classList.toggle('on', b.dataset.t === tab); b.onclick = () => { tab = (b.dataset.t === 'profil' || b.dataset.t === 'friends') && !logged() ? 'login' : b.dataset.t; render(); }; });
     const body = ov.querySelector('#bbBody');
-    if (tab === 'profil') profil(body); else if (tab === 'board') board(body); else achs(body);
+    if (tab === 'profil') profil(body); else if (tab === 'board') board(body); else if (tab === 'friends') friends(body); else if (tab === 'user') userView(body); else achs(body);
   }
   function renderAuth() {
     const reg = authMode === 'reg';
@@ -294,32 +321,176 @@
   }
   async function board(body) {
     body.innerHTML = `<div class="bb-gs">${Object.entries(GAMES).map(([g, G]) => `<button data-g="${g}" class="${g === curGame ? 'on' : ''}">${G.ico} ${esc(G.name)}</button>`).join('')}</div>
+      <div class="bb-seg"><button data-s="all" class="${scope === 'all' ? 'on' : ''}">🌍 Alle</button><button data-s="fr" class="${scope === 'fr' ? 'on' : ''}">👥 Freunde</button></div>
       <div style="text-align:center;font-size:13px;color:#b5a07c;margin-bottom:6px">${esc(GAMES[curGame].what)}</div><div id="bbList"><div class="bb-mut">Lade …</div></div>
       <a class="bb-go" style="margin-top:14px;text-align:center;text-decoration:none;display:block" href="${ROOT + GAMES[curGame].url}">${GAMES[curGame].ico} ${esc(GAMES[curGame].name)} spielen</a>`;
     body.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { curGame = b.dataset.g; board(body); });
+    body.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { if (b.dataset.s === 'fr' && !logged()) { tab = 'login'; return render(); } scope = b.dataset.s; board(body); });
     const g = curGame, el = body.querySelector('#bbList');
     await sync();
     try {
       const r = await fetch(`${API}?a=top&g=${g}&u=${P.id || ''}`, { cache: 'no-store' });
       const j = await r.json(); if (g !== curGame) return;
       if (!j.list) throw 0;
-      const row = (x, i) => `<div class="bb-row ${x.you ? 'you' : ''}"><span class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span><img src="${avUrl(x)}" alt=""><span class="nm">${esc(x.name)}${x.you ? ' (du)' : ''}<small>${esc(GAMES[g].meta(x.m) || '')}</small></span><span class="s">${fmt(g, x.s)}<small>${GAMES[g].unit}</small></span></div>`;
+      if (scope === 'fr') { const ok = new Set([...(P.fr || []), P.id]); j.list = j.list.filter(x => ok.has(x.id)); const k = j.list.findIndex(x => x.you); j.me = k >= 0 ? { rank: k + 1 } : null; }
+      else j.list = j.list.slice(0, 50);
+      const row = (x, i) => `<div class="bb-row ${x.you ? 'you' : ''}" data-u="${x.id}"><span class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span><img src="${avUrl(x)}" alt=""><span class="nm">${esc(x.name)}${x.you ? ' (du)' : ''}<small>${esc(GAMES[g].meta(x.m) || '')}</small></span><span class="s">${fmt(g, x.s)}<small>${GAMES[g].unit}</small></span></div>`;
       el.innerHTML = j.list.length ? j.list.map(row).join('') + (j.me && j.me.rank > j.list.length ? `<div class="bb-mut">… du bist auf Platz ${j.me.rank} von ${j.n}</div>` : '')
-        : `<div class="bb-mut">Noch keiner drauf. Sei der Erste!</div>`;
+        : `<div class="bb-mut">${scope === 'fr' ? 'Von deinen Freunden steht noch keiner drauf.' : 'Noch keiner drauf. Sei der Erste!'}</div>`;
+      if (scope === 'fr' && !(P.fr || []).length) el.innerHTML += `<div class="bb-mut">Du hast noch keine Freunde hinzugefügt. <a href="#" id="bbToFr" style="color:#f0d37a">Freunde finden</a></div>`;
+      el.querySelectorAll('[data-u]').forEach(r => r.onclick = () => showUser(r.dataset.u));
+      const tf = el.querySelector('#bbToFr'); if (tf) tf.onclick = e => { e.preventDefault(); tab = 'friends'; render(); };
       if (!logged()) el.innerHTML += `<div class="bb-mut">${P.best[g] ? `Dein Bestwert: <b style="color:#fff3c4">${fmt(g, P.best[g].s)}</b>. ` : ''}<a href="#" id="bbLog" style="color:#f0d37a">Melde dich an</a>, um mitzumachen.</div>`;
       else if (!j.me) el.innerHTML += `<div class="bb-mut">Du stehst noch nicht drauf. Spiel eine Runde ${esc(GAMES[g].name)}!</div>`;
       const lg = el.querySelector('#bbLog'); if (lg) lg.onclick = e => { e.preventDefault(); tab = 'login'; render(); };
     } catch (e) { el.innerHTML = `<div class="bb-mut">Bestenliste gerade nicht erreichbar.${P.best[g] ? `<br>Dein Bestwert: <b style="color:#fff3c4">${fmt(g, P.best[g].s)}</b>` : ''}</div>`; }
   }
+  // ---------- Freunde ----------
+  let scope = 'all', viewId = null, prevTab = 'friends';
+  function showUser(id) { if (id === P.id) { tab = 'profil'; return render(); } prevTab = tab; viewId = id; tab = 'user'; render(); }
+  const liteRow = (x, extra) => `<div class="bb-row bb-click" data-u="${x.id}"><img src="${avUrl(x)}" alt=""><span class="nm">${esc(x.name)}<small>🎖️ ${x.nach}/${ACH.length} Erfolge · ${Object.keys(x.best || {}).length}/5 Spiele</small></span>${extra || '<span class="s" style="font-size:20px;color:#b5a07c">›</span>'}</div>`;
+  async function friends(body) {
+    body.innerHTML = `<form id="bbAdd" class="bb-addrow"><input class="bb-in" id="bbTo" maxlength="16" placeholder="Benutzername deines Freundes" autocapitalize="none" spellcheck="false"><button class="bb-go" type="submit">+ Adden</button></form>
+      <div class="bb-msg" id="bbFMsg"></div><div id="bbFr"><div class="bb-mut">Lade …</div></div>`;
+    const msg = body.querySelector('#bbFMsg'), el = body.querySelector('#bbFr');
+    body.querySelector('#bbAdd').onsubmit = async e => {
+      e.preventDefault();
+      const to = body.querySelector('#bbTo').value.trim(); if (!to) return;
+      try {
+        const j = await post('friend', { to }); applyMe(j.me);
+        msg.style.color = '#9fe36a'; msg.textContent = j.now === 'friends' ? 'Ihr seid jetzt Freunde 🤝' : `Anfrage an ${j.name} geschickt ✓`;
+        body.querySelector('#bbTo').value = ''; load();
+      } catch (err) { msg.style.color = '#ff9a7a'; msg.textContent = { nouser: 'Den Benutzernamen gibt es nicht.', self: 'Das bist du selbst 😄', already: 'Ihr seid schon Freunde.', full: 'Du hast schon sehr viele Freunde.' }[err.message] || ERR[err.message] || 'Hat nicht geklappt.'; }
+    };
+    async function load() {
+      try {
+        const j = await post('friends'); applyMe(j.me);
+        el.innerHTML = (j.req.length ? `<div class="bb-sec">Anfragen an dich</div>` + j.req.map(x => liteRow(x, `<span class="bb-acts"><button class="bb-ok" data-acc="${x.id}">✓</button><button class="bb-no" data-dec="${x.id}">✕</button></span>`)).join('') : '')
+          + `<div class="bb-sec">Deine Freunde (${j.fr.length})</div>` + (j.fr.length ? j.fr.map(x => liteRow(x, `<button class="bb-inv-b" data-g="${x.id}" data-nm="${esc(x.name)}">🎮 Einladen</button>`)).join('') : '<div class="bb-mut">Noch keine Freunde. Gib oben den Benutzernamen ein.</div>')
+          + (j.sent.length ? `<div class="bb-sec">Gesendet, wartet auf Antwort</div>` + j.sent.map(x => liteRow(x, `<span class="bb-acts"><button class="bb-no" data-dec="${x.id}" title="Zurückziehen">✕</button></span>`)).join('') : '');
+        el.querySelectorAll('[data-acc]').forEach(b => b.onclick = async e => { e.stopPropagation(); try { const r = await post('accept', { u: b.dataset.acc }); applyMe(r.me); toast('Neuer Freund in der Bande!', '🤝'); } catch (x) {} render(); });
+        el.querySelectorAll('[data-dec]').forEach(b => b.onclick = async e => { e.stopPropagation(); try { const r = await post('decline', { u: b.dataset.dec }); applyMe(r.me); } catch (x) {} render(); });
+        el.querySelectorAll('[data-g]').forEach(b => b.onclick = e => { e.stopPropagation(); chooseGame([b.dataset.g], b.dataset.nm); });
+        el.querySelectorAll('.bb-click').forEach(r => r.onclick = () => showUser(r.dataset.u));
+      } catch (e) { el.innerHTML = `<div class="bb-mut">Freunde gerade nicht erreichbar.</div>`; }
+    }
+    load();
+  }
+  async function userView(body) {
+    body.innerHTML = `<div class="bb-mut">Lade …</div>`;
+    const id = viewId;
+    try {
+      const r = await fetch(`${API}?a=user&u=${id}`, { cache: 'no-store' }); const j = await r.json(); if (!j.user || id !== viewId) throw 0;
+      const u = j.user, isFr = (P.fr || []).includes(id), sent = (P.sent || []).includes(id), inc = (P.req || []).includes(id);
+      const since = u.since ? new Date(u.since * 1000).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' }) : '';
+      const btn = !logged() ? '' : isFr ? `<button class="bb-go" id="bbInv">🎮 Zum Spiel einladen</button><button class="bb-skip" id="bbUnf">Freund entfernen</button>` : inc ? `<button class="bb-go" id="bbAcc">✓ Anfrage annehmen</button>` : sent ? `<div class="bb-mut" style="padding:8px">Anfrage gesendet ✓</div>` : `<button class="bb-go" id="bbReq">+ Als Freund adden</button>`;
+      body.innerHTML = `<button class="bb-back" id="bbBack">‹ Zurück</button>
+        <div class="bb-uhead"><img src="${avUrl(u)}" alt=""><div><b>${esc(u.name)}</b>${isFr ? '<span class="bb-tag">👥 Freund</span>' : ''}<small>${since ? 'Dabei seit ' + since + ' · ' : ''}${u.nfr} Freunde</small></div></div>
+        <div class="bb-sec">Bestwerte</div>
+        <div class="bb-best">${Object.entries(GAMES).map(([g, G]) => {
+          const mine = P.best[g], his = u.best[g];
+          const cmp = mine && his ? (better(g, his.s, mine.s) ? '<em class="up">vor dir</em>' : his.s === mine.s ? '<em>gleich</em>' : '<em class="dn">hinter dir</em>') : '';
+          return `<div>${G.ico} ${esc(G.name)}<b>${his ? fmt(g, his.s) + (G.unit ? ' <small style="font-size:11px;color:#b5a07c">' + G.unit + '</small>' : '') : '–'}</b>${cmp}</div>`;
+        }).join('')}</div>
+        <div class="bb-sec">Erfolge ${u.nach}/${ACH.length}</div>
+        <div class="bb-ach">${ACH.map(a => `<div class="${u.ach[a[0]] ? '' : 'lock'}"><i>${a[1]}</i><div><b>${esc(a[2])}</b><span>${esc(a[3])}</span></div></div>`).join('')}</div>
+        <div style="margin-top:14px">${btn}</div>`;
+      body.querySelector('#bbBack').onclick = () => { tab = prevTab === 'user' ? 'friends' : prevTab; render(); };
+      const act = async (a, data) => { try { const x = await post(a, data); applyMe(x.me); } catch (e) {} render(); };
+      const q = s => body.querySelector(s);
+      if (q('#bbReq')) q('#bbReq').onclick = () => act('friend', { to: u.name });
+      if (q('#bbAcc')) q('#bbAcc').onclick = () => act('accept', { u: id });
+      if (q('#bbUnf')) q('#bbUnf').onclick = () => act('unfriend', { u: id });
+      if (q('#bbInv')) q('#bbInv').onclick = () => chooseGame([id], u.name);
+    } catch (e) { body.innerHTML = `<button class="bb-back" id="bbBack">‹ Zurück</button><div class="bb-mut">Profil nicht gefunden.</div>`; body.querySelector('#bbBack').onclick = () => { tab = prevTab; render(); }; }
+  }
   function achs(body) {
     body.innerHTML = `<div class="bb-ach">${ACH.map(a => `<div class="${P.ach[a[0]] ? '' : 'lock'}"><i>${a[1]}</i><div><b>${esc(a[2])}</b><span>${esc(a[3])}</span></div></div>`).join('')}</div>`;
+  }
+
+  // ---------- Einladungen in Spiele ----------
+  const INV = {
+    quiz: { name: 'Bubatz-Quiz', ico: '🎤', what: 'Party-Quiz, alle am Handy', join: c => 'quiz/?c=' + encodeURIComponent(c), host: 'quiz/?host=1' },
+    schach: { name: 'Schlagabtausch', ico: '♞', what: 'Schach online, 1 gegen 1', join: c => 'schach/?join=' + encodeURIComponent(c), host: 'schach/?online=1' }
+  };
+  const ss = { get(k) { try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch (e) { return null; } }, set(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+  let room = null; // { g, c } wenn auf dieser Seite gerade ein Raum offen ist
+  // Spiel auswählen, zu dem Freunde eingeladen werden (aus Freundesliste oder Profil)
+  function chooseGame(ids, names) {
+    open('board'); tab = 'invg';
+    ov.innerHTML = `<div class="bb-box"><button class="bb-x" aria-label="Schließen">✕</button><div class="bb-h">Einladen</div>
+      <div class="bb-sub">Wozu willst du ${esc(names)} einladen? Du machst den Raum auf, ${ids.length > 1 ? 'sie bekommen' : 'er oder sie bekommt'} sofort eine Anfrage.</div>
+      ${Object.entries(INV).map(([g, x]) => `<button class="bb-game" data-g="${g}"><i>${x.ico}</i><span><b>${esc(x.name)}</b><small>${esc(x.what)}</small></span>›</button>`).join('')}
+      <button class="bb-back" id="bbBack" style="margin-top:10px">‹ Zurück</button></div>`;
+    ov.querySelector('.bb-x').onclick = close;
+    ov.querySelector('#bbBack').onclick = () => { tab = 'friends'; render(); };
+    ov.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+      const g = b.dataset.g;
+      if (room && room.g === g) { ids.forEach(id => post('invite', { to: id, g, c: room.c }).catch(() => {})); toast(`Einladung an ${esc(names)} geschickt`, '✉️'); return close(); }
+      ss.set('bb_pend', { g, ids, names, t: Date.now() });
+      location.href = ROOT + INV[g].host;
+    });
+  }
+  // Freunde in einen offenen Raum einladen (aus dem Spiel heraus)
+  async function invite(g, c) {
+    room = { g, c };
+    if (!logged()) { open('login'); return; }
+    open('friends'); tab = 'invp';
+    ov.innerHTML = `<div class="bb-box"><button class="bb-x" aria-label="Schließen">✕</button><div class="bb-h">Freunde einladen</div>
+      <div class="bb-sub">${INV[g].ico} ${esc(INV[g].name)} · Code <b style="color:#f0d37a;letter-spacing:.15em">${esc(c.toUpperCase())}</b></div><div id="bbIl"><div class="bb-mut">Lade …</div></div></div>`;
+    ov.querySelector('.bb-x').onclick = close;
+    const el = ov.querySelector('#bbIl');
+    try {
+      const j = await post('friends'); applyMe(j.me);
+      if (!j.fr.length) { el.innerHTML = `<div class="bb-mut">Du hast noch keine Freunde. <a href="#" id="bbToFr" style="color:#f0d37a">Freunde adden</a></div>`; el.querySelector('#bbToFr').onclick = e => { e.preventDefault(); tab = 'friends'; render(); }; return; }
+      el.innerHTML = j.fr.map(x => liteRow(x, `<button class="bb-inv-b" data-i="${x.id}">Einladen</button>`)).join('');
+      el.querySelectorAll('[data-i]').forEach(b => b.onclick = async e => {
+        e.stopPropagation(); b.disabled = true; b.textContent = '…';
+        try { await post('invite', { to: b.dataset.i, g, c }); b.textContent = 'Gesendet ✓'; b.classList.add('done'); } catch (x) { b.disabled = false; b.textContent = 'Nochmal'; }
+      });
+    } catch (e) { el.innerHTML = `<div class="bb-mut">Freunde gerade nicht erreichbar.</div>`; }
+  }
+  // Ein Spiel meldet: Raum ist offen. Wartende Einladungen rausschicken.
+  function roomReady(g, c) {
+    room = { g, c };
+    const p = ss.get('bb_pend');
+    if (!p || p.g !== g || Date.now() - p.t > 30 * 60000 || !logged()) return;
+    ss.set('bb_pend', null);
+    Promise.all(p.ids.map(id => post('invite', { to: id, g, c }))).then(() => toast(`Einladung an ${esc(p.names)} geschickt`, '✉️'), () => toast('Einladung hat nicht geklappt', '⚠️'));
+  }
+  // Posteingang: Spiel-Einladungen und Freundschaftsanfragen
+  const seenInv = new Set(ss.get('bb_seen') || []); let knownReq = null;
+  async function inbox() {
+    if (!logged() || document.hidden) return;
+    try {
+      const j = await post('inbox');
+      const before = knownReq; knownReq = j.me.req || [];
+      P.fr = j.me.fr || []; P.req = knownReq; P.sent = j.me.sent || []; save(); listeners.forEach(f => f(P));
+      if (before) knownReq.filter(x => !before.includes(x)).forEach(() => toast('Neue Freundschaftsanfrage! Schau unter 👥 Freunde.', '👥'));
+      j.inv.forEach(showInvite);
+    } catch (e) {}
+  }
+  function showInvite(v) {
+    if (seenInv.has(v.id)) return; seenInv.add(v.id); ss.set('bb_seen', [...seenInv].slice(-50));
+    if (room && room.c && room.c.toLowerCase() === String(v.c).toLowerCase()) return post('inv_done', { iid: v.id }).catch(() => {});
+    addCss();
+    let box = document.querySelector('.bb-invs');
+    if (!box) { box = document.createElement('div'); box.className = 'bb-invs'; document.body.appendChild(box); ['pointerdown', 'pointerup', 'keydown', 'touchstart'].forEach(ev => box.addEventListener(ev, e => e.stopPropagation())); }
+    const x = INV[v.g] || { name: v.g, ico: '🎮', join: c => '' };
+    const card = document.createElement('div'); card.className = 'bb-invc';
+    card.innerHTML = `<img src="${avUrl(v.from)}" alt=""><div class="t"><b>${esc(v.from.name)}</b> lädt dich ein<br>${x.ico} ${esc(x.name)}</div><div class="a"><button class="bb-ok" data-y>Annehmen</button><button class="bb-no" data-n>Nein</button></div>`;
+    box.appendChild(card);
+    const done = () => { post('inv_done', { iid: v.id }).catch(() => {}); card.classList.add('out'); setTimeout(() => card.remove(), 400); };
+    card.querySelector('[data-y]').onclick = () => { done(); location.href = ROOT + x.join(v.c); };
+    card.querySelector('[data-n]').onclick = done;
+    try { navigator.vibrate && navigator.vibrate([60, 60, 60]); } catch (e) {}
   }
 
   // Profil-Knopf für Startseite und Spiele
   const listeners = [];
   function chip(el) {
     addCss();
-    const draw = () => { el.innerHTML = `<button class="bb-chip" type="button"><img src="${logged() ? avUrl(P) : IMG('artur')}" alt="">${logged() ? esc(P.name) + ` <small>🎖️ ${Object.keys(P.ach).length}</small>` : 'Anmelden'}</button>`; el.firstChild.onclick = e => { e.stopPropagation(); open(logged() ? 'profil' : 'login'); }; };
+    const draw = () => { el.innerHTML = `<button class="bb-chip" type="button"><img src="${logged() ? avUrl(P) : IMG('artur')}" alt="">${logged() ? esc(P.name) + ` <small>🎖️ ${Object.keys(P.ach).length}</small>` + (P.req && P.req.length ? `<i class="bb-dot">${P.req.length}</i>` : '') : 'Anmelden'}</button>`; el.firstChild.onclick = e => { e.stopPropagation(); open(logged() ? 'profil' : 'login'); }; };
     draw(); listeners.push(draw);
   }
   // Anmeldung beim Start (Startseite)
@@ -330,9 +501,11 @@
 
   window.BB = {
     get profile() { return P; }, get loggedIn() { return logged(); }, GAMES, ACH, CHAR, AV,
-    record, unlock, stat, open, close, chip, gate, toast, fmt, avatar: () => avUrl(P), onChange: f => listeners.push(f),
+    record, unlock, stat, open, close, chip, showUser: id => { open('board'); showUser(id); }, invite, roomReady, gate, toast, fmt, avatar: () => avUrl(P), onChange: f => listeners.push(f),
     best: g => P.best[g] || null, has: id => !!P.ach[id]
   };
   // Beim Laden Profil vom Server holen (anderes Gerät könnte etwas geändert haben)
-  if (logged()) setTimeout(async () => { try { const j = await post('me'); applyMe(j.me); sync(); } catch (e) {} }, 400);
+  if (logged()) setTimeout(async () => { try { const j = await post('me'); applyMe(j.me); sync(); } catch (e) {} inbox(); }, 400);
+  setInterval(inbox, 9000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) inbox(); });
 })();

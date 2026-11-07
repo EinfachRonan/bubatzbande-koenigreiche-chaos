@@ -515,6 +515,7 @@ body:not([data-mode="chess"]) #turnPop{display:none}
   <div id="onWait" class="ssec" hidden>
     <span class="label">Dein Spiel-Code</span><div class="bigcode" id="onBig"></div>
     <div class="row"><button class="btn" id="onCopy">Code kopieren</button><button class="btn ghost" id="onCancel">Abbrechen</button></div>
+    <button class="btn" id="onInvite" style="width:100%;margin-top:8px" hidden>👥 Freunde einladen</button>
     <p class="pnote" id="onWaitMsg">Warte auf deinen Freund … Du kannst dich schon an den Tisch setzen.</p>
   </div>
 </div></div>
@@ -2132,12 +2133,13 @@ function openOnline(){try{if(!$('#onNick').value)$('#onNick').value=localStorage
   else{$('#onSetup').hidden=false;$('#onWait').hidden=true;}onlUI();$('#online').hidden=false;}
 $('#onNick').addEventListener('change',()=>{try{localStorage.setItem('sa_nick',nickVal());}catch(e){}if(ONLINE)onlPub({nk:nickVal()});});
 $('#onClose').addEventListener('click',()=>{$('#online').hidden=true;});
+$('#onInvite').addEventListener('click',()=>{if(window.BB&&ONLINE)BB.invite('schach',ONLINE.code);});
 $('#goOnline').addEventListener('click',openOnline);$('#onlBtn').addEventListener('click',openOnline);
 $('#onCreate').addEventListener('click',async()=>{if(!RM)return;const A='abcdefghjkmnpqrstuvwxyz23456789',used=new Set(RM.peers().map(p=>p.presence&&p.presence.g));let code;const mk=()=>{do{code=[0,1,2,3].map(()=>A[(Math.random()*A.length)|0]).join('');}while(used.has(code));};mk();
   if(ONLINE)onlLeave();
   if(NETM){const b=$('#onCreate');b.disabled=true;$('#onMsg').textContent='Spiel wird erstellt …';let ok=false;for(let i=0;i<4&&!ok;i++){try{await RM.host(code);ok=true;}catch(e){if(e==='taken')mk();else break;}}b.disabled=false;
     if(!ok){$('#onMsg').textContent='Keine Verbindung zum Spiel-Server. Prüf dein Internet und versuch es nochmal.';return;}$('#onMsg').textContent='';}
-  onlStart(code,'w',[]);$('#onSetup').hidden=true;$('#onWait').hidden=false;$('#onBig').textContent=code.toUpperCase();$('#onWaitMsg').textContent='Warte auf deinen Freund … Du kannst dich schon an den Tisch setzen.';$('#online').hidden=false;});
+  onlStart(code,'w',[]);if(window.BB){BB.roomReady('schach',code);$('#onInvite').hidden=false;}$('#onSetup').hidden=true;$('#onWait').hidden=false;$('#onBig').textContent=code.toUpperCase();$('#onWaitMsg').textContent='Warte auf deinen Freund … Du kannst dich schon an den Tisch setzen.';$('#online').hidden=false;});
 $('#onJoin').addEventListener('click',async()=>{if(!RM)return;const code=($('#onCode').value||'').trim().toLowerCase();
   if(!/^[a-z0-9]{4}$/.test(code)){$('#onMsg').textContent='Der Code hat 4 Zeichen, zum Beispiel K7QM.';return;}
   if(NETM){if(ONLINE)onlLeave();const b=$('#onJoin');b.disabled=true;$('#onMsg').textContent='Verbinde mit '+code.toUpperCase()+' …';let err=null;try{await RM.join(code);}catch(e){err=e;}b.disabled=false;
@@ -2154,7 +2156,10 @@ let resArm=false;$('#resignBtn').addEventListener('click',e=>{if(!ONLINE||S.over
 (async()=>{let r=null,u=null;try{if(window.claude&&typeof claude.use==='function'){[r,u]=await Promise.all([claude.use('room'),claude.use('user')]);}}catch(e){}
   RM=r||(window.claude?null:((location.protocol.startsWith('http')&&await httpRelay())?makeHttpNet('net.php'):makeNet()));NETM=!!(RM&&RM.net);USR=u;$('#onShare').textContent=NETM?'Schick deinem Freund den Link zu dieser Seite und den Code. Ihr braucht beide Internet, die Verbindung läuft direkt zwischen euren Geräten.':'Dein Freund braucht Zugriff auf dieses Spiel: Lade ihn über „Teilen“ oben rechts ein, dann öffnet er denselben Link.';if(RM){try{RM.onPeers(()=>onlSync(),()=>{});}catch(e){}}
   try{if(USR&&!$('#onNick').value&&!localStorage.getItem('sa_nick')){const me=await USR.me();if(me&&me.name)$('#onNick').value=me.name.split(' ')[0].slice(0,16);}}catch(e){}
-  if(!$('#online').hidden)onlUI();})();
+  if(!$('#online').hidden)onlUI();
+  try{if(window.BB&&BB.loggedIn&&!$('#onNick').value)$('#onNick').value=BB.profile.name.slice(0,16);}catch(e){}
+  const qp=new URLSearchParams(location.search),jc=(qp.get('join')||'').replace(/[^a-z0-9]/gi,'').toLowerCase();
+  if(RM&&(jc||qp.get('online'))){history.replaceState(null,'',location.pathname);openOnline();if(jc){$('#onCode').value=jc.toUpperCase();$('#onJoin').click();}}})();
 
 /* ---------- Loop ---------- */
 function resize(){renderer.setSize(innerWidth,innerHeight,false);if(post){post.comp.setSize(innerWidth,innerHeight);post.bloom.setSize(innerWidth,innerHeight);}camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();if(mode==='chess'&&!camTw)seatCam(true);}

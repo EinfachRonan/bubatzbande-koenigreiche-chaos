@@ -281,6 +281,7 @@ function setup(mode) {
       try {
         const r = await api('create', { qs, limit: cfg.limit });
         role = { type: 'host', code: r.code, hk: r.hk }; ss.set('bq_role', role); setTop(r.code); ST = null; startPoll();
+        if (window.BB) BB.roomReady('quiz', r.code);
       } catch (e) { $('#err').textContent = ERR[e.message] || 'Raum konnte nicht erstellt werden.'; $('#start').disabled = false; }
     };
   };
@@ -364,10 +365,12 @@ function hostLobby() {
         <p class="url">Öffne <b>${esc(location.host + location.pathname)}</b> am Handy und gib den Code ein, oder scann einfach:</p>
         <div id="qr" data-code="${esc(ST.code)}"></div></div>
       <div><h3 style="margin-top:0">Mitspieler <span id="pc"></span></h3><div class="plist" id="plist"></div>
-        <button class="go" id="startQ">▶ Los geht's</button><button class="link" id="cancel">Raum schließen</button></div>
+        <button class="go" id="startQ">▶ Los geht's</button>${window.BB ? '<button class="go alt" id="invF" style="margin-top:10px">👥 Freunde einladen</button>' : ''}<button class="link" id="cancel">Raum schließen</button></div>
     </div></div>`;
     try { new QRCode($('#qr'), { text: url, width: 380, height: 380, colorDark: '#0b1108', colorLight: '#f4ecd0', correctLevel: QRCode.CorrectLevel.M }); } catch (e) { $('#qr').innerHTML = `<p class="url">${esc(url)}</p>`; }
     $('#startQ').onclick = () => hostOp('start');
+    if ($('#invF')) $('#invF').onclick = () => BB.invite('quiz', ST.code);
+    if (window.BB) BB.roomReady('quiz', ST.code);
     $('#cancel').onclick = async () => { await hostOp('end'); leave(); };
   }
   $('#pc').textContent = '(' + ST.players.length + ')';
@@ -585,6 +588,7 @@ function confetti() {
   online = location.protocol.startsWith('http') && await ping();
   const c = new URLSearchParams(location.search).get('c');
   if (c && online) joinView(c.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4));
+  else if (new URLSearchParams(location.search).get('host') && online) { history.replaceState(null, '', location.pathname); setup('host'); }
   else home();
 })();
 </script>

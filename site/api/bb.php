@@ -35,7 +35,9 @@ function cleanMeta($m) {
 }
 function load($h) { rewind($h); $d = json_decode(stream_get_contents($h), true); if (!is_array($d)) $d = []; $d += ['users' => []]; return $d; }
 function avOk($a) { return in_array($a, $GLOBALS['AV'], true) ? $a : 'artur'; }
-function pub($u, $id) { return ['id' => $id, 'user' => $u['user'], 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'best' => (object) ($u['best'] ?? []), 'ach' => (object) ($u['ach'] ?? []), 'stats' => (object) ($u['stats'] ?? [])]; }
+function lite($u, $id) { return ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'nach' => count($u['ach'] ?? []), 'best' => (object) ($u['best'] ?? [])]; }
+function full($u, $id) { return lite($u, $id) + ['ach' => (object) ($u['ach'] ?? []), 'since' => $u['t'] ?? 0, 'nfr' => count($u['fr'] ?? [])]; }
+function pub($u, $id) { return ['fr' => $u['fr'] ?? [], 'req' => $u['req'] ?? [], 'sent' => $u['sent'] ?? [], 'id' => $id, 'user' => $u['user'], 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'best' => (object) ($u['best'] ?? []), 'ach' => (object) ($u['ach'] ?? []), 'stats' => (object) ($u['stats'] ?? [])]; }
 function nameTaken($d, $name, $except) {
   $l = mb_strtolower($name);
   foreach ($d['users'] as $id => $u) if ($id !== $except && (mb_strtolower($u['name']) === $l || $u['ul'] === $l)) return true;
@@ -55,6 +57,13 @@ if ($a === 'img') {
 
 $h = fopen($file, 'c+'); if (!$h) fail('io', 500);
 
+if ($a === 'user') {
+  flock($h, LOCK_SH); $d = load($h); flock($h, LOCK_UN); fclose($h);
+  $id = (string) ($_GET['u'] ?? '');
+  if (!isset($d['users'][$id])) fail('nouser', 404);
+  out(['user' => full($d['users'][$id], $id)]);
+}
+
 if ($a === 'top') {
   flock($h, LOCK_SH); $d = load($h); flock($h, LOCK_UN); fclose($h);
   $g = $_GET['g'] ?? '';
@@ -67,7 +76,7 @@ if ($a === 'top') {
   usort($rows, fn($x, $y) => $asc ? ($x['s'] <=> $y['s'] ?: $x['t'] <=> $y['t']) : ($y['s'] <=> $x['s'] ?: $x['t'] <=> $y['t']));
   $me = $_GET['u'] ?? ''; $mine = null;
   foreach ($rows as $i => $r) if ($r['id'] === $me) $mine = ['rank' => $i + 1, 's' => $r['s']];
-  $list = array_map(function ($r) use ($me) { $r['you'] = $r['id'] === $me; unset($r['t']); return $r; }, array_slice($rows, 0, 50));
+  $list = array_map(function ($r) use ($me) { $r['you'] = $r['id'] === $me; unset($r['t']); return $r; }, array_slice($rows, 0, 300));
   out(['list' => $list, 'n' => count($rows), 'me' => $mine]);
 }
 
@@ -117,6 +126,69 @@ $U = &$d['users'][$id];
 
 if ($a === 'logout') { $U['tok'] = array_values(array_filter($U['tok'], fn($x) => $x !== hash('sha256', $tok))); $finish(['ok' => 1]); }
 if ($a === 'me') $finish(['me' => pub($U, $id)]);
+
+// Freunde
+$rm = function (&$arr, $x) { $arr = array_values(array_diff($arr ?? [], [$x])); };
+$befriend = function ($a1, $b1) use (&$d, $rm) {
+  foreach ([[$a1, $b1], [$b1, $a1]] as [$x, $y]) {
+    $X = &$d['users'][$x];
+    $X['fr'] = array_values(array_unique(array_merge($X['fr'] ?? [], [$y])));
+    $rm($X['req'], $y); $rm($X['sent'], $y);
+    unset($X);
+  }
+};
+if ($a === 'friend') {
+  $to = mb_strtolower(clean($in['to'] ?? '', 16)); $tid = null;
+  foreach ($d['users'] as $k => $x) if ($x['ul'] === $to || mb_strtolower($x['name']) === $to) { $tid = $k; break; }
+  if (!$tid) $stop('nouser', 404);
+  if ($tid === $id) $stop('self');
+  if (in_array($tid, $U['fr'] ?? [], true)) $stop('already');
+  if (count($U['fr'] ?? []) >= 200) $stop('full');
+  if (in_array($tid, $U['req'] ?? [], true)) { $befriend($id, $tid); $finish(['ok' => 1, 'now' => 'friends', 'me' => pub($d['users'][$id], $id)]); }
+  $T = &$d['users'][$tid];
+  $T['req'] = array_values(array_unique(array_merge($T['req'] ?? [], [$id])));
+  unset($T);
+  $U['sent'] = array_values(array_unique(array_merge($U['sent'] ?? [], [$tid])));
+  $finish(['ok' => 1, 'now' => 'sent', 'name' => $d['users'][$tid]['name'], 'me' => pub($U, $id)]);
+}
+if ($a === 'accept' || $a === 'decline' || $a === 'unfriend') {
+  $o = (string) ($in['u'] ?? ''); if (!isset($d['users'][$o])) $stop('nouser', 404);
+  if ($a === 'accept') { if (!in_array($o, $U['req'] ?? [], true)) $stop('noreq'); $befriend($id, $o); }
+  else {
+    $O = &$d['users'][$o];
+    $rm($U['req'], $o); $rm($U['sent'], $o); $rm($U['fr'], $o);
+    $rm($O['req'], $id); $rm($O['sent'], $id); $rm($O['fr'], $id);
+    unset($O);
+  }
+  $finish(['ok' => 1, 'me' => pub($d['users'][$id], $id)]);
+}
+if ($a === 'friends') {
+  $map = fn($ids) => array_values(array_filter(array_map(fn($x) => isset($d['users'][$x]) ? lite($d['users'][$x], $x) : null, $ids ?? [])));
+  $finish(['fr' => $map($U['fr'] ?? []), 'req' => $map($U['req'] ?? []), 'sent' => $map($U['sent'] ?? []), 'me' => pub($U, $id)]);
+}
+
+// Spiel-Einladungen (nur an Freunde)
+if ($a === 'invite') {
+  $to = (string) ($in['to'] ?? ''); $g = (string) ($in['g'] ?? ''); $c = (string) ($in['c'] ?? '');
+  if (!in_array($to, $U['fr'] ?? [], true) || !isset($d['users'][$to])) $stop('notfriend', 403);
+  if (!in_array($g, ['quiz', 'schach'], true) || !preg_match('/^[A-Za-z0-9]{4}$/', $c)) $stop('bad');
+  $T = &$d['users'][$to];
+  $T['inv'] = array_values(array_filter($T['inv'] ?? [], fn($x) => $x['t'] > time() - 7200 && !($x['from'] === $id && $x['g'] === $g)));
+  $T['inv'][] = ['id' => bin2hex(random_bytes(4)), 'from' => $id, 'g' => $g, 'c' => $c, 't' => time()];
+  $T['inv'] = array_slice($T['inv'], -20);
+  unset($T);
+  $finish(['ok' => 1]);
+}
+if ($a === 'inbox') {
+  $U['inv'] = array_values(array_filter($U['inv'] ?? [], fn($x) => $x['t'] > time() - 7200 && isset($d['users'][$x['from']])));
+  $inv = array_map(fn($x) => ['id' => $x['id'], 'g' => $x['g'], 'c' => $x['c'], 't' => $x['t'], 'from' => lite($d['users'][$x['from']], $x['from'])], $U['inv']);
+  $finish(['inv' => $inv, 'me' => pub($U, $id)]);
+}
+if ($a === 'inv_done') {
+  $iid = (string) ($in['iid'] ?? '');
+  $U['inv'] = array_values(array_filter($U['inv'] ?? [], fn($x) => $x['id'] !== $iid));
+  $finish(['ok' => 1]);
+}
 
 if ($a === 'save') {
   // Profil
