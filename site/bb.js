@@ -118,7 +118,7 @@
     if (again) { again = false; setTimeout(sync, 300); }
   }
   const soon = () => { clearTimeout(syncT); syncT = setTimeout(sync, 600); };
-  function logoutLocal() { P = fresh(); save(); listeners.forEach(f => f(P)); }
+  function logoutLocal() { P = fresh(); save(); mPulled = false; listeners.forEach(f => f(P)); }
 
   // ---------- Toast ----------
   let css = false;
@@ -407,7 +407,7 @@
       try {
         const j = await post(reg ? 'register' : 'login', { user, pass, av });
         const keep = { best: P.best, ach: P.ach, stats: P.stats };
-        P = Object.assign(fresh(), keep, { token: j.token }); applyMe(j.me);
+        P = Object.assign(fresh(), keep, { token: j.token }); applyMe(j.me); mPulled = false; setTimeout(mpull, 50);
         P.dirty = true; save(); await sync();
         toast(`${reg ? 'Willkommen in der Bande' : 'Hi'}, <b>${esc(P.name)}</b>!`, '🍻');
         if (reg) unlock('profil');
@@ -653,16 +653,18 @@
   }
 
   // Spielstände im Konto (geräteübergreifend)
-  const cloudT = {};
+  const cloudT = {}, cloudP = {};
   const cloud = {
     async put(g, obj, now) {
       if (!logged()) return;
-      const data = JSON.stringify(obj), wait = 10000 - (Date.now() - (cloudT[g] || 0));
+      if (g === 'meta' && !mPulled) return; // erst abgleichen, sonst überschreibt ein frisches Gerät die Sammlung
+      const wait = 4000 - (Date.now() - (cloudT[g] || 0));
       clearTimeout(cloudT[g + '_t']);
-      if (wait > 0 && !now) { cloudT[g + '_t'] = setTimeout(() => cloud.put(g, obj, true), wait); return; }
-      cloudT[g] = Date.now();
-      try { await post('gput', { g, data }); } catch (e) {}
+      if (wait > 0 && !now) { cloudP[g] = obj; cloudT[g + '_t'] = setTimeout(() => cloud.put(g, obj, true), wait); return; }
+      delete cloudP[g]; cloudT[g] = Date.now();
+      try { await post('gput', { g, data: JSON.stringify(obj) }); } catch (e) { cloudP[g] = obj; }
     },
+    flush() { for (const g in cloudP) cloud.put(g, cloudP[g], true); },
     async get(g) { if (!logged()) return null; const j = await post('gget', { g }); return j.data ? JSON.parse(j.data) : null; }
   };
   // ---------- Bandengold & Kartensammlung ----------
@@ -708,6 +710,7 @@
   try { M = JSON.parse(localStorage.getItem(MKEY) || 'null'); } catch (e) { M = null; }
   if (!M || typeof M !== 'object') M = { bg: 50, cards: {}, t: 0, day: '' };
   M.cards = M.cards || {};
+  let mPulled = false;
   const msave = () => { M.t = Date.now(); try { localStorage.setItem(MKEY, JSON.stringify(M)); } catch (e) {} cloud.put('meta', M); mlisteners.forEach(f => f(M)); };
   const mlisteners = [];
   const lvl = id => (M.cards[id] && M.cards[id].lv) || 0;
@@ -752,9 +755,34 @@
   // Täglicher Bandengold-Bonus
   setTimeout(() => { const d = new Date().toDateString(); if (M.day !== d) { const first = !M.day; M.day = d; if (first) msave(); else earn(25, 'Tagesbonus fürs Vorbeischauen'); } }, 2500);
   // Sammlung aus dem Konto holen (anderes Gerät)
+  // Karten werden zusammengeführt (höhere Stufe/mehr Kopien gewinnt), damit nie etwas verloren geht
+  function mmerge(a, b) {
+    const out = Object.assign({ bg: 0, cards: {}, t: 0, day: '' }, (b.t || 0) >= (a.t || 0) ? b : a), ac = a.cards || {}, bc = b.cards || {};
+    out.cards = {};
+    for (const id of new Set([...Object.keys(ac), ...Object.keys(bc)])) {
+      const x = ac[id], y = bc[id];
+      out.cards[id] = Object.assign({}, !x ? y : !y ? x : (x.lv > y.lv || (x.lv === y.lv && x.n >= y.n)) ? x : y);
+    }
+    out.day = [a.day, b.day].includes(new Date().toDateString()) ? new Date().toDateString() : out.day;
+    return out;
+  }
   async function mpull() {
     if (!logged()) return;
-    try { const c = await cloud.get('meta'); if (c && c.t > (M.t || 0)) { M = Object.assign({ bg: 0, cards: {}, t: 0, day: '' }, c); try { localStorage.setItem(MKEY, JSON.stringify(M)); } catch (e) {} mlisteners.forEach(f => f(M)); } else if (M.t) cloud.put('meta', M, true); } catch (e) {}
+    const me = P.id;
+    try {
+      const c = await cloud.get('meta');
+      if (P.id !== me) return;
+      if (M.owner && M.owner !== me) M = { bg: 50, cards: {}, t: 0, day: M.day }; // Daten eines anderen Kontos nicht übernehmen
+      if (c && c.cards) {
+        const guest = !M.owner, merged = mmerge(M, c);
+        if (guest) merged.bg = Math.max(c.bg || 0, M.bg || 0);
+        M = merged;
+      }
+      M.owner = me; mPulled = true; M.t = Date.now();
+      try { localStorage.setItem(MKEY, JSON.stringify(M)); } catch (e) {}
+      mlisteners.forEach(f => f(M));
+      cloud.put('meta', M, true);
+    } catch (e) {}
   }
   setTimeout(mpull, 800);
 
@@ -768,5 +796,6 @@
   // Beim Laden Profil vom Server holen (anderes Gerät könnte etwas geändert haben)
   if (logged()) setTimeout(async () => { try { const j = await post('me'); applyMe(j.me); sync(); } catch (e) {} inbox(); }, 400);
   setInterval(inbox, 9000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) inbox(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) inbox(); else { cloud.flush(); sync(); } });
+  window.addEventListener('pagehide', () => { cloud.flush(); sync(); });
 })();
