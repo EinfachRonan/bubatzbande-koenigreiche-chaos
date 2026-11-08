@@ -218,6 +218,21 @@
 .f-legende::before{background:conic-gradient(#ff4a4a,#ffb21a,#f0e04a,#5ad35a,#3ac8ff,#8c6cff,#ff4ad0,#ff4a4a);box-shadow:0 0 16px rgba(255,200,120,.75);animation:bbSpin 2.5s linear infinite}
 .f-legende::after{content:"✦";top:-18%;left:50%;transform:translateX(-50%);font-size:1.02em;color:#fff4c0;text-shadow:0 0 8px #ffd36a}
 @keyframes bbSpin{to{transform:rotate(360deg)}}
+.bb-rhbtn{display:flex;align-items:center;gap:12px;width:100%;margin:12px 0 4px;padding:10px 12px;border-radius:10px;border:1px solid #d4af37;background:linear-gradient(#1c2a14,#10170b);color:#f1e6c8;font:inherit;cursor:pointer;text-align:left}
+.bb-rhbtn img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:50% 15%;display:block}
+.bb-rhbtn>span:nth-child(2){flex:1}.bb-rhbtn b{display:block;color:#f0d37a;font-family:Cinzel,Georgia,serif}.bb-rhbtn small{font-size:12px;color:#b5a07c}.bb-rhbtn em{font-style:normal;font-size:26px;color:#f0d37a}
+.bb-rtop{display:flex;align-items:center;gap:14px;margin:8px 0 12px}.bb-rtop .bb-fr{font-size:22px;padding:5px}
+.bb-rtop img{width:72px;height:72px;border-radius:50%;object-fit:cover;object-position:50% 15%;display:block}
+.bb-rtop>div{flex:1}.bb-rtop b{display:block;color:#f0d37a;font:800 17px Cinzel,Georgia,serif}.bb-rtop small{font-size:12.5px;color:#b5a07c}
+.bb-bar{height:6px;border-radius:4px;background:#2a2a1a;margin-top:6px;overflow:hidden}.bb-bar i{display:block;height:100%;background:linear-gradient(90deg,#7fd36a,#d4af37)}
+.bb-rlist{display:flex;flex-direction:column;gap:8px}
+.bb-rr{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;border:1px solid #3a3216;background:rgba(0,0,0,.3)}
+.bb-rr.on{border-color:#f0d37a;box-shadow:0 0 0 2px rgba(240,211,122,.25);background:linear-gradient(#1c2a14,#10170b)}
+.bb-rr .bb-fr{font-size:15px}.bb-rr img{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 15%;display:block}
+.bb-rr .t{flex:1;min-width:0}.bb-rr .t b{display:block;color:#f0d37a;font-size:14.5px}.bb-rr .t small{display:block;font-size:12px;color:#9fe36a}.bb-rr .t small.n{color:#cbbd94}.bb-rr .t small:empty{display:none}
+.bb-rr.lk .bb-fr{filter:grayscale(1) brightness(.55)}.bb-rr.lk .t b{color:#8a8068}.bb-rr.lk .t small{color:#b5a07c}
+.bb-rr button{padding:8px 12px;border-radius:8px;border:1px solid #d4af37;background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4;font:800 12.5px Cinzel,Georgia,serif;cursor:pointer}
+.bb-rr .st{font-size:12px;font-weight:800;color:#f0d37a;padding:0 4px}.bb-rr .st.lk{font-size:18px}
 .bb-rhs{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;margin:6px 0 4px}
 .bb-rhs button{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 2px 6px;border-radius:10px;border:1px solid #3a3216;background:rgba(0,0,0,.3);cursor:pointer;color:#e8dcc0;font:inherit}
 .bb-rhs button img{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:50% 15%;display:block}
@@ -301,13 +316,13 @@
   function render() {
     if (tab === 'login') return renderAuth();
     ov.innerHTML = `<div class="bb-box"><button class="bb-x" aria-label="Schließen">✕</button>
-      <div class="bb-h">${{ board: 'Bestenliste', ach: 'Erfolge', friends: 'Freunde', user: 'Profil' }[tab] || 'Dein Profil'}</div>
-      <div class="bb-tabs"><button data-t="profil">🪪<span>${logged() ? 'Profil' : 'Login'}</span></button><button data-t="board">🏆<span>Rangliste</span></button><button data-t="friends">👥<span>Freunde</span>${P.req && P.req.length ? `<i class="bb-dot">${P.req.length}</i>` : ''}</button><button data-t="ach">🎖️<span>${Object.keys(P.ach).length}/${ACH.length}</span></button></div>
+      <div class="bb-h">${{ board: 'Bestenliste', ach: 'Erfolge', friends: 'Freunde', user: 'Profil', rahmen: 'Profilrahmen' }[tab] || 'Dein Profil'}</div>
+      <div class="bb-tabs"><button data-t="profil">🪪<span>${logged() ? 'Profil' : 'Login'}</span></button><button data-t="board">🏆<span>Rangliste</span></button><button data-t="friends">👥<span>Freunde</span>${P.req && P.req.length ? `<i class="bb-dot">${P.req.length}</i>` : ''}</button><button data-t="ach">🎖️<span>${Object.keys(P.ach).length}/${ACH.length}</span></button><button data-t="rahmen">🖼️<span>Rahmen</span></button></div>
       <div id="bbBody"></div></div>`;
     ov.querySelector('.bb-x').onclick = close;
-    ov.querySelectorAll('[data-t]').forEach(b => { b.classList.toggle('on', b.dataset.t === tab); b.onclick = () => { tab = (b.dataset.t === 'profil' || b.dataset.t === 'friends') && !logged() ? 'login' : b.dataset.t; render(); }; });
+    ov.querySelectorAll('[data-t]').forEach(b => { b.classList.toggle('on', b.dataset.t === tab); b.onclick = () => { tab = (b.dataset.t === 'profil' || b.dataset.t === 'friends' || b.dataset.t === 'rahmen') && !logged() ? 'login' : b.dataset.t; render(); }; });
     const body = ov.querySelector('#bbBody');
-    if (tab === 'profil') profil(body); else if (tab === 'board') board(body); else if (tab === 'friends') friends(body); else if (tab === 'user') userView(body); else achs(body);
+    if (tab === 'profil') profil(body); else if (tab === 'board') board(body); else if (tab === 'friends') friends(body); else if (tab === 'user') userView(body); else if (tab === 'rahmen') rahmen(body); else achs(body);
   }
   function renderAuth() {
     const reg = authMode === 'reg';
@@ -349,17 +364,14 @@
     };
   }
   function profil(body) {
-    let av = P.av, img = undefined, rh = P.rh || ''; // undefined = unverändert, '' = Foto löschen, data:… = neues Foto
+    let av = P.av, img = undefined; // undefined = unverändert, '' = Foto löschen, data:… = neues Foto
     const cur = () => img ? img : img === '' ? IMG(av) : avUrl(Object.assign({}, P, { av }));
     const bests = Object.entries(GAMES).map(([g, G]) => `<div>${G.ico} ${esc(G.name)}<b>${P.best[g] ? fmt(g, P.best[g].s) + (G.unit ? ' <small style="font-size:11px;color:#b5a07c">' + G.unit + '</small>' : '') : '–'}</b></div>`).join('');
-    body.innerHTML = `<div class="bb-me"><label class="bb-pic" title="Foto hochladen"><span class="bb-fr f-${rh || 'none'}" id="bbRhP"><img id="bbAv" src="${cur()}" alt=""></span><span>📷</span><input type="file" id="bbFile" accept="image/*" hidden></label>
+    body.innerHTML = `<div class="bb-me"><label class="bb-pic" title="Foto hochladen"><span class="bb-fr f-${P.rh || 'none'}"><img id="bbAv" src="${cur()}" alt=""></span><span>📷</span><input type="file" id="bbFile" accept="image/*" hidden></label>
         <div style="flex:1;min-width:0"><div class="bb-l" style="margin:0 0 4px">Anzeigename <small style="color:#b5a07c">· Login: ${esc(P.user)}</small></div><input class="bb-in" id="bbName" maxlength="16" value="${esc(P.name)}"></div></div>
       <div class="bb-l">Profilbild: tipp aufs Bild für ein eigenes Foto oder nimm eine Figur aus der Bande</div>
       <div class="bb-avs">${AV.map(k => `<button data-av="${k}" class="${!P.img && k === av ? 'on' : ''}" title="${esc(CHAR[k])}"><img src="${IMG(k)}" alt=""></button>`).join('')}</div>
-      <div class="bb-l">Profilrahmen <small style="color:#b5a07c">· ${FRAMES.filter(f => frOk(f, P.ach)).length}/${FRAMES.length} freigeschaltet über Erfolge</small></div>
-      <div class="bb-rhs">${[['', 'Ohne Rahmen', 0]].concat(FRAMES).map(f => { const ok = !f[0] || frOk(f, P.ach);
-        return `<button data-rh="${f[0]}" class="${f[0] === rh ? 'on' : ''} ${ok ? '' : 'lk'}" title="${esc(f[1])}"><span class="bb-fr f-${f[0] || 'none'}"><img src="${cur()}" alt=""></span>${ok ? '' : '<i>🔒</i>'}<small>${esc(f[1])}</small></button>`; }).join('')}</div>
-      <div class="bb-rhinfo" id="bbRhI"></div>
+      <button class="bb-rhbtn" id="bbRhGo"><span class="bb-fr f-${P.rh || 'none'}"><img src="${cur()}" alt=""></span><span><b>Profilrahmen</b><small>${FRAMES.filter(f => frOk(f, P.ach)).length} von ${FRAMES.length} freigeschaltet · ${P.rh ? esc((FRAMES.find(f => f[0] === P.rh) || [, ''])[1]) + ' aktiv' : 'kein Rahmen aktiv'}</small></span><em>›</em></button>
       <div class="bb-msg" id="bbMsg"></div>
       <button class="bb-go" id="bbSave">Speichern</button>
       <div class="bb-sec">Deine Bestwerte</div><div class="bb-best">${bests}</div>
@@ -369,15 +381,9 @@
         <button class="bb-go alt" id="bbPw">Passwort ändern</button><div class="bb-msg" id="bbPwMsg"></div></details>
       <button class="bb-skip" id="bbOut">Abmelden</button>`;
     const pic = body.querySelector('#bbAv'), msg = body.querySelector('#bbMsg');
-    const setPics = () => { const u = cur(); pic.src = u; body.querySelectorAll('.bb-rhs img').forEach(i => i.src = u); };
+    const setPics = () => { const u = cur(); pic.src = u; body.querySelectorAll('.bb-rhbtn img').forEach(i => i.src = u); };
     body.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { av = b.dataset.av; img = ''; body.querySelectorAll('[data-av]').forEach(x => x.classList.toggle('on', x === b)); setPics(); });
-    body.querySelectorAll('[data-rh]').forEach(b => b.onclick = () => {
-      const f = FRAMES.find(x => x[0] === b.dataset.rh), info = body.querySelector('#bbRhI');
-      if (f && !frOk(f, P.ach)) { info.innerHTML = `🔒 <b>${esc(f[1])}</b>: ${esc(frNeed(f))}`; return; }
-      rh = b.dataset.rh; info.innerHTML = f ? `✓ <b>${esc(f[1])}</b> gewählt. Jetzt speichern.` : '';
-      body.querySelectorAll('[data-rh]').forEach(x => x.classList.toggle('on', x === b));
-      body.querySelector('#bbRhP').className = 'bb-fr f-' + (rh || 'none');
-    });
+    body.querySelector('#bbRhGo').onclick = () => { tab = 'rahmen'; render(); };
     body.querySelector('#bbFile').onchange = async e => {
       const f = e.target.files[0]; if (!f) return;
       try { img = await cropPhoto(f); setPics(); body.querySelectorAll('[data-av]').forEach(x => x.classList.remove('on')); msg.style.color = '#b5a07c'; msg.textContent = 'Foto gewählt. Jetzt speichern.'; }
@@ -387,7 +393,7 @@
       const name = body.querySelector('#bbName').value.trim().replace(/\s+/g, ' ').slice(0, 16);
       if (!name) { msg.style.color = '#ff9a7a'; msg.textContent = ERR.name; return; }
       msg.style.color = '#b5a07c'; msg.textContent = 'Speichere …';
-      const data = { name, av, rh, ach: P.ach }; if (img !== undefined) data.img = img || null;
+      const data = { name, av }; if (img !== undefined) data.img = img || null;
       try { const j = await post('save', data); applyMe(j.me); img = undefined; msg.style.color = '#9fe36a'; msg.textContent = 'Gespeichert ✓'; }
       catch (err) { msg.style.color = '#ff9a7a'; msg.textContent = ERR[err.message] || 'Speichern hat nicht geklappt.'; }
     };
@@ -397,6 +403,22 @@
       catch (err) { m.style.color = '#ff9a7a'; m.textContent = err.message === 'wrong' ? 'Das alte Passwort stimmt nicht.' : ERR[err.message] || 'Hat nicht geklappt.'; }
     };
     body.querySelector('#bbOut').onclick = async () => { try { await post('logout'); } catch (e) {} logoutLocal(); tab = 'login'; authMode = 'login'; render(); };
+  }
+  function rahmen(body) {
+    const pic = avUrl(P), have = FRAMES.filter(f => frOk(f, P.ach)).length;
+    const row = f => { const ok = !f[0] || frOk(f, P.ach), on = (P.rh || '') === f[0];
+      const need = !f[0] ? 'Schlichter goldener Rand' : typeof f[2] === 'number' ? `${f[2]} Erfolge insgesamt (du hast ${Object.keys(P.ach).length})` : (() => { const a = ACH.find(x => x[0] === f[2]) || ['', '🎖️', '?', '']; return `${a[1]} ${esc(a[2])} – ${esc(a[3])}`; })();
+      return `<div class="bb-rr ${ok ? '' : 'lk'} ${on ? 'on' : ''}"><span class="bb-fr f-${f[0] || 'none'}"><img src="${pic}" alt=""></span>
+        <div class="t"><b>${esc(f[1])}</b><small>${ok ? (f[0] ? '✓ Freigeschaltet' : '') : '🔒 Erfolg nötig:'}</small><small class="n">${ok && f[0] ? '' : need}</small></div>
+        ${on ? '<span class="st">Aktiv</span>' : ok ? `<button data-rh="${f[0]}">Anlegen</button>` : '<span class="st lk">🔒</span>'}</div>`; };
+    body.innerHTML = `<div class="bb-rtop"><span class="bb-fr f-${P.rh || 'none'}"><img src="${pic}" alt=""></span><div><b>${esc(P.name)}</b><small>${have} von ${FRAMES.length} Rahmen freigeschaltet</small><div class="bb-bar"><i style="width:${have / FRAMES.length * 100}%"></i></div></div></div>
+      <div class="bb-msg" id="bbRhMsg"></div>
+      <div class="bb-rlist">${[['', 'Ohne Rahmen', 0]].concat(FRAMES).map(row).join('')}</div>`;
+    body.querySelectorAll('[data-rh]').forEach(b => b.onclick = async () => {
+      const m = body.querySelector('#bbRhMsg'); b.disabled = true; m.style.color = '#b5a07c'; m.textContent = 'Speichere …';
+      try { const j = await post('save', { rh: b.dataset.rh, ach: P.ach }); applyMe(j.me); save(); listeners.forEach(f => f(P)); render(); }
+      catch (err) { b.disabled = false; m.style.color = '#ff9a7a'; m.textContent = 'Hat nicht geklappt.'; }
+    });
   }
   async function board(body) {
     body.innerHTML = `<div class="bb-gs">${Object.entries(GAMES).map(([g, G]) => `<button data-g="${g}" class="${g === curGame ? 'on' : ''}">${G.ico} ${esc(G.name)}</button>`).join('')}</div>

@@ -1,0 +1,6 @@
+# Immer die neueste Version laden (Browser fragt kurz nach, ob sich was geändert hat)
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|js|css|php)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
