@@ -14,7 +14,7 @@ $GAMES = [
   'runner' => ['asc' => false, 'min' => 1, 'max' => 5000000],
   'hof'    => ['asc' => false, 'min' => 1, 'max' => 1e18],
 ];
-$ACH = ['profil', 'krieg_win', 'krieg_hart', 'krieg_fast', 'krieg_kills', 'match_3', 'match_10', 'match_30', 'match_boss', 'match_25', 'match_50', 'quiz_10', 'quiz_perfekt', 'quiz_party', 'duell_win', 'duell_hart', 'duell_null', 'duell_prost', 'schach_win', 'schach_duelle', 'allrounder', 'runner_1000', 'runner_5000', 'runner_gold', 'hof_klick', 'hof_10k', 'hof_mio', 'hof_bande', 'karten_10', 'karte_max', 'karten_alle'];
+$ACH = ['profil', 'krieg_win', 'krieg_hart', 'krieg_fast', 'krieg_kills', 'match_3', 'match_10', 'match_30', 'match_boss', 'match_25', 'match_50', 'quiz_10', 'quiz_perfekt', 'quiz_party', 'duell_win', 'duell_hart', 'duell_null', 'duell_prost', 'schach_win', 'schach_duelle', 'allrounder', 'runner_20k', 'runner_x20', 'match_100', 'krieg_kampagne', 'krieg_sterne', 'hof_mrd', 'quiz_marathon', 'karten_gold', 'reich', 'duell_meister', 'runner_1000', 'runner_5000', 'runner_gold', 'hof_klick', 'hof_10k', 'hof_mio', 'hof_bande', 'karten_10', 'karte_max', 'karten_alle'];
 $AV = ['artur', 'kobold', 'nille', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'];
 
 $dir = __DIR__ . '/data';
@@ -37,9 +37,12 @@ function cleanMeta($m) {
 }
 function load($h) { rewind($h); $d = json_decode(stream_get_contents($h), true); if (!is_array($d)) $d = []; $d += ['users' => []]; return $d; }
 $FRAMES = ['holz' => 'profil', 'kraut' => 'match_10', 'krone' => 'krieg_win', 'bier' => 'duell_win', 'feuer' => 'runner_1000', 'schach' => 'schach_win', 'quiz' => 'quiz_perfekt',
-  'kristall' => 'match_boss', 'hof' => 'hof_mio', 'sammler' => 'karten_10', 'gold' => 10, 'legende' => 20];
+  'kristall' => 'match_boss', 'hof' => 'hof_mio', 'sammler' => 'karten_10', 'gold' => 10, 'legende' => 20,
+  'drache' => 'runner_20k', 'sturm' => 'runner_x20', 'dschungel' => 'match_100', 'kaiser' => 'krieg_kampagne', 'blut' => 'krieg_sterne', 'schatz' => 'hof_mrd',
+  'arkan' => 'quiz_marathon', 'holo' => 'karten_gold', 'nordlicht' => 30, 'gott' => -1];
 function rhOk($u, $f) {
   $F = $GLOBALS['FRAMES']; if (!is_string($f) || !isset($F[$f])) return false; $n = $F[$f];
+  if ($n === -1) $n = count($GLOBALS['ACH']);
   return is_int($n) ? count($u['ach'] ?? []) >= $n : isset($u['ach'][$n]);
 }
 function rh($u) { $f = $u['rh'] ?? ''; return $f && rhOk($u, $f) ? $f : ''; }

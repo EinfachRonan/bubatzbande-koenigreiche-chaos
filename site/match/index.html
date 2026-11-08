@@ -217,8 +217,8 @@ main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
   </main>
 </div>
 <div class="ov" id="ov"><div class="box" id="box"></div></div>
-<script src="../art.js?v=20261108"></script>
-<script src="../bb.js?v=20261108"></script>
+<script src="../art.js?v=20261108b"></script>
+<script src="../bb.js?v=20261108b"></script>
 <script>
 'use strict';
 const N = 8, KINDS = 6, STAR = 6;
@@ -757,7 +757,7 @@ async function win() {
     BB.record('match', total, { lv: save.level - 1 });
     if (BB.earn && first) BB.earn((10 + stars * 5) * (G.def.boss ? 2 : 1), `Kräuter-Level ${G.n} geschafft`);
     if (stars === 3) BB.unlock('match_3'); if (G.n >= 10) BB.unlock('match_10'); if (total >= 30) BB.unlock('match_30');
-    if (G.n >= 25) BB.unlock('match_25'); if (G.n >= 50) BB.unlock('match_50'); if (G.def.boss) BB.unlock('match_boss');
+    if (G.n >= 25) BB.unlock('match_25'); if (G.n >= 50) BB.unlock('match_50'); if (G.n >= 100) BB.unlock('match_100'); if (G.def.boss) BB.unlock('match_boss');
   }
   G.busy = false;
   showMenu('win', stars);

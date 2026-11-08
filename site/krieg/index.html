@@ -195,8 +195,8 @@ canvas#cv{box-shadow:0 0 0 1px rgba(212,175,55,.25),0 0 50px rgba(0,0,0,.8)}
   <div class="queue" id="queue">Ausbildung: –</div>
   <div class="bar" id="bar"></div>
 </div>
-<script src="../art.js?v=20261108"></script>
-<script src="../bb.js?v=20261108"></script>
+<script src="../art.js?v=20261108b"></script>
+<script src="../bb.js?v=20261108b"></script>
 <script>
 'use strict';
 // ---------- Daten ----------
@@ -1751,6 +1751,8 @@ function endGame(win) {
     const old = CP.stars[ci] || 0, nw = Math.max(0, st - old), kp = win ? 1 + nw * 2 + (CAMP[ci].boss && !old ? 3 : 0) : 0;
     CP.stars[ci] = Math.max(old, st); CP.pts += kp; lastRes = { st, nw, kp }; saveCamp();
     if (win && window.BB && BB.earn) BB.earn(40 + ci * 15 + nw * 10, 'Schlacht ' + (ci + 1) + ' gewonnen');
+    if (win && window.BB && ci === CAMP.length - 1) BB.unlock('krieg_kampagne');
+    if (window.BB && totalStars() >= CAMP.length * 3) BB.unlock('krieg_sterne');
   }
   if (win && window.BB) {
     const p = S.sides[0], pts = { leicht: 1000, normal: 2000, schwer: 3500 }[diff] + Math.max(0, 1500 - Math.round(S.t)) + p.kills * 3;

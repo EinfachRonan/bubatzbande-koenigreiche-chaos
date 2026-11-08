@@ -68,8 +68,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 <div id="tip" style="opacity:0"></div>
 <div class="ov" id="ov"><div class="panel" id="box"></div></div>
 
-<script src="../art.js?v=20261108"></script>
-<script src="../bb.js?v=20261108"></script>
+<script src="../art.js?v=20261108b"></script>
+<script src="../bb.js?v=20261108b"></script>
 <script>
 'use strict';
 const $ = s => document.querySelector(s);
@@ -488,6 +488,7 @@ function claimSet() {
   if (!PR.missions.every(m => m.done)) return false;
   PR.set++; PR.mult = Math.min(20, PR.mult + 1); PR.missions = genMissions(PR.set); PR._pending = false; saveProg();
   if (window.BB && BB.earn) BB.earn(20 + PR.set * 5, 'Runner-Missionen geschafft');
+  if (window.BB && PR.mult >= 20) BB.unlock('runner_x20');
   return true;
 }
 function menu(kind) {
@@ -526,7 +527,7 @@ function menu(kind) {
     saveProg();
     if (window.BB) {
       BB.record('runner', sc, { c: G.coins, m: Math.floor(G.dist) });
-      if (sc >= 1000) BB.unlock('runner_1000'); if (sc >= 5000) BB.unlock('runner_5000'); if (G.coins >= 100) BB.unlock('runner_gold');
+      if (sc >= 1000) BB.unlock('runner_1000'); if (sc >= 5000) BB.unlock('runner_5000'); if (sc >= 20000) BB.unlock('runner_20k'); if (G.coins >= 100) BB.unlock('runner_gold');
       BB.stat('runner_coins', G.coins);
       if (BB.earn) BB.earn(Math.floor(G.coins / 4) + Math.floor(G.dist / 250), 'Kobold-Runner');
     }

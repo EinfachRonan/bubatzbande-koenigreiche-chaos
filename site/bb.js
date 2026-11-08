@@ -48,6 +48,16 @@
     ['karten_10', '🃏', 'Sammler', '10 verschiedene Karten gesammelt'],
     ['karte_max', '🌟', 'Meisterkarte', 'Eine Karte auf Stufe 5 gebracht'],
     ['karten_alle', '👑', 'Komplette Bande', 'Alle Karten gesammelt'],
+    ['runner_20k', '🐉', 'Drachenläufer', '20.000 Punkte in einem Runner-Lauf'],
+    ['runner_x20', '⚡', 'Volle Ladung', 'Runner-Multiplikator auf ×20 gebracht'],
+    ['match_100', '🌳', 'Urwaldkönig', 'Kräuter-Match Level 100 geschafft'],
+    ['krieg_kampagne', '🏯', 'Kaiser der Bande', 'Bandenkrieg-Kampagne komplett durchgespielt'],
+    ['krieg_sterne', '🌕', 'Blutmond', 'Alle 24 Sterne in der Bandenkrieg-Kampagne'],
+    ['hof_mrd', '🪙', 'Drachenschatz', '1 Milliarde Gold mit dem Bandenhof verdient'],
+    ['quiz_marathon', '🔮', 'Orakel', 'Solo-Quiz mit 30 Fragen ohne einen Fehler'],
+    ['karten_gold', '💠', 'Goldene Hand', '5 Karten auf Maximalstufe gebracht'],
+    ['reich', '💰', 'Dagobert', '10.000 Bandengold auf einmal besitzen'],
+    ['duell_meister', '🥇', 'Kneipenlegende', '25 Kneipen-Duelle gegen den Wirt gewonnen'],
     ['allrounder', '🏆', 'Allrounder', 'In allen Spielen auf der Bestenliste']
   ];
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -69,9 +79,13 @@
     ['bier', 'Stammtisch', 'duell_win'], ['feuer', 'Koboldfeuer', 'runner_1000'], ['schach', 'Schachbrett', 'schach_win'],
     ['quiz', 'Gelehrtenrahmen', 'quiz_perfekt'], ['kristall', 'Mollys Kristall', 'match_boss'], ['hof', 'Goldgrube', 'hof_mio'],
     ['sammler', 'Kartenhai', 'karten_10'], ['gold', 'Reines Gold', 10], ['legende', 'Bandenlegende', 20],
+    ['drache', 'Drachenglut', 'runner_20k'], ['sturm', 'Gewittersturm', 'runner_x20'], ['dschungel', 'Urwaldkrone', 'match_100'],
+    ['kaiser', 'Kaiserkrone', 'krieg_kampagne'], ['blut', 'Blutmond', 'krieg_sterne'], ['schatz', 'Drachenschatz', 'hof_mrd'],
+    ['arkan', 'Arkane Runen', 'quiz_marathon'], ['holo', 'Holo-Glanz', 'karten_gold'], ['nordlicht', 'Nordlicht', 30], ['gott', 'Bubatz-Gottheit', -1],
   ];
-  const frNeed = f => typeof f[2] === 'number' ? `${f[2]} Erfolge freischalten` : (ACH.find(a => a[0] === f[2]) || [, , '?'])[2] + ': ' + (ACH.find(a => a[0] === f[2]) || [, , , ''])[3];
-  const frOk = (f, ach) => typeof f[2] === 'number' ? Object.keys(ach || {}).length >= f[2] : !!(ach || {})[f[2]];
+  const frN = f => f[2] < 0 ? ACH.length : f[2];
+  const frNeed = f => typeof f[2] === 'number' ? `${frN(f)} Erfolge freischalten` : (ACH.find(a => a[0] === f[2]) || [, , '?'])[2] + ': ' + (ACH.find(a => a[0] === f[2]) || [, , , ''])[3];
+  const frOk = (f, ach) => typeof f[2] === 'number' ? Object.keys(ach || {}).length >= frN(f) : !!(ach || {})[f[2]];
   const avH = (o, attrs = '') => { const f = o && o.rh && FRAMES.some(x => x[0] === o.rh) ? o.rh : '';
     return f ? `<span class="bb-fr f-${f}"><img src="${avUrl(o)}" alt="" ${attrs}></span>` : `<img src="${avUrl(o)}" alt="" ${attrs}>`; };
   const avUrl = (o) => o && o.img && o.id ? `${API}?a=img&u=${o.id}&v=${o.img}` : IMG((o && o.av) || 'artur');
@@ -218,6 +232,40 @@
 .f-legende::before{background:conic-gradient(#ff4a4a,#ffb21a,#f0e04a,#5ad35a,#3ac8ff,#8c6cff,#ff4ad0,#ff4a4a);box-shadow:0 0 16px rgba(255,200,120,.75);animation:bbSpin 2.5s linear infinite}
 .f-legende::after{content:"✦";top:-18%;left:50%;transform:translateX(-50%);font-size:1.02em;color:#fff4c0;text-shadow:0 0 8px #ffd36a}
 @keyframes bbSpin{to{transform:rotate(360deg)}}
+.f-drache,.f-sturm,.f-dschungel,.f-kaiser,.f-blut,.f-schatz,.f-arkan,.f-holo,.f-nordlicht,.f-gott{padding:4px}
+.bb-uhead .bb-fr:is(.f-drache,.f-sturm,.f-dschungel,.f-kaiser,.f-blut,.f-schatz,.f-arkan,.f-holo,.f-nordlicht,.f-gott),.bb-pic>.bb-fr:is(.f-drache,.f-sturm,.f-dschungel,.f-kaiser,.f-blut,.f-schatz,.f-arkan,.f-holo,.f-nordlicht,.f-gott){padding:7px}
+.f-drache::before{background:conic-gradient(#3a0000,#ff2a00,#ffb000,#fff2a0,#ff6a00,#7a0a00,#ff3a00,#3a0000);animation:bbSpin 1.6s linear infinite}
+.f-drache{animation:bbFire 1.1s ease-in-out infinite alternate}
+.f-drache::after{content:"🐉";bottom:-14%;right:-16%;font-size:1.05em}
+@keyframes bbFire{from{box-shadow:0 0 8px 1px rgba(255,90,0,.6)}to{box-shadow:0 0 22px 5px rgba(255,160,20,.9)}}
+.f-sturm::before{background:conic-gradient(#0a1a4a,#4ad0ff,#fff,#1a3aa8,#0a1a4a,#7ae0ff,#fff,#0a1a4a);animation:bbSpin 2.4s linear infinite}
+.f-sturm{animation:bbZap 2.2s steps(1) infinite}
+.f-sturm::after{content:"⚡";top:-16%;right:-12%;font-size:1em}
+@keyframes bbZap{0%,100%{box-shadow:0 0 10px rgba(80,180,255,.5)}8%{box-shadow:0 0 26px 6px rgba(220,245,255,1)}12%{box-shadow:0 0 10px rgba(80,180,255,.5)}16%{box-shadow:0 0 20px 4px rgba(180,230,255,.95)}20%{box-shadow:0 0 10px rgba(80,180,255,.5)}}
+.f-dschungel::before{background:repeating-conic-gradient(#1a5a14 0 10deg,#5ac83c 10deg 16deg,#0e3a0a 16deg 24deg);animation:bbSpin 14s linear infinite;box-shadow:0 0 14px rgba(90,200,60,.6)}
+.f-dschungel::after{content:"🌳";bottom:-16%;left:50%;transform:translateX(-50%);font-size:1em}
+.f-kaiser::before{background:radial-gradient(circle at 50% 0,#e0204a 0 6%,transparent 7%),radial-gradient(circle at 0 50%,#e0204a 0 6%,transparent 7%),radial-gradient(circle at 100% 50%,#e0204a 0 6%,transparent 7%),radial-gradient(circle at 50% 100%,#2a7ae0 0 6%,transparent 7%),conic-gradient(#fff6c0,#d4af37,#8a6a10,#fff6c0,#c8962a,#fff6c0)}
+.f-kaiser{box-shadow:0 0 0 2px #3a2606,0 0 0 4px #f0d37a,0 0 22px rgba(255,215,90,.8)}
+.f-kaiser::after{content:"👑";top:-42%;left:50%;transform:translateX(-50%);font-size:1.35em}
+.f-blut::before{background:radial-gradient(circle at 35% 30%,#ff6a5a,#a8100a 45%,#3a0202 80%)}
+.f-blut{animation:bbBlood 2.6s ease-in-out infinite}
+.f-blut::after{content:"🩸";top:-16%;left:-10%;font-size:1em;filter:drop-shadow(0 0 4px #ff2020)}
+@keyframes bbBlood{50%{box-shadow:0 0 24px 6px rgba(220,20,20,.85)}0%,100%{box-shadow:0 0 8px rgba(160,10,10,.6)}}
+.f-schatz::before{background:linear-gradient(110deg,#8a6a10 0%,#f0c94a 30%,#fffbe0 45%,#f0c94a 60%,#8a6a10 100%);background-size:250% 100%;animation:bbShine 2.2s linear infinite;box-shadow:0 0 16px rgba(255,210,80,.75)}
+.f-schatz::after{content:"🪙";bottom:-12%;left:-12%;font-size:1em}
+@keyframes bbShine{from{background-position:120% 0}to{background-position:-120% 0}}
+.f-arkan::before{background:repeating-conic-gradient(#c070ff 0 8deg,#2a0a4a 8deg 15deg);animation:bbSpin 6s linear infinite reverse;box-shadow:0 0 16px rgba(170,90,255,.8)}
+.f-arkan::after{content:"🔮";bottom:-14%;right:-14%;font-size:1em}
+.f-holo::before{background:conic-gradient(#ffb3e6,#b3d9ff,#b3ffd9,#fff3b3,#e6b3ff,#ffb3e6);animation:bbHue 3s linear infinite;box-shadow:0 0 14px rgba(200,200,255,.8)}
+.f-holo::after{content:"💠";top:-16%;right:-14%;font-size:1em}
+@keyframes bbHue{to{filter:hue-rotate(360deg)}}
+.f-nordlicht::before{background:linear-gradient(120deg,#0a3a5a,#2affb0,#4a6aff,#c04aff,#2affb0,#0a3a5a);background-size:300% 300%;animation:bbAurora 4s ease-in-out infinite alternate;box-shadow:0 0 18px rgba(60,255,180,.6)}
+.f-nordlicht::after{content:"✨";top:-18%;left:-12%;font-size:1em}
+@keyframes bbAurora{from{background-position:0 50%}to{background-position:100% 50%}}
+.f-gott::before{background:conic-gradient(#fff6c0,#ff4a4a,#ffb21a,#f0e04a,#5ad35a,#3ac8ff,#8c6cff,#ff4ad0,#fff6c0);animation:bbSpin 1.4s linear infinite}
+.f-gott{animation:bbGod 3s linear infinite;outline:2px solid rgba(255,240,180,.7);outline-offset:2px}
+.f-gott::after{content:"🌿";top:-40%;left:50%;transform:translateX(-50%);font-size:1.25em;filter:drop-shadow(0 0 6px #fff4a0) drop-shadow(0 0 2px #fff)}
+@keyframes bbGod{0%{box-shadow:0 0 22px 6px rgba(255,80,80,.8)}33%{box-shadow:0 0 22px 6px rgba(80,255,140,.8)}66%{box-shadow:0 0 22px 6px rgba(120,120,255,.8)}100%{box-shadow:0 0 22px 6px rgba(255,80,80,.8)}}
 .bb-rhbtn{display:flex;align-items:center;gap:12px;width:100%;margin:12px 0 4px;padding:10px 12px;border-radius:10px;border:1px solid #d4af37;background:linear-gradient(#1c2a14,#10170b);color:#f1e6c8;font:inherit;cursor:pointer;text-align:left}
 .bb-rhbtn img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:50% 15%;display:block}
 .bb-rhbtn>span:nth-child(2){flex:1}.bb-rhbtn b{display:block;color:#f0d37a;font-family:Cinzel,Georgia,serif}.bb-rhbtn small{font-size:12px;color:#b5a07c}.bb-rhbtn em{font-style:normal;font-size:26px;color:#f0d37a}
@@ -275,7 +323,7 @@
     P.ach[id] = Date.now(); P.dirty = true; save(); soon();
     toast(`<b>Erfolg freigeschaltet</b><br>${esc(a[2])}`, a[1]);
     const n = Object.keys(P.ach).length;
-    FRAMES.filter(f => f[2] === id || f[2] === n).forEach(f => setTimeout(() => toast(`<b>Neuer Profilrahmen</b><br>${esc(f[1])} · im Profil auswählen`, '🖼️'), 1600));
+    FRAMES.filter(f => f[2] === id || (typeof f[2] === 'number' && frN(f) === n)).forEach(f => setTimeout(() => toast(`<b>Neuer Profilrahmen</b><br>${esc(f[1])} · im Profil auswählen`, '🖼️'), 1600));
     return true;
   }
   function stat(k, n) { P.stats[k] = (P.stats[k] || 0) + (n == null ? 1 : n); P.dirty = true; save(); soon(); return P.stats[k]; }
@@ -407,7 +455,7 @@
   function rahmen(body) {
     const pic = avUrl(P), have = FRAMES.filter(f => frOk(f, P.ach)).length;
     const row = f => { const ok = !f[0] || frOk(f, P.ach), on = (P.rh || '') === f[0];
-      const need = !f[0] ? 'Schlichter goldener Rand' : typeof f[2] === 'number' ? `${f[2]} Erfolge insgesamt (du hast ${Object.keys(P.ach).length})` : (() => { const a = ACH.find(x => x[0] === f[2]) || ['', '🎖️', '?', '']; return `${a[1]} ${esc(a[2])} – ${esc(a[3])}`; })();
+      const need = !f[0] ? 'Schlichter goldener Rand' : typeof f[2] === 'number' ? `${f[2] < 0 ? 'Alle ' + ACH.length : f[2]} Erfolge insgesamt (du hast ${Object.keys(P.ach).length})` : (() => { const a = ACH.find(x => x[0] === f[2]) || ['', '🎖️', '?', '']; return `${a[1]} ${esc(a[2])} – ${esc(a[3])}`; })();
       return `<div class="bb-rr ${ok ? '' : 'lk'} ${on ? 'on' : ''}"><span class="bb-fr f-${f[0] || 'none'}"><img src="${pic}" alt=""></span>
         <div class="t"><b>${esc(f[1])}</b><small>${ok ? (f[0] ? '✓ Freigeschaltet' : '') : '🔒 Erfolg nötig:'}</small><small class="n">${ok && f[0] ? '' : need}</small></div>
         ${on ? '<span class="st">Aktiv</span>' : ok ? `<button data-rh="${f[0]}">Anlegen</button>` : '<span class="st lk">🔒</span>'}</div>`; };
@@ -664,7 +712,7 @@
   function earn(n, why) {
     n = Math.round(n * (1 + bgBonus() / 100));
     if (!(n > 0)) return 0;
-    M.bg += n; msave();
+    M.bg += n; msave(); if (M.bg >= 10000) unlock('reich');
     toast(`<b>+${n} Bandengold</b>${why ? '<br>' + esc(why) : ''}`, '🪙');
     return n;
   }
@@ -694,6 +742,7 @@
     const m = M.cards[id]; if (!canUp(id)) return false;
     M.bg -= UPCOST[m.lv + 1]; m.n -= NEED[m.lv + 1]; m.lv++; msave();
     if (m.lv >= 5) unlock('karte_max');
+    if (Object.values(M.cards).filter(c => c.lv >= 5).length >= 5) unlock('karten_gold');
     return true;
   }
   // Täglicher Bandengold-Bonus

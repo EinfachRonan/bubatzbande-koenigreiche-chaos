@@ -167,8 +167,8 @@ button.opt{cursor:pointer;font-family:"Cinzel",serif}button.opt:disabled{cursor:
 </div>
 <div id="view"></div>
 <script src="fragen.js"></script>
-<script src="../art.js?v=20261108"></script>
-<script src="../bb.js?v=20261108"></script>
+<script src="../art.js?v=20261108b"></script>
+<script src="../bb.js?v=20261108b"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 'use strict';
@@ -539,7 +539,7 @@ function solo(qs, limit) {
     if (window.BB) {
       BB.record('quiz', score, { r: right, n: qs.length });
       if (BB.earn) BB.earn(right * 2, 'Quiz solo');
-      if (right >= 10) BB.unlock('quiz_10'); if (right === qs.length && qs.length >= 10) BB.unlock('quiz_perfekt');
+      if (right >= 10) BB.unlock('quiz_10'); if (right === qs.length && qs.length >= 10) BB.unlock('quiz_perfekt'); if (right === qs.length && qs.length >= 30) BB.unlock('quiz_marathon');
     }
     V.innerHTML = `<div class="panel res"><div class="title" style="font-size:32px">${rec ? 'Neuer Rekord!' : 'Geschafft!'}</div>
       <div class="pts" style="font-size:40px">${score}</div><p class="sub">${right} von ${qs.length} richtig · Rekord: ${Math.max(best, score)}</p>
