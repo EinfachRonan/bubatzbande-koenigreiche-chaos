@@ -56,13 +56,24 @@
   // ---------- Speicher ----------
   // P: Konto (id, token) + Profil-Cache + Fortschritt. Ohne Konto wird der Fortschritt lokal gesammelt und beim Anmelden übernommen.
   const KEY = 'bb_acc';
-  const fresh = () => ({ id: null, token: null, user: '', name: '', av: 'artur', img: 0, best: {}, ach: {}, stats: {}, fr: [], req: [], sent: [], dirty: false });
+  const fresh = () => ({ id: null, token: null, user: '', name: '', av: 'artur', img: 0, rh: '', best: {}, ach: {}, stats: {}, fr: [], req: [], sent: [], dirty: false });
   let P;
   try { P = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { P = null; }
   if (!P || typeof P !== 'object') P = fresh();
   P = Object.assign(fresh(), P);
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} };
   const logged = () => !!(P.id && P.token);
+  // Profilrahmen: werden über Erfolge freigeschaltet (Zahl = so viele Erfolge insgesamt)
+  const FRAMES = [
+    ['holz', 'Holzrahmen', 'profil'], ['kraut', 'Kräuterkranz', 'match_10'], ['krone', 'Königsrahmen', 'krieg_win'],
+    ['bier', 'Stammtisch', 'duell_win'], ['feuer', 'Koboldfeuer', 'runner_1000'], ['schach', 'Schachbrett', 'schach_win'],
+    ['quiz', 'Gelehrtenrahmen', 'quiz_perfekt'], ['kristall', 'Mollys Kristall', 'match_boss'], ['hof', 'Goldgrube', 'hof_mio'],
+    ['sammler', 'Kartenhai', 'karten_10'], ['gold', 'Reines Gold', 10], ['legende', 'Bandenlegende', 20],
+  ];
+  const frNeed = f => typeof f[2] === 'number' ? `${f[2]} Erfolge freischalten` : (ACH.find(a => a[0] === f[2]) || [, , '?'])[2] + ': ' + (ACH.find(a => a[0] === f[2]) || [, , , ''])[3];
+  const frOk = (f, ach) => typeof f[2] === 'number' ? Object.keys(ach || {}).length >= f[2] : !!(ach || {})[f[2]];
+  const avH = (o, attrs = '') => { const f = o && o.rh && FRAMES.some(x => x[0] === o.rh) ? o.rh : '';
+    return f ? `<span class="bb-fr f-${f}"><img src="${avUrl(o)}" alt="" ${attrs}></span>` : `<img src="${avUrl(o)}" alt="" ${attrs}>`; };
   const avUrl = (o) => o && o.img && o.id ? `${API}?a=img&u=${o.id}&v=${o.img}` : IMG((o && o.av) || 'artur');
 
   // ---------- Server ----------
@@ -74,7 +85,7 @@
     return j;
   }
   function applyMe(me) {
-    P.id = me.id; P.user = me.user; P.name = me.name; P.av = me.av; P.img = me.img || 0;
+    P.id = me.id; P.user = me.user; P.name = me.name; P.av = me.av; P.img = me.img || 0; P.rh = me.rh || '';
     P.fr = me.fr || []; P.req = me.req || []; P.sent = me.sent || [];
     for (const g in me.best) { if (!P.best[g] || !better(g, P.best[g].s, me.best[g].s)) P.best[g] = me.best[g]; else P.dirty = true; }
     for (const k in me.ach) P.ach[k] = P.ach[k] || me.ach[k];
@@ -114,7 +125,7 @@
 .bb-tabs button,.bb-gs button{flex:1;padding:9px 6px;border-radius:8px;border:1px solid #4a3c18;background:#10150b;color:#f1e6c8;font:800 13px Cinzel,Georgia,serif;cursor:pointer}
 .bb-tabs button.on,.bb-gs button.on{border-color:#d4af37;background:linear-gradient(#3e7530,#1c3f15);color:#f8e9b4}
 .bb-gs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.bb-gs button{flex:1 1 30%;font-size:12px}
-.bb-me{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.bb-me{display:flex;align-items:center;gap:14px;margin:16px 0 10px}
 .bb-me img{width:78px;height:78px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:3px solid #d4af37;box-shadow:0 0 18px rgba(212,175,55,.4)}
 .bb-in{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #6b5228;background:#0b1009;color:#f1e6c8;font:17px Georgia,serif;outline:none}
 .bb-in:focus{border-color:#f0d37a}
@@ -177,6 +188,45 @@
 .bb-skip{display:block;margin:14px auto 0;background:none;border:0;color:#b5a07c;text-decoration:underline;font:14px Georgia,serif;cursor:pointer}
 .bb-go.alt{background:linear-gradient(#2a1e0c,#140e06);color:#f0d37a;margin-top:8px}
 .bb-pic{position:relative;flex:none;cursor:pointer}.bb-pic span{position:absolute;right:-2px;bottom:-2px;width:30px;height:30px;border-radius:50%;background:#1c3f15;border:2px solid #d4af37;display:flex;align-items:center;justify-content:center;font-size:15px}
+.bb-fr{position:relative;display:inline-flex;flex:none;border-radius:50%;padding:3px;isolation:isolate;line-height:0}
+.bb-fr>img{position:relative;z-index:1;border:0 !important;margin:0 !important}
+.bb-fr::before{content:"";position:absolute;inset:0;border-radius:50%;z-index:0}
+.bb-fr::after{position:absolute;z-index:2;line-height:1;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8))}
+.bb-fr{font-size:12px}.bb-uhead .bb-fr,.bb-pic>.bb-fr{padding:5px;font-size:24px}.bb-uhead .bb-fr>img,.bb-me .bb-fr>img{box-shadow:none !important}
+.bb-pic>.bb-fr{position:relative;right:auto;bottom:auto;width:auto;height:auto;background:none;border:0;display:inline-flex;align-items:initial;justify-content:initial}
+.bb-rhs .bb-fr{font-size:15px}.bb-chip .bb-fr{font-size:10px}
+.bb-fr.f-none{padding:0}.bb-fr.f-none>img{border:2px solid #d4af37 !important}
+.f-holz::before{background:repeating-linear-gradient(35deg,#8a5a2b 0 4px,#6a3e18 4px 7px,#a87038 7px 10px);box-shadow:inset 0 0 0 1px #3a1e08,0 0 0 1px #3a1e08}
+.f-kraut::before{background:conic-gradient(from 0deg,#2f6a20,#7fd36a,#2f6a20,#5aa83c,#2f6a20,#7fd36a,#2f6a20);box-shadow:0 0 10px rgba(127,211,106,.45)}
+.f-kraut::after{content:"🌿";bottom:-12%;left:50%;transform:translateX(-50%);font-size:0.93em}
+.f-krone::before{background:linear-gradient(135deg,#fff2b0,#d4af37 40%,#8a6a10 60%,#f0d37a);box-shadow:0 0 10px rgba(240,211,122,.5)}
+.f-krone::after{content:"👑";top:-30%;left:50%;transform:translateX(-50%) rotate(-8deg);font-size:1.11em}
+.f-bier::before{background:linear-gradient(#fff 0 22%,#f5c542 22%,#c8861a);box-shadow:0 0 8px rgba(245,197,66,.45)}
+.f-bier::after{content:"🍺";bottom:-8%;right:-10%;font-size:0.89em}
+.f-feuer::before{background:conic-gradient(#ff3b1a,#ffb21a,#ff6a1a,#ffe04a,#ff3b1a,#ff8a1a,#ff3b1a);box-shadow:0 0 12px rgba(255,120,30,.7);animation:bbSpin 3s linear infinite}
+.f-feuer::after{content:"🔥";bottom:-10%;right:-8%;font-size:0.93em}
+.f-schach::before{background:repeating-conic-gradient(#f2ead8 0 15deg,#1a1a1a 15deg 30deg);box-shadow:0 0 0 1px #d4af37}
+.f-quiz::before{background:linear-gradient(135deg,#3a7bd5,#1a2e6a 50%,#5aa0ff);box-shadow:0 0 0 1px #d4af37,0 0 10px rgba(90,160,255,.45)}
+.f-quiz::after{content:"🎓";top:-22%;right:-14%;font-size:0.98em;transform:rotate(14deg)}
+.f-kristall::before{background:conic-gradient(#b48cff,#5ae0ff,#ff8cf0,#8c6cff,#5ae0ff,#b48cff);box-shadow:0 0 14px rgba(180,140,255,.7);animation:bbSpin 5s linear infinite}
+.f-kristall::after{content:"💎";top:-14%;left:-10%;font-size:0.84em}
+.f-hof::before{background:radial-gradient(circle at 30% 25%,#fff6c4,#f0c94a 35%,#9a6a10 70%,#5a3a06);box-shadow:0 0 10px rgba(240,201,74,.55)}
+.f-hof::after{content:"💰";bottom:-10%;left:-10%;font-size:0.93em}
+.f-sammler::before{background:conic-gradient(#9aa0a8 0 25%,#3a8adf 0 50%,#a855f7 0 75%,#f0c94a 0);box-shadow:0 0 8px rgba(168,85,247,.5)}
+.f-sammler::after{content:"🃏";top:-16%;right:-12%;font-size:0.89em;transform:rotate(12deg)}
+.f-gold::before{background:conic-gradient(#fff4c0,#d4af37,#7a5a08,#f0d37a,#fff4c0,#b8901e,#fff4c0);box-shadow:0 0 0 1px #5a3a06,0 0 14px rgba(255,215,90,.7);animation:bbSpin 6s linear infinite}
+.f-legende::before{background:conic-gradient(#ff4a4a,#ffb21a,#f0e04a,#5ad35a,#3ac8ff,#8c6cff,#ff4ad0,#ff4a4a);box-shadow:0 0 16px rgba(255,200,120,.75);animation:bbSpin 2.5s linear infinite}
+.f-legende::after{content:"✦";top:-18%;left:50%;transform:translateX(-50%);font-size:1.02em;color:#fff4c0;text-shadow:0 0 8px #ffd36a}
+@keyframes bbSpin{to{transform:rotate(360deg)}}
+.bb-rhs{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;margin:6px 0 4px}
+.bb-rhs button{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 2px 6px;border-radius:10px;border:1px solid #3a3216;background:rgba(0,0,0,.3);cursor:pointer;color:#e8dcc0;font:inherit}
+.bb-rhs button img{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:50% 15%;display:block}
+.bb-rhs button small{font-size:10.5px;line-height:1.15;text-align:center}
+.bb-rhs button.on{border-color:#f0d37a;box-shadow:0 0 0 2px rgba(240,211,122,.35)}
+.bb-rhs button.lk .bb-fr{filter:grayscale(.55) brightness(.6)}.bb-rhs button.lk small{color:#7a7058}
+.bb-rhs button i{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-style:normal;font-size:16px;z-index:3}
+.bb-rhinfo{font-size:12.5px;color:#cbbd94;min-height:16px;margin-bottom:4px}
+.bb-chip .bb-fr{padding:2px}
 .bb-pw{margin-top:16px;border-top:1px solid rgba(212,175,55,.15);padding-top:10px}.bb-pw summary{cursor:pointer;color:#f0d37a;font:800 14px Cinzel,Georgia,serif}.bb-pw .bb-in{margin-top:8px}
 `;
     document.head.appendChild(st);
@@ -209,6 +259,8 @@
     const a = ACH.find(x => x[0] === id); if (!a) return false;
     P.ach[id] = Date.now(); P.dirty = true; save(); soon();
     toast(`<b>Erfolg freigeschaltet</b><br>${esc(a[2])}`, a[1]);
+    const n = Object.keys(P.ach).length;
+    FRAMES.filter(f => f[2] === id || f[2] === n).forEach(f => setTimeout(() => toast(`<b>Neuer Profilrahmen</b><br>${esc(f[1])} · im Profil auswählen`, '🖼️'), 1600));
     return true;
   }
   function stat(k, n) { P.stats[k] = (P.stats[k] || 0) + (n == null ? 1 : n); P.dirty = true; save(); soon(); return P.stats[k]; }
@@ -297,13 +349,17 @@
     };
   }
   function profil(body) {
-    let av = P.av, img = undefined; // undefined = unverändert, '' = Foto löschen, data:… = neues Foto
+    let av = P.av, img = undefined, rh = P.rh || ''; // undefined = unverändert, '' = Foto löschen, data:… = neues Foto
     const cur = () => img ? img : img === '' ? IMG(av) : avUrl(Object.assign({}, P, { av }));
     const bests = Object.entries(GAMES).map(([g, G]) => `<div>${G.ico} ${esc(G.name)}<b>${P.best[g] ? fmt(g, P.best[g].s) + (G.unit ? ' <small style="font-size:11px;color:#b5a07c">' + G.unit + '</small>' : '') : '–'}</b></div>`).join('');
-    body.innerHTML = `<div class="bb-me"><label class="bb-pic" title="Foto hochladen"><img id="bbAv" src="${cur()}" alt=""><span>📷</span><input type="file" id="bbFile" accept="image/*" hidden></label>
+    body.innerHTML = `<div class="bb-me"><label class="bb-pic" title="Foto hochladen"><span class="bb-fr f-${rh || 'none'}" id="bbRhP"><img id="bbAv" src="${cur()}" alt=""></span><span>📷</span><input type="file" id="bbFile" accept="image/*" hidden></label>
         <div style="flex:1;min-width:0"><div class="bb-l" style="margin:0 0 4px">Anzeigename <small style="color:#b5a07c">· Login: ${esc(P.user)}</small></div><input class="bb-in" id="bbName" maxlength="16" value="${esc(P.name)}"></div></div>
       <div class="bb-l">Profilbild: tipp aufs Bild für ein eigenes Foto oder nimm eine Figur aus der Bande</div>
       <div class="bb-avs">${AV.map(k => `<button data-av="${k}" class="${!P.img && k === av ? 'on' : ''}" title="${esc(CHAR[k])}"><img src="${IMG(k)}" alt=""></button>`).join('')}</div>
+      <div class="bb-l">Profilrahmen <small style="color:#b5a07c">· ${FRAMES.filter(f => frOk(f, P.ach)).length}/${FRAMES.length} freigeschaltet über Erfolge</small></div>
+      <div class="bb-rhs">${[['', 'Ohne Rahmen', 0]].concat(FRAMES).map(f => { const ok = !f[0] || frOk(f, P.ach);
+        return `<button data-rh="${f[0]}" class="${f[0] === rh ? 'on' : ''} ${ok ? '' : 'lk'}" title="${esc(f[1])}"><span class="bb-fr f-${f[0] || 'none'}"><img src="${cur()}" alt=""></span>${ok ? '' : '<i>🔒</i>'}<small>${esc(f[1])}</small></button>`; }).join('')}</div>
+      <div class="bb-rhinfo" id="bbRhI"></div>
       <div class="bb-msg" id="bbMsg"></div>
       <button class="bb-go" id="bbSave">Speichern</button>
       <div class="bb-sec">Deine Bestwerte</div><div class="bb-best">${bests}</div>
@@ -313,17 +369,25 @@
         <button class="bb-go alt" id="bbPw">Passwort ändern</button><div class="bb-msg" id="bbPwMsg"></div></details>
       <button class="bb-skip" id="bbOut">Abmelden</button>`;
     const pic = body.querySelector('#bbAv'), msg = body.querySelector('#bbMsg');
-    body.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { av = b.dataset.av; img = ''; body.querySelectorAll('[data-av]').forEach(x => x.classList.toggle('on', x === b)); pic.src = cur(); });
+    const setPics = () => { const u = cur(); pic.src = u; body.querySelectorAll('.bb-rhs img').forEach(i => i.src = u); };
+    body.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { av = b.dataset.av; img = ''; body.querySelectorAll('[data-av]').forEach(x => x.classList.toggle('on', x === b)); setPics(); });
+    body.querySelectorAll('[data-rh]').forEach(b => b.onclick = () => {
+      const f = FRAMES.find(x => x[0] === b.dataset.rh), info = body.querySelector('#bbRhI');
+      if (f && !frOk(f, P.ach)) { info.innerHTML = `🔒 <b>${esc(f[1])}</b>: ${esc(frNeed(f))}`; return; }
+      rh = b.dataset.rh; info.innerHTML = f ? `✓ <b>${esc(f[1])}</b> gewählt. Jetzt speichern.` : '';
+      body.querySelectorAll('[data-rh]').forEach(x => x.classList.toggle('on', x === b));
+      body.querySelector('#bbRhP').className = 'bb-fr f-' + (rh || 'none');
+    });
     body.querySelector('#bbFile').onchange = async e => {
       const f = e.target.files[0]; if (!f) return;
-      try { img = await cropPhoto(f); pic.src = img; body.querySelectorAll('[data-av]').forEach(x => x.classList.remove('on')); msg.style.color = '#b5a07c'; msg.textContent = 'Foto gewählt. Jetzt speichern.'; }
+      try { img = await cropPhoto(f); setPics(); body.querySelectorAll('[data-av]').forEach(x => x.classList.remove('on')); msg.style.color = '#b5a07c'; msg.textContent = 'Foto gewählt. Jetzt speichern.'; }
       catch (err) { msg.style.color = '#ff9a7a'; msg.textContent = ERR.img; }
     };
     body.querySelector('#bbSave').onclick = async () => {
       const name = body.querySelector('#bbName').value.trim().replace(/\s+/g, ' ').slice(0, 16);
       if (!name) { msg.style.color = '#ff9a7a'; msg.textContent = ERR.name; return; }
       msg.style.color = '#b5a07c'; msg.textContent = 'Speichere …';
-      const data = { name, av }; if (img !== undefined) data.img = img || null;
+      const data = { name, av, rh, ach: P.ach }; if (img !== undefined) data.img = img || null;
       try { const j = await post('save', data); applyMe(j.me); img = undefined; msg.style.color = '#9fe36a'; msg.textContent = 'Gespeichert ✓'; }
       catch (err) { msg.style.color = '#ff9a7a'; msg.textContent = ERR[err.message] || 'Speichern hat nicht geklappt.'; }
     };
@@ -349,7 +413,7 @@
       if (!j.list) throw 0;
       if (scope === 'fr') { const ok = new Set([...(P.fr || []), P.id]); j.list = j.list.filter(x => ok.has(x.id)); const k = j.list.findIndex(x => x.you); j.me = k >= 0 ? { rank: k + 1 } : null; }
       else j.list = j.list.slice(0, 50);
-      const row = (x, i) => `<div class="bb-row ${x.you ? 'you' : ''}" data-u="${x.id}"><span class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span><img src="${avUrl(x)}" alt=""><span class="nm">${esc(x.name)}${x.you ? ' (du)' : ''}<small>${esc(GAMES[g].meta(x.m) || '')}</small></span><span class="s">${fmt(g, x.s)}<small>${GAMES[g].unit}</small></span></div>`;
+      const row = (x, i) => `<div class="bb-row ${x.you ? 'you' : ''}" data-u="${x.id}"><span class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span>${avH(x)}<span class="nm">${esc(x.name)}${x.you ? ' (du)' : ''}<small>${esc(GAMES[g].meta(x.m) || '')}</small></span><span class="s">${fmt(g, x.s)}<small>${GAMES[g].unit}</small></span></div>`;
       el.innerHTML = j.list.length ? j.list.map(row).join('') + (j.me && j.me.rank > j.list.length ? `<div class="bb-mut">… du bist auf Platz ${j.me.rank} von ${j.n}</div>` : '')
         : `<div class="bb-mut">${scope === 'fr' ? 'Von deinen Freunden steht noch keiner drauf.' : 'Noch keiner drauf. Sei der Erste!'}</div>`;
       if (scope === 'fr' && !(P.fr || []).length) el.innerHTML += `<div class="bb-mut">Du hast noch keine Freunde hinzugefügt. <a href="#" id="bbToFr" style="color:#f0d37a">Freunde finden</a></div>`;
@@ -363,7 +427,7 @@
   // ---------- Freunde ----------
   let scope = 'all', viewId = null, prevTab = 'friends';
   function showUser(id) { if (id === P.id) { tab = 'profil'; return render(); } prevTab = tab; viewId = id; tab = 'user'; render(); }
-  const liteRow = (x, extra) => `<div class="bb-row bb-click" data-u="${x.id}"><img src="${avUrl(x)}" alt=""><span class="nm">${esc(x.name)}<small>🎖️ ${x.nach}/${ACH.length} Erfolge · ${Object.keys(x.best || {}).length}/${Object.keys(GAMES).length} Spiele</small></span>${extra || '<span class="s" style="font-size:20px;color:#b5a07c">›</span>'}</div>`;
+  const liteRow = (x, extra) => `<div class="bb-row bb-click" data-u="${x.id}">${avH(x)}<span class="nm">${esc(x.name)}<small>🎖️ ${x.nach}/${ACH.length} Erfolge · ${Object.keys(x.best || {}).length}/${Object.keys(GAMES).length} Spiele</small></span>${extra || '<span class="s" style="font-size:20px;color:#b5a07c">›</span>'}</div>`;
   async function friends(body) {
     body.innerHTML = `<form id="bbAdd" class="bb-addrow"><input class="bb-in" id="bbTo" maxlength="16" placeholder="Benutzername deines Freundes" autocapitalize="none" spellcheck="false"><button class="bb-go" type="submit">+ Adden</button></form>
       <div class="bb-msg" id="bbFMsg"></div><div id="bbFr"><div class="bb-mut">Lade …</div></div>`;
@@ -400,7 +464,7 @@
       const since = u.since ? new Date(u.since * 1000).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' }) : '';
       const btn = !logged() ? '' : isFr ? `<button class="bb-go" id="bbInv">🎮 Zum Spiel einladen</button><button class="bb-skip" id="bbUnf">Freund entfernen</button>` : inc ? `<button class="bb-go" id="bbAcc">✓ Anfrage annehmen</button>` : sent ? `<div class="bb-mut" style="padding:8px">Anfrage gesendet ✓</div>` : `<button class="bb-go" id="bbReq">+ Als Freund adden</button>`;
       body.innerHTML = `<button class="bb-back" id="bbBack">‹ Zurück</button>
-        <div class="bb-uhead"><img src="${avUrl(u)}" alt=""><div><b>${esc(u.name)}</b>${isFr ? '<span class="bb-tag">👥 Freund</span>' : ''}<small>${since ? 'Dabei seit ' + since + ' · ' : ''}${u.nfr} Freunde</small></div></div>
+        <div class="bb-uhead">${avH(u)}<div><b>${esc(u.name)}</b>${isFr ? '<span class="bb-tag">👥 Freund</span>' : ''}<small>${since ? 'Dabei seit ' + since + ' · ' : ''}${u.nfr} Freunde</small></div></div>
         <div class="bb-sec">Bestwerte</div>
         <div class="bb-best">${Object.entries(GAMES).map(([g, G]) => {
           const mine = P.best[g], his = u.best[g];
@@ -493,7 +557,7 @@
     if (!box) { box = document.createElement('div'); box.className = 'bb-invs'; document.body.appendChild(box); ['pointerdown', 'pointerup', 'keydown', 'touchstart'].forEach(ev => box.addEventListener(ev, e => e.stopPropagation())); }
     const x = INV[v.g] || { name: v.g, ico: '🎮', join: c => '' };
     const card = document.createElement('div'); card.className = 'bb-invc';
-    card.innerHTML = `<img src="${avUrl(v.from)}" alt=""><div class="t"><b>${esc(v.from.name)}</b> lädt dich ein<br>${x.ico} ${esc(x.name)}</div><div class="a"><button class="bb-ok" data-y>Annehmen</button><button class="bb-no" data-n>Nein</button></div>`;
+    card.innerHTML = `${avH(v.from)}<div class="t"><b>${esc(v.from.name)}</b> lädt dich ein<br>${x.ico} ${esc(x.name)}</div><div class="a"><button class="bb-ok" data-y>Annehmen</button><button class="bb-no" data-n>Nein</button></div>`;
     box.appendChild(card);
     const done = () => { post('inv_done', { iid: v.id }).catch(() => {}); card.classList.add('out'); setTimeout(() => card.remove(), 400); };
     card.querySelector('[data-y]').onclick = () => { done(); location.href = ROOT + x.join(v.c); };
@@ -505,7 +569,7 @@
   const listeners = [];
   function chip(el) {
     addCss();
-    const draw = () => { el.innerHTML = `<button class="bb-chip" type="button"><img src="${logged() ? avUrl(P) : IMG('artur')}" alt="">${logged() ? esc(P.name) + ` <small>🎖️ ${Object.keys(P.ach).length}</small>` + (P.req && P.req.length ? `<i class="bb-dot">${P.req.length}</i>` : '') : 'Anmelden'}</button>`; el.firstChild.onclick = e => { e.stopPropagation(); open(logged() ? 'profil' : 'login'); }; };
+    const draw = () => { el.innerHTML = `<button class="bb-chip" type="button">${logged() ? avH(P) : `<img src="${IMG('artur')}" alt="">`}${logged() ? esc(P.name) + ` <small>🎖️ ${Object.keys(P.ach).length}</small>` + (P.req && P.req.length ? `<i class="bb-dot">${P.req.length}</i>` : '') : 'Anmelden'}</button>`; el.firstChild.onclick = e => { e.stopPropagation(); open(logged() ? 'profil' : 'login'); }; };
     draw(); listeners.push(draw);
   }
   // Anmeldung beim Start (Startseite)
@@ -622,7 +686,7 @@
   window.BB = {
     cloud, CARDS, RAR, PACKS, NEED, UPCOST, get meta() { return M; }, lvl, cardVal, bgBonus, earn, spend, openPack, canUp, upCard, onMeta: f => mlisteners.push(f),
     get profile() { return P; }, get loggedIn() { return logged(); }, GAMES, ACH, CHAR, AV,
-    record, unlock, stat, open, close, chip, showUser: id => { open('board'); showUser(id); }, invite, roomReady, gate, toast, fmt, avatar: () => avUrl(P), onChange: f => listeners.push(f),
+    FRAMES, avH, record, unlock, stat, open, close, chip, showUser: id => { open('board'); showUser(id); }, invite, roomReady, gate, toast, fmt, avatar: () => avUrl(P), onChange: f => listeners.push(f),
     best: g => P.best[g] || null, has: id => !!P.ach[id]
   };
   // Beim Laden Profil vom Server holen (anderes Gerät könnte etwas geändert haben)

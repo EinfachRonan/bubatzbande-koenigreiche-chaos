@@ -36,10 +36,17 @@ function cleanMeta($m) {
   return $o;
 }
 function load($h) { rewind($h); $d = json_decode(stream_get_contents($h), true); if (!is_array($d)) $d = []; $d += ['users' => []]; return $d; }
+$FRAMES = ['holz' => 'profil', 'kraut' => 'match_10', 'krone' => 'krieg_win', 'bier' => 'duell_win', 'feuer' => 'runner_1000', 'schach' => 'schach_win', 'quiz' => 'quiz_perfekt',
+  'kristall' => 'match_boss', 'hof' => 'hof_mio', 'sammler' => 'karten_10', 'gold' => 10, 'legende' => 20];
+function rhOk($u, $f) {
+  $F = $GLOBALS['FRAMES']; if (!is_string($f) || !isset($F[$f])) return false; $n = $F[$f];
+  return is_int($n) ? count($u['ach'] ?? []) >= $n : isset($u['ach'][$n]);
+}
+function rh($u) { $f = $u['rh'] ?? ''; return $f && rhOk($u, $f) ? $f : ''; }
 function avOk($a) { return in_array($a, $GLOBALS['AV'], true) ? $a : 'artur'; }
-function lite($u, $id) { return ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'nach' => count($u['ach'] ?? []), 'best' => (object) ($u['best'] ?? [])]; }
+function lite($u, $id) { return ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 'nach' => count($u['ach'] ?? []), 'best' => (object) ($u['best'] ?? [])]; }
 function full($u, $id) { return lite($u, $id) + ['ach' => (object) ($u['ach'] ?? []), 'since' => $u['t'] ?? 0, 'nfr' => count($u['fr'] ?? [])]; }
-function pub($u, $id) { return ['fr' => $u['fr'] ?? [], 'req' => $u['req'] ?? [], 'sent' => $u['sent'] ?? [], 'id' => $id, 'user' => $u['user'], 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'best' => (object) ($u['best'] ?? []), 'ach' => (object) ($u['ach'] ?? []), 'stats' => (object) ($u['stats'] ?? [])]; }
+function pub($u, $id) { return ['fr' => $u['fr'] ?? [], 'req' => $u['req'] ?? [], 'sent' => $u['sent'] ?? [], 'id' => $id, 'user' => $u['user'], 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 'best' => (object) ($u['best'] ?? []), 'ach' => (object) ($u['ach'] ?? []), 'stats' => (object) ($u['stats'] ?? [])]; }
 function nameTaken($d, $name, $except) {
   $l = mb_strtolower($name);
   foreach ($d['users'] as $id => $u) if ($id !== $except && (mb_strtolower($u['name']) === $l || $u['ul'] === $l)) return true;
@@ -73,7 +80,7 @@ if ($a === 'top') {
   $asc = $GAMES[$g]['asc']; $rows = [];
   foreach ($d['users'] as $id => $u) {
     $b = $u['best'][$g] ?? null; if (!$b) continue;
-    $rows[] = ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 's' => $b['s'], 'm' => $b['m'] ?? null, 't' => $b['t'] ?? 0];
+    $rows[] = ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 's' => $b['s'], 'm' => $b['m'] ?? null, 't' => $b['t'] ?? 0];
   }
   usort($rows, fn($x, $y) => $asc ? ($x['s'] <=> $y['s'] ?: $x['t'] <=> $y['t']) : ($y['s'] <=> $x['s'] ?: $x['t'] <=> $y['t']));
   $me = $_GET['u'] ?? ''; $mine = null;
@@ -236,6 +243,7 @@ if ($a === 'save') {
     if (!$old || ($G['asc'] ? $s < $old['s'] : $s > $old['s'])) $U['best'][$g] = ['s' => $s, 'm' => cleanMeta($b['m'] ?? null), 't' => time()];
   }
   foreach (($in['ach'] ?? []) as $k => $t) if (in_array($k, $ACH, true) && !isset($U['ach'][$k])) $U['ach'][$k] = time();
+  if (array_key_exists('rh', $in)) { if ($in['rh'] === '' || $in['rh'] === null) $U['rh'] = ''; elseif (rhOk($U, $in['rh'])) $U['rh'] = $in['rh']; }
   foreach (($in['stats'] ?? []) as $k => $v) {
     $k = substr(preg_replace('/[^a-z0-9_]/i', '', (string) $k), 0, 24);
     if ($k !== '' && is_numeric($v) && count($U['stats']) < 60) $U['stats'][$k] = max($U['stats'][$k] ?? 0, min(1e7, (int) $v));
