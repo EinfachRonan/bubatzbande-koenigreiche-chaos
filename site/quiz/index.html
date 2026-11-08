@@ -88,6 +88,9 @@ textarea{min-height:240px;font-size:14px;line-height:1.5;resize:vertical}
 .qtext{width:100%;max-width:1100px;text-align:center;font:800 clamp(22px,4vw,44px) "Cinzel",serif;color:#fff6dc;text-shadow:0 2px 0 #000;padding:18px 20px;border-radius:12px;background:linear-gradient(rgba(19,28,15,.92),rgba(9,13,7,.92));border:1px solid var(--gold);line-height:1.25}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:1100px}
 .opt{position:relative;display:flex;align-items:center;gap:14px;padding:16px 18px;min-height:86px;border-radius:12px;border:0;color:#fff;text-align:left;font:800 clamp(16px,2.4vw,26px) "Cinzel",serif;box-shadow:inset 0 -5px 0 rgba(0,0,0,.25),0 6px 16px rgba(0,0,0,.5);transition:opacity .3s,transform .3s,filter .3s;overflow:hidden}
+button.opt{cursor:pointer;font-family:"Cinzel",serif}button.opt:disabled{cursor:default}button.opt.hpick:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.1)}
+.hhint{text-align:center;color:#cfeaa8;font:800 15px "Cinzel",serif;margin:12px 0 0}
+.hres{text-align:center;font:800 18px "Cinzel",serif;margin:0 0 12px;padding:8px 14px;border-radius:10px;align-self:center}.hres.ok{color:#9fe36a;background:rgba(80,160,50,.15)}.hres.no{color:#ff9a7a;background:rgba(200,60,40,.12)}.hres b{color:#fff3c4}
 .opt .sym{flex:none;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;font-size:24px}
 .opt .bar{position:absolute;left:0;bottom:0;height:7px;background:rgba(255,255,255,.65);transition:width .6s}
 .opt .cnt{margin-left:auto;font-size:.9em;opacity:.9}
@@ -246,6 +249,7 @@ function home() {
 // ---------- Einstellungen ----------
 function setup(mode) {
   const cfg = ls.get('bq_cfg', { packs: ['allg', 'de', 'musik', 'film', 'kuc'], n: 15, limit: 20 });
+  if (cfg.play === undefined) cfg.play = true;
   let players = mode === 'local' ? ls.get('bq_local_players', []) : [];
   const render = () => {
     const packs = allPacks();
@@ -258,6 +262,7 @@ function setup(mode) {
       <h3>Anzahl Fragen</h3>
       <div class="chips">${[10, 15, 20, 30].map(n => `<button class="chip ${cfg.n === n ? 'on' : ''}" data-n="${n}">${n}</button>`).join('')}</div>
       ${mode !== 'local' ? `<h3>Zeit pro Frage</h3><div class="chips">${[10, 20, 30].map(n => `<button class="chip ${cfg.limit === n ? 'on' : ''}" data-l="${n}">${n} s</button>`).join('')}</div>` : ''}
+      ${mode === 'host' ? `<h3>Spielst du selbst mit?</h3><div class="chips"><button class="chip ${cfg.play ? 'on' : ''}" data-play="1">🙋 Ja, ich rate mit</button><button class="chip ${cfg.play ? '' : 'on'}" data-play="0">📺 Nein, nur Bildschirm</button></div>` : ''}
       ${mode === 'local' ? `<h3>Wer spielt mit?</h3><div class="row"><input type="text" id="pname" maxlength="16" placeholder="Name eingeben"><button class="small g" id="padd" style="flex:none">+</button></div>
         <div class="players">${players.map((n, i) => `<span class="ptag">${esc(n)}<button data-rm="${i}">✕</button></span>`).join('')}</div>` : ''}
       <p class="sub" style="margin:12px 0 0;font-size:13px">${avail} Fragen in der Auswahl</p>
@@ -267,6 +272,7 @@ function setup(mode) {
     V.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { const id = b.dataset.p; cfg.packs = cfg.packs.includes(id) ? cfg.packs.filter(x => x !== id) : [...cfg.packs, id]; render(); });
     V.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { cfg.n = +b.dataset.n; render(); });
     V.querySelectorAll('[data-l]').forEach(b => b.onclick = () => { cfg.limit = +b.dataset.l; render(); });
+    V.querySelectorAll('[data-play]').forEach(b => b.onclick = () => { cfg.play = b.dataset.play === '1'; render(); });
     V.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { players.splice(+b.dataset.rm, 1); render(); });
     if (mode === 'local') {
       const add = () => { const v = $('#pname').value.trim().slice(0, 16); if (v && !players.includes(v) && players.length < 12) { players.push(v); render(); setTimeout(() => $('#pname').focus(), 0); } };
@@ -281,7 +287,14 @@ function setup(mode) {
       $('#start').disabled = true;
       try {
         const r = await api('create', { qs, limit: cfg.limit });
-        role = { type: 'host', code: r.code, hk: r.hk }; ss.set('bq_role', role); setTop(r.code); ST = null; startPoll();
+        role = { type: 'host', code: r.code, hk: r.hk };
+        if (cfg.play) {
+          // Der Host tritt seinem eigenen Raum als Spieler bei und antwortet direkt am Bildschirm
+          const bp = window.BB && BB.profile, av0 = ls.get('bq_av', bp && bp.name ? bp.av : 'artur');
+          let nm = (ls.get('bq_name', '') || (bp && bp.name) || 'Host').slice(0, 16);
+          try { const j = await api('join', { c: r.code, name: nm, av: AV.includes(av0) ? av0 : 'artur' }); role.pid = j.pid; role.pk = j.pk; } catch (e) {}
+        }
+        ss.set('bq_role', role); setTop(r.code); ST = null; startPoll();
         if (window.BB) BB.roomReady('quiz', r.code);
       } catch (e) { $('#err').textContent = ERR[e.message] || 'Raum konnte nicht erstellt werden.'; $('#start').disabled = false; }
     };
@@ -327,7 +340,7 @@ function startPoll() { stopPoll(); poll(); }
 async function poll() {
   if (!role) return;
   try {
-    const auth = role.type === 'host' ? '&hk=' + role.hk : '&p=' + role.pid + '&k=' + role.pk;
+    const auth = (role.type === 'host' ? '&hk=' + role.hk : '') + (role.pid ? '&p=' + role.pid + '&k=' + role.pk : '');
     const r = await fetch(`room.php?a=state&c=${role.code}${auth}&v=${ST ? ST.v : 0}`, { cache: 'no-store' });
     const j = await r.json();
     if (r.status === 404) { ss.set('bq_role', null); return msg('Raum beendet', 'Diesen Raum gibt es nicht mehr.'); }
@@ -388,12 +401,18 @@ function optsHtml(q, reveal) {
 }
 function hostQuestion() {
   lastRendered = 'hq' + ST.qi; revealSent = -1;
-  const q = ST.q;
+  const q = ST.q, plays = !!(role.pid && ST.you), done = plays && ST.you.answered;
   V.innerHTML = `<div class="qhead"><span class="nr">Frage ${ST.qi + 1} / ${ST.qn}</span><span class="pkn">${esc(q.p || '')}</span>${ringSvg()}</div>
     <div class="qtext">${esc(q.q)}</div>
-    <div class="opts">${optsHtml(q, false)}</div>
+    <div class="opts">${plays ? q.o.map((t, i) => `<button class="opt o${i} hpick ${done && ST.you.a !== i ? 'dim' : ''}" data-a="${i}" ${done ? 'disabled' : ''}><span class="sym">${SYM[i]}</span><span>${esc(t)}</span></button>`).join('') : optsHtml(q, false)}</div>
+    ${plays ? `<p class="hhint" id="hh">${done ? '✓ Deine Antwort ist raus' : '👆 Tipp deine Antwort an'}</p>` : ''}
     <div class="qfoot"><span><b id="ans">${ST.answered}</b> von <b>${ST.players.length}</b> haben geantwortet</span><span class="sp"></span><button class="small" id="skip">Auflösen</button></div>`;
   $('#skip').onclick = () => { revealSent = ST.qi; hostOp('reveal'); };
+  V.querySelectorAll('.hpick').forEach(b => b.onclick = async () => {
+    V.querySelectorAll('.hpick').forEach(x => { x.disabled = true; if (x !== b) x.classList.add('dim'); });
+    try { await api('answer', { c: role.code, pid: role.pid, pk: role.pk, qi: ST.qi, a: +b.dataset.a }); $('#hh').textContent = '✓ Deine Antwort ist raus'; clearTimeout(pollT); poll(); }
+    catch (e) { if (e.message !== 'already') V.querySelectorAll('.hpick').forEach(x => { x.disabled = false; x.classList.remove('dim'); }); }
+  });
 }
 function updateAnswered() { const a = $('#ans'); if (a) a.textContent = ST.answered; }
 function leaderboard(n) {
@@ -404,6 +423,7 @@ function hostReveal() {
   const q = ST.q, last = ST.qi + 1 >= ST.qn;
   V.innerHTML = `<div class="qhead"><span class="nr">Frage ${ST.qi + 1} / ${ST.qn}</span><span class="pkn">${esc(q.p || '')}</span></div>
     <div class="qtext">${esc(q.q)}</div>
+    ${role.pid && ST.you ? (l => `<div class="hres ${l.ok ? 'ok' : 'no'}">${l.ok ? `Richtig! <b>+${l.pts}</b>` : l.a < 0 ? 'Zu spät!' : 'Leider falsch'} · Platz ${ST.you.rank} von ${ST.players.length}</div>`)(ST.you.last || { ok: false, pts: 0, a: -1 }) : ''}
     <div class="reveal"><div class="opts" style="grid-template-columns:1fr">${optsHtml(q, true)}</div>
       <div class="board"><h3>Rangliste</h3>${leaderboard(6)}</div></div>
     <div class="qfoot"><span class="sp"></span><button class="small g" id="next">${last ? 'Zum Ergebnis ▶' : 'Nächste Frage ▶'}</button></div>`;
@@ -420,6 +440,10 @@ function hostEnd() {
     ${ST.players.length > 3 ? `<div class="board" style="margin-top:12px">${leaderboard(40).split('</div>').slice(3).join('</div>')}</div>` : ''}
     <div class="row" style="max-width:520px;margin:0 auto"><button class="go" id="again">Neues Spiel</button></div></div>`;
   confetti();
+  if (role.pid && ST.you && window.BB && ST.players.length >= 2) {
+    if (ST.you.rank === 1) BB.unlock('quiz_party');
+    if (BB.earn) BB.earn(ST.you.rank === 1 ? 30 : 10, ST.you.rank === 1 ? 'Quiz-Sieg' : 'Quiz-Party');
+  }
   $('#again').onclick = () => { stopPoll(); role = null; setup('host'); };
 }
 
