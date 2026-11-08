@@ -217,8 +217,8 @@ main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
   </main>
 </div>
 <div class="ov" id="ov"><div class="box" id="box"></div></div>
-<script src="../art.js?v=20261108b"></script>
-<script src="../bb.js?v=20261108b"></script>
+<script src="../art.js?v=20261108c"></script>
+<script src="../bb.js?v=20261108c"></script>
 <script>
 'use strict';
 const N = 8, KINDS = 6, STAR = 6;
@@ -832,6 +832,7 @@ function showMenu(kind, stars) {
       <div class="row"><button class="go alt" id="map">Zur Karte</button><button class="go" id="again">Nochmal</button></div>`;
     $('again').onclick = () => startLevel(G.n); $('map').onclick = () => showMenu('start');
   }
+  box.insertAdjacentHTML('beforeend', `${window.BB && BB.home ? BB.home() : '<a class="bb-home" href="../">🏠 Zur Startseite</a>'}`);
 }
 $('btnLevels').onclick = () => { if (!G || !G.busy) showMenu('start'); };
 showMenu('start');

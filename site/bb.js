@@ -266,6 +266,9 @@
 .f-gott{animation:bbGod 3s linear infinite;outline:2px solid rgba(255,240,180,.7);outline-offset:2px}
 .f-gott::after{content:"🌿";top:-40%;left:50%;transform:translateX(-50%);font-size:1.25em;filter:drop-shadow(0 0 6px #fff4a0) drop-shadow(0 0 2px #fff)}
 @keyframes bbGod{0%{box-shadow:0 0 22px 6px rgba(255,80,80,.8)}33%{box-shadow:0 0 22px 6px rgba(80,255,140,.8)}66%{box-shadow:0 0 22px 6px rgba(120,120,255,.8)}100%{box-shadow:0 0 22px 6px rgba(255,80,80,.8)}}
+.bb-tclick{cursor:pointer;pointer-events:auto;border-color:#f0d37a !important}.bb-tclick .bb-tgo{margin-left:auto;font-size:26px;color:#f0d37a;padding-left:6px}.bb-tclick:hover{filter:brightness(1.15)}
+.bb-home{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:420px;margin:10px auto 0;padding:11px 14px;border-radius:10px;border:1px solid rgba(212,175,55,.55);background:rgba(0,0,0,.35);color:#f0d37a !important;text-decoration:none !important;font:800 14px Cinzel,Georgia,serif;letter-spacing:.04em;box-sizing:border-box}
+.bb-home:hover{background:rgba(212,175,55,.12);border-color:#f0d37a}
 .bb-rhbtn{display:flex;align-items:center;gap:12px;width:100%;margin:12px 0 4px;padding:10px 12px;border-radius:10px;border:1px solid #d4af37;background:linear-gradient(#1c2a14,#10170b);color:#f1e6c8;font:inherit;cursor:pointer;text-align:left}
 .bb-rhbtn img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:50% 15%;display:block}
 .bb-rhbtn>span:nth-child(2){flex:1}.bb-rhbtn b{display:block;color:#f0d37a;font-family:Cinzel,Georgia,serif}.bb-rhbtn small{font-size:12px;color:#b5a07c}.bb-rhbtn em{font-style:normal;font-size:26px;color:#f0d37a}
@@ -294,13 +297,14 @@
 `;
     document.head.appendChild(st);
   }
-  function toast(html, ico) {
+  function toast(html, ico, onClick) {
     addCss();
     let box = document.querySelector('.bb-toasts');
     if (!box) { box = document.createElement('div'); box.className = 'bb-toasts'; document.body.appendChild(box); }
-    const t = document.createElement('div'); t.className = 'bb-toast'; t.innerHTML = (ico ? `<span class="i">${ico}</span>` : '') + `<div>${html}</div>`;
+    const t = document.createElement('div'); t.className = 'bb-toast' + (onClick ? ' bb-tclick' : ''); t.innerHTML = (ico ? `<span class="i">${ico}</span>` : '') + `<div>${html}</div>` + (onClick ? '<span class="bb-tgo">›</span>' : '');
+    if (onClick) t.onclick = () => { t.remove(); onClick(); };
     box.appendChild(t);
-    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 450); }, 3800);
+    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 450); }, onClick ? 6500 : 3800);
   }
 
 
@@ -323,7 +327,7 @@
     P.ach[id] = Date.now(); P.dirty = true; save(); soon();
     toast(`<b>Erfolg freigeschaltet</b><br>${esc(a[2])}`, a[1]);
     const n = Object.keys(P.ach).length;
-    FRAMES.filter(f => f[2] === id || (typeof f[2] === 'number' && frN(f) === n)).forEach(f => setTimeout(() => toast(`<b>Neuer Profilrahmen</b><br>${esc(f[1])} · im Profil auswählen`, '🖼️'), 1600));
+    FRAMES.filter(f => f[2] === id || (typeof f[2] === 'number' && frN(f) === n)).forEach(f => setTimeout(() => toast(`<b>Neuer Profilrahmen</b><br>${esc(f[1])} · tippen zum Anlegen`, '🖼️', () => open('rahmen')), 1600));
     return true;
   }
   function stat(k, n) { P.stats[k] = (P.stats[k] || 0) + (n == null ? 1 : n); P.dirty = true; save(); soon(); return P.stats[k]; }
@@ -754,10 +758,11 @@
   }
   setTimeout(mpull, 800);
 
+  try { addCss(); } catch (e) {}
   window.BB = {
     cloud, CARDS, RAR, PACKS, NEED, UPCOST, get meta() { return M; }, lvl, cardVal, bgBonus, earn, spend, openPack, canUp, upCard, onMeta: f => mlisteners.push(f),
     get profile() { return P; }, get loggedIn() { return logged(); }, GAMES, ACH, CHAR, AV,
-    FRAMES, avH, record, unlock, stat, open, close, chip, showUser: id => { open('board'); showUser(id); }, invite, roomReady, gate, toast, fmt, avatar: () => avUrl(P), onChange: f => listeners.push(f),
+    FRAMES, avH, home: () => { addCss(); return `<a class="bb-home" href="${ROOT}">🏠 Zur Startseite</a>`; }, record, unlock, stat, open, close, chip, showUser: id => { open('board'); showUser(id); }, invite, roomReady, gate, toast, fmt, avatar: () => avUrl(P), onChange: f => listeners.push(f),
     best: g => P.best[g] || null, has: id => !!P.ach[id]
   };
   // Beim Laden Profil vom Server holen (anderes Gerät könnte etwas geändert haben)

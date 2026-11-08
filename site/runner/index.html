@@ -68,8 +68,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 <div id="tip" style="opacity:0"></div>
 <div class="ov" id="ov"><div class="panel" id="box"></div></div>
 
-<script src="../art.js?v=20261108b"></script>
-<script src="../bb.js?v=20261108b"></script>
+<script src="../art.js?v=20261108c"></script>
+<script src="../bb.js?v=20261108c"></script>
 <script>
 'use strict';
 const $ = s => document.querySelector(s);
@@ -542,6 +542,7 @@ function menu(kind) {
     $('#go').onclick = start; $('#home').onclick = () => { G = null; mtab = 'play'; menu('start'); };
   }
   if ($('#bbB')) $('#bbB').onclick = () => BB.open('board', 'runner');
+  box.insertAdjacentHTML('beforeend', `${window.BB && BB.home ? BB.home() : '<a class="bb-home" href="../">🏠 Zur Startseite</a>'}`);
 }
 function start() { paused = false; newGame(); hideMenu(); last = performance.now(); }
 function gameOver() { if (!$('#ov').classList.contains('hide') && $('#box .big')) return; menu('over'); }

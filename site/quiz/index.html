@@ -167,8 +167,8 @@ button.opt{cursor:pointer;font-family:"Cinzel",serif}button.opt:disabled{cursor:
 </div>
 <div id="view"></div>
 <script src="fragen.js"></script>
-<script src="../art.js?v=20261108b"></script>
-<script src="../bb.js?v=20261108b"></script>
+<script src="../art.js?v=20261108c"></script>
+<script src="../bb.js?v=20261108c"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 'use strict';
@@ -438,7 +438,7 @@ function hostEnd() {
   ss.set('bq_role', null);
   V.innerHTML = `<div class="panel wide"><div class="title">Siegerehrung</div><div class="orn">✦ 👑 ✦</div>${podium()}
     ${ST.players.length > 3 ? `<div class="board" style="margin-top:12px">${leaderboard(40).split('</div>').slice(3).join('</div>')}</div>` : ''}
-    <div class="row" style="max-width:520px;margin:0 auto"><button class="go" id="again">Neues Spiel</button></div></div>`;
+    <div class="row" style="max-width:520px;margin:0 auto"><button class="go" id="again">Neues Spiel</button></div>${window.BB && BB.home ? BB.home() : '<a class="bb-home" href="../">🏠 Zur Startseite</a>'}</div>`;
   confetti();
   if (role.pid && ST.you && window.BB && ST.players.length >= 2) {
     if (ST.you.rank === 1) BB.unlock('quiz_party');
@@ -488,7 +488,7 @@ function playerEnd() {
   const y = ST.you;
   V.innerHTML = `<div class="panel res">${avImg(y.av)}<div class="big ${y.rank <= 3 ? 'ok' : ''}" style="${y.rank > 3 ? 'color:#fff3c4' : ''}">Platz ${y.rank}</div>
     <div class="pts">${y.score} Punkte</div><p class="rank">${y.rank === 1 ? 'Du bist der König der Bande! 👑' : 'von ' + ST.players.length + ' Spielern'}</p>
-    <button class="go" id="h">Zum Menü</button></div>`;
+    <button class="go" id="h">Zum Menü</button>${window.BB && BB.home ? BB.home() : '<a class="bb-home" href="../">🏠 Zur Startseite</a>'}</div>`;
   if (y.rank === 1) confetti();
   if (y.rank === 1 && ST.players.length >= 2 && window.BB) BB.unlock('quiz_party');
   if (window.BB && BB.earn && ST.players.length >= 2) BB.earn(y.rank === 1 ? 30 : 10, y.rank === 1 ? 'Quiz-Sieg' : 'Quiz-Party');
@@ -543,7 +543,7 @@ function solo(qs, limit) {
     }
     V.innerHTML = `<div class="panel res"><div class="title" style="font-size:32px">${rec ? 'Neuer Rekord!' : 'Geschafft!'}</div>
       <div class="pts" style="font-size:40px">${score}</div><p class="sub">${right} von ${qs.length} richtig · Rekord: ${Math.max(best, score)}</p>
-      <div class="row" style="width:100%"><button class="go alt" id="h">Menü</button><button class="go" id="again">Nochmal</button></div>
+      <div class="row" style="width:100%"><button class="go alt" id="h">Menü</button><button class="go" id="again">Nochmal</button></div>${window.BB && BB.home ? BB.home() : '<a class="bb-home" href="../">🏠 Zur Startseite</a>'}
       ${window.BB ? '<button class="link" id="bbBoard">🏆 Bestenliste</button>' : ''}</div>`;
     if ($('#bbBoard')) $('#bbBoard').onclick = () => BB.open('board', 'quiz');
     if (rec && score > 0) confetti();
@@ -574,7 +574,7 @@ function local(qs, players) {
   const end = () => {
     ST = { players: Object.entries(sc).sort((a, b) => b[1] - a[1]).map(([name, score], k) => ({ name, score, av: AV[(players.indexOf(name) * 5) % AV.length] })) };
     V.innerHTML = `<div class="panel wide"><div class="title">Siegerehrung</div><div class="orn">✦ 👑 ✦</div>${podium()}
-      <div class="row" style="max-width:520px;margin:0 auto"><button class="go alt" id="h">Menü</button><button class="go" id="again">Nochmal</button></div></div>`;
+      <div class="row" style="max-width:520px;margin:0 auto"><button class="go alt" id="h">Menü</button><button class="go" id="again">Nochmal</button></div>${window.BB && BB.home ? BB.home() : '<a class="bb-home" href="../">🏠 Zur Startseite</a>'}</div>`;
     ST = null; confetti();
     $('#h').onclick = home; $('#again').onclick = () => setup('local');
   };
