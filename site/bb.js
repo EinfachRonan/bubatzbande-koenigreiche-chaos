@@ -104,6 +104,7 @@
     for (const g in me.best) { if (!P.best[g] || !better(g, P.best[g].s, me.best[g].s)) P.best[g] = me.best[g]; else P.dirty = true; }
     for (const k in me.ach) P.ach[k] = P.ach[k] || me.ach[k];
     for (const k in me.stats) P.stats[k] = Math.max(P.stats[k] || 0, me.stats[k]);
+    if ('meta' in me) mFromServer(me.meta);
     if (Object.keys(P.ach).some(k => !me.ach[k]) || Object.keys(P.best).some(g => !me.best[g])) P.dirty = true;
     save(); listeners.forEach(f => f(P));
   }
@@ -118,7 +119,7 @@
     if (again) { again = false; setTimeout(sync, 300); }
   }
   const soon = () => { clearTimeout(syncT); syncT = setTimeout(sync, 600); };
-  function logoutLocal() { P = fresh(); save(); mPulled = false; listeners.forEach(f => f(P)); }
+  function logoutLocal() { P = fresh(); save(); mPulled = false; mDirty = false; listeners.forEach(f => f(P)); }
 
   // ---------- Toast ----------
   let css = false;
@@ -668,7 +669,7 @@
     async get(g) { if (!logged()) return null; const j = await post('gget', { g }); return j.data ? JSON.parse(j.data) : null; }
   };
   // ---------- Bandengold & Kartensammlung ----------
-  const RAR = { g: { n: 'Gewöhnlich', c: '#b5a07c', w: 55 }, s: { n: 'Selten', c: '#6ab0ff', w: 30 }, e: { n: 'Episch', c: '#c78bff', w: 12 }, l: { n: 'Legendär', c: '#ffb43a', w: 3 } };
+  const RAR = { g: { n: 'Gewöhnlich', c: '#b5a07c', w: 64 }, s: { n: 'Selten', c: '#6ab0ff', w: 26 }, e: { n: 'Episch', c: '#c78bff', w: 8.5 }, l: { n: 'Legendär', c: '#ffb43a', w: 1.5 } };
   // [id, Name, Art, Seltenheit, Effekt-Text (x = Wert bei Stufe), Wert je Stufe, Spiel]
   const CARDS = [
     ['der-gruene-kobold', 'Der grüne Kobold', 'char', 'e', 'Kobold-Runner: +{x} % Punkte', 6, 'runner'],
@@ -711,7 +712,7 @@
   if (!M || typeof M !== 'object') M = { bg: 50, cards: {}, t: 0, day: '' };
   M.cards = M.cards || {};
   let mPulled = false;
-  const msave = () => { M.t = Date.now(); try { localStorage.setItem(MKEY, JSON.stringify(M)); } catch (e) {} cloud.put('meta', M); mlisteners.forEach(f => f(M)); };
+  const msave = (now) => { M.t = Date.now(); try { localStorage.setItem(MKEY, JSON.stringify(M)); } catch (e) {} mput(now); mlisteners.forEach(f => f(M)); };
   const mlisteners = [];
   const lvl = id => (M.cards[id] && M.cards[id].lv) || 0;
   const cardVal = id => { const c = CARDS.find(x => x.id === id); return c ? lvl(id) * c.per : 0; };
@@ -739,7 +740,7 @@
       M.cards[c.id] = had ? { lv: had.lv, n: had.n + 1 } : { lv: 1, n: 0 };
       out.push({ card: c, isNew });
     }
-    msave();
+    msave(true);
     const owned = Object.keys(M.cards).length;
     if (owned >= 10) unlock('karten_10'); if (owned >= CARDS.length) unlock('karten_alle');
     return out;
@@ -747,7 +748,7 @@
   function canUp(id) { const m = M.cards[id]; return m && m.lv < 5 && m.n >= NEED[m.lv + 1] && M.bg >= UPCOST[m.lv + 1]; }
   function upCard(id) {
     const m = M.cards[id]; if (!canUp(id)) return false;
-    M.bg -= UPCOST[m.lv + 1]; m.n -= NEED[m.lv + 1]; m.lv++; msave();
+    M.bg -= UPCOST[m.lv + 1]; m.n -= NEED[m.lv + 1]; m.lv++; msave(true);
     if (m.lv >= 5) unlock('karte_max');
     if (Object.values(M.cards).filter(c => c.lv >= 5).length >= 5) unlock('karten_gold');
     return true;
@@ -766,23 +767,36 @@
     out.day = [a.day, b.day].includes(new Date().toDateString()) ? new Date().toDateString() : out.day;
     return out;
   }
+  let mDirty = false, mT = 0, mBusy = false;
+  const mstore = () => { try { localStorage.setItem(MKEY, JSON.stringify(M)); } catch (e) {} };
+  // Server-Stand übernehmen (kommt bei jedem Profil-Abruf mit)
+  function mFromServer(sm) {
+    const me = P.id; if (!me) return;
+    if (M.owner && M.owner !== me) { M = { bg: 50, cards: {}, t: 0, day: M.day }; mDirty = false; } // Daten eines anderen Kontos verwerfen
+    const guest = M.owner !== me, hadLocal = Object.keys(M.cards).length > 0;
+    if (sm && sm.cards) {
+      const merged = mmerge(M, sm);
+      merged.bg = guest ? Math.max(sm.bg || 0, M.bg || 0) : merged.bg;
+      if (guest || !mDirty) merged.t = Math.max(sm.t || 0, M.t || 0);
+      M = merged;
+    }
+    M.owner = me; const first = !mPulled; mPulled = true; mstore(); mlisteners.forEach(f => f(M));
+    if (first && (guest || mDirty || !sm) && (hadLocal || !sm)) { mDirty = true; mput(true, guest); }
+  }
+  function mput(now, guest) {
+    mDirty = true;
+    if (!logged() || !mPulled) return;
+    clearTimeout(mT);
+    if (!now) { mT = setTimeout(() => mput(true), 1500); return; }
+    if (mBusy) { mT = setTimeout(() => mput(true), 400); return; }
+    mBusy = true; mDirty = false;
+    post('mput', { m: M, own: !guest && M.owner === P.id }).then(j => {
+      if (j.meta) { const merged = mmerge(M, j.meta); merged.bg = M.bg; merged.t = M.t; merged.owner = M.owner; M = merged; mstore(); mlisteners.forEach(f => f(M)); }
+    }).catch(() => { mDirty = true; }).finally(() => { mBusy = false; });
+  }
   async function mpull() {
-    if (!logged()) return;
-    const me = P.id;
-    try {
-      const c = await cloud.get('meta');
-      if (P.id !== me) return;
-      if (M.owner && M.owner !== me) M = { bg: 50, cards: {}, t: 0, day: M.day }; // Daten eines anderen Kontos nicht übernehmen
-      if (c && c.cards) {
-        const guest = !M.owner, merged = mmerge(M, c);
-        if (guest) merged.bg = Math.max(c.bg || 0, M.bg || 0);
-        M = merged;
-      }
-      M.owner = me; mPulled = true; M.t = Date.now();
-      try { localStorage.setItem(MKEY, JSON.stringify(M)); } catch (e) {}
-      mlisteners.forEach(f => f(M));
-      cloud.put('meta', M, true);
-    } catch (e) {}
+    if (!logged() || mPulled) return;
+    try { const j = await post('me'); applyMe(j.me); } catch (e) {}
   }
   setTimeout(mpull, 800);
 
@@ -796,6 +810,6 @@
   // Beim Laden Profil vom Server holen (anderes Gerät könnte etwas geändert haben)
   if (logged()) setTimeout(async () => { try { const j = await post('me'); applyMe(j.me); sync(); } catch (e) {} inbox(); }, 400);
   setInterval(inbox, 9000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) inbox(); else { cloud.flush(); sync(); } });
-  window.addEventListener('pagehide', () => { cloud.flush(); sync(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) inbox(); else { cloud.flush(); sync(); if (mDirty) mput(true); } });
+  window.addEventListener('pagehide', () => { cloud.flush(); sync(); if (mDirty) mput(true); });
 })();

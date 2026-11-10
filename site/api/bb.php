@@ -46,10 +46,35 @@ function rhOk($u, $f) {
   return is_int($n) ? count($u['ach'] ?? []) >= $n : isset($u['ach'][$n]);
 }
 function rh($u) { $f = $u['rh'] ?? ''; return $f && rhOk($u, $f) ? $f : ''; }
+// Kartensammlung & Bandengold liegen direkt im Konto. Karten werden nur zusammengeführt, nie gelöscht.
+function metaOf($u) {
+  if (isset($u['meta']) && is_array($u['meta'])) return $u['meta'];
+  if (isset($u['gs']['meta']['d'])) { $m = json_decode($u['gs']['meta']['d'], true); if (is_array($m) && isset($m['cards'])) return cleanM($m); }
+  return null;
+}
+function cleanM($m) {
+  $o = ['bg' => max(0, min(10000000, (int) ($m['bg'] ?? 0))), 'cards' => [], 't' => (int) ($m['t'] ?? 0), 'day' => mb_substr((string) ($m['day'] ?? ''), 0, 24)];
+  foreach ((is_array($m['cards'] ?? null) ? $m['cards'] : []) as $k => $c) {
+    if (!preg_match('/^[a-z0-9\-]{1,40}$/', (string) $k) || !is_array($c) || count($o['cards']) >= 80) continue;
+    $o['cards'][$k] = ['lv' => max(1, min(5, (int) ($c['lv'] ?? 1))), 'n' => max(0, min(9999, (int) ($c['n'] ?? 0)))];
+  }
+  return $o;
+}
+function mergeM($s, $c, $own) {
+  $c = cleanM($c);
+  if (!$s) return $c;
+  foreach ($c['cards'] as $k => $y) {
+    $x = $s['cards'][$k] ?? null;
+    if (!$x || $y['lv'] > $x['lv'] || ($y['lv'] === $x['lv'] && $y['n'] > $x['n'])) $s['cards'][$k] = $y;
+  }
+  if ($own && $c['t'] >= ($s['t'] ?? 0)) { $s['bg'] = $c['bg']; $s['t'] = $c['t']; }
+  if ($c['day'] !== '') $s['day'] = $c['day'];
+  return $s;
+}
 function avOk($a) { return in_array($a, $GLOBALS['AV'], true) ? $a : 'artur'; }
 function lite($u, $id) { return ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 'nach' => count($u['ach'] ?? []), 'best' => (object) ($u['best'] ?? [])]; }
 function full($u, $id) { return lite($u, $id) + ['ach' => (object) ($u['ach'] ?? []), 'since' => $u['t'] ?? 0, 'nfr' => count($u['fr'] ?? [])]; }
-function pub($u, $id) { return ['fr' => $u['fr'] ?? [], 'req' => $u['req'] ?? [], 'sent' => $u['sent'] ?? [], 'id' => $id, 'user' => $u['user'], 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 'best' => (object) ($u['best'] ?? []), 'ach' => (object) ($u['ach'] ?? []), 'stats' => (object) ($u['stats'] ?? [])]; }
+function pub($u, $id) { return ['meta' => metaOf($u), 'fr' => $u['fr'] ?? [], 'req' => $u['req'] ?? [], 'sent' => $u['sent'] ?? [], 'id' => $id, 'user' => $u['user'], 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 'best' => (object) ($u['best'] ?? []), 'ach' => (object) ($u['ach'] ?? []), 'stats' => (object) ($u['stats'] ?? [])]; }
 function nameTaken($d, $name, $except) {
   $l = mb_strtolower($name);
   foreach ($d['users'] as $id => $u) if ($id !== $except && (mb_strtolower($u['name']) === $l || $u['ul'] === $l)) return true;
@@ -208,6 +233,11 @@ if ($a === 'gput') {
   if (!in_array($g, ['hof', 'meta', 'runner', 'krieg', 'match'], true) || strlen($data) > 40000) $stop('bad');
   $U['gs'][$g] = ['d' => $data, 't' => time()];
   $finish(['ok' => 1]);
+}
+if ($a === 'mput') {
+  if (!is_array($in['m'] ?? null)) $stop('bad');
+  $U['meta'] = mergeM(metaOf($U), $in['m'], !empty($in['own']));
+  $finish(['meta' => $U['meta']]);
 }
 if ($a === 'gget') {
   $g = (string) ($in['g'] ?? '');

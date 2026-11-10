@@ -114,7 +114,7 @@ main{max-width:1100px;margin:0 auto;padding:14px 14px max(30px,env(safe-area-ins
 </main>
 <div class="ov hide" id="ov"></div>
 
-<script src="../bb.js?v=20261108d"></script>
+<script src="../bb.js?v=20261110"></script>
 <script>
 'use strict';
 const $ = s => document.querySelector(s);
@@ -151,7 +151,7 @@ function render() {
   } else {
     B.innerHTML = `<div class="packs">${Object.entries(BB.PACKS).map(([k, p]) => `<div class="pack"><div class="pimg"><img src="img/${p.img}.jpg" alt=""></div><h3>${p.name}</h3>
         <p>${p.n} zufällige Karten${p.min ? ', mindestens eine Epische oder Legendäre' : ''}.</p>
-        <div class="odds">${Object.entries(BB.RAR).map(([r, x]) => `<span style="color:${x.c}">${x.n}</span>`).join('')}</div>
+        <div class="odds">${Object.entries(BB.RAR).map(([r, x]) => `<span style="color:${x.c}">${x.n} ${String(x.w).replace('.', ',')} %</span>`).join('')}</div>
         <button class="buy" data-buy="${k}" ${M().bg < p.cost ? 'disabled' : ''}>Öffnen · ${p.cost} 🪙</button></div>`).join('')}</div>
       <div class="how"><h3>So verdienst du Bandengold</h3><ul>
         <li>⚔️ Bandenkrieg gewinnen: 30 bis 100</li><li>🏃 Kobold-Runner: Gold und Meter jedes Laufs</li><li>🌿 Kräuter-Match: jedes geschaffte Level</li>
