@@ -1,0 +1,13 @@
+/* Bubatzbande – gemeinsamer Look (Schriften liegen selbst auf dem Server) */
+@font-face{font-family:"Lilita One";src:url(fonts/lilita.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Nunito";src:url(fonts/nunito-500.woff2) format("woff2");font-weight:100 600;font-display:swap}
+@font-face{font-family:"Nunito";src:url(fonts/nunito-700.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Nunito";src:url(fonts/nunito-800.woff2) format("woff2");font-weight:800;font-display:swap}
+@font-face{font-family:"Nunito";src:url(fonts/nunito-900.woff2) format("woff2");font-weight:900;font-display:swap}
+/* Alte Schriftnamen auf die neuen umleiten: Überschriften -> Lilita One, Fließtext -> Nunito */
+@font-face{font-family:"Cinzel";src:url(fonts/lilita.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Cinzel Decorative";src:url(fonts/lilita.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Georgia";src:url(fonts/nunito-500.woff2) format("woff2");font-weight:100 600;font-display:swap}
+@font-face{font-family:"Georgia";src:url(fonts/nunito-800.woff2) format("woff2");font-weight:700 900;font-display:swap}
+@font-face{font-family:"Georgia";src:url(fonts/nunito-500.woff2) format("woff2");font-weight:100 600;font-style:italic;font-display:swap}
+@font-face{font-family:"Georgia";src:url(fonts/nunito-800.woff2) format("woff2");font-weight:700 900;font-style:italic;font-display:swap}
