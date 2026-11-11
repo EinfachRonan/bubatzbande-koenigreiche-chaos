@@ -327,11 +327,21 @@ let camTarget = null;
 
 // Figuren
 const people = [];
+// Higgsfield-Figuren aus dem Bandenkrieg
+const HSPR = {};
+function hspr(k) { if (!(k in HSPR)) { const im = new Image(); im.onload = () => im.ok = true; im.src = '../krieg/img/spr/' + k + '.webp'; HSPR[k] = im; } return HSPR[k].ok ? HSPR[k] : null; }
 function chibi(x, y, key, s, flip, walk, carry, tint) {
   const t = performance.now() / 1000;
   g.save(); g.translate(x, y); if (flip) g.scale(-1, 1);
   const ph = walk ? Math.sin(t * 9 + x * .05) : 0;
   g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(0, 0, 13 * s, 3.5 * s, 0, 0, 7); g.fill();
+  const sp = hspr(key);
+  if (sp) {
+    const hh = 66 * s, ww = hh * sp.width / sp.height, bob = walk ? Math.abs(ph) * 2.5 * s : 0;
+    g.save(); g.rotate(walk ? ph * .05 : 0); g.drawImage(sp, -ww / 2, -hh - bob + 2 * s, ww, hh); g.restore();
+    if (carry) { g.font = `${16 * s}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; if (flip) g.scale(-1, 1); g.fillText(carry, 0, -hh - 10 * s); }
+    g.restore(); return;
+  }
   g.fillStyle = '#2a1c10';
   g.fillRect(-6 * s, -14 * s - Math.max(0, ph) * 3 * s, 5 * s, 14 * s); g.fillRect(1 * s, -14 * s - Math.max(0, -ph) * 3 * s, 5 * s, 14 * s);
   g.fillStyle = tint || '#355a1e';
@@ -534,11 +544,19 @@ function drawRaid(dt, t) {
   raid.x -= raid.sp * dt; raid.hit = Math.max(0, raid.hit - dt);
   const x = raid.x + (raid.hit ? Math.sin(t * 60) * 3 : 0), y = raid.y, bob = Math.sin(t * 9) * 2;
   g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(x, y, 14, 4, 0, 0, 7); g.fill();
+  const rs = hspr(raid.who || (raid.who = pick(['e_hausmeister', 'e_nachbarin', 'e_kontrolleur', 'e_zeitungsjunge'])));
+  if (rs) {
+    const hh = 64, ww = hh * rs.width / rs.height;
+    if (raid.hit) g.filter = 'brightness(1.6) sepia(1) hue-rotate(-30deg) saturate(3)';
+    g.drawImage(rs, x - ww / 2, y - hh + 2 + bob, ww, hh); g.filter = 'none';
+    g.font = '18px serif'; g.textAlign = 'center'; g.fillText('💰', x + 18, y - 30 + bob);
+  } else {
   g.fillStyle = '#2a1a10'; g.fillRect(x - 7, y - 18, 5, 18); g.fillRect(x + 2, y - 18, 5, 18);
   g.fillStyle = raid.hit ? '#ff6a5a' : '#b3261e'; g.beginPath(); g.moveTo(x - 12, y - 16 + bob); g.lineTo(x + 12, y - 16 + bob); g.lineTo(x + 9, y - 46 + bob); g.lineTo(x - 9, y - 46 + bob); g.fill();
   g.fillStyle = '#f1c9a0'; g.beginPath(); g.arc(x, y - 54 + bob, 8, 0, 7); g.fill();
   g.fillStyle = '#8b8f96'; g.beginPath(); g.arc(x, y - 56 + bob, 9, Math.PI, 0); g.fill();
   g.font = '18px serif'; g.textAlign = 'center'; g.fillText('💰', x - 16, y - 30 + bob);
+  }
   g.fillStyle = 'rgba(8,12,6,.8)'; g.fillRect(x - 20, y - 78, 40, 6); g.fillStyle = '#ff8a6a'; g.fillRect(x - 20, y - 78, 40 * raid.hp / 5, 6);
   if (raid.x < BLD.market.x + 60) {
     const loss = Math.floor(S.gold * .08); S.gold -= loss;

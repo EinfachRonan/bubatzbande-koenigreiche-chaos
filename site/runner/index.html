@@ -390,6 +390,8 @@ function drawObj(o) {
   }
   g.restore();
 }
+const RSPR = {};
+for (const k of ['kobold', 'nille', 'geist', 'artur']) { const im = new Image(); im.onload = () => im.ok = true; im.src = 'img/r_' + k + '.webp'; RSPR[k] = im; }
 function drawKobold() {
   const s = sc(0), x = px(G.x, 0), base = py(0, 0), y = py(G.y, 0);
   const sl = G.slide > 0, ph = G.run, air = G.y > .02;
@@ -400,6 +402,17 @@ function drawKobold() {
   g.translate(x, y);
   if (sl) { g.scale(1.15, .55); }
   const tilt = (((G.lane - 1) * LANE) - G.x) * .25; g.rotate(tilt);
+  const rs = RSPR[PR.char];
+  if (rs && rs.ok) {
+    // Higgsfield-Figur von hinten
+    const hh = s * 1.45, ww = hh * rs.width / rs.height, bb = air ? 0 : Math.abs(Math.sin(ph * 2)) * s * .06;
+    g.rotate(air ? 0 : Math.sin(ph * 2) * .05);
+    if (PR.char === 'geist') g.globalAlpha = .9;
+    g.drawImage(rs, -ww / 2, -hh - bb + s * .04, ww, hh);
+    g.globalAlpha = 1; g.restore();
+    if (G.magnet > 0) { g.strokeStyle = `rgba(200,140,255,${.35 + Math.sin(performance.now() / 120) * .15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, base - s * .1, s * .6, s * .16, 0, 0, 7); g.stroke(); }
+    return;
+  }
   // Beine
   const l1 = air ? .2 : Math.sin(ph * 2) * .5, l2 = air ? -.2 : -Math.sin(ph * 2) * .5;
   g.fillStyle = '#3a2a16';

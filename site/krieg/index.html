@@ -1292,6 +1292,13 @@ function drawSoldier(u, c, atk, leg, bob) {
 }
 
 const UC = document.createElement('canvas'), SC = document.createElement('canvas');
+// Higgsfield-Figuren (Ganzkörper). face = Blickrichtung im Bild (1 = rechts, -1 = links)
+const SPR_DEF = { kobold: 1, artur: 1, nille: 1, geist: 1, molly: 1, lg3: 1, fokuhila: 1, don: 1, kraeuter: 1, koenig: 1,
+  e_hausmeister: -1, e_nachbarin: -1, e_zeitungsjunge: -1, e_kontrolleur: -1, e_blitzer: -1, e_foerster: -1, e_bauzaun: 1, e_boss: -1 };
+const SPR_E = { 'Hausmeister': 'e_hausmeister', 'Nachbarin': 'e_nachbarin', 'Zeitungsjunge': 'e_zeitungsjunge', 'Kontrolleur': 'e_kontrolleur', 'Blitzer-Bert': 'e_blitzer', 'Förster Franz': 'e_foerster', 'Bauzaun-Bodo': 'e_bauzaun', 'Bürokratie-Boss': 'e_boss' };
+const SPR = {};
+for (const k in SPR_DEF) { const im = new Image(); im.onload = () => { im.ok = true; POSE.clear(); }; im.src = 'img/spr/' + k + '.webp'; SPR[k] = im; }
+const sprOf = u => { const k = u.side === 0 ? u.look : SPR_E[u.e]; const im = k && SPR[k]; return im && im.ok ? [im, SPR_DEF[k]] : null; };
 const POSE = new Map(), ANIM_LOOKS = new Set(['kobold', 'geist', 'molly', 'kraeuter']);
 const OUTL = [[-1, 0], [1, 0], [0, -1], [0, 1], [-.7, -.7], [.7, .7]];
 // Licht von oben/zur Sonne hin, Schatten unten, dann dunkle Silhouette für die Kontur
@@ -1359,7 +1366,13 @@ function drawUnit(u, dead) {
       if (dead) { const p = 1 - dead.dt / .8; ctx.translate(-4 * p, 0); ctx.rotate(-Math.min(1, p * 2.2) * 1.45); }
       ctx.translate(lungeQ, -bobQ); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       const pu = key ? Object.assign({}, u, { id: 0 }) : u;
-      if (u.side === 0 && LOOKS[u.look]) LOOKS[u.look](pu, c, atkQ, legQ, bobQ, tQ);
+      const sp = sprOf(u);
+      if (sp) {
+        const [im, face] = sp, hh = u.k === 'Tank' || u.k === 'Held' ? 64 : 60, ww = hh * im.width / im.height;
+        ctx.scale(face, 1);
+        ctx.rotate((wq >= 0 ? Math.sin(walkQ) * .045 : 0) + atkQ * .16);
+        ctx.drawImage(im, -ww / 2, -hh + 2, ww, hh);
+      } else if (u.side === 0 && LOOKS[u.look]) LOOKS[u.look](pu, c, atkQ, legQ, bobQ, tQ);
       else drawSoldier(pu, c, atkQ, legQ, bobQ);
     } finally { ctx = old; }
     shadeCanvas(g, SZ, R, OY - 60 * sz, OY, toward, false);
@@ -1784,7 +1797,7 @@ showMenu('start');
 if (window.BB && BB.cloud && BB.loggedIn) BB.cloud.get('krieg').then(c => { if (c && Array.isArray(c.stars) && (c.t || 0) > (CP.t || 0)) { CP = c; for (const r of RAT) CP.up[r.id] = CP.up[r.id] || 0; try { localStorage.setItem('bk_camp', JSON.stringify(CP)); } catch (e) {} if (!S) showMenu('start'); } }).catch(() => {});
 requestAnimationFrame(loop);
 // Zum Testen per Konsole
-window.BK = { get S() { return S; }, CP: () => CP, endGame, newGame, update, enqueue, special, ageUp, buyTurret, buyUpgrade, buyCat, AGES, UPG, CAT };
+window.BK = { get S() { return S; }, CP: () => CP, endGame, newGame, spawn, update, enqueue, special, ageUp, buyTurret, buyUpgrade, buyCat, AGES, UPG, CAT };
 </script>
 </body>
 </html>
