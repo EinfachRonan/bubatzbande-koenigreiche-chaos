@@ -4,180 +4,222 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Bubatzbande · Spiele</title>
-<meta name="theme-color" content="#070a05">
+<meta name="theme-color" content="#0b0d12">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#070a05;--txt:#f1e6c8;--mut:#a99d7e;--gold:#d4af37;--gold2:#f0d37a;--line:#7a6128;--g1:#3e7530;--g2:#1c3f15}
+:root{--bg:#0b0d12;--bg2:#12151d;--line:#232836;--txt:#f3f1ea;--mut:#a3a8b8;--gold:#ffc94d;--gold2:#ffe08a;--lime:#a6f04a}
 *{box-sizing:border-box;margin:0;padding:0}
 html{background:var(--bg)}
-html,body{min-height:100%;color:var(--txt);font:15px/1.45 Georgia,serif}
-body{min-height:100vh;min-height:100dvh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:-40px;z-index:-3;background:url(krieg/img/hoehle.jpg) center/cover;filter:blur(14px) brightness(.38) saturate(1.1)}
-body::after{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 50% 25%,rgba(140,220,90,.10),transparent 55%),radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,.7) 100%)}
-.motes{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-.motes i{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:#cfff8a;box-shadow:0 0 6px 2px rgba(150,240,90,.55);animation:rise linear infinite;opacity:0}
-.motes i:nth-child(3n){background:#f0d37a;box-shadow:0 0 6px 2px rgba(240,200,90,.55)}
-@keyframes rise{0%{transform:translate(0,0);opacity:0}12%{opacity:.9}100%{transform:translate(var(--dx),-105vh);opacity:0}}
+body{min-height:100vh;min-height:100dvh;color:var(--txt);font:500 15px/1.45 "Nunito",system-ui,sans-serif;overflow-x:hidden;background:radial-gradient(ellipse 80% 50% at 50% 0,rgba(255,201,77,.08),transparent 70%),var(--bg)}
+a{color:inherit;text-decoration:none}
+.H{font-family:"Lilita One","Nunito",sans-serif;font-weight:400;letter-spacing:.01em}
 
 /* Kopfzeile */
-.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) 10px max(14px,env(safe-area-inset-left));padding-top:max(10px,env(safe-area-inset-top));background:linear-gradient(rgba(10,14,7,.94),rgba(10,14,7,.82));border-bottom:1px solid rgba(212,175,55,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.logo{display:flex;align-items:center;gap:9px;margin-right:auto;text-decoration:none}
-.logo img{width:34px;height:34px;border-radius:8px;border:1px solid var(--line)}
-.logo b{font:900 19px "Cinzel Decorative","Cinzel",serif;background:linear-gradient(#fff3c4,#d4af37 60%,#8a6a1d);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
-.lb{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:99px;border:1px solid var(--line);background:linear-gradient(#1f2c19,#0f170c);color:var(--gold2);font:800 14px "Cinzel",serif;cursor:pointer}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:10px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));padding-top:max(10px,env(safe-area-inset-top));background:rgba(11,13,18,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:9px;margin-right:auto}
+.logo img{width:34px;height:34px;border-radius:10px}
+.logo b{font:400 21px "Lilita One",sans-serif;letter-spacing:.02em}
+.logo b i{font-style:normal;color:var(--gold)}
+.pill{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 13px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);font:800 14px "Nunito",sans-serif;cursor:pointer}
+.pill:hover{border-color:#3a4152}
+.pill .c{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff3b0,#ffc94d 55%,#b8860b);box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}
 
-/* Held-Bereich */
-.hero{position:relative;max-width:1180px;margin:18px auto 0;padding:0 16px}
-.heroimg{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--gold);outline:1px solid #3a3418;outline-offset:5px;box-shadow:0 30px 80px rgba(0,0,0,.75)}
-.heroimg img{display:block;width:100%;aspect-ratio:1400/481;object-fit:cover}
-.heroimg::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(7,10,5,.92)),radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(0,0,0,.45))}
-.heroin{position:absolute;left:16px;right:16px;bottom:0;padding:18px 26px;display:flex;align-items:flex-end;gap:16px;z-index:1}
-.heroin p{font-size:clamp(14px,1.8vw,18px);color:#efe2bf;max-width:560px;text-shadow:0 2px 6px #000}
-.heroin p b{color:var(--gold2);font-family:"Cinzel",serif}
-.stats{display:flex;gap:8px;margin-left:auto;cursor:pointer}
-.stats div{min-width:84px;text-align:center;padding:8px 12px;border-radius:10px;background:rgba(8,12,6,.78);border:1px solid rgba(212,175,55,.5)}
-.stats b{display:block;font:800 22px "Cinzel",serif;color:#fff3c4;line-height:1.1}.stats span{font-size:11px;color:var(--mut);letter-spacing:.06em;text-transform:uppercase}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
 
-.sec{max-width:1180px;margin:30px auto 12px;padding:0 16px;display:flex;align-items:center;gap:14px}
-.sec h2{font:800 clamp(18px,2.4vw,24px) "Cinzel",serif;color:var(--gold2);letter-spacing:.06em;white-space:nowrap}
-.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+/* Held */
+.hero{position:relative;margin:16px auto 0;max-width:1180px;padding:0 16px}
+.hbox{position:relative;border-radius:24px;overflow:hidden;min-height:420px;display:flex;align-items:flex-end;background:#151821}
+.hbox>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 35%}
+.hbox::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,13,18,.92) 0%,rgba(11,13,18,.55) 38%,rgba(11,13,18,0) 65%),linear-gradient(0deg,rgba(11,13,18,.85),transparent 45%)}
+.hin{position:relative;z-index:1;padding:34px 38px;max-width:560px}
+.kick{display:inline-flex;align-items:center;gap:7px;font:900 12px "Nunito",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#14110a;background:var(--gold);padding:5px 11px;border-radius:8px}
+.hin h1{font:400 clamp(44px,6vw,76px)/.95 "Lilita One",sans-serif;margin:14px 0 10px;text-shadow:0 4px 18px rgba(0,0,0,.5)}
+.hin h1 span{display:block;font-size:.42em;color:var(--gold2);margin-top:6px;letter-spacing:.03em}
+.hin p{color:#d9dbe3;font-size:16px;max-width:440px}
+.cta{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:14px;font:900 16px "Nunito",sans-serif;border:0;cursor:pointer;transition:transform .15s,filter .15s}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.07)}
+.btn.p{background:var(--gold);color:#14110a;box-shadow:0 6px 0 #b8860b,0 12px 26px rgba(255,201,77,.25)}
+.btn.p:active{transform:translateY(3px);box-shadow:0 3px 0 #b8860b}
+.btn.s{background:rgba(255,255,255,.08);color:var(--txt);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px)}
 
-/* Spielkarten */
-.grid{max-width:1180px;margin:0 auto;padding:0 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-@media (min-width:1000px){.grid{grid-template-columns:repeat(6,1fr)}.card{grid-column:span 2}.card.wide{grid-column:span 3}.card.wide .ba{aspect-ratio:16/8}.card.wide .ba-quiz .ans{top:33%}.card.wide .ba-quiz .ans i{height:7cqw;font-size:3.6cqw}.card.wide .ba-quiz .crowd img{width:7cqw;height:7cqw}.card.wide .ba-quiz .q{top:8%;font-size:3.4cqw;padding:1.6cqw}}
-.card{position:relative;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;background:linear-gradient(#141d10,#0a0f07);border:1px solid #8a6d32;outline:1px solid #2e2a14;outline-offset:4px;box-shadow:0 18px 44px rgba(0,0,0,.6);transition:transform .25s,border-color .25s,box-shadow .25s}
-.card:hover{transform:translateY(-6px);border-color:var(--gold2);box-shadow:0 26px 60px rgba(0,0,0,.7),0 0 34px rgba(212,175,55,.22)}
-.card:hover .ba-bg{transform:scale(1.06)}
-.card .art{position:relative;border-bottom:1px solid rgba(212,175,55,.45)}
-.card .art::after{content:"";position:absolute;left:12%;right:12%;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
-.badge{position:absolute;top:10px;left:10px;z-index:6;font:800 11px "Cinzel",serif;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:5px;background:linear-gradient(#f0d37a,#b8902c);color:#2a1a08;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.body{display:flex;flex-direction:column;gap:8px;padding:14px 16px 16px;flex:1}
-.chips{display:flex;flex-wrap:wrap;gap:5px}
-.chips span{font-size:11.5px;padding:3px 9px;border-radius:99px;border:1px solid rgba(212,175,55,.35);color:#d9c9a0;background:rgba(0,0,0,.25)}
-.card h3{font:800 25px "Cinzel",serif;color:#fff3d4;letter-spacing:.01em;line-height:1.1}
-.card p{color:#cdbf9c;font-size:14.5px;flex:1}
-.foot{display:flex;align-items:center;gap:10px;margin-top:4px}
-.best{font-size:12.5px;color:var(--mut);line-height:1.25}.best b{display:block;font:800 16px "Cinzel",serif;color:#fff3c4}
-.play{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;border:1px solid var(--gold);background:linear-gradient(var(--g1),var(--g2));color:#f8e9b4;font:800 15px "Cinzel",serif;letter-spacing:.14em;box-shadow:inset 0 1px 0 rgba(255,240,180,.3),0 0 0 2px #070a05,0 0 0 3px #4a3c18;transition:box-shadow .2s}
-.card:hover .play{box-shadow:inset 0 1px 0 rgba(255,240,180,.3),0 0 0 2px #070a05,0 0 0 3px var(--gold),0 0 22px rgba(120,210,80,.45)}
+/* Begrüßung */
+.me{display:flex;align-items:center;gap:14px;margin:16px auto 0;padding:14px 16px;border-radius:18px;background:var(--bg2);border:1px solid var(--line)}
+.me .av{width:52px;height:52px;flex:none}
+.me .av img{width:52px;height:52px;border-radius:50%;object-fit:cover;display:block}
+.me .t{flex:1;min-width:0}
+.me .t b{display:block;font:400 19px "Lilita One",sans-serif}
+.me .t small{color:var(--mut);font-size:13.5px}
+.stats{display:flex;gap:8px}
+.stats button{min-width:76px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:#181c26;color:var(--txt);cursor:pointer;text-align:center}
+.stats button b{display:block;font:400 21px/1.1 "Lilita One",sans-serif;color:var(--gold2)}
+.stats button span{font-size:11px;color:var(--mut);font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+
+/* Abschnitte */
+.sec{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:34px 0 14px}
+.sec h2{font:400 clamp(24px,3vw,32px) "Lilita One",sans-serif}
+.sec a,.sec span{color:var(--mut);font-weight:800;font-size:14px}
+.sec a:hover{color:var(--gold2)}
+
+/* Spiele */
+.games{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.g{--c:#2a6b2a;--c2:#0f2a10;position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:290px;padding:18px;border-radius:22px;overflow:hidden;isolation:isolate;background:radial-gradient(circle at 75% 30%,var(--c),var(--c2) 70%);box-shadow:0 14px 30px rgba(0,0,0,.35);transition:transform .2s,box-shadow .2s}
+.g:hover{transform:translateY(-5px) rotate(-.4deg);box-shadow:0 22px 44px rgba(0,0,0,.5)}
+.g>img{position:absolute;z-index:-1;right:-6%;top:-4%;width:92%;aspect-ratio:1;object-fit:cover;border-radius:50%;-webkit-mask:radial-gradient(circle at 50% 45%,#000 52%,transparent 71%);mask:radial-gradient(circle at 50% 45%,#000 52%,transparent 71%);transition:transform .35s}
+.g:hover>img{transform:scale(1.06) translateY(-4px)}
+.g::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.25) 45%,transparent 70%)}
+.g .tag{position:absolute;top:14px;left:14px;font:900 11px "Nunito",sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:7px;background:rgba(0,0,0,.45);color:#fff;backdrop-filter:blur(4px)}
+.g .tag.n{background:var(--gold);color:#14110a}
+.g h3{font:400 27px/1 "Lilita One",sans-serif;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.g p{color:#e4e6ee;font-size:13.5px;margin-top:5px;line-height:1.35}
+.g .ft{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
+.g .best{font-size:12px;color:#cfd2dc;font-weight:700;line-height:1.2}
+.g .best b{display:block;font:400 17px "Lilita One",sans-serif;color:#fff}
+.g .go{flex:none;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px;border-radius:12px;background:#fff;color:#14110a;font:900 14px "Nunito",sans-serif;box-shadow:0 4px 0 rgba(0,0,0,.35)}
+.g.big{grid-column:span 2;min-height:360px}
+.g.big h3{font-size:40px}.g.big p{font-size:15px;max-width:360px}
+.g.big>img{width:66%;right:-2%;top:-6%}
+
+/* Bande-Leiste */
+.cast{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 16px 14px;margin:0 -16px;scrollbar-width:none}
+.cast::-webkit-scrollbar{display:none}
+.cm{flex:0 0 132px;scroll-snap-align:start;border-radius:18px;overflow:hidden;background:var(--bg2);border:1px solid var(--line);transition:transform .2s}
+.cm:hover{transform:translateY(-4px)}
+.cm img{display:block;width:100%;aspect-ratio:1;object-fit:cover}
+.cm div{padding:8px 10px 10px}
+.cm b{display:block;font:400 15px "Lilita One",sans-serif}
+.cm small{color:var(--mut);font-size:12px;font-weight:700}
 
 /* Sammlung */
-.colb{position:relative;display:flex;align-items:center;gap:22px;max-width:1148px;margin:22px auto 0;padding:16px 22px;border-radius:14px;text-decoration:none;color:inherit;background:radial-gradient(ellipse at 15% 50%,rgba(212,175,55,.18),transparent 55%),linear-gradient(#1a2412,#0a0f07);border:1px solid var(--gold);outline:1px solid #2e2a14;outline-offset:4px;box-shadow:0 18px 44px rgba(0,0,0,.6);transition:transform .25s,box-shadow .25s}
-@media (min-width:1181px){.colb{margin-left:auto;margin-right:auto}}
-@media (max-width:1180px){.colb{margin-left:16px;margin-right:16px}}
-.colb:hover{transform:translateY(-4px);box-shadow:0 26px 60px rgba(0,0,0,.7),0 0 34px rgba(212,175,55,.25)}
-.colb .fan{position:relative;flex:none;width:220px;height:130px}
-.colb .fan img{position:absolute;bottom:0;width:78px;height:110px;object-fit:cover;object-position:50% 25%;border-radius:8px;border:2px solid var(--gold);box-shadow:0 8px 18px rgba(0,0,0,.7);transition:transform .35s}
-.colb .fan img:nth-child(1){left:0;transform:rotate(-18deg) translateY(8px);border-color:#c78bff}
-.colb .fan img:nth-child(2){left:36px;transform:rotate(-9deg) translateY(2px);border-color:#ffb43a}
-.colb .fan img:nth-child(3){left:72px;z-index:2;bottom:8px;border-color:#c78bff}
-.colb .fan img:nth-child(4){left:108px;transform:rotate(9deg) translateY(2px);border-color:#6ab0ff}
-.colb .fan img:nth-child(5){left:144px;transform:rotate(18deg) translateY(8px);border-color:#c78bff}
-.colb:hover .fan img:nth-child(1){transform:rotate(-24deg) translate(-8px,6px)}.colb:hover .fan img:nth-child(5){transform:rotate(24deg) translate(8px,6px)}
+.colb{display:flex;align-items:center;gap:20px;padding:18px 22px;border-radius:22px;background:linear-gradient(110deg,#2a1f4a,#161229 60%);border:1px solid #3d2f6b;transition:transform .2s}
+.colb:hover{transform:translateY(-3px)}
+.colb .fan{position:relative;flex:none;width:170px;height:118px}
+.colb .fan img{position:absolute;bottom:0;width:74px;height:100px;object-fit:cover;border-radius:10px;border:2px solid #fff;box-shadow:0 8px 18px rgba(0,0,0,.6)}
+.colb .fan img:nth-child(1){left:0;transform:rotate(-14deg);border-color:#c78bff}
+.colb .fan img:nth-child(2){left:48px;z-index:2;bottom:10px;border-color:#ffb43a}
+.colb .fan img:nth-child(3){left:96px;transform:rotate(14deg);border-color:#6ab0ff}
 .colb .ct{flex:1;min-width:0}
-.colb h2{font:800 24px "Cinzel",serif;color:#fff3d4}
-.colb p{color:#cdbf9c;font-size:14.5px;margin-top:4px}
-.badge2{display:inline-block;font:800 10.5px "Cinzel",serif;letter-spacing:.1em;padding:3px 8px;border-radius:5px;background:linear-gradient(#f0d37a,#b8902c);color:#2a1a08;margin-bottom:4px}
-.cst{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.cst span{padding:4px 11px;border-radius:99px;background:rgba(0,0,0,.35);border:1px solid #4a3c18;font-size:13px;color:#d9c9a0}.cst b{font-family:"Cinzel",serif;color:#ffe9a0}
-@media (max-width:700px){.colb{flex-direction:column;text-align:center;margin:18px 12px 0;padding:16px}.colb .fan{width:200px;height:120px}.colb .fan img{width:70px;height:100px}.colb .fan img:nth-child(2){left:32px}.colb .fan img:nth-child(3){left:65px}.colb .fan img:nth-child(4){left:98px}.colb .fan img:nth-child(5){left:130px}.cst{justify-content:center}.colb .play{margin:0}}
-footer{text-align:center;color:rgba(241,230,200,.45);font:12px "Cinzel",serif;letter-spacing:.2em;margin:34px 0 22px;padding-bottom:env(safe-area-inset-bottom)}
-@media (max-width:700px){
-  .logo b{font-size:16px}.lb span{display:none}
-  .hero{margin-top:12px;padding:0 12px}.heroimg{border-radius:12px;outline-offset:3px}
-  .heroimg img{aspect-ratio:16/9;object-position:50% 30%}
-  .heroin{position:static;padding:12px 2px 0;flex-direction:column;align-items:stretch;gap:10px}
-  .heroimg::after{background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(0,0,0,.4))}
-  .stats{margin:0}.stats div{flex:1;min-width:0}
-  .grid{grid-template-columns:1fr;padding:0 12px;gap:16px}.sec{padding:0 12px;margin-top:22px}
-  .card h3{font-size:22px}
+.colb h2{font:400 26px "Lilita One",sans-serif}
+.colb p{color:#cfc8e8;font-size:14.5px;margin-top:2px}
+.cst{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cst span{padding:5px 11px;border-radius:10px;background:rgba(0,0,0,.3);font-size:13px;font-weight:800;color:#e8e2ff}
+.colb .btn{flex:none}
+
+footer{text-align:center;color:#5d6375;font-size:13px;font-weight:700;margin:40px 0 24px;padding-bottom:env(safe-area-inset-bottom)}
+
+@media (max-width:980px){.games{grid-template-columns:repeat(2,minmax(0,1fr))}.g.big{grid-column:span 2}}
+@media (max-width:640px){
+  .logo b{font-size:18px}.pill .lbl{display:none}.top>a.pill{display:none}.top{gap:8px}
+  .logo img{width:30px;height:30px}
+  .hero{padding:0 12px;margin-top:12px}.wrap{padding:0 12px}
+  .hbox{min-height:520px;border-radius:20px}
+  .hbox>img{object-position:58% 30%}
+  .hbox::after{background:linear-gradient(0deg,rgba(11,13,18,.96) 0%,rgba(11,13,18,.7) 38%,rgba(11,13,18,0) 62%)}
+  .hin{padding:20px 18px}
+  .hin p{font-size:15px}
+  .me{flex-wrap:wrap}.stats{width:100%}.stats button{flex:1;min-width:0}
+  .games{gap:12px}
+  .g{min-height:230px;padding:14px;border-radius:18px}
+  .g h3{font-size:21px}.g p{display:none}
+  .g .best{display:none}.g .go{width:100%;justify-content:center;height:38px}
+  .g.big{min-height:300px}.g.big h3{font-size:32px}.g.big p{display:block;max-width:62%}
+  .g.big .go{width:auto}.g.big .best{display:block}
+  .cast{margin:0 -12px;padding:4px 12px 14px}
+  .cm{flex-basis:118px}
+  .colb{flex-direction:column;text-align:center;padding:18px}.cst{justify-content:center}.colb .btn{width:100%}
 }
-@media (prefers-reduced-motion:reduce){.motes{display:none}}
 </style>
 </head>
 <body>
-<div class="motes" id="motes"></div>
 <header class="top">
-  <a class="logo" href="./"><img src="icon-180.png" alt=""><b>Bubatzbande</b></a>
+  <a class="logo" href="./"><img src="icon-180.png" alt=""><b>Bubatz<i>bande</i></b></a>
+  <a class="pill" href="bande/" aria-label="Bandengold"><span class="c"></span><span id="bgTop">0</span></a>
+  <button class="pill" id="bbBoard" aria-label="Bestenliste"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z M17 6h3v2a3 3 0 0 1-3 3M7 6H4v2a3 3 0 0 0 3 3"/></svg><span class="lbl">Bestenliste</span></button>
   <span id="bbChip"></span>
-  <button class="lb" id="bbBoard">🏆 <span>Bestenliste</span></button>
 </header>
 
 <section class="hero">
-  <div class="heroimg"><img src="krieg/img/hero.jpg" alt="Die Bubatzbande: Königreiche & Chaos"></div>
-  <div class="heroin"><p id="hello"></p><div class="stats" id="stats"></div></div>
+  <div class="hbox">
+    <img src="krieg/img/hero.jpg" srcset="krieg/img/hero-s.jpg 1000w, krieg/img/hero.jpg 2000w" sizes="(max-width:640px) 1000px, 1180px" alt="Die Bubatzbande vor ihrer Taverne">
+    <div class="hin">
+      <span class="kick">7 Spiele · 1 Bande</span>
+      <h1 class="H">Bubatzbande<span>Königreiche &amp; Chaos</span></h1>
+      <p>Renn mit dem Kobold, stürm die Spießerburg, bau den Hof aus und sammel die ganze Bande. Alles mit einem Konto und einer Bestenliste.</p>
+      <div class="cta"><a class="btn p" href="#spiele">Jetzt spielen</a><a class="btn s" href="bande/">Die Bande sammeln</a></div>
+    </div>
+  </div>
 </section>
 
-<a class="colb" href="bande/" id="colb">
-  <div class="fan"><img src="bande/img/der-gruene-kobold.jpg" alt=""><img src="bande/img/der-koenig-von-deutschland.jpg" alt=""><img src="bande/img/mr-mollymann.jpg" alt=""><img src="bande/img/donpatron.jpg" alt=""><img src="bande/img/der-graue-geist.jpg" alt=""></div>
-  <div class="ct"><span class="badge2">Neu</span><h2>Die Bande sammeln</h2><p>Verdien in jedem Spiel Bandengold, öffne Kräuterbeutel und sammel 30 Karten. Jede Karte macht dich in einem Spiel stärker.</p>
-    <div class="cst"><span>🪙 <b id="cbg">0</b> Bandengold</span><span>🃏 <b id="ccards">0</b>/30 Karten</span></div></div>
-  <span class="play">🃏 Zur Sammlung</span>
-</a>
-<div class="sec"><h2>Wähle dein Spiel</h2></div>
-<main class="grid" id="games"></main>
-<footer>bubatzbande.de · Königreiche & Chaos</footer>
+<div class="wrap">
+  <div class="me" id="me"></div>
 
-<script src="art.js?v=20261110"></script>
-<script src="bb.js?v=20261110"></script>
+  <div class="sec" id="spiele"><h2>Spiele</h2><span id="nGames"></span></div>
+  <main class="games" id="games"></main>
+
+  <div class="sec"><h2>Die Bande</h2><a href="bande/">Alle Karten ›</a></div>
+  <div class="cast" id="cast"></div>
+
+  <a class="colb" href="bande/">
+    <div class="fan"><img src="bande/img/mr-mollymann.jpg" alt=""><img src="bande/img/der-koenig-von-deutschland.jpg" alt=""><img src="bande/img/der-graue-geist.jpg" alt=""></div>
+    <div class="ct"><h2>Kartensammlung</h2><p>Verdien in jedem Spiel Bandengold, öffne Kräuterbeutel und sammel 30 Karten. Jede Karte macht dich in einem Spiel stärker.</p>
+      <div class="cst"><span>🪙 <b id="cbg">0</b> Bandengold</span><span>🃏 <b id="ccards">0</b>/30 Karten</span></div></div>
+    <span class="btn p">Zur Sammlung</span>
+  </a>
+</div>
+<footer>bubatzbande.de · Königreiche &amp; Chaos</footer>
+
+<script src="art.js?v=20261111"></script>
+<script src="bb.js?v=20261111"></script>
 <script>
 'use strict';
+const IMG = k => 'krieg/img/' + k + '.jpg';
 const GAMES = [
-  { k: 'runner', url: 'runner/', name: 'Kobold-Runner', chips: ['Endlos', 'Solo', 'Highscore'], text: 'Der Kobold rennt durch die Kräuterhöhle, springt über Kessel, rutscht unter Balken durch und sammelt Gold. Wie weit kommst du?', badge: 'Neu', wide: 1 },
-  { k: 'hof', url: 'hof/', name: 'Bandenhof', chips: ['Aufbau', 'Idle', 'läuft auch offline'], text: 'Fokuhila schmiedet, LG3 baut Kräuter an, DonPatron verkauft. Bau den Hof aus und hol die ganze Bande dazu.', badge: 'Neu', wide: 1 },
-  { k: 'krieg', url: 'krieg/', name: 'Bandenkrieg', chips: ['Strategie', 'Solo', 'gegen die Spießer'], text: 'Schick Artur, den Kobold und den Rest der Bande los, lass Marwin ein Katapult auf den Turm bauen und stürm die Spießerburg.' },
-  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', chips: ['3D-Schach', 'Online 1 gegen 1'], text: 'Schach im Wohnzimmer gegen Herrn Holz. Wird eine Figur geschlagen, kämpfen beide im Ego-Duell um ihr Leben.' },
-  { k: 'match', url: 'match/', name: 'Kräuter-Match', chips: ['Puzzle', 'Solo', 'Level'], text: 'Drei Kräuter in eine Reihe. Kobold, Fokuhila und Mollymann helfen mit Spezialkräften, erst 12 Level, dann endlos.' },
-  { k: 'quiz', url: 'quiz/', name: 'Bubatz-Quiz', chips: ['Party', 'Online mit Code', 'Solo'], text: 'Einer hostet am TV, alle antworten am Handy. Lade deine Freunde direkt ein oder schreib eigene Fragen.', wide: 1 },
-  { k: 'duell', url: 'duell/', name: 'Kneipen-Duell', chips: ['1 gegen 1', 'Ein Handy', 'gegen den Wirt'], text: 'Bier zapfen, Krug schieben, Prost-Duell, Armdrücken. Wer zuerst 3 Runden holt, ist Kneipenkönig.', badge: 'Neu', wide: 1 }
+  { k: 'runner', url: 'runner/', name: 'Kobold-Runner', who: 'kobold', c: '#3f9a2c', c2: '#0b2a0c', text: 'Spring über Kessel, rutsch unter Balken durch und sammel Gold. Wie weit kommst du?', tag: 'Endlos', big: 1 },
+  { k: 'krieg', url: 'krieg/', name: 'Bandenkrieg', who: 'artur', c: '#c0392b', c2: '#2a0a08', text: 'Kampagne mit 8 Schlachten gegen die Spießer.', tag: 'Strategie' },
+  { k: 'match', url: 'match/', name: 'Kräuter-Match', who: 'molly', c: '#3557d6', c2: '#0c1238', text: 'Drei in eine Reihe, Level ohne Ende.', tag: 'Puzzle' },
+  { k: 'hof', url: 'hof/', name: 'Bandenhof', who: 'lg3', c: '#7cc22e', c2: '#16300a', text: 'Bau den Hof aus, er läuft auch offline.', tag: 'Aufbau' },
+  { k: 'duell', url: 'duell/', name: 'Kneipen-Duell', who: 'don', c: '#9b1d3c', c2: '#2a0710', text: 'Zapfen, schieben, prosten, Armdrücken.', tag: '1 gegen 1' },
+  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', who: 'koenig', c: '#d1901c', c2: '#2e1c04', text: '3D-Schach mit Ego-Duellen.', tag: 'Online' },
+  { k: 'quiz', url: 'quiz/', name: 'Bubatz-Quiz', who: 'nille', c: '#14989a', c2: '#042426', text: 'Party-Quiz mit Freunden am Handy.', tag: 'Party' }
 ];
+const CAST = [['kobold', 'Kobold', 'Runner'], ['artur', 'Artur', 'Wolfskönig'], ['molly', 'Mollymann', 'Zauberer'], ['koenig', 'Der König', 'Burgherr'], ['fokuhila', 'Fokuhilamann', 'Schmied'], ['don', 'DonPatron', 'Händler'], ['lg3', 'LG3', 'Kräuterbauer'], ['nille', 'Nille', 'Schurke'], ['geist', 'Grauer Geist', 'Schatten'], ['kraeuter', 'KräuterKönig', 'Elfenkönig'], ['allan', 'Allan', 'Krieger'], ['marwin', 'Marwin', 'Erfinder']];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+$('cast').innerHTML = CAST.map(([k, n, r]) => `<a class="cm" href="bande/"><img src="${IMG(k)}" alt="" loading="lazy"><div><b>${n}</b><small>${r}</small></div></a>`).join('');
 function draw() {
   const B = window.BB, P = B ? B.profile : null;
-  document.getElementById('games').innerHTML = GAMES.map(g => {
+  $('games').innerHTML = GAMES.map(g => {
     const best = B && B.best(g.k), G = B && B.GAMES[g.k];
-    return `<a class="card${g.wide ? ' wide' : ''}" href="${g.url}">
-      <div class="art">${window.BBArt ? BBArt.html(g.k) : ''}${g.badge ? `<span class="badge">${g.badge}</span>` : ''}</div>
-      <div class="body"><div class="chips">${g.chips.map(c => `<span>${esc(c)}</span>`).join('')}</div>
-        <h3>${esc(g.name)}</h3><p>${esc(g.text)}</p>
-        <div class="foot">${best ? `<div class="best">Dein Bestwert<b>${B.fmt(g.k, best.s)} ${G.unit ? `<small style="font:12px Georgia,serif;color:var(--mut)">${G.unit}</small>` : ''}</b></div>` : `<div class="best">Noch kein Bestwert</div>`}
-        <span class="play">▶ PLAY</span></div></div></a>`;
+    return `<a class="g${g.big ? ' big' : ''}" href="${g.url}" style="--c:${g.c};--c2:${g.c2}">
+      <img src="${IMG(g.who)}" alt="" loading="lazy">
+      <span class="tag${g.big ? ' n' : ''}">${esc(g.tag)}</span>
+      <h3>${esc(g.name)}</h3><p>${esc(g.text)}</p>
+      <div class="ft">${best ? `<div class="best">Dein Bestwert<b>${B.fmt(g.k, best.s)}</b></div>` : '<div class="best">Noch kein Bestwert</div>'}
+      <span class="go">▶ Spielen</span></div></a>`;
   }).join('');
-  if (B && B.meta) { document.getElementById('cbg').textContent = B.meta.bg.toLocaleString('de-DE'); document.getElementById('ccards').textContent = Object.keys(B.meta.cards).length; }
-  const hello = document.getElementById('hello'), stats = document.getElementById('stats');
+  $('nGames').textContent = GAMES.length + ' Spiele';
+  if (B && B.meta) { const bg = B.meta.bg.toLocaleString('de-DE'); $('cbg').textContent = bg; $('bgTop').textContent = bg; $('ccards').textContent = Object.keys(B.meta.cards).length; }
+  const me = $('me');
   if (B && B.loggedIn) {
     const nb = Object.keys(P.best).length;
-    hello.innerHTML = `<b>Hi ${esc(P.name)}!</b> Schön, dass du wieder da bist. ${nb < GAMES.length ? `Dir fehlen noch ${GAMES.length - nb} Spiele auf der Bestenliste.` : 'Du stehst in allen Spielen auf der Bestenliste.'}`;
-    stats.innerHTML = `<div><b>${Object.keys(P.ach).length}</b><span>Erfolge</span></div><div><b>${(P.fr || []).length}</b><span>Freunde</span></div><div><b>${nb}/${GAMES.length}</b><span>Bestwerte</span></div>`;
-    stats.onclick = () => B.open('profil');
-  } else {
-    hello.innerHTML = '<b>Willkommen in der Bande.</b> Sieben Spiele, eine Bestenliste. Sammel Erfolge, add deine Freunde und jag sie auf den Rängen.';
-    stats.innerHTML = '';
-  }
+    me.innerHTML = `<div class="av">${B.avH ? B.avH(P) : ''}</div><div class="t"><b>Hi ${esc(P.name)}!</b><small>${nb < GAMES.length ? `Dir fehlen noch ${GAMES.length - nb} Spiele auf der Bestenliste.` : 'Du stehst in allen Spielen auf der Bestenliste.'}</small></div>
+      <div class="stats"><button data-o="ach"><b>${Object.keys(P.ach).length}</b><span>Erfolge</span></button><button data-o="friends"><b>${(P.fr || []).length}</b><span>Freunde</span></button><button data-o="board"><b>${nb}/${GAMES.length}</b><span>Bestwerte</span></button></div>`;
+    me.querySelectorAll('[data-o]').forEach(b => b.onclick = () => B.open(b.dataset.o));
+    me.style.display = '';
+  } else me.style.display = 'none';
 }
 draw();
 if (window.BB) {
-  BB.chip(document.getElementById('bbChip'));
-  document.getElementById('bbBoard').onclick = () => BB.open('board');
+  BB.chip($('bbChip'));
+  $('bbBoard').onclick = () => BB.open('board');
   let last = '';
-  BB.onChange(P => { const k = JSON.stringify([P.name, Object.keys(P.ach).length, (P.fr || []).length, P.best]); if (k !== last) { last = k; draw(); } });
+  BB.onChange(P => { const k = JSON.stringify([P.name, P.rh, P.av, P.img, Object.keys(P.ach).length, (P.fr || []).length, P.best]); if (k !== last) { last = k; draw(); } });
   if (BB.onMeta) BB.onMeta(draw);
   BB.gate();
 }
-(() => {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const box = document.getElementById('motes');
-  for (let i = 0; i < 22; i++) {
-    const e = document.createElement('i');
-    e.style.left = Math.random() * 100 + '%';
-    e.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
-    e.style.animationDuration = 9 + Math.random() * 10 + 's';
-    e.style.animationDelay = -Math.random() * 16 + 's';
-    box.appendChild(e);
-  }
-})();
 </script>
 </body>
 </html>
