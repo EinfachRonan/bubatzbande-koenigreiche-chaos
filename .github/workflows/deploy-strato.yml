@@ -18,14 +18,9 @@ jobs:
       - name: Verify site
         run: test -f site/index.html
 
-      - name: Install lftp
+      - name: Install paramiko
         run: |
-          command -v lftp && exit 0
-          for i in 1 2 3 4 5; do
-            sudo apt-get update -o Acquire::Retries=3 && sudo apt-get install -y -o Acquire::Retries=3 lftp && exit 0
-            echo "Versuch $i fehlgeschlagen, warte kurz ..."; sleep 20
-          done
-          exit 1
+          for i in 1 2 3 4 5; do python3 -m pip install --quiet --user --break-system-packages paramiko && exit 0; sleep 15; done; exit 1
 
       - name: Deploy to STRATO
         env:
@@ -34,25 +29,7 @@ jobs:
           STRATO_PASSWORD: ${{ secrets.STRATO_PASSWORD }}
           STRATO_PORT: ${{ secrets.STRATO_PORT }}
           STRATO_PATH: ${{ secrets.STRATO_PATH }}
-        run: |
-          TARGET_PATH="${STRATO_PATH:-/}"
-
-          if [ -z "$TARGET_PATH" ] || [ "$TARGET_PATH" = "." ]; then
-            TARGET_PATH="/"
-          fi
-
-          if [[ "$TARGET_PATH" != /* ]]; then
-            TARGET_PATH="/$TARGET_PATH"
-          fi
-
-          echo "Deploying ./site/ to STRATO path: $TARGET_PATH"
-
-          lftp -u "$STRATO_USER","$STRATO_PASSWORD" -p "$STRATO_PORT" sftp://"$STRATO_HOST" <<EOF2
-          set sftp:auto-confirm yes
-          set ssl:verify-certificate no
-          mirror -R --delete --verbose --exclude '/rooms/' --exclude '/data/' ./site/ "$TARGET_PATH"
-          bye
-          EOF2
+        run: python3 scripts/deploy_sftp.py
 
       - name: Check online relay (PHP)
         continue-on-error: true
