@@ -1,0 +1,31 @@
+name: Higgsfield-Bilder holen
+on:
+  push:
+    paths: ['art/quellen.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bilder laden
+        run: |
+          mkdir -p art/roh
+          python3 - <<'PY'
+          import json, urllib.request, os
+          q = json.load(open('art/quellen.json'))
+          for name, url in q.items():
+              p = f'art/roh/{name}.png'
+              if os.path.exists(p): continue
+              urllib.request.urlretrieve(url, p)
+              print('geladen', name, os.path.getsize(p))
+          PY
+      - name: Speichern
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add art/roh
+          git diff --cached --quiet || git commit -m "Higgsfield-Bilder geladen [skip ci]"
+          git push
