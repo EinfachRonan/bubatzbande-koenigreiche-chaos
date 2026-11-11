@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
@@ -19,7 +19,13 @@ jobs:
         run: test -f site/index.html
 
       - name: Install lftp
-        run: sudo apt-get update && sudo apt-get install -y lftp
+        run: |
+          command -v lftp && exit 0
+          for i in 1 2 3 4 5; do
+            sudo apt-get update -o Acquire::Retries=3 && sudo apt-get install -y -o Acquire::Retries=3 lftp && exit 0
+            echo "Versuch $i fehlgeschlagen, warte kurz ..."; sleep 20
+          done
+          exit 1
 
       - name: Deploy to STRATO
         env:
