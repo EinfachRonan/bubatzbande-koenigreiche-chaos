@@ -92,6 +92,12 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .hs .ct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;text-shadow:0 0 4px #000;pointer-events:none}
 .hs.rdy{box-shadow:inset 0 0 12px rgba(92,232,240,.35)}
 .hs.act{border-color:var(--li);box-shadow:0 0 12px rgba(157,255,106,.6)}
+.hs.shp{border-color:#ffe94d;color:#ffe94d}.hs.shp svg{width:55%;height:55%}
+.shop{display:flex;flex-direction:column;gap:8px}
+.sbox{display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--rc);background:#0b0e10}
+.sbox>div{flex:1;min-width:0}.sbox b{display:block;font:400 13px Silkscreen,var(--mono);color:var(--rc)}.sbox small{display:block;font-size:11px;color:#cfd8da;margin-top:3px}.sbox .odds i{font-style:normal;margin-right:4px}
+.sbox .br{min-width:74px;height:44px}
+.ultab{display:flex;align-items:center;gap:10px;justify-content:center;border:1px dashed #c9a2ff;padding:8px;margin-bottom:12px;font-size:12px;color:#cfd8da;text-align:left}.ultab b{color:#c9a2ff}
 .hs.bst{flex:1.25;aspect-ratio:auto;flex-direction:column;font-size:11px;gap:2px;border-color:#3a4246}
 .hs.bst svg{width:20px;height:20px}
 .hs.bst.act{border-color:var(--li);color:var(--li)}
@@ -162,7 +168,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 'use strict';
 // ================== Daten ==================
 const WEAP = [
-  { id: 'line', n: 'Kobold-Strahl', d: 'Dauerlaser auf den nächsten Block' },
+  { id: 'line', n: 'Kobold-Blaster', d: 'Schießt Energie-Kugeln auf den nächsten Block' },
   { id: 'star', n: 'Mollys Kristallstern', d: '4 rotierende Laser' },
   { id: 'drill', n: 'Fokuhilas Bohrlanze', d: 'Durchschlagender Stoß bis zum Kern' },
   { id: 'nova', n: 'Geister-Nova', d: 'Druckwelle rund ums Schiff' },
@@ -271,12 +277,12 @@ const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100
 const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(200, (Math.floor(l / 100) + 1) * 100); };
 const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l >= 200 ? Math.floor(l / 100) * 100 : p; };
 const ST = id => msN(WL(id));
-const UPTXT = { line: 'zusätzlicher Strahl', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größere Druckwelle', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller' };
+const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größere Druckwelle', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller' };
 const wDps = w => { const l = WL(w.id); return l ? T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() : 0; };
-const wCost = (w, n = 1) => { const l = WL(w.id); let c = 0; for (let i = 0; i < n; i++) c += T_UP[tier(w.id)] * Math.pow(1.15, l - 1 + i); return c; };
+const wCost = (w, n = 1) => { const l = WL(w.id); let c = 0; for (let i = 0; i < n; i++) c += T_UP[tier(w.id)] * Math.pow(1.17, l - 1 + i); return c; };
 const skCost = id => SK(id) + 1;
 let buyN = 1;
-const maxBuy = w => { let n = 0, c = 0; while (n < 500) { const k = T_UP[tier(w.id)] * Math.pow(1.15, WL(w.id) - 1 + n); if (c + k > S.cr) break; c += k; n++; } return n; };
+const maxBuy = w => { let n = 0, c = 0; while (n < 500) { const k = T_UP[tier(w.id)] * Math.pow(1.17, WL(w.id) - 1 + n); if (c + k > S.cr) break; c += k; n++; } return n; };
 
 // ================== Planet ==================
 const cv = $('cv'), g = cv.getContext('2d');
@@ -293,7 +299,7 @@ function resize() {
 function buildPlanet(removed) {
   const p = S.p, rnd = mulberry(p * 7919 + 13), boss = p % 10 === 0, pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : PAL[(p - 1) % PAL.length];
   CELL = Math.max(8, Math.floor(Math.min(W, H * 1.1) / 34)); COLS = Math.floor(W / CELL); ROWS = Math.floor(H / CELL);
-  const ox = Math.floor((W - COLS * CELL) / 2), oy = Math.floor((H - ROWS * CELL) / 2), hp0 = Math.pow(1.72, p - 1) * (boss ? 3 : 1), v0 = Math.pow(1.62, p - 1) * (boss ? 2.5 : 1);
+  const ox = Math.floor((W - COLS * CELL) / 2), oy = Math.floor((H - ROWS * CELL) / 2), hp0 = Math.pow(1.85, p - 1) * (boss ? 3 : 1), v0 = Math.pow(1.62, p - 1) * (boss ? 2.5 : 1);
   const N = COLS * ROWS, alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   const ccx = (COLS - 1) / 2, ccy = (ROWS - 1) / 2 + ROWS * .04, R = Math.min(COLS * .44, ROWS * .4);
@@ -344,7 +350,7 @@ function kill(i, reward) {
 const ship = { x: 0, y: 40, vx: 0, vy: 0, orb: -Math.PI / 2, ang: 0 };
 const proj = [], drones = [0, 1, 2, 3, 4, 5].map(k => ({ a: k * 1.047, cd: k * .07 }));
 const extraT = [];
-let cdChain = 0, sawA = 0, cdMine = 0, cdSnip = 0; const saws = [], mines = [];
+let cdBlast = 0, cdChain = 0, sawA = 0, cdMine = 0, cdSnip = 0; const saws = [], mines = [];
 let starA = 0, cdDrill = 0, cdNova = 0, cdScatter = 0, lineTarget = -1, surfR = 0, surfT = 0;
 function nearest(x, y, jitter) {
   let best = -1, bd = 1e18; const A = G.alive, ox = G.ox + CELL / 2, oy = G.oy + CELL / 2;
@@ -363,6 +369,7 @@ function ray(x, y, a, maxL) {
 const critMul = () => Math.random() < critCh() ? 3 : 1;
 
 function step(dt) {
+  if (!isFinite(ship.x) || !isFinite(ship.y)) { ship.x = W / 2; ship.y = 30; ship.vx = ship.vy = 0; }
   if (travel > 0) return travelStep(dt);
   const R = rate();
   // Schiff kreist um den Planeten
@@ -374,7 +381,9 @@ function step(dt) {
   const toC = Math.atan2(G.cy - ship.y, G.cx - ship.x);
   // 1) Kobold-Strahl
   const dL = WD('line');
-  if (dL) { const nb = 1 + Math.min(2, Math.floor(ST('line') / 2)); extraT.length = 0; for (let k = 1; k < nb; k++) { const j = nearest(ship.x + (k * 60 - 90), ship.y + (k * 40 - 60), 20 * CELL * CELL); if (j >= 0) { extraT.push(j); hit(j, dL * dt * .6 * (1 + 2 * critCh())); } } if (lineTarget < 0 || !G.alive[lineTarget] || Math.random() < dt * 1.5) lineTarget = nearest(ship.x, ship.y); if (lineTarget >= 0) hit(lineTarget, dL * dt * (1 + 2 * critCh())); }
+  if (dL) { if (lineTarget < 0 || !G.alive[lineTarget] || Math.random() < dt * 2) lineTarget = nearest(ship.x, ship.y);
+    if ((cdBlast -= dt * R) <= 0 && lineTarget >= 0) { cdBlast = .25; const nb = 1 + Math.min(2, Math.floor(ST('line') / 2)), [tx2, ty2] = cellXY(lineTarget), a0 = Math.atan2(ty2 - ship.y, tx2 - ship.x);
+      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * .25 / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1 }); } } }
   // 2) Kristallstern: 4 rotierende Strahlen
   const dS = WD('star');
   if (dS) { starA += dt * 1.6 * R; G.star = []; const ns = Math.min(8, 4 + ST('star')); for (let k = 0; k < ns; k++) { const a = starA + k * Math.PI * 2 / ns, [i, ex, ey] = ray(ship.x, ship.y, a, 170); G.star.push([ex, ey]); if (i >= 0) hit(i, dS / ns * dt * 1.6 * (1 + 2 * critCh())); } } else G.star = null;
@@ -388,7 +397,7 @@ function step(dt) {
   // 4) Geister-Nova
   const dN = WD('nova');
   if (dN && (cdNova -= dt * R) <= 0) {
-    cdNova = 3; const rad = 60 + Math.min(90, WL('nova') * 2) + 14 * ST('nova'), hitL = [];
+    cdNova = 3; const rad = 120 + Math.min(60, WL('nova')) + 16 * ST('nova'), hitL = [];
     const c0 = Math.floor((ship.x - G.ox - rad) / CELL), c1 = Math.ceil((ship.x - G.ox + rad) / CELL), r0 = Math.floor((ship.y - G.oy - rad) / CELL), r1 = Math.ceil((ship.y - G.oy + rad) / CELL);
     for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) for (let c = Math.max(0, c0); c <= Math.min(COLS - 1, c1); c++) { const i = r * COLS + c; if (!G.alive[i]) continue; const [x, y] = cellXY(i); if (Math.hypot(x - ship.x, y - ship.y) <= rad) hitL.push(i); }
     const per = dN * 3 * critMul() / Math.max(6, hitL.length) * 2; hitL.forEach(i => hit(i, per));
@@ -399,7 +408,7 @@ function step(dt) {
   if (dC && (cdScatter -= dt * R) <= 0) { cdScatter = 1; const np = Math.min(15, 7 + 2 * ST('scatter')); for (let k = 0; k < np; k++) { const a = toC + (k - (np - 1) / 2) * (1.4 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC / np * critMul(), t: 2 }); } }
   for (let k = proj.length - 1; k >= 0; k--) {
     const q = proj[k]; q.x += q.vx * dt; q.y += q.vy * dt; q.t -= dt; const i = cellAt(q.x, q.y);
-    if (i >= 0 && G.alive[i]) { hit(i, q.d * .6); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) hit(cellAt(q.x + dx * CELL, q.y + dy * CELL), q.d * .1); fx.push({ k: 'pop', x: q.x, y: q.y, t: .25 }); proj.splice(k, 1); }
+    if (i >= 0 && G.alive[i]) { hit(i, q.d * .6); if (!q.solo) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) hit(cellAt(q.x + dx * CELL, q.y + dy * CELL), q.d * .1); fx.push({ k: 'pop', x: q.x, y: q.y, t: .25 }); proj.splice(k, 1); }
     else if (q.t <= 0 || q.x < -20 || q.x > W + 20 || q.y < -20 || q.y > H + 20) proj.splice(k, 1);
   }
   // 6) Drohnen
@@ -418,7 +427,7 @@ function step(dt) {
     pts.forEach(p => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .2 })); }
   // 8) Kräutersäge
   const dW = WD('saw');
-  if (dW) { sawA += dt * 3.2 * R; const nsw = Math.min(4, 2 + Math.floor(ST('saw') / 2)); saws.length = nsw; for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, x = ship.x + Math.cos(a) * 46, y = ship.y + Math.sin(a) * 46; saws[k] = [x, y];
+  if (dW) { sawA += dt * 3.2 * R; const nsw = Math.min(4, 2 + Math.floor(ST('saw') / 2)); saws.length = nsw; for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, sc = Math.atan2(G.cy - ship.y, G.cx - ship.x), x = ship.x + Math.cos(sc) * 42 + Math.cos(a) * 26, y = ship.y + Math.sin(sc) * 42 + Math.sin(a) * 26; saws[k] = [x, y];
     for (const [ox, oy] of [[0, 0], [CELL, 0], [-CELL, 0], [0, CELL], [0, -CELL]]) hit(cellAt(x + ox, y + oy), dW / nsw / 5 * dt * 2 * (1 + 2 * critCh())); } }
   // 9) Minenwerfer
   const dM = WD('mine');
@@ -565,7 +574,6 @@ function draw(now) {
   g.restore();
   g.globalCompositeOperation = 'lighter';
   // Strahlen
-  if (WD('line') && lineTarget >= 0 && G.alive[lineTarget]) { const [x, y] = cellXY(lineTarget); beam(ship.x, ship.y, x, y, '#5ce8f0', 2.2); for (const j of extraT) if (G.alive[j]) { const [x2, y2] = cellXY(j); beam(ship.x, ship.y, x2, y2, '#5ce8f0', 1.4); } }
   if (G.star) for (const [x, y] of G.star) beam(ship.x, ship.y, x, y, '#ff4f7a', 1.6);
   for (const f of fx) {
     if (f.k === 'lance') beam(f.x, f.y, f.x2, f.y2, f.c || '#f4fbff', (f.w || 4) * f.t / .35 + 1);
@@ -583,7 +591,7 @@ function draw(now) {
   g.fillStyle = '#ff8a5a'; for (const m of mines) { const x = m.x + (m.tx - m.x) * m.t, y = m.y + (m.ty - m.y) * m.t - Math.sin(m.t * Math.PI) * 30; g.fillRect(x - 3, y - 3, 6, 6); }
   for (const m of meteors) { g.fillStyle = '#ffb46a'; g.beginPath(); g.arc(m.x, m.y, 6, 0, 7); g.fill(); g.strokeStyle = 'rgba(255,140,60,.5)'; g.lineWidth = 4; g.beginPath(); g.moveTo(m.x, m.y); g.lineTo(m.x - (m.tx - m.x) * .08, m.y - (m.ty - m.y) * .08 - 20); g.stroke(); }
   if (bhole) { const r = bhole.r * Math.min(1, (2.2 - bhole.t) * 2); g.globalCompositeOperation = 'source-over'; const gr = g.createRadialGradient(bhole.x, bhole.y, 0, bhole.x, bhole.y, r * 1.4); gr.addColorStop(0, '#000'); gr.addColorStop(.6, 'rgba(60,20,120,.85)'); gr.addColorStop(1, 'rgba(120,60,255,0)'); g.fillStyle = gr; g.beginPath(); g.arc(bhole.x, bhole.y, r * 1.4, 0, 7); g.fill(); g.strokeStyle = '#c9a2ff'; g.lineWidth = 2; g.beginPath(); g.arc(bhole.x, bhole.y, r * (.6 + .1 * Math.sin(performance.now() / 80)), 0, 7); g.stroke(); g.globalCompositeOperation = 'lighter'; }
-  g.fillStyle = '#ffe36a'; for (const q of proj) g.fillRect(q.x - 2, q.y - 2, 4, 4);
+  for (const q of proj) { g.fillStyle = q.c || '#ffe36a'; if (q.solo) { g.globalAlpha = .45; g.fillRect(Math.round(q.x - q.vx * .02) - 2, Math.round(q.y - q.vy * .02) - 2, 4, 4); g.globalAlpha = 1; g.fillRect(Math.round(q.x) - 3, Math.round(q.y) - 3, 6, 6); g.fillStyle = '#fff'; g.fillRect(Math.round(q.x) - 1, Math.round(q.y) - 1, 2, 2); } else g.fillRect(q.x - 2, q.y - 2, 4, 4); }
   for (const q of parts) { g.fillStyle = q.c; g.globalAlpha = Math.min(1, q.t * 2); const z = q.t > .4 ? 4 : 2; g.fillRect(Math.round(q.x - z / 2), Math.round(q.y - z / 2), z, z); }
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   // Drohnen
@@ -619,8 +627,8 @@ function ui() {
   if (boosting()) { b.classList.add('act'); bl.textContent = mmss(S.boostEnd - now); b.disabled = true; }
   else if (S.boostCd > now) { b.classList.remove('act'); bl.textContent = mmss(S.boostCd - now); b.disabled = true; }
   else { b.classList.remove('act'); bl.textContent = 'Boost x2'; b.disabled = false;
-  $('abdot').hidden = !(Object.keys(S.ab).length < ABIL.length && S.dm >= drawCost());
-  $('hgdot').hidden = !(S.dm >= CRATES[0].cost && Object.keys(S.inv).length < 4); }
+  $('abdot').hidden = true;
+  $('hgdot').hidden = true; }
   $('wpdot').hidden = !(dmGain() > 0 || WARP.some(w => WP(w.id) < w.max && S.dm >= w.cost(WP(w.id))));
   if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + dmGain(); $('wgo').disabled = !dmGain(); }
   $('skdot').hidden = !SKILLS.some(s => SK(s.id) < s.max && S.cry >= skCost(s.id));
@@ -651,6 +659,7 @@ function render() {
     if ($('reroll')) $('reroll').onclick = () => { const r = rrState(); if (!r.n) return; r.n--; const left = WEAP.filter(w => !WL(w.id) && !S.offer.includes(w.id)).map(w => w.id).sort(() => Math.random() - .5); const keep = left.length >= 2 ? [] : S.offer.slice(0, 2 - left.length); S.offer = left.slice(0, 2).concat(keep).slice(0, 2); save(true); render(); };
   } else if (tab === 'a') renderAb(L);
   else if (tab === 'h') renderHangar(L);
+  else if (tab === 'k') renderShop(L);
   else if (tab === 'p') {
     const g0 = dmGain();
     L.innerHTML = `<div class="wh"><p>Warp-Sprung ab Planet 3: Je weiter du kommst, desto mehr ✦ gibt's. Du fängst bei Planet 1 neu an, verlierst CR und Waffen. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>
@@ -816,10 +825,25 @@ const itemVal = (it, lv) => RAR[it.r].b * (1 + .5 * ((lv || 1) - 1));
 const itemBonus = s => { const it = eqItem(s); return 1 + itemVal(it, S.inv[it.id] || 1); };
 const itemLv = s => { const it = eqItem(s); return ({ g: 0, s: 1, e: 2, l: 4 })[it.r] + ((S.inv[it.id] || 1) - 1) * .3; };
 const CRATES = [
-  { id: 'k1', n: 'Schrottkiste', cost: 6, w: { g: 72, s: 22, e: 5, l: 1 }, c: '#c9d1d3' },
-  { id: 'k2', n: 'Bandenkiste', cost: 20, w: { g: 25, s: 50, e: 20, l: 5 }, c: '#8dff5a' },
-  { id: 'k3', n: 'Nullraum-Kiste', cost: 60, w: { g: 0, s: 30, e: 50, l: 20 }, c: '#ffe94d' }
+  { id: 'k1', n: 'Raketen-Kiste', cost: 12, w: { g: 60, s: 28, e: 10, l: 2 }, c: '#5ce8f0', d: 'Ein Schiffsteil für den Hangar' },
+  { id: 'k2', n: 'Fähigkeiten-Kiste', cost: 12, ab: 1, c: '#c9a2ff', d: 'Neue Fähigkeit oder +1 Stufe' },
+  { id: 'k3', n: 'Ultimative Kiste', cost: 35, w: { g: 0, s: 45, e: 40, l: 15 }, ab: 1, c: '#ffe94d', d: 'Schiffsteil (mind. selten) + Fähigkeit' }
 ];
+// Fähigkeit aus einer Kiste: neu oder eine Stufe hoch
+function rollAbility() {
+  const a = ABIL[(Math.random() * ABIL.length) | 0], l = AL(a.id);
+  if (l >= 10) { S.dm += 4; return { a, txt: 'Schon auf Max · ✦4 zurück' }; }
+  S.ab[a.id] = l + 1;
+  if (!l) { const f = [0, 1, 2, 3, 4].find(k => !S.hot[k]); if (f != null) S.hot[f] = a.id; hotbar(true); return { a, txt: f != null ? 'Neu! Liegt jetzt auf deiner Hotbar.' : 'Neu!' }; }
+  return { a, txt: `Doppelt! Jetzt Lvl. ${l + 1}` };
+}
+function openShopCrate(k) {
+  if (S.dm < k.cost) return;
+  if (!k.w) { S.dm -= k.cost; const r = rollAbility(); save('now');
+    overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${r.a.ico}</svg></div></div><h2 style="color:#c9a2ff">${r.a.n}</h2><p>${r.a.d}<br>${r.txt}</p>`, [['Nochmal ✦' + k.cost, () => openShopCrate(k)], ['Weiter', () => render()]]);
+    if (S.dm < k.cost) $('ovb').querySelector('[data-k="0"]').disabled = true; return; }
+  openCrate(k);
+}
 function openCrate(k) {
   if (S.dm < k.cost) return;
   S.dm -= k.cost;
@@ -832,6 +856,7 @@ function openCrate(k) {
   save('now');
   overlay(`<div class="crate" style="--rc:${RAR[r].c}"><div class="cbox">${itemSvg(it, 76)}</div></div><h2 style="color:${RAR[r].c}">${it.n}</h2><p>[${RAR[r].n}] · ${SLOT[it.s].n}<br>${had ? (had >= 10 ? '' : `Doppelt! Jetzt Lvl. ${had + 1}`) : 'Neu im Hangar!'}${extra}<br><b style="color:var(--txt)">+${Math.round(itemVal(it, Math.min(10, had + 1)) * 100)} % ${SLOT[it.s].st}</b></p>`,
     [['Ausrüsten', () => { S.eq[it.s] = it.id; save('now'); render(); }], ['Weiter', () => render()]]);
+  if (k.ab) { const r2 = rollAbility(); save('now'); $('ovb').insertAdjacentHTML('afterbegin', `<div class="ultab"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.8">${r2.a.ico}</svg><span><b>${r2.a.n}</b><br>${r2.txt}</span></div>`); }
 }
 function itemSvg(it, size) {
   const c = RAR[it.r].c;
@@ -850,9 +875,10 @@ function hotbar(force) {
     hotSig = sig;
     el.innerHTML = [0, 1, 2, 3, 4].map(k => { const id = S.hot[k], a = id && ABIL.find(x => x.id === id);
       return a ? `<button class="hs" data-cast="${id}" aria-label="${a.n}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg><i class="cd"></i><span class="ct"></span></button>`
-        : `<button class="hs empty" data-goab="1" aria-label="Fähigkeit hinzufügen">+</button>`; }).join('') + `<button class="hs bst" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">x2</span></button>`;
+        : `<button class="hs empty" data-goab="1" aria-label="Fähigkeit hinzufügen">+</button>`; }).join('') + `<button class="hs shp" data-goshop="1" aria-label="Shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.4 11h10.2L20 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></button><button class="hs bst" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">x2</span></button>`;
     el.querySelectorAll('[data-cast]').forEach(b => b.onclick = () => cast(b.dataset.cast));
     el.querySelectorAll('[data-goab]').forEach(b => b.onclick = () => goTab('a'));
+    el.querySelectorAll('[data-goshop]').forEach(b => b.onclick = () => goTab('k'));
     $('boost').onclick = boostClick;
   }
   el.querySelectorAll('[data-cast]').forEach(b => { const a = ABIL.find(x => x.id === b.dataset.cast), left = (S.abT[a.id] || 0) - now, tot = abCd(a) * 1000;
@@ -871,16 +897,20 @@ function renderAb(L) {
     ${abSel && AL(abSel) ? (() => { const a = ABIL.find(x => x.id === abSel), l = AL(abSel), c = abUpCost(abSel); return `<div class="wh" style="margin-top:10px"><p><b style="display:inline;font-size:14px;color:var(--txt)">${a.n}</b> · Lvl. ${l}<br>Stärke x${abPow(abSel).toFixed(2)} · Abklingzeit ${Math.round(abCd(a))} s</p>
       <div class="row2"><button class="br" id="abeq">${S.hot.includes(abSel) ? 'Ablegen' : 'Ausrüsten'}</button><button class="br" id="abup" ${l >= 10 || S.dm < c ? 'disabled' : ''}>${l >= 10 ? 'Max' : 'Verbessern ✦' + c}</button></div></div>`; })() : ''}
     <div class="row2" style="margin-top:10px"><button class="br" id="aball" ${own.some(a => AL(a.id) < 10 && S.dm >= abUpCost(a.id)) ? '' : 'disabled'}>Alle verbessern</button><button class="br" id="abbest" ${own.length ? '' : 'disabled'}>Beste ausrüsten</button></div>
-    <button class="br unl" id="abdraw" style="margin-top:9px" ${allOwned || S.dm < dc ? 'disabled' : ''}>${allOwned ? 'ALLE FÄHIGKEITEN GEZOGEN' : 'FÄHIGKEIT ZIEHEN<br>✦' + dc}</button>
+    <button class="br unl" data-shop="1" style="margin-top:9px">🛒 FÄHIGKEITEN-KISTE IM SHOP</button>
     <div class="hint">✦ Dunkle Materie bekommst du bei jedem Warp-Sprung (ab Planet 3).</div>`;
   L.querySelectorAll('[data-ab]').forEach(b => b.onclick = () => { abSel = abSel === b.dataset.ab ? null : b.dataset.ab; render(); });
   if ($('abeq')) $('abeq').onclick = () => { const i = S.hot.indexOf(abSel); if (i >= 0) S.hot[i] = null; else { const f = S.hot.findIndex(x => !x); if (f >= 0 && f < 5) S.hot[f] = abSel; else if (S.hot.length < 5) S.hot.push(abSel); else S.hot[4] = abSel; } S.hot = S.hot.slice(0, 5); save('now'); hotbar(true); render(); };
   if ($('abup')) $('abup').onclick = () => { const c = abUpCost(abSel); if (AL(abSel) >= 10 || S.dm < c) return; S.dm -= c; S.ab[abSel]++; save('now'); render(); };
   $('aball').onclick = () => { let go = true; while (go) { go = false; const c = own.filter(a => AL(a.id) < 10).sort((a, b) => abUpCost(a.id) - abUpCost(b.id))[0]; if (c && S.dm >= abUpCost(c.id)) { S.dm -= abUpCost(c.id); S.ab[c.id]++; go = true; } } save('now'); render(); };
   $('abbest').onclick = () => { S.hot = own.slice().sort((a, b) => AL(b.id) - AL(a.id)).slice(0, 5).map(a => a.id); save('now'); hotbar(true); render(); };
-  $('abdraw').onclick = () => { const left = ABIL.filter(a => !AL(a.id)); if (!left.length || S.dm < dc) return; S.dm -= dc; const a = left[(Math.random() * left.length) | 0]; S.ab[a.id] = 1;
-    const f = [0, 1, 2, 3, 4].find(k => !S.hot[k]); if (f != null) S.hot[f] = a.id; save('now'); hotbar(true);
-    overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${a.ico}</svg></div></div><h2 style="color:#c9a2ff">${a.n}</h2><p>${a.d}<br>Abklingzeit ${a.cd} s${f != null ? '<br>Liegt jetzt auf deiner Hotbar.' : ''}</p>`, [['Nice', () => render()]]); };
+  L.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => goTab('k'));
+}
+function renderShop(L) {
+  L.innerHTML = `<div class="skh"><span>Shop</span><b class="dm">✦ ${S.dm || 0}</b></div>
+    <div class="shop">${CRATES.map(k => `<div class="sbox" style="--rc:${k.c}"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.4"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/>${k.ab && k.w ? '<path d="M7 3l1 2M17 3l-1 2M12 1v3"/>' : ''}</svg><div><b>${k.n}</b><small>${k.d}</small>${k.w ? `<small class="odds">${['g', 's', 'e', 'l'].filter(r => k.w[r]).map(r => `<i style="color:${RAR[r].c}">${k.w[r]} %</i>`).join(' ')}</small>` : ''}</div><button class="br" data-cr="${k.id}" ${S.dm < k.cost ? 'disabled' : ''}>✦${k.cost}</button></div>`).join('')}</div>
+    <div class="hint">✦ Dunkle Materie gibt's bei jedem Warp-Sprung (ab Planet 3). Prozente = Chance auf Gewöhnlich / Selten / Episch / Legendär.</div>`;
+  L.querySelectorAll('[data-cr]').forEach(b => b.onclick = () => openShopCrate(CRATES.find(k => k.id === b.dataset.cr)));
 }
 function renderHangar(L) {
   L.innerHTML = `<div class="eqrow">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<div><span>${SLOT[s].n}</span><div class="ib" style="border-color:${RAR[it.r].c}">${itemSvg(it, 40)}</div><small>Lvl. ${S.inv[it.id] || 1} · +${Math.round(itemVal(it, S.inv[it.id]) * 100)} % ${SLOT[s].st}</small></div>`; }).join('')}</div>
@@ -889,13 +919,11 @@ function renderHangar(L) {
       return `<button data-it="${it.id}" ${l ? '' : 'disabled'} style="--rc:${RAR[it.r].c}" class="${on ? 'on' : ''} ${l ? '' : 'no'}">${l ? itemSvg(it, 34) : '?'}<small>${l ? 'Lvl. ' + l : RAR[it.r].n}</small>${on ? '<em>AUSG</em>' : ''}</button>`; }).join('')}</div>
     <div class="hint" id="itinfo">Tipp auf ein Teil zum Ausrüsten. Doppelte Teile steigen eine Stufe auf (max. 10).</div>
     <button class="br" id="best" style="width:100%;margin:2px 0 12px">Beste ausrüsten</button>
-    <div class="skh"><span>Kisten</span><b class="dm">✦ ${S.dm || 0}</b></div>
-    <div class="crates">${CRATES.map(k => `<button class="br" data-cr="${k.id}" ${S.dm < k.cost ? 'disabled' : ''} style="--rc:${k.c}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.6"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/></svg><b>${k.n}</b><small>✦${k.cost}</small></button>`).join('')}</div>
-    <div class="hint">Schrottkiste: meist gewöhnlich · Bandenkiste: oft selten · Nullraum-Kiste: 20 % Legendär</div>`;
+    <button class="br unl" data-shop="1" style="margin-top:4px">🛒 ZUM SHOP · KISTEN</button>`;
   L.querySelectorAll('[data-hs]').forEach(b => b.onclick = () => { hTab = b.dataset.hs; render(); });
   L.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { const it = IT(b.dataset.it); S.eq[it.s] = it.id; save('now'); render(); toast(`${it.n} ausgerüstet · +${Math.round(itemVal(it, S.inv[it.id]) * 100)} % ${SLOT[it.s].st}`); });
   $('best').onclick = bestEquip;
-  L.querySelectorAll('[data-cr]').forEach(b => b.onclick = () => openCrate(CRATES.find(k => k.id === b.dataset.cr)));
+  L.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => goTab('k'));
 }
 
 // ================== Schleife ==================
