@@ -228,7 +228,7 @@ const myId = () => (logged() && BB.profile && BB.profile.id) || '';
 const score = o => (o.pc || 0) * 1e7 + (o.dmAll || 0) * 1e5 + (o.p || 1) * 2000 + Math.min(1999, o.done || 0);
 let pulled = !logged(), lastCloud = 0;
 function save(cloud) {
-  S.t = Date.now(); S.last = Date.now(); S.done = G ? G.total - G.left : 0; if (myId()) S.own = myId();
+  S.t = Date.now(); S.last = Date.now(); S.done = G && built ? G.total - G.left : 0; if (myId()) S.own = myId();
   try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
   if (cloud && logged() && pulled && BB.cloud) { BB.cloud.put('drill', S, cloud === 'now'); lastCloud = Date.now(); }
   svState();
@@ -363,11 +363,12 @@ function ray(x, y, a, maxL) {
 const critMul = () => Math.random() < critCh() ? 3 : 1;
 
 function step(dt) {
+  if (travel > 0) return travelStep(dt);
   const R = rate();
   // Schiff kreist um den Planeten
   if ((surfT -= dt) <= 0) { surfR = surface(); surfT = .5; }
   ship.orb += dt * .22 * (boosting() ? 1.6 : 1);
-  const orbR = Math.min(Math.min(W, H) / 2 - 20, Math.max(40, surfR + 34)), tx = G.cx + Math.cos(ship.orb) * orbR, ty = G.cy + Math.sin(ship.orb) * orbR * .92;
+  const orbR = Math.max(50, surfR + CELL * 2 + 26), tx = Math.max(16, Math.min(W - 16, G.cx + Math.cos(ship.orb) * orbR)), ty = Math.max(16, Math.min(H - 16, G.cy + Math.sin(ship.orb) * orbR));
   ship.vx += ((tx - ship.x) * 3 - ship.vx * 2.6) * dt; ship.vy += ((ty - ship.y) * 3 - ship.vy * 2.6) * dt;
   ship.x += ship.vx * dt; ship.y += ship.vy * dt; ship.x = Math.max(18, Math.min(W - 18, ship.x)); ship.y = Math.max(18, Math.min(H - 18, ship.y));
   const toC = Math.atan2(G.cy - ship.y, G.cx - ship.x);
@@ -525,7 +526,7 @@ function overlays() {
 const SC = document.createElement('canvas'), scg = SC.getContext('2d'); SC.width = SC.height = 44;
 function drawShip() {
   const hull = eqItem('h'), reac = eqItem('r'), eng = eqItem('t'), nf = eng.f || 1;
-  scg.clearRect(0, 0, 44, 44); scg.save(); scg.translate(22, 22); scg.rotate(ship.ang); scg.scale(1.15, 1.15);
+  scg.clearRect(0, 0, 44, 44); scg.save(); scg.translate(22, 22); scg.rotate(ship.ang); scg.scale(1, 1);
   for (let k = 0; k < nf; k++) { const ox = nf === 1 ? 0 : (k - (nf - 1) / 2) * 6, col = eng.col === 'rainbow' ? `hsl(${(performance.now() / 6 + k * 120) % 360},100%,65%)` : (boosting() ? '#9dff6a' : eng.col);
     scg.fillStyle = col; scg.beginPath(); scg.moveTo(ox - 3, -8); scg.lineTo(ox, -14 - Math.random() * (eng.tr ? 8 : 4)); scg.lineTo(ox + 3, -8); scg.fill();
     scg.fillStyle = '#fff'; scg.fillRect(ox - 1, -10, 2, 2); }
@@ -534,7 +535,7 @@ function drawShip() {
   scg.fillStyle = mixH(hull.col.length === 7 ? hull.col : '#ffffff', '#000000', .55); scg.beginPath(); scg.moveTo(0, 10); scg.lineTo(-3, 2); scg.lineTo(3, 2); scg.fill();
   scg.fillStyle = reac.col; scg.fillRect(-2, -2, 4, 4); scg.fillStyle = '#fff'; scg.fillRect(-1, -1, 2, 2);
   scg.restore();
-  const z = 1.45, sz = 44 * z; g.imageSmoothingEnabled = false;
+  const z = .82, sz = 44 * z; g.imageSmoothingEnabled = false;
   g.globalCompositeOperation = 'lighter'; g.globalAlpha = .35; g.drawImage(SC, ship.x - sz / 2 - 1, ship.y - sz / 2 - 1, sz + 2, sz + 2); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   g.drawImage(SC, ship.x - sz / 2, ship.y - sz / 2, sz, sz); g.imageSmoothingEnabled = true;
 }
@@ -552,6 +553,7 @@ function draw(now) {
   STARS.forEach((L, l) => { const sp = [3, 7, 14][l], sz = [1, 2, 2][l]; for (const st of L) { const x = Math.floor(st.x * W), y = Math.floor((st.y * H + tt * sp) % H), tw = .45 + .55 * Math.abs(Math.sin(tt * (1 + l) + st.ph));
     g.globalAlpha = tw * (l ? .9 : .5); g.fillStyle = st.c; g.fillRect(x, y, sz, sz); if (l === 2 && tw > .85) { g.fillRect(x - 2, y, 1, 1); g.fillRect(x + 3, y, 1, 1); g.fillRect(x, y - 2, 1, 1); g.fillRect(x, y + 3, 1, 1); } } });
   g.globalAlpha = 1;
+  g.save(); g.translate(0, pOff);
   // Atmosphäre
   { const gr = g.createRadialGradient(G.cx, G.cy, G.R * .9, G.cx, G.cy, G.R * 1.35); gr.addColorStop(0, G.pal[2] + '33'); gr.addColorStop(1, G.pal[2] + '00'); g.fillStyle = gr; g.beginPath(); g.arc(G.cx, G.cy, G.R * 1.35, 0, 7); g.fill(); }
   if (tDirty && now - terrT > 40) { drawTerrain(); terrT = now; }
@@ -560,6 +562,7 @@ function draw(now) {
   if (G.oreL === undefined || G.oreT < now) { G.oreL = []; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i]) G.oreL.push(i); G.oreT = now + 1000; }
   for (const i of G.oreL) { if (!G.alive[i]) continue; const ph = Math.sin(tt * 3 + i); if (ph < .8) continue; const [x, y] = cellXY(i), q = (ph - .8) * 5;
     g.fillStyle = `rgba(255,255,255,${q})`; g.fillRect(x - 1, y - 5, 2, 10); g.fillRect(x - 5, y - 1, 10, 2); }
+  g.restore();
   g.globalCompositeOperation = 'lighter';
   // Strahlen
   if (WD('line') && lineTarget >= 0 && G.alive[lineTarget]) { const [x, y] = cellXY(lineTarget); beam(ship.x, ship.y, x, y, '#5ce8f0', 2.2); for (const j of extraT) if (G.alive[j]) { const [x2, y2] = cellXY(j); beam(ship.x, ship.y, x2, y2, '#5ce8f0', 1.4); } }
@@ -675,12 +678,31 @@ $('lb').onclick = () => window.BB && BB.open('board', 'drill');
 let toastT = 0; function toast(s) { const t = $('toast'); if (!t) return; t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
 function overlay(html, btns) { $('ovb').innerHTML = html + btns.map((b, k) => `<button class="br" data-k="${k}">${b[0]}</button>`).join(''); $('ov').classList.remove('hide'); $('ovb').querySelectorAll('[data-k]').forEach(el => el.onclick = () => { $('ov').classList.add('hide'); btns[+el.dataset.k][1] && btns[+el.dataset.k][1](); }); }
 
+// Nach dem Abbau: Schiff fliegt raus, Sterne ziehen vorbei, neuer Planet schwebt rein
+let travel = 0, built = true, pOff = 0;
+function travelStep(dt) {
+  travel -= dt;
+  if (travel > 1.5) { ship.vy -= 900 * dt; ship.vx *= .96; ship.x += ship.vx * dt; ship.y += ship.vy * dt; warpT = 1.4; }
+  else {
+    if (!built) { buildPlanet(0); built = true; intro = 2.4; introName = G.name; ship.x = W / 2; ship.y = -30; ship.vx = 0; ship.vy = 120; surfR = surface(); save('now'); }
+    const tx = G.cx + Math.cos(ship.orb) * (surfR + CELL * 2 + 26), ty = G.cy + Math.sin(ship.orb) * (surfR + CELL * 2 + 26);
+    ship.vx += ((tx - ship.x) * 3 - ship.vx * 2.6) * dt; ship.vy += ((ty - ship.y) * 3 - ship.vy * 2.6) * dt; ship.x += ship.vx * dt; ship.y += ship.vy * dt;
+  }
+  const k = built ? Math.max(0, Math.min(1, (travel - .2) / 1.3)) : 1;
+  pOff = built ? H * .9 * k * k : 0;
+  for (let q = parts.length - 1; q >= 0; q--) { const o = parts[q]; o.x += o.vx * dt; o.y += o.vy * dt; if ((o.t -= dt) <= 0) parts.splice(q, 1); }
+  for (let q = floats.length - 1; q >= 0; q--) { const o = floats[q]; o.y -= 26 * dt; if ((o.t -= dt) <= 0) floats.splice(q, 1); }
+  for (let q = fx.length - 1; q >= 0; q--) if ((fx[q].t -= dt) <= 0) fx.splice(q, 1);
+  if (warpT > 0) warpT -= dt; shake = Math.max(0, shake - dt * 30); if (intro > 0) intro -= dt;
+  proj.length = 0; meteors.length = 0; mines.length = 0; bhole = null; lineTarget = -1; G.star = null;
+  if (travel <= 0) { travel = 0; pOff = 0; }
+}
 function planetDone() {
   const gain = (1 + Math.floor(S.p / 3) + WP('kris')) * (G.boss ? 3 : 1), old = G.name;
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
   if (window.BB) { BB.record('drill', S.p - 1, { n: old }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
-  buildPlanet(0); intro = 2.4; introName = G.name; shake = 12; save('now');
-  toast(G.boss ? `Achtung: Boss-Planet! ${G.name}` : `Planet abgebaut! +◆${gain} · Weiter zu ${G.name}`);
+  travel = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
+  toast(`Planet abgebaut! +◆${gain} · Kurs auf Planet ${S.p}`);
   if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);
   render();
 }
@@ -727,7 +749,7 @@ const abUpCost = id => 4 * AL(id);
 const meteors = [];
 let bhole = null;
 function cast(id, auto) {
-  const a = ABIL.find(x => x.id === id); if (!a || !AL(id) || !abReady(id) || !G || G.clearing) return;
+  const a = ABIL.find(x => x.id === id); if (!a || !AL(id) || !abReady(id) || !G || G.clearing || travel > 0) return;
   const P = abPow(id), D = Math.max(totalDps(), Math.pow(1.72, S.p - 1) * 3);
   S.abT[id] = Date.now() + abCd(a) * 1000;
   if (id === 'over') S.buf.dmg = Date.now() + 12000 * (1 + .1 * (AL(id) - 1)) ;
