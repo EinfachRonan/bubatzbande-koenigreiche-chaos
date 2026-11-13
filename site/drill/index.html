@@ -293,8 +293,9 @@ function resize() {
   const r = cv.getBoundingClientRect(); DPR = Math.min(2, devicePixelRatio || 1);
   scanPat = null; W = r.width; H = r.height; cv.width = W * DPR; cv.height = H * DPR; TC.width = cv.width; TC.height = cv.height;
   g.setTransform(DPR, 0, 0, DPR, 0, 0); tg.setTransform(DPR, 0, 0, DPR, 0, 0);
-  const keep = G ? G.total - G.left : S.done || 0;
-  buildPlanet(keep);
+  if (travel > 0 && !built) { built = true; buildPlanet(0); intro = 2.4; introName = G.name; }
+  else buildPlanet(G ? G.total - G.left : S.done || 0);
+  ship.x = Math.max(14, Math.min(W - 14, ship.x || W / 2)); ship.y = Math.max(14, Math.min(H - 14, ship.y || 40)); surfR = surface();
 }
 function buildPlanet(removed) {
   const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0, pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : PAL[(p - 1) % PAL.length];
@@ -600,7 +601,7 @@ function draw(now) {
   if (WD('drones')) for (const d of drones.slice(0, Math.min(6, 3 + Math.floor(ST('drones') / 2)))) { g.strokeStyle = '#9dff6a'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(d.x, d.y - 4); g.lineTo(d.x + 4, d.y + 3); g.lineTo(d.x - 4, d.y + 3); g.closePath(); g.stroke(); }
   // Schiff
   const tx = lineTarget >= 0 ? cellXY(lineTarget) : [ship.x, ship.y + 50];
-  const a = Math.atan2(tx[1] - ship.y, tx[0] - ship.x) - Math.PI / 2; ship.ang += (a - ship.ang) * .15;
+  const a = Math.atan2(tx[1] - ship.y, tx[0] - ship.x) - Math.PI / 2; { let d = a - ship.ang; d = Math.atan2(Math.sin(d), Math.cos(d)); ship.ang += d * .15; }
   drawShip();
   // Texte
   g.font = '10px Silkscreen,ui-monospace,monospace'; g.textAlign = 'center';
@@ -693,9 +694,9 @@ function overlay(html, btns) { $('ovb').innerHTML = html + btns.map((b, k) => `<
 let travel = 0, built = true, pOff = 0, travT0 = 2.6;
 function travelStep(dt) {
   travel -= dt;
-  if (travel > 1.5) { ship.vy -= 900 * dt; ship.vx *= .96; ship.x += ship.vx * dt; ship.y += ship.vy * dt; warpT = 1.4; }
+  if (travel > 1.5) { const tx = W / 2, ty = Math.max(34, H * .22); ship.vx += ((tx - ship.x) * 5 - ship.vx * 4) * dt; ship.vy += ((ty - ship.y) * 5 - ship.vy * 4) * dt; ship.x += ship.vx * dt; ship.y += ship.vy * dt; ship.ang += (0 - ship.ang) * .1; warpT = 1.4; }
   else {
-    if (!built) { buildPlanet(0); built = true; intro = 2.4; introName = G.name; ship.x = W / 2; ship.y = -30; ship.vx = 0; ship.vy = 120; surfR = surface(); save('now'); }
+    if (!built) { buildPlanet(0); built = true; intro = 2.4; introName = G.name; surfR = surface(); save('now'); }
     const tx = Math.max(16, Math.min(W - 16, G.cx + Math.cos(ship.orb) * (surfR + CELL * 2 + 26))), ty = Math.max(16, Math.min(H - 16, G.cy + Math.sin(ship.orb) * (surfR + CELL * 2 + 26)));
     ship.vx += ((tx - ship.x) * 3 - ship.vx * 2.6) * dt; ship.vy += ((ty - ship.y) * 3 - ship.vy * 2.6) * dt; ship.x += ship.vx * dt; ship.y += ship.vy * dt;
   }
@@ -708,6 +709,8 @@ function travelStep(dt) {
   if (warpT > 0) warpT -= dt; shake = Math.max(0, shake - dt * 30); if (intro > 0) intro -= dt;
   proj.length = 0; meteors.length = 0; mines.length = 0; bhole = null; lineTarget = -1; G.star = null;
   if (travel <= 0) { travel = 0; pOff = 0; }
+  if (!isFinite(ship.x) || !isFinite(ship.y)) { ship.x = W / 2; ship.y = 40; ship.vx = ship.vy = 0; }
+  ship.x = Math.max(14, Math.min(W - 14, ship.x)); ship.y = Math.max(14, Math.min(H - 14, ship.y));
 }
 function planetDone() {
   const gain = (1 + Math.floor(S.p / 3) + WP('kris')) * (G.boss ? 3 : 1), old = G.name;
