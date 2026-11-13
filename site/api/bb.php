@@ -15,7 +15,7 @@ $GAMES = [
   'hof'    => ['asc' => false, 'min' => 1, 'max' => 1e18],
   'drill'  => ['asc' => false, 'min' => 1, 'max' => 100000],
 ];
-$ACH = ['profil', 'krieg_win', 'krieg_hart', 'krieg_fast', 'krieg_kills', 'match_3', 'match_10', 'match_30', 'match_boss', 'match_25', 'match_50', 'quiz_10', 'quiz_perfekt', 'quiz_party', 'duell_win', 'duell_hart', 'duell_null', 'duell_prost', 'schach_win', 'schach_duelle', 'allrounder', 'runner_20k', 'runner_x20', 'match_100', 'krieg_kampagne', 'krieg_sterne', 'hof_mrd', 'quiz_marathon', 'karten_gold', 'reich', 'duell_meister', 'runner_1000', 'runner_5000', 'runner_gold', 'hof_klick', 'hof_10k', 'hof_mio', 'hof_bande', 'karten_10', 'karte_max', 'karten_alle', 'drill_1', 'drill_10', 'drill_waffen', 'drill_100'];
+$ACH = ['profil', 'krieg_win', 'krieg_hart', 'krieg_fast', 'krieg_kills', 'match_3', 'match_10', 'match_30', 'match_boss', 'match_25', 'match_50', 'quiz_10', 'quiz_perfekt', 'quiz_party', 'duell_win', 'duell_hart', 'duell_null', 'duell_prost', 'schach_win', 'schach_duelle', 'allrounder', 'runner_20k', 'runner_x20', 'match_100', 'krieg_kampagne', 'krieg_sterne', 'hof_mrd', 'quiz_marathon', 'karten_gold', 'reich', 'duell_meister', 'runner_1000', 'runner_5000', 'runner_gold', 'hof_klick', 'hof_10k', 'hof_mio', 'hof_bande', 'karten_10', 'karte_max', 'karten_alle', 'drill_1', 'drill_10', 'drill_waffen', 'drill_100', 'drill_warp'];
 $AV = ['artur', 'kobold', 'nille', 'geist', 'molly', 'lg3', 'fokuhila', 'kraeuter', 'don', 'koenig', 'allan', 'marwin'];
 
 $dir = __DIR__ . '/data';

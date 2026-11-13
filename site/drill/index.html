@@ -59,12 +59,26 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .skh{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 10px;font-size:13px;color:#cfd8da}
 .skh b{color:var(--txt);font-size:16px}
 .nav{flex:none;display:flex;gap:6px;padding:6px 8px max(8px,env(safe-area-inset-bottom))}
-.nav button{position:relative;flex:1;height:54px;background:transparent;border:1.5px solid #3a4246;color:var(--txt);font:700 12px var(--mono);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.nav button{position:relative;flex:1;min-width:0;height:54px;background:transparent;border:1.5px solid #3a4246;color:var(--txt);font:700 12px var(--mono);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
 .nav button svg{width:22px;height:22px}
 .nav button.on{border-color:var(--cy);background:#081619}
-.nav button.boost{flex:1.5}
+.nav button.boost{flex:1.3}
 .nav button.boost.act{border-color:var(--li);color:var(--li)}
 .nav .dot{position:absolute;top:-5px;right:-5px;width:12px;height:12px;border-radius:50%;background:var(--pk)}
+.sv{font-size:10px;color:var(--mut);white-space:nowrap;margin-top:3px}
+.sv.ok{color:var(--li)}
+.dm{color:#c9a2ff}
+.boss{color:var(--pk)!important}
+.wh{border:1.5px solid #7b5cff;background:#0d0a18;padding:14px;margin-bottom:9px;text-align:center}
+.wh b{display:block;font-size:22px;color:#c9a2ff;margin:4px 0}
+.wh p{font-size:12px;color:#cfd8da;line-height:1.5}
+.wh .br{width:100%;margin-top:10px;height:52px}
+.wh .br:not(:disabled){color:#c9a2ff;border-color:#7b5cff}
+.wh .br:not(:disabled)::before,.wh .br:not(:disabled)::after{border-color:#c9a2ff}
+.sk.wp6 button{border-color:#5a3fb0;background:#0d0a18}
+.sk.wp6 button .q{background:#c9a2ff}
+.savebar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:12px 2px 10px;font-size:11px;color:var(--mut)}
+.savebar button{height:34px;padding:0 12px;background:transparent;border:1px solid var(--line);color:var(--txt);font:700 12px var(--mono);cursor:pointer}
 .toast{position:absolute;left:50%;top:92px;transform:translateX(-50%);z-index:5;padding:10px 14px;border:1.5px solid var(--cy);background:rgba(5,6,7,.94);font-size:13px;text-align:center;pointer-events:none;opacity:0;transition:opacity .3s;max-width:90%}
 .toast.on{opacity:1}
 .ov{position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:20px}
@@ -80,7 +94,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
   <div class="hud">
     <a class="back" href="../" aria-label="Zur Startseite">←</a>
     <span class="cry" id="cry">◆0</span>
-    <div class="mid"><div class="cr" id="cr">0 CR</div><div class="mul" id="mul">x1.00</div></div>
+    <div class="mid"><div class="cr" id="cr">0 CR</div><div class="mul" id="mul">x1.00</div><div class="sv" id="sv"></div></div>
     <div class="pl"><div class="box"><i id="plc"></i></div><small id="pln">Planet 1</small><small id="plp">0/0</small></div>
   </div>
   <canvas id="cv"></canvas>
@@ -90,13 +104,14 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
     <nav class="nav">
       <button data-t="w" class="on" aria-label="Waffen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l7-7M14 4l6 6-8 8-6-6z"/></svg>Waffen</button>
       <button data-t="s" aria-label="Skills"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7 7 .5-5.5 4.5 2 7L12 17l-6.5 4 2-7L2 9.5 9 9z"/></svg>Skills<span class="dot" id="skdot" hidden></span></button>
-      <button class="boost" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">Boost x2 · 5 min</span></button>
+      <button data-t="p" aria-label="Warp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-2 0a2 2 0 1 0 4 0a4 4 0 1 0-8 0a6 6 0 1 0 12 0a8 8 0 1 0-16 0"/></svg>Warp<span class="dot" id="wpdot" hidden></span></button>
+      <button class="boost" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">Boost x2</span></button>
       <button id="lb" aria-label="Bestenliste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/></svg>Rang</button>
     </nav>
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261113a"></script>
+<script src="../bb.js?v=20261113b"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -120,6 +135,15 @@ const PAL = [
   ['#0e4c52', '#0a3439', '#38d6d8'], ['#e07b32', '#7a3613', '#ffb46a'], ['#8c4be0', '#3d1d6d', '#d9a8ff'],
   ['#3f9a3a', '#1c4a1a', '#b5ff8a'], ['#c8344f', '#5e1222', '#ff9ab0'], ['#7aa8d8', '#28466a', '#e2f2ff'], ['#d9b22a', '#6e550c', '#fff0a0']
 ];
+const WARP = [
+  { id: 'start', n: 'Startkapital', d: l => 'Start mit ' + fmt(startCr(l + 1)) + ' CR', max: 10, cost: l => l + 1, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
+  { id: 'kris', n: 'Kristallregen', d: () => '+1 ◆ pro Planet', max: 5, cost: l => 2 * (l + 1), ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/>' },
+  { id: 'boost', n: 'Nachbrenner', d: () => 'Boost +2 min', max: 5, cost: l => 2 * (l + 1), ico: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' },
+  { id: 'skip', n: 'Hyperraum', d: () => 'Start +3 Planeten', max: 5, cost: l => 3 * (l + 1), ico: '<path d="M4 12h12M12 6l6 6-6 6M4 6v12"/>' },
+  { id: 'comet', n: 'Kometenjäger', d: () => 'Kometen öfter, +50 %', max: 3, cost: l => 3 * (l + 1), ico: '<circle cx="16" cy="8" r="3"/><path d="M13 11L4 20M11 7L5 13M17 13l-6 6"/>' },
+  { id: 'tap', n: 'Fingerlaser', d: () => '+100 % Tipp-Schaden', max: 5, cost: l => l + 1, ico: '<path d="M9 11V5a2 2 0 0 1 4 0v6M13 9a2 2 0 0 1 4 0v4a7 7 0 0 1-7 7 6 6 0 0 1-5-3l-2-4a2 2 0 0 1 3-2l2 2"/>' }
+];
+const startCr = l => l ? 500 * Math.pow(12, l - 1) : 0;
 const NAMES = ['Kräuterhöhle', 'Rostrot', 'Violettia', 'Moosmond', 'Spießerstern', 'Frostkugel', 'Goldader'];
 const fmt = n => { if (!isFinite(n)) return '∞'; if (n < 1000) return n < 10 && n % 1 ? n.toFixed(1) : Math.floor(n).toString();
   const u = ['K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc']; let i = -1; while (n >= 1000 && i < u.length - 1) { n /= 1000; i++; } return n.toFixed(n < 10 ? 2 : n < 100 ? 1 : 0) + u[i]; };
@@ -127,17 +151,51 @@ const $ = id => document.getElementById(id);
 
 // ================== Speicherstand ==================
 let S = null;
-const fresh = () => ({ cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0 });
+const fresh = () => ({ cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '' });
+const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {} });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
-if (!S || typeof S.cr !== 'number') S = fresh();
-const save = (cloud) => { S.t = Date.now(); S.last = Date.now(); S.done = G ? G.total - G.left : 0; try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {} if (cloud && window.BB && BB.cloud) BB.cloud.put('drill', S); };
+S = S && typeof S.cr === 'number' ? norm(S) : fresh();
+const logged = () => !!(window.BB && BB.loggedIn);
+const myId = () => (logged() && BB.profile && BB.profile.id) || '';
+// Fortschritt als Zahl, damit beim Abgleich nie der weitere Stand verloren geht
+const score = o => (o.pc || 0) * 1e7 + (o.dmAll || 0) * 1e5 + (o.p || 1) * 2000 + Math.min(1999, o.done || 0);
+let pulled = !logged(), lastCloud = 0;
+function save(cloud) {
+  S.t = Date.now(); S.last = Date.now(); S.done = G ? G.total - G.left : 0; if (myId()) S.own = myId();
+  try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
+  if (cloud && logged() && pulled && BB.cloud) { BB.cloud.put('drill', S, cloud === 'now'); lastCloud = Date.now(); }
+  svState();
+}
+function svState() {
+  const el = $('sv'); if (!el) return;
+  if (!logged()) { el.className = 'sv'; el.textContent = '💾 nur auf diesem Gerät'; return; }
+  if (!pulled) { el.className = 'sv'; el.textContent = '☁ lädt …'; return; }
+  el.className = 'sv ok'; el.textContent = lastCloud ? '☁ gespeichert ' + new Date(lastCloud).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '☁ Konto verbunden';
+}
+async function pull() {
+  if (!logged() || !BB.cloud) { pulled = true; svState(); return; }
+  try {
+    const c = await BB.cloud.get('drill');
+    const foreign = S.own && S.own !== myId();
+    if (c && typeof c.cr === 'number' && (foreign || score(c) > score(S) || (score(c) === score(S) && (c.t || 0) > (S.t || 0)))) {
+      S = norm(c); try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
+      if (W) buildPlanet(S.done || 0); render(); toast('Spielstand vom Konto geladen');
+    } else if (!c && foreign) { S = fresh(); if (W) buildPlanet(0); render(); }
+    pulled = true; save('now');
+  } catch (e) { setTimeout(pull, 8000); }
+  svState();
+}
 const SK = id => S.sk[id] || 0;
 const WL = id => S.w[id] || 0;
+const WP = id => S.wp[id] || 0;
 
 // ================== Werte ==================
 const boosting = () => S.boostEnd > Date.now();
-const mult = () => (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1);
-const crMult = () => (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * (1 + .02 * (S.best - 1));
+const dmBonus = () => 1 + .2 * (S.dmAll || 0);
+const dmGain = () => S.p < 15 ? 0 : Math.max(1, Math.floor(Math.pow((S.p - 1) / 7, 1.6)));
+const mult = () => (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus();
+const crMult = () => (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * (1 + .02 * (S.best - 1)) * dmBonus();
+const totalDps = () => WEAP.reduce((a, w) => a + wDps(w), 0);
 const critCh = () => .04 * SK('crit');
 const rate = () => 1 + .1 * SK('spd');
 const wDps = w => { const l = WL(w.id); return l ? w.dps * l * Math.pow(2, Math.floor(l / 25)) * mult() : 0; };
@@ -159,15 +217,15 @@ function resize() {
   buildPlanet(keep);
 }
 function buildPlanet(removed) {
-  const p = S.p, rnd = mulberry(p * 7919 + 13), pal = PAL[(p - 1) % PAL.length];
+  const p = S.p, rnd = mulberry(p * 7919 + 13), boss = p % 10 === 0, pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : PAL[(p - 1) % PAL.length];
   CELL = Math.max(8, Math.floor(Math.min(W, H * 1.1) / 34)); COLS = Math.floor(W / CELL); ROWS = Math.floor(H / CELL);
-  const ox = Math.floor((W - COLS * CELL) / 2), oy = Math.floor((H - ROWS * CELL) / 2), hp0 = Math.pow(1.72, p - 1), v0 = Math.pow(1.62, p - 1);
+  const ox = Math.floor((W - COLS * CELL) / 2), oy = Math.floor((H - ROWS * CELL) / 2), hp0 = Math.pow(1.72, p - 1) * (boss ? 3 : 1), v0 = Math.pow(1.62, p - 1) * (boss ? 2.5 : 1);
   const N = COLS * ROWS, alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   const ccx = (COLS - 1) / 2, ccy = (ROWS - 1) / 2 + ROWS * .04, R = Math.min(COLS * .44, ROWS * .4);
   const bumps = Array.from({ length: 4 }, () => [rnd() * 6.283, .03 + rnd() * .04, 3 + (rnd() * 6 | 0)]);
   const craters = Array.from({ length: 2 + (rnd() * 3 | 0) }, () => { const a = rnd() * 6.283, d = R * (.75 + rnd() * .3); return [ccx + Math.cos(a) * d, ccy + Math.sin(a) * d, 1.5 + rnd() * 2.5]; });
-  const oreCh = .025 + .015 * SK('ore');
+  const oreCh = (.025 + .015 * SK('ore')) * (boss ? 2 : 1);
   let total = 0;
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     const dx = c - ccx, dy = r - ccy, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
@@ -179,7 +237,7 @@ function buildPlanet(removed) {
     mx[i] = hp[i] = hp0 * (1 + depth * 2.2) * (.85 + rnd() * .3);
     if (rnd() < oreCh * (.6 + depth)) ore[i] = 1 + (rnd() < .12 + depth * .15 ? 1 : 0);
   }
-  G = { p, pal, ox, oy, alive, hp, mx, ore, dep, lit, total, v0, cx: ox + (ccx + .5) * CELL, cy: oy + (ccy + .5) * CELL, R: R * CELL, name: NAMES[(p - 1) % NAMES.length] + ' ' + (Math.floor((p - 1) / NAMES.length) + 1), clearing: 0 };
+  G = { p, pal, ox, oy, alive, hp, mx, ore, dep, lit, total, v0, cx: ox + (ccx + .5) * CELL, cy: oy + (ccy + .5) * CELL, R: R * CELL, boss, name: boss ? 'Spießer-Festung ' + p / 10 : NAMES[(p - 1) % NAMES.length] + ' ' + (Math.floor((p - 1) / NAMES.length) + 1), clearing: 0 };
   G.left = total;
   // Fortschritt wiederherstellen: von außen nach innen abtragen
   let n = Math.min(removed | 0, total - 1);
@@ -274,6 +332,10 @@ function step(dt) {
     if (!dR) continue;
     if ((d.cd -= dt * R) <= 0) { d.cd = .4; const i = nearest(d.x, d.y, 40 * CELL * CELL); if (i >= 0) { hit(i, dR * .4 / 3 * critMul()); const [x, y] = cellXY(i); fx.push({ k: 'bolt', x: d.x, y: d.y, x2: x, y2: y, t: .15 }); } }
   }
+  // Bubatz-Komet
+  if (!comet) { if ((cometT -= dt) <= 0) { const l = Math.random() < .5; comet = { x: l ? -20 : W + 20, y: H * (.12 + Math.random() * .35), vx: (l ? 1 : -1) * W / 7, vy: H * (.02 + Math.random() * .04), age: 0 }; } }
+  else { comet.x += comet.vx * dt; comet.y += comet.vy * dt; comet.age += dt; if (WP('comet') >= 3 && comet.age > 2.5) grabComet(); else if (comet.x < -40 || comet.x > W + 40) { comet = null; cometT = nextComet(); } }
+  if (warpT > 0) warpT -= dt;
   // Partikel & Texte
   for (let k = parts.length - 1; k >= 0; k--) { const q = parts[k]; q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= .97; q.vy *= .97; if ((q.t -= dt) <= 0) parts.splice(k, 1); }
   for (let k = floats.length - 1; k >= 0; k--) { const q = floats[k]; q.y -= 26 * dt; if ((q.t -= dt) <= 0) floats.splice(k, 1); }
@@ -283,6 +345,30 @@ function step(dt) {
   if (G.left <= Math.max(2, G.total * .015) && !G.clearing) { G.clearing = 1.2; fx.push({ k: 'nova', x: G.cx, y: G.cy, r: W * .95, t: 1 }); }
   if (G.clearing) { G.clearing -= dt; if (G.clearing <= 0) planetDone(); }
 }
+
+// ================== Komet & Tippen ==================
+let comet = null, cometT = 35, warpT = 0, tapHint = 0;
+const nextComet = () => (55 + Math.random() * 55) / (1 + WP('comet') * .5);
+function grabComet() {
+  if (!comet) return;
+  const v = Math.max(60 * G.v0 * crMult(), (S.ema || 0) * 30) * (1 + WP('comet') * .5);
+  S.cr += v; earnedSec += v;
+  for (let k = 0; k < 24; k++) parts.push({ x: comet.x, y: comet.y, vx: (Math.random() - .5) * 260, vy: (Math.random() - .5) * 260, t: .7 + Math.random() * .5, c: k % 2 ? '#ffe36a' : '#fff6c8' });
+  floats.push({ x: comet.x, y: comet.y - 12, t: 1.6, s: '+' + fmt(v) + ' CR', c: '#ffe36a' });
+  toast('Bubatz-Komet geschnappt! +' + fmt(v) + ' CR');
+  comet = null; cometT = nextComet(); save();
+}
+cv.addEventListener('pointerdown', e => {
+  const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  if (comet && Math.hypot(x - comet.x, y - comet.y) < 40) return grabComet();
+  if (!G) return;
+  const i = nearest(x, y); if (i < 0) return;
+  const [cx, cy] = cellXY(i); if (Math.hypot(cx - x, cy - y) > CELL * 3.5) return;
+  const d = Math.max(Math.pow(1.72, S.p - 1) * .6 * (G.boss ? 3 : 1), totalDps() * .2) * (1 + WP('tap')) * critMul();
+  hit(i, d); const c = i % COLS, rr = i / COLS | 0;
+  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const cc = c + dx, r2 = rr + dy; if (cc >= 0 && cc < COLS && r2 >= 0 && r2 < ROWS) hit(r2 * COLS + cc, d * .5); }
+  fx.push({ k: 'tap', x: cx, y: cy, t: .3 });
+});
 
 // ================== Zeichnen ==================
 function drawTerrain() {
@@ -328,6 +414,10 @@ function draw(now) {
     else if (f.k === 'bolt') beam(f.x, f.y, f.x2, f.y2, '#9dff6a', 1.4);
     else if (f.k === 'pop') { g.fillStyle = `rgba(255,220,120,${f.t * 3})`; g.beginPath(); g.arc(f.x, f.y, 8 * (1 - f.t * 2), 0, 7); g.fill(); }
   }
+  if (comet) { const a = Math.atan2(comet.vy, comet.vx); for (let k = 1; k <= 10; k++) { g.fillStyle = `rgba(255,214,90,${.5 - k * .045})`; const s = 7 - k * .5; g.fillRect(comet.x - Math.cos(a) * k * 7 - s / 2, comet.y - Math.sin(a) * k * 7 - s / 2, s, s); }
+    g.save(); g.translate(comet.x, comet.y); g.rotate(performance.now() / 300); g.fillStyle = '#fff3b0'; g.shadowColor = '#ffd23f'; g.shadowBlur = 18; g.fillRect(-7, -7, 14, 14); g.restore(); }
+  for (const f of fx) if (f.k === 'tap') { g.strokeStyle = `rgba(92,232,240,${f.t * 3})`; g.lineWidth = 2; g.strokeRect(f.x - (1.3 - f.t * 3) * 14, f.y - (1.3 - f.t * 3) * 14, (1.3 - f.t * 3) * 28, (1.3 - f.t * 3) * 28); }
+  if (warpT > 0) { const k = Math.min(1, warpT); g.strokeStyle = `rgba(201,162,255,${k * .8})`; g.lineWidth = 2; g.beginPath(); for (const [x, y, s] of stars) { const px = x * W, py = y * H, dx = px - W / 2, dy = py - H / 2; g.moveTo(px, py); g.lineTo(px + dx * (1.6 - k) * .6, py + dy * (1.6 - k) * .6); } g.stroke(); }
   g.fillStyle = '#ffe36a'; for (const q of proj) g.fillRect(q.x - 2, q.y - 2, 4, 4);
   for (const q of parts) { g.fillStyle = q.c; g.globalAlpha = Math.min(1, q.t * 2); g.fillRect(q.x - 1.5, q.y - 1.5, 3, 3); }
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
@@ -353,12 +443,14 @@ let tab = 'w', uiT = 0;
 function ui() {
   $('cr').textContent = fmt(S.cr) + ' CR';
   $('mul').textContent = 'x' + (crMult()).toFixed(2);
-  $('cry').textContent = '◆' + S.cry;
-  $('pln').textContent = 'Planet ' + S.p; $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
+  $('cry').innerHTML = '◆' + S.cry + (S.dmAll ? ` <span class="dm">✦${S.dm}</span>` : '');
+  $('pln').textContent = (G.boss ? 'BOSS ' : 'Planet ') + S.p; $('pln').classList.toggle('boss', !!G.boss); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
   const b = $('boost'), bl = $('bl'), now = Date.now();
-  if (boosting()) { b.classList.add('act'); bl.textContent = 'x2 · ' + mmss(S.boostEnd - now); b.disabled = true; }
-  else if (S.boostCd > now) { b.classList.remove('act'); bl.textContent = 'Bereit in ' + mmss(S.boostCd - now); b.disabled = true; }
-  else { b.classList.remove('act'); bl.textContent = 'Boost x2 · 5 min'; b.disabled = false; }
+  if (boosting()) { b.classList.add('act'); bl.textContent = 'x2 ' + mmss(S.boostEnd - now); b.disabled = true; }
+  else if (S.boostCd > now) { b.classList.remove('act'); bl.textContent = '⏳ ' + mmss(S.boostCd - now); b.disabled = true; }
+  else { b.classList.remove('act'); bl.textContent = 'Boost x2'; b.disabled = false; }
+  $('wpdot').hidden = !(dmGain() > 0 || WARP.some(w => WP(w.id) < w.max && S.dm >= w.cost(WP(w.id))));
+  if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + dmGain(); $('wgo').disabled = !dmGain(); }
   $('skdot').hidden = !SKILLS.some(s => SK(s.id) < s.max && S.cry >= skCost(s.id));
   // Knöpfe aktualisieren, ohne die Liste neu zu bauen
   document.querySelectorAll('[data-up]').forEach(el => { const w = WEAP.find(x => x.id === el.dataset.up), n = buyN === 'max' ? Math.max(1, maxBuy(w)) : buyN, c = wCost(w, n); el.disabled = S.cr < c; el.innerHTML = (n > 1 ? `x${n}<br>` : '') + fmt(c) + ' CR'; });
@@ -382,6 +474,18 @@ function render() {
     L.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { buyN = b.dataset.n === 'max' ? 'max' : +b.dataset.n; render(); });
     L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; S.w[w.id] = WL(w.id) + n; if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
     L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl); if (S.cr < w.unl) return; S.cr -= w.unl; S.w[w.id] = 1; toast(`${w.n} freigeschaltet!`); if (WEAP.every(x => WL(x.id)) && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
+  } else if (tab === 'p') {
+    const g0 = dmGain();
+    L.innerHTML = `<div class="wh"><p>Warp-Sprung ab Planet 15: Du fängst bei Planet 1 neu an, verlierst CR und Waffen-Stufen. Skills, Kristalle und Warp-Upgrades bleiben.</p>
+      <b id="wgain">✦${g0}</b><p>Dunkle Materie · jede gibt für immer <b style="display:inline;font-size:12px">+20 % Schaden und CR</b><br>Aktuell: ✦${S.dmAll || 0} gesammelt = x${dmBonus().toFixed(2)} · ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'}</p>
+      <button class="br" id="wgo" ${g0 ? '' : 'disabled'}>${g0 ? 'WARP-SPRUNG' : 'Ab Planet 15 (noch ' + Math.max(0, 15 - S.p) + ')'}</button></div>
+      <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${S.dm || 0}</b></div>
+      <div class="sk wp6">${WARP.map(w => { const l = WP(w.id), mx = l >= w.max;
+        return `<button data-wp="${w.id}" class="${mx ? 'max' : ''}" ${mx || S.dm < w.cost(l) ? 'disabled' : ''}><span class="q"></span><span class="c">${l}/${w.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${w.ico}</svg>${w.n}<small>${mx ? 'Max' : w.d(l) + ' · ✦' + w.cost(l)}</small></button>`; }).join('')}</div>
+      <div class="savebar"><span id="svtxt">${logged() ? 'Dein Stand wird automatisch auf deinem Konto gespeichert.' : 'Melde dich an, damit dein Stand auf dem Konto landet.'}</span><button id="svnow">${logged() ? 'Jetzt speichern' : 'Anmelden'}</button></div>`;
+    $('wgo').onclick = warp;
+    $('svnow').onclick = () => { if (!logged()) return BB.open && BB.open('login'); save('now'); toast('Gespeichert ☁'); };
+    L.querySelectorAll('[data-wp]').forEach(b => b.onclick = () => { const w = WARP.find(x => x.id === b.dataset.wp), l = WP(w.id); if (l >= w.max || S.dm < w.cost(l)) return; S.dm -= w.cost(l); S.wp[w.id] = l + 1; save('now'); render(); });
   } else {
     L.innerHTML = `<div class="skh"><span>Kristalle gibt's für jeden Planeten</span><b>◆ ${S.cry}</b></div><div class="sk">${SKILLS.map(s => { const l = SK(s.id), mx = l >= s.max;
       return `<button data-sk="${s.id}" class="${mx ? 'max' : ''}" ${mx || S.cry < skCost(s.id) ? 'disabled' : ''}><span class="q"></span><span class="c">${l}/${s.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg>${s.n}<small>${mx ? 'Max' : s.d + ' · ◆' + skCost(s.id)}</small></button>`; }).join('')}</div>`;
@@ -389,19 +493,32 @@ function render() {
   }
   ui();
 }
-document.querySelectorAll('.nav [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x === b)); render(); });
-$('boost').onclick = () => { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + 5 * 60e3; S.boostCd = Date.now() + 15 * 60e3; toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(); ui(); };
+document.querySelectorAll('.nav [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; $('list').scrollTop = 0; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x === b)); render(); });
+$('boost').onclick = () => { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3; S.boostCd = Date.now() + 15 * 60e3; toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); };
 $('lb').onclick = () => window.BB && BB.open('board', 'drill');
-let toastT = 0; function toast(s) { const t = $('toast'); t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
+let toastT = 0; function toast(s) { const t = $('toast'); if (!t) return; t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
 function overlay(html, btns) { $('ovb').innerHTML = html + btns.map((b, k) => `<button class="br" data-k="${k}">${b[0]}</button>`).join(''); $('ov').classList.remove('hide'); $('ovb').querySelectorAll('[data-k]').forEach(el => el.onclick = () => { $('ov').classList.add('hide'); btns[+el.dataset.k][1] && btns[+el.dataset.k][1](); }); }
 
 function planetDone() {
-  const gain = 1 + Math.floor(S.p / 3), old = G.name;
+  const gain = (1 + Math.floor(S.p / 3) + WP('kris')) * (G.boss ? 3 : 1), old = G.name;
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
   if (window.BB) { BB.record('drill', S.p - 1, { n: old }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
-  buildPlanet(0); save(true);
-  toast(`Planet abgebaut! +◆${gain} · Weiter zu ${G.name}`);
+  buildPlanet(0); save('now');
+  toast(G.boss ? `Achtung: Boss-Planet! ${G.name}` : `Planet abgebaut! +◆${gain} · Weiter zu ${G.name}`);
+  if (S.p === 15 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Schau in den Warp-Tab.'), 2800);
   render();
+}
+
+function warp() {
+  const n = dmGain(); if (!n) return;
+  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Danach: x${(1 + .2 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle und Warp-Upgrades bleiben.</p>`,
+    [['SPRINGEN', () => {
+      S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
+      S.cr = startCr(WP('start')); S.w = { line: 1 }; S.p = 1 + 3 * WP('skip'); S.done = 0; S.boostEnd = 0;
+      buildPlanet(0); warpT = 1.6; ship.x = W / 2; ship.y = 30; save('now');
+      if (window.BB) BB.unlock('drill_warp');
+      toast(`Warp geschafft: ✦${n} Dunkle Materie · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
+    }], ['Noch nicht', null]]);
 }
 
 // ================== Offline-Ertrag ==================
@@ -425,15 +542,16 @@ function loop(now) {
 }
 window.addEventListener('resize', () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 200); });
 setInterval(() => save(), 5000);
-setInterval(() => save(true), 30000);
-document.addEventListener('visibilitychange', () => { if (document.hidden) save(true); });
+setInterval(() => save(true), 20000);
+document.addEventListener('visibilitychange', () => { if (document.hidden) { save(true); window.BB && BB.cloud && BB.cloud.flush(); } });
 window.addEventListener('pagehide', () => save(true));
 
-resize(); ship.x = W / 2; offline(); render(); requestAnimationFrame(loop);
-if (window.BB) {
-  BB.cloud && BB.loggedIn && BB.cloud.get('drill').then(c => { if (c && typeof c.cr === 'number' && ((c.p || 1) > S.p || ((c.p || 1) === S.p && (c.t || 0) > (S.t || 0)))) { S = Object.assign(fresh(), c); try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {} buildPlanet(S.done || 0); render(); } }).catch(() => {});
-}
-window.GB = { get S() { return S; }, get G() { return G; }, planetDone, render };
+resize(); ship.x = W / 2; ship.y = 30; render(); requestAnimationFrame(loop); svState();
+setTimeout(() => toast('Tipp auf den Planeten für Extra-Schaden, schnapp dir goldene Kometen!'), 1200);
+if (logged()) pull().then(offline); else offline();
+let lastId = myId();
+if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
+window.GB = { get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
 </script>
 </body>
 </html>

@@ -63,6 +63,7 @@
     ['drill_10', '🌌', 'Planetenfresser', 'Im Galaxie-Bohrer 10 Planeten abgebaut'],
     ['drill_waffen', '🔫', 'Volle Bewaffnung', 'Alle 6 Waffen im Galaxie-Bohrer freigeschaltet'],
     ['drill_100', '⚡', 'Überladen', 'Eine Waffe im Galaxie-Bohrer auf Stufe 100'],
+    ['drill_warp', '🌀', 'Warp-Pilot', 'Im Galaxie-Bohrer den ersten Warp-Sprung gemacht'],
     ['allrounder', '🏆', 'Allrounder', 'In allen Spielen auf der Bestenliste']
   ];
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
