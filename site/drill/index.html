@@ -211,10 +211,12 @@ const $ = id => document.getElementById(id);
 
 // ================== Speicherstand ==================
 let S = null;
-const fresh = () => ({ cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null });
+// Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
+const VER = 3;
+const fresh = () => ({ v: VER, cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null });
 const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: Object.assign({ h_pfeil: 1, r_basis: 1, t_basis: 1 }, (o && o.inv) || {}), eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
-S = S && typeof S.cr === 'number' ? norm(S) : fresh();
+S = S && typeof S.cr === 'number' && S.v === VER ? norm(S) : fresh();
 const logged = () => !!(window.BB && BB.loggedIn);
 const myId = () => (logged() && BB.profile && BB.profile.id) || '';
 // Fortschritt als Zahl, damit beim Abgleich nie der weitere Stand verloren geht
@@ -228,14 +230,14 @@ function save(cloud) {
 }
 function svState() {
   const el = $('sv'); if (!el) return;
-  if (!logged()) { el.className = 'sv'; el.textContent = '💾 nur auf diesem Gerät'; return; }
+  if (!logged()) { el.className = 'sv'; el.textContent = '💾 nur auf diesem Gerät · v' + VER; return; }
   if (!pulled) { el.className = 'sv'; el.textContent = '☁ lädt …'; return; }
-  el.className = 'sv ok'; el.textContent = lastCloud ? '☁ gespeichert ' + new Date(lastCloud).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '☁ Konto verbunden';
+  el.className = 'sv ok'; el.textContent = lastCloud ? '☁ gespeichert ' + new Date(lastCloud).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' · v' + VER : '☁ Konto verbunden · v' + VER;
 }
 async function pull() {
   if (!logged() || !BB.cloud) { pulled = true; svState(); return; }
   try {
-    const c = await BB.cloud.get('drill');
+    let c = await BB.cloud.get('drill'); if (c && c.v !== VER) c = null; // alter Stand vom Konto: weg damit
     const foreign = S.own && S.own !== myId();
     if (c && typeof c.cr === 'number' && (foreign || score(c) > score(S) || (score(c) === score(S) && (c.t || 0) > (S.t || 0)))) {
       S = norm(c); try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
