@@ -156,7 +156,7 @@ footer{text-align:center;color:#5d6375;font-size:13px;font-weight:700;margin:40p
   <div class="hbox">
     <img src="krieg/img/hero.jpg" srcset="krieg/img/hero-s.jpg 1000w, krieg/img/hero.jpg 2000w" sizes="(max-width:640px) 1000px, 1180px" alt="Die Bubatzbande vor ihrer Taverne">
     <div class="hin">
-      <span class="kick">7 Spiele · 1 Bande</span>
+      <span class="kick">8 Spiele · 1 Bande</span>
       <h1 class="H">Bubatzbande<span>Königreiche &amp; Chaos</span></h1>
       <p>Renn mit dem Kobold, stürm die Spießerburg, bau den Hof aus und sammel die ganze Bande. Alles mit einem Konto und einer Bestenliste.</p>
       <div class="cta"><a class="btn p" href="#spiele">Jetzt spielen</a><a class="btn s" href="bande/">Die Bande sammeln</a></div>
@@ -183,18 +183,19 @@ footer{text-align:center;color:#5d6375;font-size:13px;font-weight:700;margin:40p
 <footer>bubatzbande.de · Königreiche &amp; Chaos</footer>
 
 <script src="art.js?v=20261111b"></script>
-<script src="bb.js?v=20261111b"></script>
+<script src="bb.js?v=20261113a"></script>
 <script>
 'use strict';
 const IMG = k => 'krieg/img/' + k + '.jpg';
 const GAMES = [
-  { k: 'runner', url: 'runner/', name: 'Kobold-Runner', who: 'kobold', c: '#3f9a2c', c2: '#0b2a0c', text: 'Spring über Kessel, rutsch unter Balken durch und sammel Gold. Wie weit kommst du?', tag: 'Endlos', big: 1 },
+  { k: 'runner', url: 'runner/', name: 'Kobold-Runner', who: 'kobold', c: '#3f9a2c', c2: '#0b2a0c', text: 'Spring über Kessel, rutsch unter Balken durch und sammel Gold. Wie weit kommst du?', tag: 'Endlos', big: 1, neu: 1 },
+  { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', who: 'marwin', c: '#14b8c4', c2: '#041a1e', text: 'Idle-Game: dein Schiff bohrt Pixel-Planeten weg. Waffen aufrüsten, Skills holen, weiterfliegen.', tag: 'Neu · Idle', big: 1, neu: 1 },
   { k: 'krieg', url: 'krieg/', name: 'Bandenkrieg', who: 'artur', c: '#c0392b', c2: '#2a0a08', text: 'Kampagne mit 8 Schlachten gegen die Spießer.', tag: 'Strategie' },
   { k: 'match', url: 'match/', name: 'Kräuter-Match', who: 'molly', c: '#3557d6', c2: '#0c1238', text: 'Drei in eine Reihe, Level ohne Ende.', tag: 'Puzzle' },
   { k: 'hof', url: 'hof/', name: 'Bandenhof', who: 'lg3', c: '#7cc22e', c2: '#16300a', text: 'Bau den Hof aus, er läuft auch offline.', tag: 'Aufbau' },
   { k: 'duell', url: 'duell/', name: 'Kneipen-Duell', who: 'don', c: '#9b1d3c', c2: '#2a0710', text: 'Zapfen, schieben, prosten, Armdrücken.', tag: '1 gegen 1' },
-  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', who: 'koenig', c: '#d1901c', c2: '#2e1c04', text: '3D-Schach mit Ego-Duellen.', tag: 'Online' },
-  { k: 'quiz', url: 'quiz/', name: 'Bubatz-Quiz', who: 'nille', c: '#14989a', c2: '#042426', text: 'Party-Quiz mit Freunden am Handy.', tag: 'Party' }
+  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', who: 'koenig', c: '#d1901c', c2: '#2e1c04', text: '3D-Schach mit Ego-Duellen.', tag: 'Online', big: 1 },
+  { k: 'quiz', url: 'quiz/', name: 'Bubatz-Quiz', who: 'nille', c: '#14989a', c2: '#042426', text: 'Party-Quiz mit Freunden am Handy.', tag: 'Party', big: 1 }
 ];
 const CAST = [['kobold', 'Kobold', 'Runner'], ['artur', 'Artur', 'Wolfskönig'], ['molly', 'Mollymann', 'Zauberer'], ['koenig', 'Der König', 'Burgherr'], ['fokuhila', 'Fokuhilamann', 'Schmied'], ['don', 'DonPatron', 'Händler'], ['lg3', 'LG3', 'Kräuterbauer'], ['nille', 'Nille', 'Schurke'], ['geist', 'Grauer Geist', 'Schatten'], ['kraeuter', 'KräuterKönig', 'Elfenkönig'], ['allan', 'Allan', 'Krieger'], ['marwin', 'Marwin', 'Erfinder']];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -207,7 +208,7 @@ function draw() {
     return `<a class="g${g.big ? ' big' : ''}" href="${g.url}" style="--c:${g.c};--c2:${g.c2}">
       <img src="${IMG(g.who)}" alt="" loading="lazy">
       <div class="fx"><i></i><i></i><i></i><i></i><i></i></div><div class="sh"></div>
-      <span class="tag${g.big ? ' n' : ''}">${esc(g.tag)}</span>
+      <span class="tag${g.neu ? ' n' : ''}">${esc(g.tag)}</span>
       <h3>${esc(g.name)}</h3><p>${esc(g.text)}</p>
       <div class="ft">${best ? `<div class="best">Dein Bestwert<b>${B.fmt(g.k, best.s)}</b></div>` : '<div class="best">Noch kein Bestwert</div>'}
       <span class="go">▶ Spielen</span></div></a>`;

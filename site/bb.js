@@ -15,6 +15,7 @@
     duell: { name: 'Kneipen-Duell', ico: '🍺', unit: 'Kneipenpunkte', what: 'Siege gegen den Wirt', url: 'duell/', meta: m => m && m.w ? `${m.w} Siege` : '' },
     runner: { name: 'Kobold-Runner', ico: '🏃', unit: 'Punkte', what: 'Bester Lauf', url: 'runner/', meta: m => m && m.m ? `${m.m.toLocaleString('de-DE')} m · 🪙 ${m.c}` : '' },
     hof: { name: 'Bandenhof', ico: '🏡', unit: 'Gold', what: 'Gold verdient', url: 'hof/', fmt: n => n >= 1e6 ? (n / (n >= 1e9 ? 1e9 : 1e6)).toLocaleString('de-DE', { maximumFractionDigits: 2 }) + (n >= 1e9 ? ' Mrd' : ' Mio') : Math.round(n).toLocaleString('de-DE'), meta: m => m && m.b != null ? `${m.l ? 'Hof-Stufe ' + m.l + ' · ' : ''}${m.b}/8 Bande` : '' },
+    drill: { name: 'Galaxie-Bohrer', ico: '🚀', unit: 'Planeten', what: 'Höchster Planet', url: 'drill/', meta: m => m && m.n ? String(m.n) : '' },
     schach: { name: 'Schlagabtausch', ico: '♞', unit: '', what: 'Schnellster Sieg gegen Herrn Holz', url: 'schach/', asc: true, fmt: fmtTime, meta: m => m && m.d ? String(m.d) : '' }
   };
   const ACH = [
@@ -58,6 +59,10 @@
     ['karten_gold', '💠', 'Goldene Hand', '5 Karten auf Maximalstufe gebracht'],
     ['reich', '💰', 'Dagobert', '10.000 Bandengold auf einmal besitzen'],
     ['duell_meister', '🥇', 'Kneipenlegende', '25 Kneipen-Duelle gegen den Wirt gewonnen'],
+    ['drill_1', '🪐', 'Erster Abbau', 'Im Galaxie-Bohrer einen Planeten abgebaut'],
+    ['drill_10', '🌌', 'Planetenfresser', 'Im Galaxie-Bohrer 10 Planeten abgebaut'],
+    ['drill_waffen', '🔫', 'Volle Bewaffnung', 'Alle 6 Waffen im Galaxie-Bohrer freigeschaltet'],
+    ['drill_100', '⚡', 'Überladen', 'Eine Waffe im Galaxie-Bohrer auf Stufe 100'],
     ['allrounder', '🏆', 'Allrounder', 'In allen Spielen auf der Bestenliste']
   ];
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
