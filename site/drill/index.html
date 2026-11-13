@@ -29,7 +29,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 /* Spielfeld */
 #cv{flex:1 1 auto;min-height:220px;width:100%;display:block;touch-action:none}
 /* Unten */
-.panel{flex:none;height:50%;max-height:470px;display:flex;flex-direction:column;border-top:1px solid var(--line);background:var(--bg)}
+.panel{flex:none;height:45%;max-height:440px;display:flex;flex-direction:column;border-top:1px solid var(--line);background:var(--bg)}
 .list{flex:1;overflow-y:auto;padding:8px 8px 4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .list::-webkit-scrollbar{display:none}
 .wp{position:relative;display:flex;align-items:center;gap:10px;padding:10px 10px 12px;border:1.5px solid var(--cy2);margin-bottom:7px;background:var(--panel)}
@@ -224,7 +224,7 @@ const $ = id => document.getElementById(id);
 let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
 const VER = 3;
-const fresh = () => ({ v: VER, cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null });
+const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null });
 const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: Object.assign({ h_pfeil: 1, r_basis: 1, t_basis: 1 }, (o && o.inv) || {}), eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
 S = S && typeof S.cr === 'number' && S.v === VER ? norm(S) : fresh();
@@ -297,18 +297,20 @@ function resize() {
   buildPlanet(keep);
 }
 function buildPlanet(removed) {
-  const p = S.p, rnd = mulberry(p * 7919 + 13), boss = p % 10 === 0, pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : PAL[(p - 1) % PAL.length];
-  CELL = Math.max(8, Math.floor(Math.min(W, H * 1.1) / 34)); COLS = Math.floor(W / CELL); ROWS = Math.floor(H / CELL);
-  const ox = Math.floor((W - COLS * CELL) / 2), oy = Math.floor((H - ROWS * CELL) / 2), hp0 = Math.pow(1.85, p - 1) * (boss ? 3 : 1), v0 = Math.pow(1.62, p - 1) * (boss ? 2.5 : 1);
+  const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0, pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : PAL[(p - 1) % PAL.length];
+  CELL = Math.max(7, Math.floor(Math.min(W, H * 1.1) / 44)); COLS = Math.floor(W / CELL); ROWS = Math.floor(H / CELL);
+  const ox = Math.floor((W - COLS * CELL) / 2), oy = Math.floor((H - ROWS * CELL) / 2), hp0 = Math.pow(1.95, p - 1) * (1 + .15 * (p - 1)) * (boss ? 3 : 1), v0 = Math.pow(1.62, p - 1) * (boss ? 2.5 : 1);
   const N = COLS * ROWS, alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
-  const ccx = (COLS - 1) / 2, ccy = (ROWS - 1) / 2 + ROWS * .04, R = Math.min(COLS * .44, ROWS * .4);
-  const bumps = Array.from({ length: 4 }, () => [rnd() * 6.283, .03 + rnd() * .04, 3 + (rnd() * 6 | 0)]);
+  // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
+  const sz = boss ? 1 : .72 + rnd() * .28, ell = .82 + rnd() * .36;
+  const ccx = (COLS - 1) / 2, ccy = (ROWS - 1) / 2, R = Math.max(4, (Math.min(W, H) / 2 - 56) / (CELL * 1.22) * sz);
+  const bumps = Array.from({ length: 2 + (rnd() * 4 | 0) }, () => [rnd() * 6.283, .02 + rnd() * .05, 2 + (rnd() * 6 | 0)]);
   const craters = Array.from({ length: 2 + (rnd() * 3 | 0) }, () => { const a = rnd() * 6.283, d = R * (.75 + rnd() * .3); return [ccx + Math.cos(a) * d, ccy + Math.sin(a) * d, 1.5 + rnd() * 2.5]; });
   const oreCh = (.025 + .015 * SK('ore')) * (boss ? 2 : 1);
   let total = 0;
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-    const dx = c - ccx, dy = r - ccy, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
+    const dx = (c - ccx) / ell, dy = (r - ccy) * ell, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
     let rr = R; for (const [ph, amp, f] of bumps) rr += R * amp * Math.round(Math.sin(a * f + ph) * 2) / 2 * .5;
     if (d > rr) continue;
     if (craters.some(([x, y, s]) => Math.hypot(c - x, r - y) < s)) continue;
@@ -688,17 +690,18 @@ let toastT = 0; function toast(s) { const t = $('toast'); if (!t) return; t.text
 function overlay(html, btns) { $('ovb').innerHTML = html + btns.map((b, k) => `<button class="br" data-k="${k}">${b[0]}</button>`).join(''); $('ov').classList.remove('hide'); $('ovb').querySelectorAll('[data-k]').forEach(el => el.onclick = () => { $('ov').classList.add('hide'); btns[+el.dataset.k][1] && btns[+el.dataset.k][1](); }); }
 
 // Nach dem Abbau: Schiff fliegt raus, Sterne ziehen vorbei, neuer Planet schwebt rein
-let travel = 0, built = true, pOff = 0;
+let travel = 0, built = true, pOff = 0, travT0 = 2.6;
 function travelStep(dt) {
   travel -= dt;
   if (travel > 1.5) { ship.vy -= 900 * dt; ship.vx *= .96; ship.x += ship.vx * dt; ship.y += ship.vy * dt; warpT = 1.4; }
   else {
     if (!built) { buildPlanet(0); built = true; intro = 2.4; introName = G.name; ship.x = W / 2; ship.y = -30; ship.vx = 0; ship.vy = 120; surfR = surface(); save('now'); }
-    const tx = G.cx + Math.cos(ship.orb) * (surfR + CELL * 2 + 26), ty = G.cy + Math.sin(ship.orb) * (surfR + CELL * 2 + 26);
+    const tx = Math.max(16, Math.min(W - 16, G.cx + Math.cos(ship.orb) * (surfR + CELL * 2 + 26))), ty = Math.max(16, Math.min(H - 16, G.cy + Math.sin(ship.orb) * (surfR + CELL * 2 + 26)));
     ship.vx += ((tx - ship.x) * 3 - ship.vx * 2.6) * dt; ship.vy += ((ty - ship.y) * 3 - ship.vy * 2.6) * dt; ship.x += ship.vx * dt; ship.y += ship.vy * dt;
   }
   const k = built ? Math.max(0, Math.min(1, (travel - .2) / 1.3)) : 1;
-  pOff = built ? H * .9 * k * k : 0;
+  // alter Planet rutscht nach unten weg, neuer kommt von unten rein
+  pOff = built ? H * .9 * k * k : H * 1.2 * Math.pow(Math.max(0, travT0 - travel) / Math.max(.1, travT0 - 1.5), 2);
   for (let q = parts.length - 1; q >= 0; q--) { const o = parts[q]; o.x += o.vx * dt; o.y += o.vy * dt; if ((o.t -= dt) <= 0) parts.splice(q, 1); }
   for (let q = floats.length - 1; q >= 0; q--) { const o = floats[q]; o.y -= 26 * dt; if ((o.t -= dt) <= 0) floats.splice(q, 1); }
   for (let q = fx.length - 1; q >= 0; q--) if ((fx[q].t -= dt) <= 0) fx.splice(q, 1);
@@ -710,7 +713,7 @@ function planetDone() {
   const gain = (1 + Math.floor(S.p / 3) + WP('kris')) * (G.boss ? 3 : 1), old = G.name;
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
   if (window.BB) { BB.record('drill', S.p - 1, { n: old }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
-  travel = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
+  travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
   toast(`Planet abgebaut! +◆${gain} · Kurs auf Planet ${S.p}`);
   if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);
   render();
@@ -721,8 +724,8 @@ function warp() {
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Danach: x${(1 + .1 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
     [['SPRINGEN', () => {
       S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
-      S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 3 * WP('skip'); S.done = 0; S.boostEnd = 0;
-      buildPlanet(0); warpT = 1.6; ship.x = W / 2; ship.y = 30; save('now');
+      S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 3 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
+      travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now');
       if (window.BB) BB.unlock('drill_warp');
       toast(`Warp geschafft: ✦${n} Dunkle Materie · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
     }], ['Noch nicht', null]]);
@@ -946,7 +949,7 @@ resize(); ship.x = W / 2; ship.y = 30; hotbar(true); render(); requestAnimationF
 if (logged()) pull().then(offline); else offline();
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
-window.GB = { cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
+window.GB = { ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
 </script>
 </body>
 </html>
