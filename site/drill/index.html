@@ -18,7 +18,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .mid{flex:1;text-align:center;min-width:0}
 .cr{font:700 26px/1.1 var(--mono);letter-spacing:.02em;white-space:nowrap}
 .mul{color:var(--cy);font-size:15px}
-.cry{position:absolute;left:62px;top:max(14px,calc(env(safe-area-inset-top) + 4px));font-size:14px;color:var(--txt)}
+.cry{position:absolute;left:12px;top:calc(max(10px,env(safe-area-inset-top)) + 46px);font-size:14px;color:var(--txt)}
 .pl{flex:none;width:78px;text-align:center}
 .pl .box{width:62px;height:62px;margin:0 auto;border:1px solid #555;display:flex;align-items:center;justify-content:center}
 .pl .box i{width:24px;height:24px;border-radius:50%;box-shadow:inset -5px -4px 0 rgba(0,0,0,.35)}
@@ -26,7 +26,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 /* Spielfeld */
 #cv{flex:1 1 auto;min-height:220px;width:100%;display:block;touch-action:none}
 /* Unten */
-.panel{flex:none;height:46%;max-height:420px;display:flex;flex-direction:column;border-top:1px solid var(--line);background:var(--bg)}
+.panel{flex:none;height:50%;max-height:470px;display:flex;flex-direction:column;border-top:1px solid var(--line);background:var(--bg)}
 .list{flex:1;overflow-y:auto;padding:8px 8px 4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .list::-webkit-scrollbar{display:none}
 .wp{position:relative;display:flex;align-items:center;gap:10px;padding:10px 10px 12px;border:1.5px solid var(--cy2);margin-bottom:7px;background:var(--panel)}
@@ -79,6 +79,45 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .sk.wp6 button .q{background:#c9a2ff}
 .savebar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:12px 2px 10px;font-size:11px;color:var(--mut)}
 .savebar button{height:34px;padding:0 12px;background:transparent;border:1px solid var(--line);color:var(--txt);font:700 12px var(--mono);cursor:pointer}
+.hot{flex:none;display:flex;gap:6px;padding:6px 8px;border-top:1px solid var(--line)}
+.hs{position:relative;flex:1;min-width:0;aspect-ratio:1;max-height:58px;background:#0b0e10;border:1.5px solid var(--cy2);color:var(--txt);font:700 18px var(--mono);cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0}
+.hs svg{width:62%;height:62%}
+.hs.empty{border-color:#333b40;color:#56636a;font-size:24px}
+.hs .cd{position:absolute;inset:0;pointer-events:none}
+.hs .ct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;text-shadow:0 0 4px #000;pointer-events:none}
+.hs.rdy{box-shadow:inset 0 0 12px rgba(92,232,240,.35)}
+.hs.act{border-color:var(--li);box-shadow:0 0 12px rgba(157,255,106,.6)}
+.hs.bst{flex:1.25;aspect-ratio:auto;flex-direction:column;font-size:11px;gap:2px;border-color:#3a4246}
+.hs.bst svg{width:20px;height:20px}
+.hs.bst.act{border-color:var(--li);color:var(--li)}
+.hs.bst:disabled{color:var(--mut)}
+.lb2{position:absolute;left:58px;top:max(10px,env(safe-area-inset-top));width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:transparent;color:var(--txt);cursor:pointer}
+.lb2 svg{width:20px;height:20px}
+.sk.ab button{border-color:var(--cy2);background:#081214}
+.sk.ab button.on{border-color:var(--cy);box-shadow:inset 0 0 0 1px var(--cy)}
+.sk.ab button.lock{border-color:#2a3034;color:#4c565b;background:#090b0c}
+.sk button em,.inv em{position:absolute;right:4px;bottom:3px;font:700 10px var(--mono);color:var(--cy);font-style:normal}
+.row2{display:flex;gap:8px}.row2 .br{flex:1;min-width:0;font-size:12px}
+.stars{color:#ffe94d}
+.offer{display:grid;grid-template-columns:1fr 1fr;gap:8px}.offer .br{min-width:0;height:auto;padding:12px 8px;display:flex;flex-direction:column;gap:5px;text-align:center}.offer .br b{font-size:13px}.offer .br small{font-size:10.5px;color:#cfd8da;line-height:1.35;font-weight:600}.offer .br span{font-size:13px;color:var(--cy)}.offer .br:disabled span{color:var(--pk)}
+.rr{width:100%;height:40px;margin:8px 0 2px;font-size:12px}
+.hint{font-size:11px;color:var(--mut);text-align:center;padding:8px 4px 10px;line-height:1.45}
+.eqrow{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;border:1.5px solid var(--cy2);padding:10px 6px;margin-bottom:8px;text-align:center}
+.eqrow span{display:block;color:var(--cy);font-size:12px;margin-bottom:6px}
+.eqrow .ib{width:56px;height:56px;margin:0 auto;border:1.5px solid;display:flex;align-items:center;justify-content:center}
+.eqrow small{display:block;font-size:10px;color:#cfd8da;margin-top:5px;line-height:1.3}
+.inv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:2px 0 4px}
+.inv button{position:relative;aspect-ratio:1;background:#0b0e10;border:1.5px solid var(--rc);color:var(--txt);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:700 10px var(--mono)}
+.inv button.on{background:#141018;box-shadow:inset 0 0 10px color-mix(in srgb,var(--rc) 40%,transparent)}
+.inv button.no{border-style:dashed;opacity:.35;font-size:18px}
+.inv small{font-size:10px;color:#cfd8da}
+.crates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.crates .br{min-width:0;height:auto;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-color:var(--rc)}
+.crates .br b{font-size:11px}.crates .br small{font-size:12px;color:#c9a2ff}
+.crates .br:disabled small{color:var(--pk)}
+.crate{display:flex;justify-content:center;margin-bottom:10px}
+.cbox{width:110px;height:110px;display:flex;align-items:center;justify-content:center;border:2px solid var(--rc);box-shadow:0 0 30px color-mix(in srgb,var(--rc) 55%,transparent);animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(.2) rotate(-20deg);opacity:0}100%{transform:none;opacity:1}}
 .toast{position:absolute;left:50%;top:92px;transform:translateX(-50%);z-index:5;padding:10px 14px;border:1.5px solid var(--cy);background:rgba(5,6,7,.94);font-size:13px;text-align:center;pointer-events:none;opacity:0;transition:opacity .3s;max-width:90%}
 .toast.on{opacity:1}
 .ov{position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:20px}
@@ -93,6 +132,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 <div id="app">
   <div class="hud">
     <a class="back" href="../" aria-label="Zur Startseite">←</a>
+    <button class="lb2" id="lb" aria-label="Bestenliste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/></svg></button>
     <span class="cry" id="cry">◆0</span>
     <div class="mid"><div class="cr" id="cr">0 CR</div><div class="mul" id="mul">x1.00</div><div class="sv" id="sv"></div></div>
     <div class="pl"><div class="box"><i id="plc"></i></div><small id="pln">Planet 1</small><small id="plp">0/0</small></div>
@@ -100,29 +140,49 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
   <canvas id="cv"></canvas>
   <div class="toast" id="toast"></div>
   <div class="panel">
+    <div class="hot" id="hot"></div>
     <div class="list" id="list"></div>
     <nav class="nav">
       <button data-t="w" class="on" aria-label="Waffen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l7-7M14 4l6 6-8 8-6-6z"/></svg>Waffen</button>
       <button data-t="s" aria-label="Skills"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7 7 .5-5.5 4.5 2 7L12 17l-6.5 4 2-7L2 9.5 9 9z"/></svg>Skills<span class="dot" id="skdot" hidden></span></button>
+      <button data-t="a" aria-label="Fähigkeiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l7-3-4 7M5 12l9-4-3 8M8 6l13-3-5 13z"/></svg>Fähigk.<span class="dot" id="abdot" hidden></span></button>
+      <button data-t="h" aria-label="Hangar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l5 14-5-3-5 3z"/><path d="M8 19l4 3 4-3"/></svg>Hangar<span class="dot" id="hgdot" hidden></span></button>
       <button data-t="p" aria-label="Warp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-2 0a2 2 0 1 0 4 0a4 4 0 1 0-8 0a6 6 0 1 0 12 0a8 8 0 1 0-16 0"/></svg>Warp<span class="dot" id="wpdot" hidden></span></button>
-      <button class="boost" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">Boost x2</span></button>
-      <button id="lb" aria-label="Bestenliste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/></svg>Rang</button>
     </nav>
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261113b"></script>
+<script src="../bb.js?v=20261113c"></script>
 <script>
 'use strict';
 // ================== Daten ==================
 const WEAP = [
-  { id: 'line', n: 'Kobold-Strahl', dps: 2, unl: 0, up: 10 },
-  { id: 'star', n: 'Mollys Kristallstern', dps: 9, unl: 500, up: 350 },
-  { id: 'drill', n: 'Fokuhilas Bohrlanze', dps: 34, unl: 8e3, up: 5e3 },
-  { id: 'nova', n: 'Geister-Nova', dps: 120, unl: 1.5e5, up: 9e4 },
-  { id: 'scatter', n: 'Nilles Streufeuer', dps: 450, unl: 3e6, up: 1.8e6 },
-  { id: 'drones', n: 'DonPatrons Drohnen', dps: 1800, unl: 6e7, up: 3.5e7 }
+  { id: 'line', n: 'Kobold-Strahl', d: 'Dauerlaser auf den nächsten Block' },
+  { id: 'star', n: 'Mollys Kristallstern', d: '4 rotierende Laser' },
+  { id: 'drill', n: 'Fokuhilas Bohrlanze', d: 'Durchschlagender Stoß bis zum Kern' },
+  { id: 'nova', n: 'Geister-Nova', d: 'Druckwelle rund ums Schiff' },
+  { id: 'scatter', n: 'Nilles Streufeuer', d: '7 Schüsse im Fächer' },
+  { id: 'drones', n: 'DonPatrons Drohnen', d: '3 Drohnen ballern mit' },
+  { id: 'chain', n: 'Marwins Kettenblitz', d: 'Blitz springt über 6 Blöcke' },
+  { id: 'saw', n: 'LG3s Kräutersäge', d: '2 Sägeblätter kreisen ums Schiff' },
+  { id: 'mine', n: 'Allans Minenwerfer', d: 'Minen explodieren auf der Oberfläche' },
+  { id: 'sniper', n: 'Königsschuss', d: 'Ein Riesenschuss auf das wertvollste Erz' }
 ];
+// Stärke hängt davon ab, als wievielte Waffe sie gekauft wurde, nicht welche es ist
+const T_DPS = [2, 9, 34, 120, 450, 1800, 7000, 28000, 110000, 450000];
+const T_UP = [10, 350, 5e3, 9e4, 1.8e6, 3.5e7, 7e8, 1.4e10, 2.8e11, 5.6e12];
+const T_UNL = [0, 500, 8e3, 1.5e5, 3e6, 6e7, 1.2e9, 2.5e10, 5e11, 1e13];
+const tier = id => Math.max(0, S.wo.indexOf(id));
+const owned = () => S.wo.filter(id => WL(id));
+const nextUnl = () => T_UNL[owned().length];
+const RR_MAX = 3;
+function rrState() { const now = Date.now(); if (!S.rr || now - S.rr.t >= 3600e3) S.rr = { n: RR_MAX, t: now }; return S.rr; }
+function offers() {
+  const left = WEAP.filter(w => !WL(w.id)).map(w => w.id);
+  if (!left.length) return [];
+  if (!S.offer || S.offer.length !== Math.min(2, left.length) || S.offer.some(id => !left.includes(id))) { const p = left.slice().sort(() => Math.random() - .5); S.offer = p.slice(0, 2); }
+  return S.offer;
+}
 const SKILLS = [
   { id: 'dmg', n: 'Laserfokus', d: '+15 % Schaden', max: 10, ico: '<circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>' },
   { id: 'cr', n: 'Goldgier', d: '+15 % CR', max: 10, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
@@ -141,7 +201,7 @@ const WARP = [
   { id: 'boost', n: 'Nachbrenner', d: () => 'Boost +2 min', max: 5, cost: l => 2 * (l + 1), ico: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' },
   { id: 'skip', n: 'Hyperraum', d: () => 'Start +3 Planeten', max: 5, cost: l => 3 * (l + 1), ico: '<path d="M4 12h12M12 6l6 6-6 6M4 6v12"/>' },
   { id: 'comet', n: 'Kometenjäger', d: () => 'Kometen öfter, +50 %', max: 3, cost: l => 3 * (l + 1), ico: '<circle cx="16" cy="8" r="3"/><path d="M13 11L4 20M11 7L5 13M17 13l-6 6"/>' },
-  { id: 'tap', n: 'Fingerlaser', d: () => '+100 % Tipp-Schaden', max: 5, cost: l => l + 1, ico: '<path d="M9 11V5a2 2 0 0 1 4 0v6M13 9a2 2 0 0 1 4 0v4a7 7 0 0 1-7 7 6 6 0 0 1-5-3l-2-4a2 2 0 0 1 3-2l2 2"/>' }
+  { id: 'auto', n: 'Autopilot', d: () => 'Zündet Fähigkeiten selbst', max: 1, cost: () => 30, ico: '<rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/>' },
 ];
 const startCr = l => l ? 500 * Math.pow(12, l - 1) : 0;
 const NAMES = ['Kräuterhöhle', 'Rostrot', 'Violettia', 'Moosmond', 'Spießerstern', 'Frostkugel', 'Goldader'];
@@ -151,8 +211,8 @@ const $ = id => document.getElementById(id);
 
 // ================== Speicherstand ==================
 let S = null;
-const fresh = () => ({ cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '' });
-const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {} });
+const fresh = () => ({ cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null });
+const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: Object.assign({ h_pfeil: 1, r_basis: 1, t_basis: 1 }, (o && o.inv) || {}), eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
 S = S && typeof S.cr === 'number' ? norm(S) : fresh();
 const logged = () => !!(window.BB && BB.loggedIn);
@@ -191,18 +251,25 @@ const WP = id => S.wp[id] || 0;
 
 // ================== Werte ==================
 const boosting = () => S.boostEnd > Date.now();
-const dmBonus = () => 1 + .2 * (S.dmAll || 0);
-const dmGain = () => S.p < 15 ? 0 : Math.max(1, Math.floor(Math.pow((S.p - 1) / 7, 1.6)));
-const mult = () => (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus();
-const crMult = () => (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * (1 + .02 * (S.best - 1)) * dmBonus();
+const dmBonus = () => 1 + .1 * (S.dmAll || 0);
+const dmGain = () => S.p < 3 ? 0 : Math.max(1, Math.floor(Math.pow(S.p - 1, 1.5) / 2.2));
+const mult = () => (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 3 : 1);
+const crMult = () => (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * (1 + .02 * (S.best - 1)) * dmBonus() * itemBonus('r') * (buf('cr') ? 3 : 1);
 const totalDps = () => WEAP.reduce((a, w) => a + wDps(w), 0);
+const WD = id => wDps(WEAP.find(x => x.id === id));
 const critCh = () => .04 * SK('crit');
-const rate = () => 1 + .1 * SK('spd');
-const wDps = w => { const l = WL(w.id); return l ? w.dps * l * Math.pow(2, Math.floor(l / 25)) * mult() : 0; };
-const wCost = (w, n = 1) => { const l = WL(w.id); let c = 0; for (let i = 0; i < n; i++) c += w.up * Math.pow(1.15, l - 1 + i); return c; };
+const rate = () => (1 + .1 * SK('spd')) * itemBonus('t');
+const MS = [10, 25, 50, 100];
+const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100) / 100) : 0);
+const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(200, (Math.floor(l / 100) + 1) * 100); };
+const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l >= 200 ? Math.floor(l / 100) * 100 : p; };
+const ST = id => msN(WL(id));
+const UPTXT = { line: 'zusätzlicher Strahl', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größere Druckwelle', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller' };
+const wDps = w => { const l = WL(w.id); return l ? T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() : 0; };
+const wCost = (w, n = 1) => { const l = WL(w.id); let c = 0; for (let i = 0; i < n; i++) c += T_UP[tier(w.id)] * Math.pow(1.15, l - 1 + i); return c; };
 const skCost = id => SK(id) + 1;
 let buyN = 1;
-const maxBuy = w => { let n = 0, c = 0; while (n < 500) { const k = w.up * Math.pow(1.15, WL(w.id) - 1 + n); if (c + k > S.cr) break; c += k; n++; } return n; };
+const maxBuy = w => { let n = 0, c = 0; while (n < 500) { const k = T_UP[tier(w.id)] * Math.pow(1.15, WL(w.id) - 1 + n); if (c + k > S.cr) break; c += k; n++; } return n; };
 
 // ================== Planet ==================
 const cv = $('cv'), g = cv.getContext('2d');
@@ -268,7 +335,9 @@ function kill(i, reward) {
 
 // ================== Schiff & Waffen ==================
 const ship = { x: 0, y: 40, vx: 0, vy: 0, orb: -Math.PI / 2, ang: 0 };
-const proj = [], drones = [0, 1, 2].map(k => ({ a: k * 2.094, cd: k * .13 }));
+const proj = [], drones = [0, 1, 2, 3, 4, 5].map(k => ({ a: k * 1.047, cd: k * .07 }));
+const extraT = [];
+let cdChain = 0, sawA = 0, cdMine = 0, cdSnip = 0; const saws = [], mines = [];
 let starA = 0, cdDrill = 0, cdNova = 0, cdScatter = 0, lineTarget = -1, surfR = 0, surfT = 0;
 function nearest(x, y, jitter) {
   let best = -1, bd = 1e18; const A = G.alive, ox = G.ox + CELL / 2, oy = G.oy + CELL / 2;
@@ -296,45 +365,66 @@ function step(dt) {
   ship.x += ship.vx * dt; ship.y += ship.vy * dt; ship.x = Math.max(18, Math.min(W - 18, ship.x)); ship.y = Math.max(18, Math.min(H - 18, ship.y));
   const toC = Math.atan2(G.cy - ship.y, G.cx - ship.x);
   // 1) Kobold-Strahl
-  const dL = wDps(WEAP[0]);
-  if (dL) { if (lineTarget < 0 || !G.alive[lineTarget] || Math.random() < dt * 1.5) lineTarget = nearest(ship.x, ship.y); if (lineTarget >= 0) hit(lineTarget, dL * dt * (1 + 2 * critCh())); }
+  const dL = WD('line');
+  if (dL) { const nb = 1 + Math.min(2, Math.floor(ST('line') / 2)); extraT.length = 0; for (let k = 1; k < nb; k++) { const j = nearest(ship.x + (k * 60 - 90), ship.y + (k * 40 - 60), 20 * CELL * CELL); if (j >= 0) { extraT.push(j); hit(j, dL * dt * .6 * (1 + 2 * critCh())); } } if (lineTarget < 0 || !G.alive[lineTarget] || Math.random() < dt * 1.5) lineTarget = nearest(ship.x, ship.y); if (lineTarget >= 0) hit(lineTarget, dL * dt * (1 + 2 * critCh())); }
   // 2) Kristallstern: 4 rotierende Strahlen
-  const dS = wDps(WEAP[1]);
-  if (dS) { starA += dt * 1.6 * R; G.star = []; for (let k = 0; k < 4; k++) { const a = starA + k * Math.PI / 2, [i, ex, ey] = ray(ship.x, ship.y, a, 170); G.star.push([ex, ey]); if (i >= 0) hit(i, dS / 4 * dt * 1.6 * (1 + 2 * critCh())); } } else G.star = null;
+  const dS = WD('star');
+  if (dS) { starA += dt * 1.6 * R; G.star = []; const ns = Math.min(8, 4 + ST('star')); for (let k = 0; k < ns; k++) { const a = starA + k * Math.PI * 2 / ns, [i, ex, ey] = ray(ship.x, ship.y, a, 170); G.star.push([ex, ey]); if (i >= 0) hit(i, dS / ns * dt * 1.6 * (1 + 2 * critCh())); } } else G.star = null;
   // 3) Bohrlanze: durchschlagender Stoß Richtung Kern
-  const dD = wDps(WEAP[2]);
+  const dD = WD('drill');
   if (dD && (cdDrill -= dt * R) <= 0) {
-    cdDrill = 2.2; let b = dD * 2.2 * critMul(); const dx = Math.cos(toC), dy = Math.sin(toC); let ex = ship.x, ey = ship.y, seen = new Set();
-    for (let l = 0; l < W * 1.5 && b > 0; l += CELL * .5) { const px = ship.x + dx * l, py = ship.y + dy * l; ex = px; ey = py; for (const [ox, oy] of [[0, 0], [-dy * CELL * .6, dx * CELL * .6]]) { const i = cellAt(px + ox, py + oy); if (i < 0 || !G.alive[i] || seen.has(i)) continue; seen.add(i); const d = Math.min(b, G.hp[i]); b -= d; hit(i, d + .0001); } }
+    const cdD = 2.2 * Math.max(.5, 1 - .08 * ST('drill')); cdDrill = cdD; let b = dD * cdD * critMul(); const lw = ST('drill') >= 3 ? 2 : 1; const dx = Math.cos(toC), dy = Math.sin(toC); let ex = ship.x, ey = ship.y, seen = new Set();
+    for (let l = 0; l < W * 1.5 && b > 0; l += CELL * .5) { const px = ship.x + dx * l, py = ship.y + dy * l; ex = px; ey = py; for (const [ox, oy] of (lw > 1 ? [[0, 0], [-dy * CELL * .6, dx * CELL * .6], [dy * CELL * .6, -dx * CELL * .6]] : [[0, 0], [-dy * CELL * .6, dx * CELL * .6]])) { const i = cellAt(px + ox, py + oy); if (i < 0 || !G.alive[i] || seen.has(i)) continue; seen.add(i); const d = Math.min(b, G.hp[i]); b -= d; hit(i, d + .0001); } }
     fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ex, y2: ey, t: .35 });
   }
   // 4) Geister-Nova
-  const dN = wDps(WEAP[3]);
+  const dN = WD('nova');
   if (dN && (cdNova -= dt * R) <= 0) {
-    cdNova = 3; const rad = 60 + Math.min(90, WL('nova') * 2), hitL = [];
+    cdNova = 3; const rad = 60 + Math.min(90, WL('nova') * 2) + 14 * ST('nova'), hitL = [];
     const c0 = Math.floor((ship.x - G.ox - rad) / CELL), c1 = Math.ceil((ship.x - G.ox + rad) / CELL), r0 = Math.floor((ship.y - G.oy - rad) / CELL), r1 = Math.ceil((ship.y - G.oy + rad) / CELL);
     for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) for (let c = Math.max(0, c0); c <= Math.min(COLS - 1, c1); c++) { const i = r * COLS + c; if (!G.alive[i]) continue; const [x, y] = cellXY(i); if (Math.hypot(x - ship.x, y - ship.y) <= rad) hitL.push(i); }
     const per = dN * 3 * critMul() / Math.max(6, hitL.length) * 2; hitL.forEach(i => hit(i, per));
     fx.push({ k: 'nova', x: ship.x, y: ship.y, r: rad, t: .5 });
   }
   // 5) Streufeuer
-  const dC = wDps(WEAP[4]);
-  if (dC && (cdScatter -= dt * R) <= 0) { cdScatter = 1; for (let k = 0; k < 7; k++) { const a = toC + (k - 3) * .2; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC / 7 * critMul(), t: 2 }); } }
+  const dC = WD('scatter');
+  if (dC && (cdScatter -= dt * R) <= 0) { cdScatter = 1; const np = Math.min(15, 7 + 2 * ST('scatter')); for (let k = 0; k < np; k++) { const a = toC + (k - (np - 1) / 2) * (1.4 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC / np * critMul(), t: 2 }); } }
   for (let k = proj.length - 1; k >= 0; k--) {
     const q = proj[k]; q.x += q.vx * dt; q.y += q.vy * dt; q.t -= dt; const i = cellAt(q.x, q.y);
     if (i >= 0 && G.alive[i]) { hit(i, q.d * .6); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) hit(cellAt(q.x + dx * CELL, q.y + dy * CELL), q.d * .1); fx.push({ k: 'pop', x: q.x, y: q.y, t: .25 }); proj.splice(k, 1); }
     else if (q.t <= 0 || q.x < -20 || q.x > W + 20 || q.y < -20 || q.y > H + 20) proj.splice(k, 1);
   }
   // 6) Drohnen
-  const dR = wDps(WEAP[5]);
-  for (const d of drones) {
+  const dR = WD('drones');
+  const ndr = Math.min(6, 3 + Math.floor(ST('drones') / 2));
+  for (const d of drones.slice(0, ndr)) {
     d.a += dt * 1.8; d.x = ship.x + Math.cos(d.a) * 30; d.y = ship.y + Math.sin(d.a) * 30;
     if (!dR) continue;
-    if ((d.cd -= dt * R) <= 0) { d.cd = .4; const i = nearest(d.x, d.y, 40 * CELL * CELL); if (i >= 0) { hit(i, dR * .4 / 3 * critMul()); const [x, y] = cellXY(i); fx.push({ k: 'bolt', x: d.x, y: d.y, x2: x, y2: y, t: .15 }); } }
+    if ((d.cd -= dt * R) <= 0) { d.cd = .4; const i = nearest(d.x, d.y, 40 * CELL * CELL); if (i >= 0) { hit(i, dR * .4 / ndr * critMul()); const [x, y] = cellXY(i); fx.push({ k: 'bolt', x: d.x, y: d.y, x2: x, y2: y, t: .15 }); } }
   }
+  // 7) Kettenblitz
+  const dK = WD('chain');
+  if (dK && (cdChain -= dt * R) <= 0) { cdChain = 1.5; let i = nearest(ship.x, ship.y), px = ship.x, py = ship.y; const pts = []; const used = new Set();
+    const nj = Math.min(14, 6 + 2 * ST('chain')); for (let k = 0; k < nj && i >= 0; k++) { used.add(i); const [x, y] = cellXY(i); pts.push([px, py, x, y]); hit(i, dK * 1.5 / nj * critMul()); px = x; py = y;
+      let nb = -1, bd = 1e9; const c = i % COLS, r = i / COLS | 0; for (let a = -3; a <= 3; a++) for (let b2 = -3; b2 <= 3; b2++) { const cc = c + a, rr = r + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS) continue; const j = rr * COLS + cc; if (!G.alive[j] || used.has(j)) continue; const d = a * a + b2 * b2 + Math.random() * 3; if (d < bd) { bd = d; nb = j; } } i = nb; }
+    pts.forEach(p => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .2 })); }
+  // 8) Kräutersäge
+  const dW = WD('saw');
+  if (dW) { sawA += dt * 3.2 * R; const nsw = Math.min(4, 2 + Math.floor(ST('saw') / 2)); saws.length = nsw; for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, x = ship.x + Math.cos(a) * 46, y = ship.y + Math.sin(a) * 46; saws[k] = [x, y];
+    for (const [ox, oy] of [[0, 0], [CELL, 0], [-CELL, 0], [0, CELL], [0, -CELL]]) hit(cellAt(x + ox, y + oy), dW / nsw / 5 * dt * 2 * (1 + 2 * critCh())); } }
+  // 9) Minenwerfer
+  const dM = WD('mine');
+  if (dM && (cdMine -= dt * R) <= 0) { cdMine = 2; const nm = Math.min(8, 3 + ST('mine')); for (let k = 0; k < nm; k++) { const i = nearest(ship.x + (Math.random() - .5) * 140, ship.y + (Math.random() - .5) * 140, 30 * CELL * CELL); if (i < 0) break; const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, t: 0, d: dM * 2 / nm * critMul() }); } }
+  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; for (let a = -1; a <= 1; a++) for (let b2 = -1; b2 <= 1; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 6); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * 2, t: .35, c: '255,120,80' }); mines.splice(k, 1); } }
+  // 10) Königsschuss
+  const dP = WD('sniper');
+  if (dP && (cdSnip -= dt * R) <= 0) { cdSnip = 4 * Math.max(.4, 1 - .1 * ST('sniper')); let best = -1; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i] && (best < 0 || G.ore[i] > G.ore[best])) best = i; if (best < 0) best = randAlive();
+    if (best >= 0) { const [x, y] = cellXY(best); hit(best, dP * cdSnip * 3 * critMul()); const c = best % COLS, r = best / COLS | 0; for (const [a, b2] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (c + a >= 0 && c + a < COLS && r + b2 >= 0 && r + b2 < ROWS) hit((r + b2) * COLS + c + a, dP); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: x, y2: y, t: .3, w: 2, c: '#ffd23f' }); } }
+  abStep(dt);
+  { const e = eqItem('t'); if ((e.smoke || e.tr) && Math.random() < dt * (e.smoke ? 30 : 18) && parts.length < 420) { const a = ship.ang - Math.PI / 2; parts.push({ x: ship.x + Math.cos(a) * 14, y: ship.y + Math.sin(a) * 14, vx: Math.cos(a) * 30 + (Math.random() - .5) * 20, vy: Math.sin(a) * 30 + (Math.random() - .5) * 20, t: e.smoke ? 1.1 : .5, c: e.smoke ? '#7fbf6a' : (e.col === 'rainbow' ? `hsl(${Math.random() * 360},100%,65%)` : e.col) }); } }
   // Bubatz-Komet
   if (!comet) { if ((cometT -= dt) <= 0) { const l = Math.random() < .5; comet = { x: l ? -20 : W + 20, y: H * (.12 + Math.random() * .35), vx: (l ? 1 : -1) * W / 7, vy: H * (.02 + Math.random() * .04), age: 0 }; } }
-  else { comet.x += comet.vx * dt; comet.y += comet.vy * dt; comet.age += dt; if (WP('comet') >= 3 && comet.age > 2.5) grabComet(); else if (comet.x < -40 || comet.x > W + 40) { comet = null; cometT = nextComet(); } }
+  else { comet.x += comet.vx * dt; comet.y += comet.vy * dt; comet.age += dt; if (comet.age > 2.2 && Math.hypot(comet.x - ship.x, comet.y - ship.y) < 260) { fx.push({ k: 'bolt', x: ship.x, y: ship.y, x2: comet.x, y2: comet.y, t: .25 }); grabComet(); } else if (comet.x < -40 || comet.x > W + 40) { comet = null; cometT = nextComet(); } }
   if (warpT > 0) warpT -= dt;
   // Partikel & Texte
   for (let k = parts.length - 1; k >= 0; k--) { const q = parts[k]; q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= .97; q.vy *= .97; if ((q.t -= dt) <= 0) parts.splice(k, 1); }
@@ -358,17 +448,8 @@ function grabComet() {
   toast('Bubatz-Komet geschnappt! +' + fmt(v) + ' CR');
   comet = null; cometT = nextComet(); save();
 }
-cv.addEventListener('pointerdown', e => {
-  const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-  if (comet && Math.hypot(x - comet.x, y - comet.y) < 40) return grabComet();
-  if (!G) return;
-  const i = nearest(x, y); if (i < 0) return;
-  const [cx, cy] = cellXY(i); if (Math.hypot(cx - x, cy - y) > CELL * 3.5) return;
-  const d = Math.max(Math.pow(1.72, S.p - 1) * .6 * (G.boss ? 3 : 1), totalDps() * .2) * (1 + WP('tap')) * critMul();
-  hit(i, d); const c = i % COLS, rr = i / COLS | 0;
-  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const cc = c + dx, r2 = rr + dy; if (cc >= 0 && cc < COLS && r2 >= 0 && r2 < ROWS) hit(r2 * COLS + cc, d * .5); }
-  fx.push({ k: 'tap', x: cx, y: cy, t: .3 });
-});
+// Tippen macht keinen Schaden – das Schiff arbeitet allein. Kometen fliegt es selbst an.
+
 
 // ================== Zeichnen ==================
 function drawTerrain() {
@@ -406,11 +487,13 @@ function draw(now) {
   g.drawImage(TC, 0, 0, W, H);
   g.globalCompositeOperation = 'lighter';
   // Strahlen
-  if (wDps(WEAP[0]) && lineTarget >= 0 && G.alive[lineTarget]) { const [x, y] = cellXY(lineTarget); beam(ship.x, ship.y, x, y, '#5ce8f0', 2.2); }
+  if (WD('line') && lineTarget >= 0 && G.alive[lineTarget]) { const [x, y] = cellXY(lineTarget); beam(ship.x, ship.y, x, y, '#5ce8f0', 2.2); for (const j of extraT) if (G.alive[j]) { const [x2, y2] = cellXY(j); beam(ship.x, ship.y, x2, y2, '#5ce8f0', 1.4); } }
   if (G.star) for (const [x, y] of G.star) beam(ship.x, ship.y, x, y, '#ff4f7a', 1.6);
   for (const f of fx) {
-    if (f.k === 'lance') beam(f.x, f.y, f.x2, f.y2, '#f4fbff', 4 * f.t / .35 + 1);
-    else if (f.k === 'nova') { const k = 1 - f.t / (f.r > W * .9 ? 1 : .5); g.strokeStyle = `rgba(190,170,255,${f.t * 1.6})`; g.lineWidth = 3; g.beginPath(); g.arc(f.x, f.y, f.r * Math.min(1, k + .1), 0, 7); g.stroke(); }
+    if (f.k === 'lance') beam(f.x, f.y, f.x2, f.y2, f.c || '#f4fbff', (f.w || 4) * f.t / .35 + 1);
+    else if (f.k === 'zap') { const mx = (f.x + f.x2) / 2 + (Math.random() - .5) * 10, my = (f.y + f.y2) / 2 + (Math.random() - .5) * 10; g.strokeStyle = '#a8c8ff'; g.lineWidth = 2; g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(mx, my); g.lineTo(f.x2, f.y2); g.stroke(); }
+    else if (f.k === 'cast') { g.strokeStyle = `rgba(201,162,255,${f.t * 2})`; g.lineWidth = 3; g.beginPath(); g.arc(f.x, f.y, 50 * (1 - f.t * 2) + 10, 0, 7); g.stroke(); }
+    else if (f.k === 'nova') { const k = 1 - f.t / (f.r > W * .9 ? 1 : .5); g.strokeStyle = `rgba(${f.c || '190,170,255'},${f.t * 1.6})`; g.lineWidth = 3; g.beginPath(); g.arc(f.x, f.y, f.r * Math.min(1, k + .1), 0, 7); g.stroke(); }
     else if (f.k === 'bolt') beam(f.x, f.y, f.x2, f.y2, '#9dff6a', 1.4);
     else if (f.k === 'pop') { g.fillStyle = `rgba(255,220,120,${f.t * 3})`; g.beginPath(); g.arc(f.x, f.y, 8 * (1 - f.t * 2), 0, 7); g.fill(); }
   }
@@ -418,18 +501,25 @@ function draw(now) {
     g.save(); g.translate(comet.x, comet.y); g.rotate(performance.now() / 300); g.fillStyle = '#fff3b0'; g.shadowColor = '#ffd23f'; g.shadowBlur = 18; g.fillRect(-7, -7, 14, 14); g.restore(); }
   for (const f of fx) if (f.k === 'tap') { g.strokeStyle = `rgba(92,232,240,${f.t * 3})`; g.lineWidth = 2; g.strokeRect(f.x - (1.3 - f.t * 3) * 14, f.y - (1.3 - f.t * 3) * 14, (1.3 - f.t * 3) * 28, (1.3 - f.t * 3) * 28); }
   if (warpT > 0) { const k = Math.min(1, warpT); g.strokeStyle = `rgba(201,162,255,${k * .8})`; g.lineWidth = 2; g.beginPath(); for (const [x, y, s] of stars) { const px = x * W, py = y * H, dx = px - W / 2, dy = py - H / 2; g.moveTo(px, py); g.lineTo(px + dx * (1.6 - k) * .6, py + dy * (1.6 - k) * .6); } g.stroke(); }
+  if (WD('saw')) for (const [x, y] of saws) { g.save(); g.translate(x, y); g.rotate(sawA * 3); g.strokeStyle = '#9dff6a'; g.lineWidth = 2; g.beginPath(); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; g.lineTo(Math.cos(a) * 9, Math.sin(a) * 9); g.lineTo(Math.cos(a + .5) * 4, Math.sin(a + .5) * 4); } g.closePath(); g.stroke(); g.restore(); }
+  g.fillStyle = '#ff8a5a'; for (const m of mines) { const x = m.x + (m.tx - m.x) * m.t, y = m.y + (m.ty - m.y) * m.t - Math.sin(m.t * Math.PI) * 30; g.fillRect(x - 3, y - 3, 6, 6); }
+  for (const m of meteors) { g.fillStyle = '#ffb46a'; g.beginPath(); g.arc(m.x, m.y, 6, 0, 7); g.fill(); g.strokeStyle = 'rgba(255,140,60,.5)'; g.lineWidth = 4; g.beginPath(); g.moveTo(m.x, m.y); g.lineTo(m.x - (m.tx - m.x) * .08, m.y - (m.ty - m.y) * .08 - 20); g.stroke(); }
+  if (bhole) { const r = bhole.r * Math.min(1, (2.2 - bhole.t) * 2); g.globalCompositeOperation = 'source-over'; const gr = g.createRadialGradient(bhole.x, bhole.y, 0, bhole.x, bhole.y, r * 1.4); gr.addColorStop(0, '#000'); gr.addColorStop(.6, 'rgba(60,20,120,.85)'); gr.addColorStop(1, 'rgba(120,60,255,0)'); g.fillStyle = gr; g.beginPath(); g.arc(bhole.x, bhole.y, r * 1.4, 0, 7); g.fill(); g.strokeStyle = '#c9a2ff'; g.lineWidth = 2; g.beginPath(); g.arc(bhole.x, bhole.y, r * (.6 + .1 * Math.sin(performance.now() / 80)), 0, 7); g.stroke(); g.globalCompositeOperation = 'lighter'; }
   g.fillStyle = '#ffe36a'; for (const q of proj) g.fillRect(q.x - 2, q.y - 2, 4, 4);
   for (const q of parts) { g.fillStyle = q.c; g.globalAlpha = Math.min(1, q.t * 2); g.fillRect(q.x - 1.5, q.y - 1.5, 3, 3); }
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   // Drohnen
-  if (wDps(WEAP[5])) for (const d of drones) { g.strokeStyle = '#9dff6a'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(d.x, d.y - 4); g.lineTo(d.x + 4, d.y + 3); g.lineTo(d.x - 4, d.y + 3); g.closePath(); g.stroke(); }
+  if (WD('drones')) for (const d of drones.slice(0, Math.min(6, 3 + Math.floor(ST('drones') / 2)))) { g.strokeStyle = '#9dff6a'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(d.x, d.y - 4); g.lineTo(d.x + 4, d.y + 3); g.lineTo(d.x - 4, d.y + 3); g.closePath(); g.stroke(); }
   // Schiff
   const tx = lineTarget >= 0 ? cellXY(lineTarget) : [ship.x, ship.y + 50];
   const a = Math.atan2(tx[1] - ship.y, tx[0] - ship.x) - Math.PI / 2; ship.ang += (a - ship.ang) * .15;
   g.save(); g.translate(ship.x, ship.y); g.rotate(ship.ang);
-  g.strokeStyle = '#f4fbff'; g.lineWidth = 2; g.fillStyle = '#060708';
-  g.beginPath(); g.moveTo(0, 14); g.lineTo(-10, -10); g.lineTo(0, -4); g.lineTo(10, -10); g.closePath(); g.fill(); g.stroke();
-  g.strokeStyle = boosting() ? '#9dff6a' : '#5ce8f0'; g.beginPath(); g.moveTo(-5, -9); g.lineTo(0, -16 - Math.random() * 6); g.lineTo(5, -9); g.stroke();
+  const hull = eqItem('h'), reac = eqItem('r'), eng = eqItem('t'), nf = eng.f || 1;
+  for (let k = 0; k < nf; k++) { const ox = nf === 1 ? 0 : (k - (nf - 1) / 2) * 6, col = eng.col === 'rainbow' ? `hsl(${(performance.now() / 6 + k * 120) % 360},100%,65%)` : (boosting() ? '#9dff6a' : eng.col);
+    g.strokeStyle = col; g.lineWidth = 2; g.beginPath(); g.moveTo(ox - 3, -9); g.lineTo(ox, -15 - Math.random() * (eng.tr ? 12 : 6)); g.lineTo(ox + 3, -9); g.stroke(); }
+  g.strokeStyle = hull.col; g.lineWidth = 2; g.fillStyle = '#060708'; g.lineJoin = 'round';
+  g.beginPath(); hull.poly.forEach(([x, y], k) => k ? g.lineTo(x, y) : g.moveTo(x, y)); g.closePath(); g.fill(); g.stroke();
+  g.fillStyle = reac.col; g.shadowColor = reac.col; g.shadowBlur = 8; g.fillRect(-2, -1, 4, 4); g.shadowBlur = 0;
   g.restore();
   // Texte
   g.font = '700 11px ui-monospace,Menlo,monospace'; g.textAlign = 'center';
@@ -443,18 +533,21 @@ let tab = 'w', uiT = 0;
 function ui() {
   $('cr').textContent = fmt(S.cr) + ' CR';
   $('mul').textContent = 'x' + (crMult()).toFixed(2);
-  $('cry').innerHTML = '◆' + S.cry + (S.dmAll ? ` <span class="dm">✦${S.dm}</span>` : '');
+  $('cry').innerHTML = '◆' + S.cry + ` <span class="dm">✦${S.dm || 0}</span>`;
   $('pln').textContent = (G.boss ? 'BOSS ' : 'Planet ') + S.p; $('pln').classList.toggle('boss', !!G.boss); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
+  hotbar();
   const b = $('boost'), bl = $('bl'), now = Date.now();
-  if (boosting()) { b.classList.add('act'); bl.textContent = 'x2 ' + mmss(S.boostEnd - now); b.disabled = true; }
-  else if (S.boostCd > now) { b.classList.remove('act'); bl.textContent = '⏳ ' + mmss(S.boostCd - now); b.disabled = true; }
-  else { b.classList.remove('act'); bl.textContent = 'Boost x2'; b.disabled = false; }
+  if (boosting()) { b.classList.add('act'); bl.textContent = mmss(S.boostEnd - now); b.disabled = true; }
+  else if (S.boostCd > now) { b.classList.remove('act'); bl.textContent = mmss(S.boostCd - now); b.disabled = true; }
+  else { b.classList.remove('act'); bl.textContent = 'Boost x2'; b.disabled = false;
+  $('abdot').hidden = !(Object.keys(S.ab).length < ABIL.length && S.dm >= drawCost());
+  $('hgdot').hidden = !(S.dm >= CRATES[0].cost && Object.keys(S.inv).length < 4); }
   $('wpdot').hidden = !(dmGain() > 0 || WARP.some(w => WP(w.id) < w.max && S.dm >= w.cost(WP(w.id))));
   if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + dmGain(); $('wgo').disabled = !dmGain(); }
   $('skdot').hidden = !SKILLS.some(s => SK(s.id) < s.max && S.cry >= skCost(s.id));
   // Knöpfe aktualisieren, ohne die Liste neu zu bauen
   document.querySelectorAll('[data-up]').forEach(el => { const w = WEAP.find(x => x.id === el.dataset.up), n = buyN === 'max' ? Math.max(1, maxBuy(w)) : buyN, c = wCost(w, n); el.disabled = S.cr < c; el.innerHTML = (n > 1 ? `x${n}<br>` : '') + fmt(c) + ' CR'; });
-  document.querySelectorAll('[data-unl]').forEach(el => { const w = WEAP.find(x => x.id === el.dataset.unl); el.disabled = S.cr < w.unl; });
+  document.querySelectorAll('[data-unl]').forEach(el => { el.disabled = S.cr < nextUnl(); });
   document.querySelectorAll('[data-dps]').forEach(el => { el.textContent = 'DPS ' + fmt(wDps(WEAP.find(x => x.id === el.dataset.dps))) + '/s'; });
 }
 const mmss = ms => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
@@ -462,23 +555,28 @@ function render() {
   const L = $('list');
   if (tab === 'w') {
     let h = `<div class="mode">${[1, 10, 'max'].map(n => `<button data-n="${n}" class="${buyN === n ? 'on' : ''}">${n === 'max' ? 'Max' : 'x' + n}</button>`).join('')}</div>`;
-    let next = null;
-    for (const w of WEAP) {
-      const l = WL(w.id);
-      if (!l) { next = next || w; continue; }
-      h += `<div class="wp"><div class="nm"><b>${w.n}</b><div class="lv">Lv. ${l}</div></div><div class="dps" data-dps="${w.id}"></div><button class="br" data-up="${w.id}"></button><div class="pr"><i style="width:${(l % 25) / 25 * 100}%"></i></div></div>`;
+    for (const id of owned()) {
+      const w = WEAP.find(x => x.id === id), l = WL(id);
+      h += `<div class="wp"><div class="nm"><b>${w.n}</b><div class="lv">Lv. ${l}${ST(id) ? ' <span class="stars">★' + ST(id) + '</span>' : ''} · ★ bei ${msNext(l)}</div></div><div class="dps" data-dps="${w.id}"></div><button class="br" data-up="${w.id}"></button><div class="pr"><i style="width:${(l - msPrev(l)) / (msNext(l) - msPrev(l)) * 100}%"></i></div></div>`;
     }
-    if (next) h += `<button class="br unl" data-unl="${next.id}">FREISCHALTEN: ${next.n}<br>${fmt(next.unl)} CR</button>`;
-    h += `<div style="font-size:11px;color:var(--mut);text-align:center;padding:6px 4px 10px">Alle 25 Stufen verdoppelt sich der Schaden einer Waffe.</div>`;
+    const of = offers(), rr = rrState();
+    if (of.length) {
+      h += `<div class="skh" style="margin-top:12px"><span>Nächste Waffe · ${fmt(nextUnl())} CR</span><b style="font-size:13px">${owned().length}/${WEAP.length}</b></div><div class="offer">${of.map(id => { const w = WEAP.find(x => x.id === id); return `<button class="br" data-unl="${id}"><b>${w.n}</b><small>${w.d}</small><span>${fmt(nextUnl())} CR</span></button>`; }).join('')}</div>
+        <button class="br rr" id="reroll" ${rr.n && WEAP.length - owned().length > 2 ? '' : 'disabled'}>🎲 Neu würfeln (${rr.n}/${RR_MAX})${rr.n < RR_MAX ? ' · +' + RR_MAX + ' in ' + mmss(3600e3 - (Date.now() - rr.t)) : ''}</button>`;
+    }
+    h += `<div style="font-size:11px;color:var(--mut);text-align:center;padding:6px 4px 10px">Bei Stufe 10, 25, 50, 100 und danach alle 100 Stufen bekommt eine Waffe ein Upgrade: x2 Schaden und ein neuer Effekt.</div>`;
     L.innerHTML = h;
     L.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { buyN = b.dataset.n === 'max' ? 'max' : +b.dataset.n; render(); });
-    L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; S.w[w.id] = WL(w.id) + n; if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
-    L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl); if (S.cr < w.unl) return; S.cr -= w.unl; S.w[w.id] = 1; toast(`${w.n} freigeschaltet!`); if (WEAP.every(x => WL(x.id)) && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
-  } else if (tab === 'p') {
+    L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; const s0 = ST(w.id); S.w[w.id] = WL(w.id) + n; if (ST(w.id) > s0) upgradeFx(w); if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
+    L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c) return; S.cr -= c; S.w[w.id] = 1; S.wo = owned().concat(w.id); S.offer = null; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
+    if ($('reroll')) $('reroll').onclick = () => { const r = rrState(); if (!r.n) return; r.n--; const left = WEAP.filter(w => !WL(w.id) && !S.offer.includes(w.id)).map(w => w.id).sort(() => Math.random() - .5); const keep = left.length >= 2 ? [] : S.offer.slice(0, 2 - left.length); S.offer = left.slice(0, 2).concat(keep).slice(0, 2); save(true); render(); };
+  } else if (tab === 'a') renderAb(L);
+  else if (tab === 'h') renderHangar(L);
+  else if (tab === 'p') {
     const g0 = dmGain();
-    L.innerHTML = `<div class="wh"><p>Warp-Sprung ab Planet 15: Du fängst bei Planet 1 neu an, verlierst CR und Waffen-Stufen. Skills, Kristalle und Warp-Upgrades bleiben.</p>
-      <b id="wgain">✦${g0}</b><p>Dunkle Materie · jede gibt für immer <b style="display:inline;font-size:12px">+20 % Schaden und CR</b><br>Aktuell: ✦${S.dmAll || 0} gesammelt = x${dmBonus().toFixed(2)} · ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'}</p>
-      <button class="br" id="wgo" ${g0 ? '' : 'disabled'}>${g0 ? 'WARP-SPRUNG' : 'Ab Planet 15 (noch ' + Math.max(0, 15 - S.p) + ')'}</button></div>
+    L.innerHTML = `<div class="wh"><p>Warp-Sprung ab Planet 3: Je weiter du kommst, desto mehr ✦ gibt's. Du fängst bei Planet 1 neu an, verlierst CR und Waffen. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>
+      <b id="wgain">✦${g0}</b><p>Dunkle Materie · jede gibt für immer <b style="display:inline;font-size:12px">+10 % Schaden und CR</b><br>Aktuell: ✦${S.dmAll || 0} gesammelt = x${dmBonus().toFixed(2)} · ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'}</p>
+      <button class="br" id="wgo" ${g0 ? '' : 'disabled'}>${g0 ? 'WARP-SPRUNG' : 'Ab Planet 3 (noch ' + Math.max(0, 3 - S.p) + ')'}</button></div>
       <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${S.dm || 0}</b></div>
       <div class="sk wp6">${WARP.map(w => { const l = WP(w.id), mx = l >= w.max;
         return `<button data-wp="${w.id}" class="${mx ? 'max' : ''}" ${mx || S.dm < w.cost(l) ? 'disabled' : ''}><span class="q"></span><span class="c">${l}/${w.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${w.ico}</svg>${w.n}<small>${mx ? 'Max' : w.d(l) + ' · ✦' + w.cost(l)}</small></button>`; }).join('')}</div>
@@ -494,7 +592,9 @@ function render() {
   ui();
 }
 document.querySelectorAll('.nav [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; $('list').scrollTop = 0; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x === b)); render(); });
-$('boost').onclick = () => { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3; S.boostCd = Date.now() + 15 * 60e3; toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); };
+function upgradeFx(w) { const n = ST(w.id); fx.push({ k: 'nova', x: ship.x, y: ship.y, r: 90, t: .8, c: '255,233,77' }); for (let k = 0; k < 30; k++) parts.push({ x: ship.x, y: ship.y, vx: (Math.random() - .5) * 300, vy: (Math.random() - .5) * 300, t: .8, c: '#ffe94d' });
+  overlay(`<div class="crate" style="--rc:#ffe94d"><div class="cbox" style="font-size:44px;color:#ffe94d">★${n}</div></div><h2 style="color:#ffe94d">${w.n} aufgewertet!</h2><p>x2 Schaden${UPTXT[w.id] ? ' · ' + UPTXT[w.id] : ''}<br>Nächstes Upgrade bei Stufe ${msNext(WL(w.id))}</p>`, [['Stark', null]]); }
+function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3; S.boostCd = Date.now() + 15 * 60e3; toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); }
 $('lb').onclick = () => window.BB && BB.open('board', 'drill');
 let toastT = 0; function toast(s) { const t = $('toast'); if (!t) return; t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
 function overlay(html, btns) { $('ovb').innerHTML = html + btns.map((b, k) => `<button class="br" data-k="${k}">${b[0]}</button>`).join(''); $('ov').classList.remove('hide'); $('ovb').querySelectorAll('[data-k]').forEach(el => el.onclick = () => { $('ov').classList.add('hide'); btns[+el.dataset.k][1] && btns[+el.dataset.k][1](); }); }
@@ -505,16 +605,16 @@ function planetDone() {
   if (window.BB) { BB.record('drill', S.p - 1, { n: old }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
   buildPlanet(0); save('now');
   toast(G.boss ? `Achtung: Boss-Planet! ${G.name}` : `Planet abgebaut! +◆${gain} · Weiter zu ${G.name}`);
-  if (S.p === 15 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Schau in den Warp-Tab.'), 2800);
+  if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);
   render();
 }
 
 function warp() {
   const n = dmGain(); if (!n) return;
-  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Danach: x${(1 + .2 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle und Warp-Upgrades bleiben.</p>`,
+  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Danach: x${(1 + .1 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
     [['SPRINGEN', () => {
       S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
-      S.cr = startCr(WP('start')); S.w = { line: 1 }; S.p = 1 + 3 * WP('skip'); S.done = 0; S.boostEnd = 0;
+      S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 3 * WP('skip'); S.done = 0; S.boostEnd = 0;
       buildPlanet(0); warpT = 1.6; ship.x = W / 2; ship.y = 30; save('now');
       if (window.BB) BB.unlock('drill_warp');
       toast(`Warp geschafft: ✦${n} Dunkle Materie · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
@@ -529,6 +629,175 @@ function offline() {
   if (got < 1) return;
   S.cr += got;
   overlay(`<h2>Willkommen zurück!</h2><p>Deine Bohrer waren ${Math.floor(away / 3600)} h ${Math.floor(away % 3600 / 60)} min fleißig.<br><b style="color:var(--cy);font-size:18px">+${fmt(got)} CR</b></p>`, [['Einsammeln', null]]);
+}
+
+// ================== Fähigkeiten ==================
+const ABIL = [
+  { id: 'over', n: 'Hyperschub', d: 'x3 Schaden für 12 s', cd: 60, ico: '<path d="M3 17l7-3-4 7M5 12l9-4-3 8M8 6l13-3-5 13z"/>' },
+  { id: 'gold', n: 'Goldrausch', d: 'x3 CR für 12 s', cd: 90, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6M9 14h6"/>' },
+  { id: 'meteor', n: 'Meteorschauer', d: '14 Meteore schlagen ein', cd: 45, ico: '<circle cx="15" cy="15" r="4"/><path d="M12 12L4 4M15 10L9 4M10 15L4 9"/>' },
+  { id: 'kanone', n: 'Orbitalkanone', d: 'Riesen-Laser durch den Kern', cd: 30, ico: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v4M21 12h-4"/>' },
+  { id: 'loch', n: 'Schwarzes Loch', d: 'Frisst ein Stück Planet', cd: 50, ico: '<path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7a5 5 0 1 0 5 5"/><circle cx="12" cy="12" r="1.5"/>' },
+  { id: 'erz', n: 'Erzradar', d: 'Verwandelt Blöcke in Erz', cd: 75, ico: '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="11" cy="12" r="3.5"/><path d="M11 6.5v2M11 15.5v2M5.5 12h2M14.5 12h2M18 9v6"/>' },
+  { id: 'zeit', n: 'Zeitsprung', d: 'Sofort 90 s Ertrag', cd: 120, ico: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>' }
+];
+const AL = id => (S.ab && S.ab[id]) || 0;
+const abPow = id => 1 + .25 * (AL(id) - 1);
+const abCd = a => a.cd * (1 - .04 * (AL(a.id) - 1)) * (1 - .04 * itemLv('t'));
+const abReady = id => (S.abT[id] || 0) <= Date.now();
+const buf = k => (S.buf[k] || 0) > Date.now();
+const drawCost = () => 8 + 12 * Object.keys(S.ab).length;
+const abUpCost = id => 4 * AL(id);
+const meteors = [];
+let bhole = null;
+function cast(id, auto) {
+  const a = ABIL.find(x => x.id === id); if (!a || !AL(id) || !abReady(id) || !G || G.clearing) return;
+  const P = abPow(id), D = Math.max(totalDps(), Math.pow(1.72, S.p - 1) * 3);
+  S.abT[id] = Date.now() + abCd(a) * 1000;
+  if (id === 'over') S.buf.dmg = Date.now() + 12000 * (1 + .1 * (AL(id) - 1)) ;
+  else if (id === 'gold') S.buf.cr = Date.now() + 12000 * (1 + .1 * (AL(id) - 1));
+  else if (id === 'meteor') { for (let k = 0; k < 14; k++) { const i = randAlive(); if (i < 0) break; const [x, y] = cellXY(i); meteors.push({ x: x + (Math.random() - .5) * 120, y: -20 - k * 30, tx: x, ty: y, d: D * 1.4 * P, v: 380 + Math.random() * 120 }); } }
+  else if (id === 'kanone') { const a2 = Math.atan2(G.cy - ship.y, G.cx - ship.x); lanceShot(a2, D * 9 * P, 3); }
+  else if (id === 'loch') { const i = randAlive(); if (i >= 0) { const [x, y] = cellXY(i); bhole = { x, y, t: 2.2, r: CELL * (2.6 + AL(id) * .25), d: D * 5 * P }; } }
+  else if (id === 'erz') { let n = Math.round(14 * P); while (n-- > 0) { const i = randAlive(); if (i >= 0) G.ore[i] = Math.random() < .2 ? 2 : 1; } tDirty = true; }
+  else if (id === 'zeit') { const v = Math.max(S.ema || 0, G.v0 * crMult() * 3) * 90 * P; S.cr += v; earnedSec += v; floats.push({ x: W / 2, y: H * .3, t: 1.6, s: '+' + fmt(v) + ' CR', c: '#9dff6a' }); }
+  fx.push({ k: 'cast', x: ship.x, y: ship.y, t: .5 });
+  if (!auto) toast(a.n + '!');
+  save(); hotbar(true);
+}
+function randAlive() { for (let k = 0; k < 60; k++) { const i = (Math.random() * G.alive.length) | 0; if (G.alive[i]) return i; } return nearest(G.cx, G.cy); }
+function lanceShot(ang, budget, width) {
+  const dx = Math.cos(ang), dy = Math.sin(ang), seen = new Set(); let b = budget, ex = ship.x, ey = ship.y;
+  for (let l = 0; l < W * 1.6 && b > 0; l += CELL * .5) { const px = ship.x + dx * l, py = ship.y + dy * l; ex = px; ey = py;
+    for (let o = -width; o <= width; o++) { const i = cellAt(px - dy * CELL * o * .6, py + dx * CELL * o * .6); if (i < 0 || !G.alive[i] || seen.has(i)) continue; seen.add(i); const d = Math.min(b, G.hp[i]); b -= d; hit(i, d + .0001); } }
+  fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ex, y2: ey, t: .6, w: 3 + width * 2, c: '#ff9ad6' });
+}
+function abStep(dt) {
+  for (let k = meteors.length - 1; k >= 0; k--) {
+    const m = meteors[k], dx = m.tx - m.x, dy = m.ty - m.y, l = Math.hypot(dx, dy);
+    if (l < 8) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; for (let a = -2; a <= 2; a++) for (let b2 = -2; b2 <= 2; b2++) { if (a * a + b2 * b2 > 5) continue; const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 9); } }
+      fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * 3, t: .5, c: '255,170,80' }); meteors.splice(k, 1); continue; }
+    m.x += dx / l * m.v * dt; m.y += dy / l * m.v * dt;
+  }
+  if (bhole) { bhole.t -= dt; const r = bhole.r * Math.min(1, (2.2 - bhole.t) * 2);
+    const c0 = Math.floor((bhole.x - G.ox) / CELL), r0 = Math.floor((bhole.y - G.oy) / CELL), n = Math.ceil(r / CELL);
+    for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) { const cc = c0 + a, rr = r0 + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS || Math.hypot(a, b2) * CELL > r) continue; hit(rr * COLS + cc, bhole.d * dt / 2.2 / 6); }
+    if (bhole.t <= 0) bhole = null; }
+  if (WP('auto')) for (const id of S.hot) if (id && AL(id) && abReady(id)) { cast(id, true); break; }
+}
+// ================== Hangar: Schiffsteile ==================
+const RAR = { g: { n: 'Gewöhnlich', c: '#c9d1d3', b: .1 }, s: { n: 'Selten', c: '#8dff5a', b: .25 }, e: { n: 'Episch', c: '#ff5fe0', b: .6 }, l: { n: 'Legendär', c: '#ffe94d', b: 1.5 } };
+const SLOT = { h: { n: 'Rumpf', st: 'Schaden' }, r: { n: 'Reaktor', st: 'CR' }, t: { n: 'Triebwerk', st: 'Feuerrate' } };
+const ITEMS = [
+  { id: 'h_pfeil', s: 'h', r: 'g', n: 'Pfeilgleiter', col: '#f4fbff', poly: [[0, 14], [-10, -10], [0, -4], [10, -10]] },
+  { id: 'h_kobold', s: 'h', r: 'g', n: 'Kobold-Kreuzer', col: '#9dff6a', poly: [[0, 14], [-6, 6], [-13, 9], [-9, -2], [-11, -10], [0, -6], [11, -10], [9, -2], [13, 9], [6, 6]] },
+  { id: 'h_blatt', s: 'h', r: 's', n: 'Kräuterblatt', col: '#5fe36b', poly: [[0, 16], [-3, 6], [-12, 10], [-6, 1], [-13, -3], [-4, -4], [-2, -11], [0, -6], [2, -11], [4, -4], [13, -3], [6, 1], [12, 10], [3, 6]] },
+  { id: 'h_molly', s: 'h', r: 's', n: 'Mollys Sternjäger', col: '#6ab0ff', poly: [[0, 15], [-4, 4], [-14, 2], [-5, -2], [-8, -11], [0, -5], [8, -11], [5, -2], [14, 2], [4, 4]] },
+  { id: 'h_geist', s: 'h', r: 'e', n: 'Geisterschiff', col: '#dfe6ff', poly: [[0, 14], [-8, 10], [-11, 0], [-11, -10], [-7, -6], [-4, -11], [0, -7], [4, -11], [7, -6], [11, -10], [11, 0], [8, 10]] },
+  { id: 'h_don', s: 'h', r: 'e', n: 'DonPatrons Goldyacht', col: '#ffd23f', poly: [[0, 14], [-5, 10], [-14, 4], [-14, -4], [-6, -10], [6, -10], [14, -4], [14, 4], [5, 10]] },
+  { id: 'h_koenig', s: 'h', r: 'l', n: 'Königsfregatte', col: '#ffb43a', poly: [[0, 16], [-8, 6], [-12, -6], [-12, -12], [-6, -7], [0, -13], [6, -7], [12, -12], [12, -6], [8, 6]] },
+  { id: 'h_drache', s: 'h', r: 'l', n: 'Nullraum-Drache', col: '#ff4f7a', poly: [[0, 16], [-3, 9], [-15, 12], [-8, 2], [-15, -6], [-5, -4], [0, -12], [5, -4], [15, -6], [8, 2], [15, 12], [3, 9]] },
+  { id: 'r_basis', s: 'r', r: 'g', n: 'Kohle-Reaktor', col: '#ffb06a' },
+  { id: 'r_kraut', s: 'r', r: 'g', n: 'Kräuterkern', col: '#7dff6a' },
+  { id: 'r_plasma', s: 'r', r: 's', n: 'Plasmakern', col: '#5ce8f0' },
+  { id: 'r_kristall', s: 'r', r: 's', n: 'Kristallherz', col: '#b48cff' },
+  { id: 'r_geist', s: 'r', r: 'e', n: 'Geisterflamme', col: '#e9f4ff' },
+  { id: 'r_sonne', s: 'r', r: 'e', n: 'Mini-Sonne', col: '#ffd23f' },
+  { id: 'r_null', s: 'r', r: 'l', n: 'Nullraum-Kern', col: '#ff4fd8' },
+  { id: 't_basis', s: 't', r: 'g', n: 'Standard-Düse', col: '#5ce8f0', f: 1 },
+  { id: 't_doppel', s: 't', r: 'g', n: 'Doppeldüse', col: '#5ce8f0', f: 2 },
+  { id: 't_ion', s: 't', r: 's', n: 'Ionen-Antrieb', col: '#6ab0ff', f: 1, tr: 1 },
+  { id: 't_blitz', s: 't', r: 's', n: 'Blitzantrieb', col: '#ffe36a', f: 2 },
+  { id: 't_rauch', s: 't', r: 'e', n: 'Bubatz-Rauch', col: '#9dff6a', f: 1, smoke: 1 },
+  { id: 't_regen', s: 't', r: 'e', n: 'Regenbogen-Schweif', col: 'rainbow', f: 2, tr: 1 },
+  { id: 't_warp', s: 't', r: 'l', n: 'Warp-Triebwerk', col: '#ff4fd8', f: 3, tr: 1 }
+];
+const IT = id => ITEMS.find(x => x.id === id);
+const eqItem = s => IT(S.eq[s]) || ITEMS.find(x => x.s === s);
+const itemVal = (it, lv) => RAR[it.r].b * (1 + .5 * ((lv || 1) - 1));
+const itemBonus = s => { const it = eqItem(s); return 1 + itemVal(it, S.inv[it.id] || 1); };
+const itemLv = s => { const it = eqItem(s); return ({ g: 0, s: 1, e: 2, l: 4 })[it.r] + ((S.inv[it.id] || 1) - 1) * .3; };
+const CRATES = [
+  { id: 'k1', n: 'Schrottkiste', cost: 6, w: { g: 72, s: 22, e: 5, l: 1 }, c: '#c9d1d3' },
+  { id: 'k2', n: 'Bandenkiste', cost: 20, w: { g: 25, s: 50, e: 20, l: 5 }, c: '#8dff5a' },
+  { id: 'k3', n: 'Nullraum-Kiste', cost: 60, w: { g: 0, s: 30, e: 50, l: 20 }, c: '#ffe94d' }
+];
+function openCrate(k) {
+  if (S.dm < k.cost) return;
+  S.dm -= k.cost;
+  let roll = Math.random() * 100, r = 'g'; for (const [rr, w] of Object.entries(k.w)) { if ((roll -= w) < 0) { r = rr; break; } }
+  const pool = ITEMS.filter(x => x.r === r), it = pool[(Math.random() * pool.length) | 0], had = S.inv[it.id] || 0;
+  let extra = '';
+  if (had >= 10) { S.dm += Math.ceil(k.cost / 2); extra = `<br>Schon auf Max · ✦${Math.ceil(k.cost / 2)} zurück`; }
+  else S.inv[it.id] = had + 1;
+  if (r === 'l' && window.BB) BB.unlock('drill_legende');
+  save('now');
+  overlay(`<div class="crate" style="--rc:${RAR[r].c}"><div class="cbox">${itemSvg(it, 76)}</div></div><h2 style="color:${RAR[r].c}">${it.n}</h2><p>[${RAR[r].n}] · ${SLOT[it.s].n}<br>${had ? (had >= 10 ? '' : `Doppelt! Jetzt Lvl. ${had + 1}`) : 'Neu im Hangar!'}${extra}<br><b style="color:var(--txt)">+${Math.round(itemVal(it, Math.min(10, had + 1)) * 100)} % ${SLOT[it.s].st}</b></p>`,
+    [['Ausrüsten', () => { S.eq[it.s] = it.id; save('now'); render(); }], ['Weiter', () => render()]]);
+}
+function itemSvg(it, size) {
+  const c = RAR[it.r].c;
+  if (it.s === 'h') return `<svg width="${size}" height="${size}" viewBox="-18 -18 36 36"><polygon points="${it.poly.map(([x, y]) => x + ',' + (-y)).join(' ')}" fill="none" stroke="${it.col}" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+  if (it.s === 'r') return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3" fill="${it.col}" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>`;
+  const fc = it.col === 'rainbow' ? '#ff5fe0' : it.col;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.5"><rect x="3" y="8" width="11" height="8" rx="2"/><path d="M14 9l4-2v10l-4-2M6 8v8M9 8v8"/><path d="M19 10l3-1M19 14l3 1" stroke="${fc}"/></svg>`;
+}
+function bestEquip() { for (const s of ['h', 'r', 't']) { let best = null, bv = -1; for (const it of ITEMS) if (it.s === s && S.inv[it.id]) { const v = itemVal(it, S.inv[it.id]); if (v > bv) { bv = v; best = it; } } if (best) S.eq[s] = best.id; } save('now'); render(); }
+// ================== Hotbar ==================
+let hotSig = '';
+function hotbar(force) {
+  const el = $('hot'); if (!el) return;
+  const now = Date.now(), sig = S.hot.join() + '|' + Object.keys(S.ab).length;
+  if (force || sig !== hotSig) {
+    hotSig = sig;
+    el.innerHTML = [0, 1, 2, 3, 4].map(k => { const id = S.hot[k], a = id && ABIL.find(x => x.id === id);
+      return a ? `<button class="hs" data-cast="${id}" aria-label="${a.n}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg><i class="cd"></i><span class="ct"></span></button>`
+        : `<button class="hs empty" data-goab="1" aria-label="Fähigkeit hinzufügen">+</button>`; }).join('') + `<button class="hs bst" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">x2</span></button>`;
+    el.querySelectorAll('[data-cast]').forEach(b => b.onclick = () => cast(b.dataset.cast));
+    el.querySelectorAll('[data-goab]').forEach(b => b.onclick = () => goTab('a'));
+    $('boost').onclick = boostClick;
+  }
+  el.querySelectorAll('[data-cast]').forEach(b => { const a = ABIL.find(x => x.id === b.dataset.cast), left = (S.abT[a.id] || 0) - now, tot = abCd(a) * 1000;
+    const f = left > 0 ? Math.min(1, left / tot) : 0; b.querySelector('.cd').style.background = f ? `conic-gradient(rgba(0,0,0,.72) ${f * 360}deg, transparent 0)` : 'none';
+    b.querySelector('.ct').textContent = left > 0 ? Math.ceil(left / 1000) : ''; b.classList.toggle('rdy', left <= 0);
+    b.classList.toggle('act', (a.id === 'over' && buf('dmg')) || (a.id === 'gold' && buf('cr'))); });
+}
+function goTab(t) { tab = t; $('list').scrollTop = 0; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === t)); render(); }
+let hTab = 'h', abSel = null;
+function renderAb(L) {
+  const own = ABIL.filter(a => AL(a.id)), dc = drawCost(), allOwned = own.length === ABIL.length;
+  L.innerHTML = `<div class="skh"><span>Fähigkeiten · tippen = auf Hotbar legen</span><b class="dm">✦ ${S.dm || 0}</b></div>
+    <div class="sk ab">${ABIL.map(a => { const l = AL(a.id), on = S.hot.includes(a.id);
+      return l ? `<button data-ab="${a.id}" class="${on ? 'on' : ''}"><span class="c">${l}/10</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg>${a.n}<small>${a.d} · ${Math.round(abCd(a))} s</small>${on ? '<em>AUSG</em>' : ''}</button>`
+        : `<button class="lock" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>???</button>`; }).join('')}</div>
+    ${abSel && AL(abSel) ? (() => { const a = ABIL.find(x => x.id === abSel), l = AL(abSel), c = abUpCost(abSel); return `<div class="wh" style="margin-top:10px"><p><b style="display:inline;font-size:14px;color:var(--txt)">${a.n}</b> · Lvl. ${l}<br>Stärke x${abPow(abSel).toFixed(2)} · Abklingzeit ${Math.round(abCd(a))} s</p>
+      <div class="row2"><button class="br" id="abeq">${S.hot.includes(abSel) ? 'Ablegen' : 'Ausrüsten'}</button><button class="br" id="abup" ${l >= 10 || S.dm < c ? 'disabled' : ''}>${l >= 10 ? 'Max' : 'Verbessern ✦' + c}</button></div></div>`; })() : ''}
+    <div class="row2" style="margin-top:10px"><button class="br" id="aball" ${own.some(a => AL(a.id) < 10 && S.dm >= abUpCost(a.id)) ? '' : 'disabled'}>Alle verbessern</button><button class="br" id="abbest" ${own.length ? '' : 'disabled'}>Beste ausrüsten</button></div>
+    <button class="br unl" id="abdraw" style="margin-top:9px" ${allOwned || S.dm < dc ? 'disabled' : ''}>${allOwned ? 'ALLE FÄHIGKEITEN GEZOGEN' : 'FÄHIGKEIT ZIEHEN<br>✦' + dc}</button>
+    <div class="hint">✦ Dunkle Materie bekommst du bei jedem Warp-Sprung (ab Planet 3).</div>`;
+  L.querySelectorAll('[data-ab]').forEach(b => b.onclick = () => { abSel = abSel === b.dataset.ab ? null : b.dataset.ab; render(); });
+  if ($('abeq')) $('abeq').onclick = () => { const i = S.hot.indexOf(abSel); if (i >= 0) S.hot[i] = null; else { const f = S.hot.findIndex(x => !x); if (f >= 0 && f < 5) S.hot[f] = abSel; else if (S.hot.length < 5) S.hot.push(abSel); else S.hot[4] = abSel; } S.hot = S.hot.slice(0, 5); save('now'); hotbar(true); render(); };
+  if ($('abup')) $('abup').onclick = () => { const c = abUpCost(abSel); if (AL(abSel) >= 10 || S.dm < c) return; S.dm -= c; S.ab[abSel]++; save('now'); render(); };
+  $('aball').onclick = () => { let go = true; while (go) { go = false; const c = own.filter(a => AL(a.id) < 10).sort((a, b) => abUpCost(a.id) - abUpCost(b.id))[0]; if (c && S.dm >= abUpCost(c.id)) { S.dm -= abUpCost(c.id); S.ab[c.id]++; go = true; } } save('now'); render(); };
+  $('abbest').onclick = () => { S.hot = own.slice().sort((a, b) => AL(b.id) - AL(a.id)).slice(0, 5).map(a => a.id); save('now'); hotbar(true); render(); };
+  $('abdraw').onclick = () => { const left = ABIL.filter(a => !AL(a.id)); if (!left.length || S.dm < dc) return; S.dm -= dc; const a = left[(Math.random() * left.length) | 0]; S.ab[a.id] = 1;
+    const f = [0, 1, 2, 3, 4].find(k => !S.hot[k]); if (f != null) S.hot[f] = a.id; save('now'); hotbar(true);
+    overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${a.ico}</svg></div></div><h2 style="color:#c9a2ff">${a.n}</h2><p>${a.d}<br>Abklingzeit ${a.cd} s${f != null ? '<br>Liegt jetzt auf deiner Hotbar.' : ''}</p>`, [['Nice', () => render()]]); };
+}
+function renderHangar(L) {
+  L.innerHTML = `<div class="eqrow">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<div><span>${SLOT[s].n}</span><div class="ib" style="border-color:${RAR[it.r].c}">${itemSvg(it, 40)}</div><small>Lvl. ${S.inv[it.id] || 1} · +${Math.round(itemVal(it, S.inv[it.id]) * 100)} % ${SLOT[s].st}</small></div>`; }).join('')}</div>
+    <div class="mode">${['h', 'r', 't'].map(s => `<button data-hs="${s}" class="${hTab === s ? 'on' : ''}">${SLOT[s].n}</button>`).join('')}</div>
+    <div class="inv">${ITEMS.filter(x => x.s === hTab).map(it => { const l = S.inv[it.id], on = S.eq[it.s] === it.id;
+      return `<button data-it="${it.id}" ${l ? '' : 'disabled'} style="--rc:${RAR[it.r].c}" class="${on ? 'on' : ''} ${l ? '' : 'no'}">${l ? itemSvg(it, 34) : '?'}<small>${l ? 'Lvl. ' + l : RAR[it.r].n}</small>${on ? '<em>AUSG</em>' : ''}</button>`; }).join('')}</div>
+    <div class="hint" id="itinfo">Tipp auf ein Teil zum Ausrüsten. Doppelte Teile steigen eine Stufe auf (max. 10).</div>
+    <button class="br" id="best" style="width:100%;margin:2px 0 12px">Beste ausrüsten</button>
+    <div class="skh"><span>Kisten</span><b class="dm">✦ ${S.dm || 0}</b></div>
+    <div class="crates">${CRATES.map(k => `<button class="br" data-cr="${k.id}" ${S.dm < k.cost ? 'disabled' : ''} style="--rc:${k.c}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.6"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/></svg><b>${k.n}</b><small>✦${k.cost}</small></button>`).join('')}</div>
+    <div class="hint">Schrottkiste: meist gewöhnlich · Bandenkiste: oft selten · Nullraum-Kiste: 20 % Legendär</div>`;
+  L.querySelectorAll('[data-hs]').forEach(b => b.onclick = () => { hTab = b.dataset.hs; render(); });
+  L.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { const it = IT(b.dataset.it); S.eq[it.s] = it.id; save('now'); render(); toast(`${it.n} ausgerüstet · +${Math.round(itemVal(it, S.inv[it.id]) * 100)} % ${SLOT[it.s].st}`); });
+  $('best').onclick = bestEquip;
+  L.querySelectorAll('[data-cr]').forEach(b => b.onclick = () => openCrate(CRATES.find(k => k.id === b.dataset.cr)));
 }
 
 // ================== Schleife ==================
@@ -546,12 +815,12 @@ setInterval(() => save(true), 20000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) { save(true); window.BB && BB.cloud && BB.cloud.flush(); } });
 window.addEventListener('pagehide', () => save(true));
 
-resize(); ship.x = W / 2; ship.y = 30; render(); requestAnimationFrame(loop); svState();
-setTimeout(() => toast('Tipp auf den Planeten für Extra-Schaden, schnapp dir goldene Kometen!'), 1200);
+resize(); ship.x = W / 2; ship.y = 30; hotbar(true); render(); requestAnimationFrame(loop); svState();
+
 if (logged()) pull().then(offline); else offline();
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
-window.GB = { get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
+window.GB = { cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
 </script>
 </body>
 </html>
