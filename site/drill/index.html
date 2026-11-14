@@ -111,6 +111,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .sk button em,.inv em{position:absolute;right:4px;bottom:3px;font:700 10px var(--mono);color:var(--cy);font-style:normal}
 .row2{display:flex;gap:8px}.row2 .br{flex:1;min-width:0;font-size:12px}
 .stars{color:#ffe94d}
+.br .gn{display:block;font-size:10px;color:var(--li);font-weight:600;margin-top:2px}.br:disabled .gn{color:#6b4450}
 .offer{display:grid;grid-template-columns:1fr 1fr;gap:8px}.offer .br{min-width:0;height:auto;padding:12px 8px;display:flex;flex-direction:column;gap:5px;text-align:center}.offer .br b{font-size:13px}.offer .br small{font-size:10.5px;color:#cfd8da;line-height:1.35;font-weight:600}.offer .br span{font-size:13px;color:var(--cy)}.offer .br:disabled span{color:var(--pk)}
 .rr{width:100%;height:40px;margin:8px 0 2px;font-size:12px}
 .hint{font-size:11px;color:var(--mut);text-align:center;padding:8px 4px 10px;line-height:1.45}
@@ -305,7 +306,7 @@ function buildPlanet(removed) {
   CELL = Math.max(14, 2 * Math.round(Math.min(W, 520) / 52)); // gerade Zahl: keine Nähte zwischen den Blöcken
   const Rc = boss ? 27 : 16 + rnd() * 10 + Math.min(4, p * .15);
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = .8 * Math.pow(2.05, p - 1) * (1 + .2 * (p - 1)) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = Math.pow(1.78, p - 1) * (1 + .1 * (p - 1)) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = Math.pow(1.8, p - 1) * (1 + .1 * (p - 1)) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = Math.pow(1.7, p - 1) * (1 + .1 * (p - 1)) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
@@ -664,7 +665,7 @@ function ui() {
   if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + dmGain(); $('wgo').disabled = !dmGain(); }
   $('skdot').hidden = !SKILLS.some(s => SK(s.id) < s.max && S.cry >= skCost(s.id));
   // Knöpfe aktualisieren, ohne die Liste neu zu bauen
-  document.querySelectorAll('[data-up]').forEach(el => { const w = WEAP.find(x => x.id === el.dataset.up), n = buyN === 'max' ? Math.max(1, maxBuy(w)) : buyN, c = wCost(w, n); el.disabled = S.cr < c; el.innerHTML = (n > 1 ? `x${n}<br>` : '') + fmt(c) + ' CR'; });
+  document.querySelectorAll('[data-up]').forEach(el => { const w = WEAP.find(x => x.id === el.dataset.up), n = buyN === 'max' ? Math.max(1, maxBuy(w)) : buyN, c = wCost(w, n); el.disabled = S.cr < c; const l0 = WL(w.id), f = l => T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult(), gn = f(l0 + n) - f(l0); el.innerHTML = (n > 1 ? `x${n} · ` : '') + fmt(c) + ' CR' + `<small class="gn">+${fmt(gn)} DPS${msN(l0 + n) > msN(l0) ? ' ★' : ''}</small>`; });
   document.querySelectorAll('[data-unl]').forEach(el => { el.disabled = S.cr < nextUnl(); });
   document.querySelectorAll('[data-dps]').forEach(el => { el.textContent = 'DPS ' + fmt(wDps(WEAP.find(x => x.id === el.dataset.dps))) + '/s'; });
 }
