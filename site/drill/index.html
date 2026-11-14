@@ -354,7 +354,7 @@ function kill(i, reward) {
 const ship = { x: 0, y: 40, vx: 0, vy: 0, orb: -Math.PI / 2, ang: 0 };
 const proj = [], drones = [0, 1, 2, 3, 4, 5].map(k => ({ a: k * 1.047, cd: k * .07 }));
 const extraT = [];
-const novas = [];
+const novas = [], waves = [];
 let cdBlast = 0, cdChain = 0, sawA = 0, cdMine = 0, cdSnip = 0; const saws = [], mines = [];
 let starA = 0, cdDrill = 0, cdNova = 0, cdScatter = 0, lineTarget = -1, surfR = 0, surfT = 0;
 function nearest(x, y, jitter) {
@@ -403,12 +403,14 @@ function step(dt) {
   const dN = WD('nova');
   if (dN && (cdNova -= dt * R) <= 0) {
     cdNova = 3; const t0 = nearest(ship.x, ship.y, 25 * CELL * CELL);
-    if (t0 >= 0) { const [tx0, ty0] = cellXY(t0), rad = CELL * (2.6 + Math.min(4, WL('nova') / 15) + ST('nova') * .7), dx = G.cx - tx0, dy = G.cy - ty0, dl = Math.hypot(dx, dy) || 1;
+    if (t0 >= 0) { const [tx0, ty0] = cellXY(t0), rad = CELL * (3.4 + Math.min(5, WL('nova') / 12) + ST('nova') * .8), dx = G.cx - tx0, dy = G.cy - ty0, dl = Math.hypot(dx, dy) || 1;
       novas.push({ x: ship.x, y: ship.y, tx: tx0 + dx / dl * rad * .6, ty: ty0 + dy / dl * rad * .6, rad, d: dN * 3 * critMul() / 7, t: 0 }); } }
   for (let k = novas.length - 1; k >= 0; k--) { const n = novas[k]; n.t += dt * 2.6; if (n.t < 1) continue; novas.splice(k, 1);
-    const c0 = Math.floor((n.tx - G.ox - n.rad) / CELL), c1 = Math.ceil((n.tx - G.ox + n.rad) / CELL), r0 = Math.floor((n.ty - G.oy - n.rad) / CELL), r1 = Math.ceil((n.ty - G.oy + n.rad) / CELL);
-    for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) for (let c = Math.max(0, c0); c <= Math.min(COLS - 1, c1); c++) { const i = r * COLS + c; if (!G.alive[i]) continue; const [x, y] = cellXY(i); if (Math.hypot(x - n.tx, y - n.ty) <= n.rad) hit(i, n.d); }
-    fx.push({ k: 'nova', x: n.tx, y: n.ty, r: n.rad, t: .55, thick: 1 }); shake = Math.max(shake, 3.5); }
+    const c0 = Math.floor((n.tx - G.ox - n.rad) / CELL), c1 = Math.ceil((n.tx - G.ox + n.rad) / CELL), r0 = Math.floor((n.ty - G.oy - n.rad) / CELL), r1 = Math.ceil((n.ty - G.oy + n.rad) / CELL), cells = [];
+    for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) for (let c = Math.max(0, c0); c <= Math.min(COLS - 1, c1); c++) { const i = r * COLS + c; if (!G.alive[i]) continue; const [x, y] = cellXY(i), d = Math.hypot(x - n.tx, y - n.ty); if (d <= n.rad) cells.push([d, i]); }
+    cells.sort((a2, b2) => a2[0] - b2[0]); waves.push({ x: n.tx, y: n.ty, rad: n.rad, r: 0, cells, j: 0, d: n.d }); shake = Math.max(shake, 3); }
+  // Welle breitet sich aus und trifft die Blöcke nach und nach
+  for (let k = waves.length - 1; k >= 0; k--) { const w = waves[k]; w.r += dt * w.rad * 1.6; while (w.j < w.cells.length && w.cells[w.j][0] <= w.r) hit(w.cells[w.j++][1], w.d); if (w.r >= w.rad * 1.15) waves.splice(k, 1); }
   // 5) Streufeuer
   const dC = WD('scatter');
   if (dC && (cdScatter -= dt * R) <= 0) { cdScatter = 1; const np = Math.min(15, 7 + 2 * ST('scatter')); for (let k = 0; k < np; k++) { const a = toC + (k - (np - 1) / 2) * (1.4 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC / np * critMul(), t: 2 }); } }
@@ -596,6 +598,7 @@ function draw(now) {
   if (warpT > 0) { const k = Math.min(1, warpT); g.strokeStyle = `rgba(201,162,255,${k * .8})`; g.lineWidth = 2; g.beginPath(); for (const [x, y, s] of stars) { const px = x * W, py = y * H, dx = px - W / 2, dy = py - H / 2; g.moveTo(px, py); g.lineTo(px + dx * (1.6 - k) * .6, py + dy * (1.6 - k) * .6); } g.stroke(); }
   if (WD('saw')) for (const [x, y] of saws) { g.save(); g.translate(x, y); g.rotate(sawA * 3); g.strokeStyle = '#9dff6a'; g.lineWidth = 2; g.beginPath(); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; g.lineTo(Math.cos(a) * 9, Math.sin(a) * 9); g.lineTo(Math.cos(a + .5) * 4, Math.sin(a + .5) * 4); } g.closePath(); g.stroke(); g.restore(); }
   g.fillStyle = '#ff8a5a'; for (const m of mines) { const x = m.x + (m.tx - m.x) * m.t, y = m.y + (m.ty - m.y) * m.t - Math.sin(m.t * Math.PI) * 30; g.fillRect(x - 3, y - 3, 6, 6); }
+  for (const w of waves) { const a = Math.max(0, 1 - w.r / (w.rad * 1.15)); g.strokeStyle = `rgba(190,170,255,${a})`; g.lineWidth = 9; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.stroke(); g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = 2; g.stroke(); g.fillStyle = `rgba(160,130,255,${a * .18})`; g.fill(); }
   for (const n of novas) { const x = n.x + (n.tx - n.x) * n.t, y = n.y + (n.ty - n.y) * n.t; g.fillStyle = 'rgba(190,170,255,.35)'; g.beginPath(); g.arc(x, y, 9, 0, 7); g.fill(); g.fillStyle = '#e9e2ff'; g.fillRect(Math.round(x) - 3, Math.round(y) - 3, 6, 6); }
   for (const m of meteors) { g.fillStyle = '#ffb46a'; g.beginPath(); g.arc(m.x, m.y, 6, 0, 7); g.fill(); g.strokeStyle = 'rgba(255,140,60,.5)'; g.lineWidth = 4; g.beginPath(); g.moveTo(m.x, m.y); g.lineTo(m.x - (m.tx - m.x) * .08, m.y - (m.ty - m.y) * .08 - 20); g.stroke(); }
   if (bhole) { const r = bhole.r * Math.min(1, (2.2 - bhole.t) * 2); g.globalCompositeOperation = 'source-over'; const gr = g.createRadialGradient(bhole.x, bhole.y, 0, bhole.x, bhole.y, r * 1.4); gr.addColorStop(0, '#000'); gr.addColorStop(.6, 'rgba(60,20,120,.85)'); gr.addColorStop(1, 'rgba(120,60,255,0)'); g.fillStyle = gr; g.beginPath(); g.arc(bhole.x, bhole.y, r * 1.4, 0, 7); g.fill(); g.strokeStyle = '#c9a2ff'; g.lineWidth = 2; g.beginPath(); g.arc(bhole.x, bhole.y, r * (.6 + .1 * Math.sin(performance.now() / 80)), 0, 7); g.stroke(); g.globalCompositeOperation = 'lighter'; }
@@ -712,30 +715,32 @@ function travelStep(dt) {
   for (let q = floats.length - 1; q >= 0; q--) { const o = floats[q]; o.y -= 26 * dt; if ((o.t -= dt) <= 0) floats.splice(q, 1); }
   for (let q = fx.length - 1; q >= 0; q--) if ((fx[q].t -= dt) <= 0) fx.splice(q, 1);
   if (warpT > 0) warpT -= dt; shake = Math.max(0, shake - dt * 30); if (intro > 0) intro -= dt;
-  proj.length = 0; meteors.length = 0; novas.length = 0; mines.length = 0; bhole = null; lineTarget = -1; G.star = null;
+  proj.length = 0; meteors.length = 0; novas.length = 0; waves.length = 0; mines.length = 0; bhole = null; lineTarget = -1; G.star = null;
   if (travel <= 0) { travel = 0; pOff = 0; }
   if (!isFinite(ship.x) || !isFinite(ship.y)) { ship.x = W / 2; ship.y = 40; ship.vx = ship.vy = 0; }
   ship.x = Math.max(14, Math.min(W - 14, ship.x)); ship.y = Math.max(14, Math.min(H - 14, ship.y));
 }
+const warpBonus = n => 5 + Math.ceil(n * .5);
 function planetDone() {
   const gain = (1 + Math.floor(S.p / 3) + WP('kris')) * (G.boss ? 3 : 1), old = G.name;
+  const dmP = (1 + Math.floor(S.p / 4)) * (G.boss ? 3 : 1); S.dm = (S.dm || 0) + dmP;
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
   if (window.BB) { BB.record('drill', S.p - 1, { n: old }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
   travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
-  toast(`Planet abgebaut! +◆${gain} · Kurs auf Planet ${S.p}`);
+  toast(`Planet abgebaut! +◆${gain} +✦${dmP} · Kurs auf Planet ${S.p}`);
   if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);
   render();
 }
 
 function warp() {
   const n = dmGain(); if (!n) return;
-  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Danach: x${(1 + .1 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
+  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>+ <b style="color:#ffe94d">✦${warpBonus(n)} Bonus</b> für Kisten<br>Danach: x${(1 + .1 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
     [['SPRINGEN', () => {
-      S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
+      const wb = warpBonus(n); S.dm = (S.dm || 0) + n + wb; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
       S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 3 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now');
       if (window.BB) BB.unlock('drill_warp');
-      toast(`Warp geschafft: ✦${n} Dunkle Materie · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
+      toast(`Warp geschafft: ✦${n} + ✦${wb} Bonus · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
     }], ['Noch nicht', null]]);
 }
 
@@ -966,7 +971,7 @@ resize(); ship.x = W / 2; ship.y = 30; hotbar(true); render(); requestAnimationF
 if (logged()) pull().then(offline); else offline();
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
-window.GB = { ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
+window.GB = { get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
 </script>
 </body>
 </html>
