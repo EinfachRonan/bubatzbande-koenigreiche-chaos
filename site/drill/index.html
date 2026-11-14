@@ -27,7 +27,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .pl .box i{width:24px;height:24px;border-radius:50%;box-shadow:inset -5px -4px 0 rgba(0,0,0,.35)}
 .pl small{display:block;font-size:11px;color:#cfd8da;margin-top:5px;line-height:1.35}
 /* Spielfeld */
-#cv{flex:1 1 auto;min-height:220px;width:100%;display:block;touch-action:none}
+#cv{flex:1 1 auto;min-height:220px;width:100%;display:block;touch-action:none;image-rendering:pixelated}
 /* Unten */
 .panel{flex:none;height:45%;max-height:440px;display:flex;flex-direction:column;border-top:1px solid var(--line);background:var(--bg)}
 .list{flex:1;overflow-y:auto;padding:8px 8px 4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -286,11 +286,12 @@ const maxBuy = w => { let n = 0, c = 0; while (n < 500) { const k = T_UP[tier(w.
 
 // ================== Planet ==================
 const cv = $('cv'), g = cv.getContext('2d');
+{ const A = g.arc.bind(g), RG = g.createRadialGradient.bind(g); g.arc = (x, y, r, a, b, c) => A(x, y, Math.max(0, +r || 0), a, b, c); g.createRadialGradient = (x0, y0, r0, x1, y1, r1) => RG(x0, y0, Math.max(0, +r0 || 0), x1, y1, Math.max(0, +r1 || 0)); }
 const TC = document.createElement('canvas'), tg = TC.getContext('2d');
 let W = 0, H = 0, DPR = 1, CELL = 10, COLS = 0, ROWS = 0, G = null, tDirty = true;
 function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function resize() {
-  const r = cv.getBoundingClientRect(); DPR = Math.min(2, devicePixelRatio || 1);
+  const r = cv.getBoundingClientRect(); DPR = (devicePixelRatio || 1) > 1.5 ? 1.5 : 1; // Pixel-Look braucht keine volle Auflösung, spart auf Handys viel Leistung
   scanPat = null; W = r.width; H = r.height; cv.width = W * DPR; cv.height = H * DPR; TC.width = cv.width; TC.height = cv.height;
   g.setTransform(DPR, 0, 0, DPR, 0, 0); tg.setTransform(DPR, 0, 0, DPR, 0, 0);
   if (travel > 0 && !built) { built = true; buildPlanet(0); intro = 2.4; introName = G.name; }
@@ -567,7 +568,7 @@ function draw(now) {
   g.save(); g.translate(0, pOff);
   // Atmosphäre
   { const gr = g.createRadialGradient(G.cx, G.cy, G.R * .9, G.cx, G.cy, G.R * 1.35); gr.addColorStop(0, G.pal[2] + '33'); gr.addColorStop(1, G.pal[2] + '00'); g.fillStyle = gr; g.beginPath(); g.arc(G.cx, G.cy, G.R * 1.35, 0, 7); g.fill(); }
-  if (tDirty && now - terrT > 40) { drawTerrain(); terrT = now; }
+  if (tDirty && now - terrT > 70) { drawTerrain(); terrT = now; }
   g.drawImage(TC, 0, 0, W, H);
   // Erz funkelt
   if (G.oreL === undefined || G.oreT < now) { G.oreL = []; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i]) G.oreL.push(i); G.oreT = now + 1000; }
@@ -581,7 +582,7 @@ function draw(now) {
     if (f.k === 'lance') beam(f.x, f.y, f.x2, f.y2, f.c || '#f4fbff', (f.w || 4) * f.t / .35 + 1);
     else if (f.k === 'zap') { const mx = (f.x + f.x2) / 2 + (Math.random() - .5) * 10, my = (f.y + f.y2) / 2 + (Math.random() - .5) * 10; g.strokeStyle = '#a8c8ff'; g.lineWidth = 2; g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(mx, my); g.lineTo(f.x2, f.y2); g.stroke(); }
     else if (f.k === 'cast') { g.strokeStyle = `rgba(201,162,255,${f.t * 2})`; g.lineWidth = 3; g.beginPath(); g.arc(f.x, f.y, 50 * (1 - f.t * 2) + 10, 0, 7); g.stroke(); }
-    else if (f.k === 'nova') { const k = 1 - f.t / (f.r > W * .9 ? 1 : .5); g.strokeStyle = `rgba(${f.c || '190,170,255'},${f.t * 1.6})`; g.lineWidth = 3; g.beginPath(); g.arc(f.x, f.y, f.r * Math.min(1, k + .1), 0, 7); g.stroke(); }
+    else if (f.k === 'nova') { if (f.d == null) f.d = f.t; const k = 1 - f.t / f.d; const _u = (f.r > W * .9 ? 1 : .5); g.strokeStyle = `rgba(${f.c || '190,170,255'},${f.t * 1.6})`; g.lineWidth = 3; g.beginPath(); g.arc(f.x, f.y, f.r * Math.min(1, k + .1), 0, 7); g.stroke(); }
     else if (f.k === 'bolt') beam(f.x, f.y, f.x2, f.y2, '#9dff6a', 1.4);
     else if (f.k === 'pop') { g.fillStyle = `rgba(255,220,120,${f.t * 3})`; g.beginPath(); g.arc(f.x, f.y, 8 * (1 - f.t * 2), 0, 7); g.fill(); }
   }
@@ -933,12 +934,21 @@ function renderHangar(L) {
 
 // ================== Schleife ==================
 let emaT = 0;
+// Hauptschleife: ein Fehler darf das Spiel nie einfrieren – nächster Frame läuft immer weiter
+let errN = 0;
 function loop(now) {
-  const dt = Math.min(.05, (now - (tLast || now)) / 1000); tLast = now;
-  if (G) { step(dt); draw(now); }
-  if ((emaT += dt) >= 1) { S.ema = S.ema * .9 + (earnedSec / emaT) * .1; earnedSec = 0; emaT = 0; }
-  if ((uiT += dt) > .2) { uiT = 0; ui(); }
   requestAnimationFrame(loop);
+  const dt = Math.min(.05, Math.max(0, (now - (tLast || now)) / 1000)); tLast = now;
+  try {
+    if (G && W > 20 && H > 20) { step(dt); draw(now); }
+    if ((emaT += dt) >= 1) { const v = S.ema * .9 + (earnedSec / emaT) * .1; S.ema = isFinite(v) ? v : 0; earnedSec = 0; emaT = 0; }
+    if ((uiT += dt) > .2) { uiT = 0; ui(); }
+    if (!isFinite(S.cr) || S.cr < 0) S.cr = 0;
+  } catch (e) {
+    try { g.setTransform(DPR, 0, 0, DPR, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; } catch (e2) {}
+    if (errN++ < 5) console.warn('Galaxie-Bohrer:', e);
+    if (errN % 300 === 299 && G) { try { tDirty = true; fx.length = 0; parts.length = 0; } catch (e3) {} }
+  }
 }
 window.addEventListener('resize', () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 200); });
 setInterval(() => save(), 5000);
