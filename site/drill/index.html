@@ -306,7 +306,7 @@ function buildPlanet(removed) {
   CELL = Math.max(14, 2 * Math.round(Math.min(W, 520) / 52)); // gerade Zahl: keine Nähte zwischen den Blöcken
   const Rc = boss ? 27 : 16 + rnd() * 10 + Math.min(4, p * .15);
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = Math.pow(1.8, p - 1) * (1 + .1 * (p - 1)) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = Math.pow(1.7, p - 1) * (1 + .1 * (p - 1)) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = Math.pow(1.8, p - 1) * (1 + .1 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = Math.pow(1.7, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
@@ -524,16 +524,38 @@ const mixH = (a, b, t) => '#' + hex(a).map((v, k) => Math.round(v + (hex(b)[k] -
 // ---------- Hintergrund: Pixel-Nebel + Sterne in 3 Ebenen ----------
 const NB = document.createElement('canvas'), nbg = NB.getContext('2d');
 let nebKey = '', shake = 0, intro = 0, introName = '';
+// ---------- Universen: alle 10 Planeten ein neues, jedes mit eigenem Hintergrund ----------
+const UNI = [
+  { n: 'Kräuter-Nebel', bg: '#05060a', a: '#2bb7c2', b: '#7b5cff', fx: '' },
+  { n: 'Roter Riese', bg: '#0b0405', a: '#ff4f3a', b: '#ffb43a', fx: 'sun' },
+  { n: 'Polarlicht', bg: '#030a08', a: '#3dff9a', b: '#2b7cff', fx: 'aurora' },
+  { n: 'Spiralgalaxie', bg: '#07040d', a: '#b45cff', b: '#ff4fd8', fx: 'spiral' },
+  { n: 'Eiswelt', bg: '#040811', a: '#9fe8ff', b: '#5c7cff', fx: 'rings' },
+  { n: 'Goldstaub', bg: '#0a0803', a: '#ffd23f', b: '#ff8a3a', fx: 'dust' },
+  { n: 'Die Leere', bg: '#020203', a: '#ff2e7a', b: '#3a3a55', fx: 'void' },
+  { n: 'Regenbogen-Riss', bg: '#05050a', a: '#ff5fe0', b: '#5ce8f0', fx: 'rift' }
+];
+const uniOf = p => Math.floor((p - 1) / 10) + 1, pInU = p => (p - 1) % 10 + 1;
+const uniT = u => UNI[(u - 1) % UNI.length], uniName = u => uniT(u).n + (u > UNI.length ? ' ' + (Math.floor((u - 1) / UNI.length) + 1) : '');
 function buildNebula() {
-  const px = 5, w = Math.ceil(W / px), h = Math.ceil(H / px); NB.width = w; NB.height = h; const rnd = mulberry(S.p * 131 + 7);
+  const u = uniOf(S.p), T = uniT(u), px = 5, w = Math.ceil(W / px), h = Math.ceil(H / px); NB.width = w; NB.height = h; const rnd = mulberry(u * 977 + 3);
   const img = nbg.createImageData(w, h), blobs = Array.from({ length: 7 }, () => [rnd() * w, rnd() * h, (.15 + rnd() * .3) * w, rnd() < .55 ? 0 : 1]);
-  const A = hex(G.pal[0]), B = hex(G.boss ? '#ff4f7a' : ['#7b5cff', '#ff4fa0', '#2bb7c2', '#ffb43a'][S.p % 4]);
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let a = 0, b = 0;
+  const A = hex(T.a), B = hex(T.b), BG = hex(T.bg), q = v => Math.floor(Math.max(0, Math.min(1, v)) * 4) / 4;
+  const sx = w * (.7 + rnd() * .2), sy = h * (.15 + rnd() * .15), sr = Math.min(w, h) * .32, sp = rnd() * 6.28;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let a = 0, b = 0, e = 0;
     for (const [bx, by, br, t] of blobs) { const d = ((x - bx) ** 2 + (y - by) ** 2) / (br * br); const v = Math.exp(-d * 2); if (t) b += v; else a += v; }
     a += (rnd() - .5) * .12; b += (rnd() - .5) * .12;
-    const q = v => Math.floor(Math.max(0, Math.min(1, v)) * 4) / 4; const qa = q(a) * .2, qb = q(b) * .18, o = (y * w + x) * 4;
-    img.data[o] = A[0] * qa + B[0] * qb; img.data[o + 1] = A[1] * qa + B[1] * qb; img.data[o + 2] = A[2] * qa + B[2] * qb; img.data[o + 3] = 255; }
-  nbg.putImageData(img, 0, 0); nebKey = S.p + ':' + W + 'x' + H;
+    if (T.fx === 'sun') { const d = Math.hypot(x - sx, y - sy) / sr; if (d < 1) e = 1 - d * .4; else a += Math.exp(-(d - 1) * 3) * .9; }
+    else if (T.fx === 'aurora') { const yy = h * .25 + Math.sin(x * .12 + sp) * h * .06 + Math.sin(x * .05) * h * .05; a += Math.exp(-(((y - yy) / (h * .05)) ** 2)) * 1.6; b += Math.exp(-(((y - yy - h * .1) / (h * .05)) ** 2)) * 1.2; }
+    else if (T.fx === 'spiral') { const dx = x - w * .62, dy = (y - h * .32) * 1.6, r = Math.hypot(dx, dy), an = Math.atan2(dy, dx); const arm = Math.cos(2 * an - r * .18 + sp); if (r < w * .45) a += Math.max(0, arm) * Math.exp(-r / (w * .2)) * 2.2; b += Math.exp(-r / 4) * 2; }
+    else if (T.fx === 'rings') { const dx = x - sx, dy = y - sy, d = Math.hypot(dx, dy); if (d < sr * .55) e = .55; const rd = Math.hypot(dx, dy * 3.2); if (rd > sr * .8 && rd < sr * 1.15 && !(d < sr * .55 && dy < 0)) b += 1.6; }
+    else if (T.fx === 'dust') { if (rnd() < .03) a += 2.5; }
+    else if (T.fx === 'void') { a *= .25; b *= .4; const d = Math.abs((x - w * .3) * .5 - (y - h * .2) + Math.sin(y * .4) * 2); if (d < 1.2 && y < h * .7) a += 2.2; }
+    else if (T.fx === 'rift') { const d = Math.abs(y - (x * .55 + h * .1) + Math.sin(x * .2) * 3); if (d < 6) { a += (1 - d / 6) * 1.5; b += (d / 6) * 1.5; } }
+    const qa = q(a) * .26, qb = q(b) * .22, o = (y * w + x) * 4, qe = q(e);
+    for (let c = 0; c < 3; c++) img.data[o + c] = Math.min(255, BG[c] + A[c] * qa + B[c] * qb + (qe ? (c === 0 ? A[c] : A[c] * .8) * qe * .55 : 0));
+    img.data[o + 3] = 255; }
+  nbg.putImageData(img, 0, 0); nebKey = u + ':' + W + 'x' + H;
 }
 const STARS = [0, 1, 2].map(l => Array.from({ length: [70, 35, 12][l] }, () => ({ x: Math.random(), y: Math.random(), c: ['#ffffff', '#9fe8ff', '#ffd9a0', '#ffb0e0'][Math.random() * 4 | 0], ph: Math.random() * 9 })));
 let scanPat = null, vign = null;
@@ -571,8 +593,8 @@ function camStep(dt) {
 function draw(now) {
   const sx = shake ? (Math.random() - .5) * shake : 0, sy = shake ? (Math.random() - .5) * shake : 0;
   g.setTransform(DPR, 0, 0, DPR, sx * DPR, sy * DPR);
-  g.fillStyle = '#05060a'; g.fillRect(-10, -10, W + 20, H + 20);
-  if (nebKey !== S.p + ':' + W + 'x' + H) buildNebula();
+  g.fillStyle = uniT(uniOf(S.p)).bg; g.fillRect(-10, -10, W + 20, H + 20);
+  if (nebKey !== uniOf(S.p) + ':' + W + 'x' + H) buildNebula();
   g.imageSmoothingEnabled = false; g.drawImage(NB, 0, 0, NB.width * 5, NB.height * 5); g.imageSmoothingEnabled = true;
   const tt = now / 1000;
   STARS.forEach((L, l) => { const sp = [3, 7, 14][l], sz = [1, 2, 2][l]; for (const st of L) { const x = Math.floor(st.x * W), y = Math.floor((st.y * H + tt * sp) % H), tw = .45 + .55 * Math.abs(Math.sin(tt * (1 + l) + st.ph));
@@ -628,8 +650,8 @@ function draw(now) {
   // Planeten-Banner
   if (intro > 0) { const k = Math.min(1, (2.4 - intro) * 4, intro * 2), y = H * .16; g.globalAlpha = k;
     g.fillStyle = 'rgba(5,6,10,.75)'; g.fillRect(0, y - 26, W, 50); g.fillStyle = G.boss ? '#ff4f7a' : G.pal[2]; g.fillRect(0, y - 26, W, 2); g.fillRect(0, y + 22, W, 2);
-    g.textAlign = 'center'; g.font = '22px Silkscreen,"Pixelify Sans",monospace'; g.fillStyle = '#fff'; g.fillText((G.boss ? 'BOSS ' : 'PLANET ') + S.p, W / 2 + (1 - k) * 40, y + 2);
-    g.font = '10px Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(introName, W / 2 - (1 - k) * 40, y + 17); g.globalAlpha = 1; }
+    g.textAlign = 'center'; g.font = '22px Silkscreen,"Pixelify Sans",monospace'; g.fillStyle = '#fff'; const nu = pInU(S.p) === 1; g.fillText(nu ? 'UNIVERSUM ' + uniOf(S.p) : (G.boss ? 'BOSS' : 'PLANET ' + pInU(S.p)), W / 2 + (1 - k) * 40, y + 2);
+    g.font = '10px Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(nu ? uniName(uniOf(S.p)) + ' · Planet 1' : introName + ' · U' + uniOf(S.p), W / 2 - (1 - k) * 40, y + 17); g.globalAlpha = 1; }
   // Röhrenbildschirm
   if (!scanPat) overlays(); g.fillStyle = scanPat; g.fillRect(0, 0, W, H); g.fillStyle = vign; g.fillRect(0, 0, W, H);
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -653,7 +675,7 @@ function ui() {
   $('cr').textContent = fmt(S.cr) + ' CR';
   $('mul').textContent = 'x' + (crMult()).toFixed(2);
   $('cry').innerHTML = '◆' + S.cry + ` <span class="dm">✦${S.dm || 0}</span>`;
-  $('pln').textContent = (G.boss ? 'BOSS ' : 'Planet ') + S.p; $('pln').classList.toggle('boss', !!G.boss); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
+  $('pln').textContent = 'U' + uniOf(S.p) + ' · ' + (G.boss ? 'BOSS' : 'Planet ' + pInU(S.p)); $('pln').classList.toggle('boss', !!G.boss); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
   hotbar();
   const b = $('boost'), bl = $('bl'), now = Date.now();
   if (boosting()) { b.classList.add('act'); bl.textContent = mmss(S.boostEnd - now); b.disabled = true; }
@@ -748,7 +770,7 @@ function planetDone() {
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
   if (window.BB) { BB.record('drill', S.p - 1, { n: old }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
   travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
-  toast(`Planet abgebaut! +◆${gain} +✦${dmP} · Kurs auf Planet ${S.p}`);
+  toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${gain} +✦${dmP} · Sprung nach ${uniName(uniOf(S.p))}` : `Planet abgebaut! +◆${gain} +✦${dmP} · Kurs auf U${uniOf(S.p)}-${pInU(S.p)}`);
   if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);
   render();
 }
