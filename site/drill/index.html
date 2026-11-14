@@ -139,6 +139,52 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .ov h2{font:700 20px var(--mono);margin-bottom:8px;color:var(--cy)}
 .ov p{color:#cfd8da;font-size:13px;line-height:1.5;margin-bottom:14px}
 .ov .br{width:100%;margin-top:6px}
+
+/* ===== Menü-Design v2: Neon-Terminal mit Pixel-Kanten ===== */
+.hud{background:linear-gradient(180deg,#0a0d10,#06080a);border-bottom:1px solid #1b2328;padding-bottom:8px}
+.hud::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--cy) 30%,var(--pk) 70%,transparent);opacity:.55}
+.back,.lb2{border-color:#2a3338;background:#0b1013;box-shadow:inset 0 -3px 0 #050708}
+.cry{display:flex;gap:6px;font-size:12px}
+.cry,.cry .dm{font-family:Silkscreen,var(--mono)}
+.mul{font-family:Silkscreen,var(--mono);font-size:13px;letter-spacing:.04em}
+.pl .box{border:1.5px solid var(--cy2);background:#05080a;box-shadow:0 0 12px rgba(92,232,240,.18),inset 0 0 10px rgba(0,0,0,.8)}
+.pl small{font-family:Silkscreen,var(--mono);font-size:9px;letter-spacing:.04em}
+.panel{background:linear-gradient(180deg,#070a0c,#040506);border-top:0;position:relative}
+.panel::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(92,232,240,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(92,232,240,.035) 1px,transparent 1px);background-size:12px 12px}
+.panel>*{position:relative}
+.hot{border-top:1px solid #1b2328;background:rgba(5,7,9,.9);padding:7px 8px}
+.hs{background:linear-gradient(180deg,#0c1417,#070b0d);box-shadow:inset 0 -3px 0 rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.04)}
+.hs.empty{background:#06090b;border-style:dashed}
+.mode{background:#05080a;border:1.5px solid #1e272c;padding:3px;gap:3px}
+.mode button{border:0;height:28px;font-family:Silkscreen,var(--mono);font-size:11px}
+.mode button.on{background:var(--cy);color:#041214;box-shadow:0 0 10px rgba(92,232,240,.45)}
+.wp{border:0;background:linear-gradient(90deg,#0b1316,#081013);box-shadow:inset 3px 0 0 var(--cy2),inset 0 0 0 1px #17242a;padding:10px 10px 13px 8px;gap:9px}
+.wp .wic{flex:none;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:#05090b;border:1.5px solid var(--cy2);color:var(--cy);box-shadow:inset 0 0 8px rgba(92,232,240,.25)}
+.wp .wic svg{width:24px;height:24px}
+.wp .lv{font-size:11px;color:#9fb3b8}
+.wp .dps{display:inline-block;margin-top:5px;font:400 9px Silkscreen,var(--mono);color:var(--cy);background:#05090b;border:1px solid #17323a;padding:3px 6px;text-align:left}
+.wp .pr{left:8px;right:8px;bottom:5px;height:4px;background:repeating-linear-gradient(90deg,#132026 0 6px,#05080a 6px 8px)}
+.wp .pr i{background:repeating-linear-gradient(90deg,var(--cy) 0 6px,transparent 6px 8px);box-shadow:0 0 6px rgba(92,232,240,.6)}
+.wp .br{min-width:96px;height:48px}
+.br{background:#0a1114;border-color:#2a3338;font-family:var(--mono)}
+.br:not(:disabled){border-color:var(--cy2);background:linear-gradient(180deg,#0f2a2f,#0a1a1d);box-shadow:0 0 12px rgba(92,232,240,.18),inset 0 -3px 0 rgba(0,0,0,.45)}
+.br:not(:disabled):active{transform:translateY(2px);box-shadow:inset 0 2px 0 rgba(0,0,0,.5)}
+.br:disabled{background:#0a0d0f}
+.unl{font-family:Silkscreen,var(--mono);font-size:12px;line-height:1.5}
+.unl:not(:disabled){background:linear-gradient(180deg,#14303a,#0b1a20);box-shadow:0 0 16px rgba(92,232,240,.25),inset 0 -3px 0 rgba(0,0,0,.45);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 26px rgba(92,232,240,.45),inset 0 -3px 0 rgba(0,0,0,.45)}}
+.offer .br{background:linear-gradient(180deg,#0d1a1e,#081013)}
+.skh{padding:6px 8px;background:#060a0c;border-left:3px solid var(--cy2)}
+.skh span{font-size:11px}
+.sk button{background:linear-gradient(180deg,#0c150c,#070c07);box-shadow:inset 0 -3px 0 rgba(0,0,0,.5)}
+.sk button:not(:disabled):not(.lock){box-shadow:0 0 10px rgba(157,255,106,.15),inset 0 -3px 0 rgba(0,0,0,.5)}
+.wh{background:#070b0d;border:1px solid #1b262b;padding:10px;margin-bottom:8px}
+.nav{background:#040607;border-top:1px solid #1b2328;gap:5px;padding-top:7px}
+.nav button{border:0;background:#0a0f12;color:#8fa4aa;box-shadow:inset 0 -3px 0 rgba(0,0,0,.6)}
+.nav button.on{background:linear-gradient(180deg,#0f2a2f,#071518);color:var(--cy);box-shadow:inset 0 -3px 0 var(--cy),0 0 12px rgba(92,232,240,.2)}
+.nav button.on svg{filter:drop-shadow(0 0 4px rgba(92,232,240,.8))}
+.sbox{background:linear-gradient(90deg,#0b1114,#080c0e);box-shadow:inset 3px 0 0 var(--rc)}
+.ov .bx{background:linear-gradient(180deg,#0c1215,#070a0c);box-shadow:0 0 40px rgba(92,232,240,.2)}
 </style>
 </head>
 <body>
@@ -169,6 +215,18 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 <script>
 'use strict';
 // ================== Daten ==================
+const WICO = {
+  line: '<circle cx="6" cy="12" r="3"/><circle cx="14" cy="12" r="2"/><circle cx="20" cy="12" r="1.2"/>',
+  star: '<path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/>',
+  drill: '<path d="M4 20L18 6M14 4l6 6M18 6l2-2"/><path d="M8 12l4 4"/>',
+  nova: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2"/><circle cx="12" cy="12" r="10.5" opacity=".5"/>',
+  scatter: '<path d="M4 12h3M9 6l2 3M9 18l2-3M13 12h3M15 4l3 3M15 20l3-3M20 12h2"/>',
+  drones: '<path d="M12 3l3 5H9zM5 14l3 5H2zM19 14l3 5h-6z"/>',
+  chain: '<path d="M13 2L5 13h6l-2 9 9-12h-6z"/>',
+  saw: '<circle cx="12" cy="12" r="3"/><path d="M12 2l2 4h-4zM22 12l-4 2v-4zM12 22l-2-4h4zM2 12l4-2v4z"/>',
+  mine: '<circle cx="12" cy="13" r="6"/><path d="M12 3v4M5 6l2 2M19 6l-2 2"/>',
+  sniper: '<circle cx="12" cy="12" r="8"/><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="1"/>'
+};
 const WEAP = [
   { id: 'line', n: 'Kobold-Blaster', d: 'Schießt Energie-Kugeln auf den nächsten Block' },
   { id: 'star', n: 'Mollys Kristallstern', d: '4 rotierende Laser' },
@@ -704,7 +762,7 @@ function render() {
     let h = `<div class="mode">${[1, 10, 'max'].map(n => `<button data-n="${n}" class="${buyN === n ? 'on' : ''}">${n === 'max' ? 'Max' : 'x' + n}</button>`).join('')}</div>`;
     for (const id of owned()) {
       const w = WEAP.find(x => x.id === id), l = WL(id);
-      h += `<div class="wp"><div class="nm"><b>${w.n}</b><div class="lv">Lv. ${l}${ST(id) ? ' <span class="stars">★' + ST(id) + '</span>' : ''} · ★ bei ${msNext(l)}</div></div><div class="dps" data-dps="${w.id}"></div><button class="br" data-up="${w.id}"></button><div class="pr"><i style="width:${(l - msPrev(l)) / (msNext(l) - msPrev(l)) * 100}%"></i></div></div>`;
+      h += `<div class="wp"><div class="wic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${WICO[w.id] || ""}</svg></div><div class="nm"><b>${w.n}</b><div class="lv">Lv. ${l}${ST(id) ? ' <span class="stars">★' + ST(id) + '</span>' : ''} · ★ bei ${msNext(l)}</div><div class="dps" data-dps="${w.id}"></div></div><button class="br" data-up="${w.id}"></button><div class="pr"><i style="width:${(l - msPrev(l)) / (msNext(l) - msPrev(l)) * 100}%"></i></div></div>`;
     }
     const of = offers(), rr = rrState(), full = owned().length >= maxWeapons();
     if (of.length && full) h += `<div class="wh" style="margin-top:12px"><p>🔒 Alle ${maxWeapons()} Waffenslots belegt.<br>Mehr Slots gibt's in der <b style="display:inline;font-size:12px;color:#c9a2ff">Warp-Werkstatt</b> (Warp-Fähigkeit „Waffenslots“).</p></div>`;
