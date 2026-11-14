@@ -171,7 +171,7 @@ const WEAP = [
   { id: 'line', n: 'Kobold-Blaster', d: 'Schießt Energie-Kugeln auf den nächsten Block' },
   { id: 'star', n: 'Mollys Kristallstern', d: '4 rotierende Laser' },
   { id: 'drill', n: 'Fokuhilas Bohrlanze', d: 'Durchschlagender Stoß bis zum Kern' },
-  { id: 'nova', n: 'Geister-Nova', d: 'Druckwelle rund ums Schiff' },
+  { id: 'nova', n: 'Geister-Nova', d: 'Geisterkugel explodiert im Planeten' },
   { id: 'scatter', n: 'Nilles Streufeuer', d: '7 Schüsse im Fächer' },
   { id: 'drones', n: 'DonPatrons Drohnen', d: '3 Drohnen ballern mit' },
   { id: 'chain', n: 'Marwins Kettenblitz', d: 'Blitz springt über 6 Blöcke' },
@@ -277,7 +277,7 @@ const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100
 const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(200, (Math.floor(l / 100) + 1) * 100); };
 const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l >= 200 ? Math.floor(l / 100) * 100 : p; };
 const ST = id => msN(WL(id));
-const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größere Druckwelle', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller' };
+const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller' };
 const wDps = w => { const l = WL(w.id); return l ? T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() : 0; };
 const wCost = (w, n = 1) => { const l = WL(w.id); let c = 0; for (let i = 0; i < n; i++) c += T_UP[tier(w.id)] * Math.pow(1.17, l - 1 + i); return c; };
 const skCost = id => SK(id) + 1;
@@ -354,6 +354,7 @@ function kill(i, reward) {
 const ship = { x: 0, y: 40, vx: 0, vy: 0, orb: -Math.PI / 2, ang: 0 };
 const proj = [], drones = [0, 1, 2, 3, 4, 5].map(k => ({ a: k * 1.047, cd: k * .07 }));
 const extraT = [];
+const novas = [];
 let cdBlast = 0, cdChain = 0, sawA = 0, cdMine = 0, cdSnip = 0; const saws = [], mines = [];
 let starA = 0, cdDrill = 0, cdNova = 0, cdScatter = 0, lineTarget = -1, surfR = 0, surfT = 0;
 function nearest(x, y, jitter) {
@@ -398,15 +399,16 @@ function step(dt) {
     for (let l = 0; l < W * 1.5 && b > 0; l += CELL * .5) { const px = ship.x + dx * l, py = ship.y + dy * l; ex = px; ey = py; for (const [ox, oy] of (lw > 1 ? [[0, 0], [-dy * CELL * .6, dx * CELL * .6], [dy * CELL * .6, -dx * CELL * .6]] : [[0, 0], [-dy * CELL * .6, dx * CELL * .6]])) { const i = cellAt(px + ox, py + oy); if (i < 0 || !G.alive[i] || seen.has(i)) continue; seen.add(i); const d = Math.min(b, G.hp[i]); b -= d; hit(i, d + .0001); } }
     fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ex, y2: ey, t: .35 });
   }
-  // 4) Geister-Nova
+  // 4) Geister-Nova: Geisterkugel fliegt in den Planeten und explodiert dort mit Radius (wächst mit der Stufe)
   const dN = WD('nova');
   if (dN && (cdNova -= dt * R) <= 0) {
-    cdNova = 3; const rad = 120 + Math.min(60, WL('nova')) + 16 * ST('nova'), hitL = [];
-    const c0 = Math.floor((ship.x - G.ox - rad) / CELL), c1 = Math.ceil((ship.x - G.ox + rad) / CELL), r0 = Math.floor((ship.y - G.oy - rad) / CELL), r1 = Math.ceil((ship.y - G.oy + rad) / CELL);
-    for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) for (let c = Math.max(0, c0); c <= Math.min(COLS - 1, c1); c++) { const i = r * COLS + c; if (!G.alive[i]) continue; const [x, y] = cellXY(i); if (Math.hypot(x - ship.x, y - ship.y) <= rad) hitL.push(i); }
-    const per = dN * 3 * critMul() / Math.max(6, hitL.length) * 2; hitL.forEach(i => hit(i, per));
-    fx.push({ k: 'nova', x: ship.x, y: ship.y, r: rad, t: .5 }); shake = Math.max(shake, 2.5);
-  }
+    cdNova = 3; const t0 = nearest(ship.x, ship.y, 25 * CELL * CELL);
+    if (t0 >= 0) { const [tx0, ty0] = cellXY(t0), rad = CELL * (2.6 + Math.min(4, WL('nova') / 15) + ST('nova') * .7), dx = G.cx - tx0, dy = G.cy - ty0, dl = Math.hypot(dx, dy) || 1;
+      novas.push({ x: ship.x, y: ship.y, tx: tx0 + dx / dl * rad * .6, ty: ty0 + dy / dl * rad * .6, rad, d: dN * 3 * critMul() / 7, t: 0 }); } }
+  for (let k = novas.length - 1; k >= 0; k--) { const n = novas[k]; n.t += dt * 2.6; if (n.t < 1) continue; novas.splice(k, 1);
+    const c0 = Math.floor((n.tx - G.ox - n.rad) / CELL), c1 = Math.ceil((n.tx - G.ox + n.rad) / CELL), r0 = Math.floor((n.ty - G.oy - n.rad) / CELL), r1 = Math.ceil((n.ty - G.oy + n.rad) / CELL);
+    for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) for (let c = Math.max(0, c0); c <= Math.min(COLS - 1, c1); c++) { const i = r * COLS + c; if (!G.alive[i]) continue; const [x, y] = cellXY(i); if (Math.hypot(x - n.tx, y - n.ty) <= n.rad) hit(i, n.d); }
+    fx.push({ k: 'nova', x: n.tx, y: n.ty, r: n.rad, t: .55, thick: 1 }); shake = Math.max(shake, 3.5); }
   // 5) Streufeuer
   const dC = WD('scatter');
   if (dC && (cdScatter -= dt * R) <= 0) { cdScatter = 1; const np = Math.min(15, 7 + 2 * ST('scatter')); for (let k = 0; k < np; k++) { const a = toC + (k - (np - 1) / 2) * (1.4 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC / np * critMul(), t: 2 }); } }
@@ -584,7 +586,7 @@ function draw(now) {
     if (f.k === 'lance') beam(f.x, f.y, f.x2, f.y2, f.c || '#f4fbff', (f.w || 4) * f.t / .35 + 1);
     else if (f.k === 'zap') { const mx = (f.x + f.x2) / 2 + (Math.random() - .5) * 10, my = (f.y + f.y2) / 2 + (Math.random() - .5) * 10; g.strokeStyle = '#a8c8ff'; g.lineWidth = 2; g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(mx, my); g.lineTo(f.x2, f.y2); g.stroke(); }
     else if (f.k === 'cast') { g.strokeStyle = `rgba(201,162,255,${f.t * 2})`; g.lineWidth = 3; g.beginPath(); g.arc(f.x, f.y, 50 * (1 - f.t * 2) + 10, 0, 7); g.stroke(); }
-    else if (f.k === 'nova') { if (f.d == null) f.d = f.t; const k = 1 - f.t / f.d; const _u = (f.r > W * .9 ? 1 : .5); g.strokeStyle = `rgba(${f.c || '190,170,255'},${f.t * 1.6})`; g.lineWidth = 3; g.beginPath(); g.arc(f.x, f.y, f.r * Math.min(1, k + .1), 0, 7); g.stroke(); }
+    else if (f.k === 'nova') { if (f.d == null) f.d = f.t; const k = 1 - f.t / f.d; const _u = (f.r > W * .9 ? 1 : .5); g.strokeStyle = `rgba(${f.c || '190,170,255'},${f.t * 1.6})`; g.lineWidth = f.thick ? 8 : 3; g.beginPath(); g.arc(f.x, f.y, f.r * Math.min(1, k + .1), 0, 7); g.stroke(); if (f.thick) { g.fillStyle = `rgba(190,170,255,${f.t * .5})`; g.fill(); g.lineWidth = 2; g.strokeStyle = `rgba(255,255,255,${f.t * 1.4})`; g.stroke(); } }
     else if (f.k === 'bolt') beam(f.x, f.y, f.x2, f.y2, '#9dff6a', 1.4);
     else if (f.k === 'pop') { g.fillStyle = `rgba(255,220,120,${f.t * 3})`; g.beginPath(); g.arc(f.x, f.y, 8 * (1 - f.t * 2), 0, 7); g.fill(); }
   }
@@ -594,6 +596,7 @@ function draw(now) {
   if (warpT > 0) { const k = Math.min(1, warpT); g.strokeStyle = `rgba(201,162,255,${k * .8})`; g.lineWidth = 2; g.beginPath(); for (const [x, y, s] of stars) { const px = x * W, py = y * H, dx = px - W / 2, dy = py - H / 2; g.moveTo(px, py); g.lineTo(px + dx * (1.6 - k) * .6, py + dy * (1.6 - k) * .6); } g.stroke(); }
   if (WD('saw')) for (const [x, y] of saws) { g.save(); g.translate(x, y); g.rotate(sawA * 3); g.strokeStyle = '#9dff6a'; g.lineWidth = 2; g.beginPath(); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; g.lineTo(Math.cos(a) * 9, Math.sin(a) * 9); g.lineTo(Math.cos(a + .5) * 4, Math.sin(a + .5) * 4); } g.closePath(); g.stroke(); g.restore(); }
   g.fillStyle = '#ff8a5a'; for (const m of mines) { const x = m.x + (m.tx - m.x) * m.t, y = m.y + (m.ty - m.y) * m.t - Math.sin(m.t * Math.PI) * 30; g.fillRect(x - 3, y - 3, 6, 6); }
+  for (const n of novas) { const x = n.x + (n.tx - n.x) * n.t, y = n.y + (n.ty - n.y) * n.t; g.fillStyle = 'rgba(190,170,255,.35)'; g.beginPath(); g.arc(x, y, 9, 0, 7); g.fill(); g.fillStyle = '#e9e2ff'; g.fillRect(Math.round(x) - 3, Math.round(y) - 3, 6, 6); }
   for (const m of meteors) { g.fillStyle = '#ffb46a'; g.beginPath(); g.arc(m.x, m.y, 6, 0, 7); g.fill(); g.strokeStyle = 'rgba(255,140,60,.5)'; g.lineWidth = 4; g.beginPath(); g.moveTo(m.x, m.y); g.lineTo(m.x - (m.tx - m.x) * .08, m.y - (m.ty - m.y) * .08 - 20); g.stroke(); }
   if (bhole) { const r = bhole.r * Math.min(1, (2.2 - bhole.t) * 2); g.globalCompositeOperation = 'source-over'; const gr = g.createRadialGradient(bhole.x, bhole.y, 0, bhole.x, bhole.y, r * 1.4); gr.addColorStop(0, '#000'); gr.addColorStop(.6, 'rgba(60,20,120,.85)'); gr.addColorStop(1, 'rgba(120,60,255,0)'); g.fillStyle = gr; g.beginPath(); g.arc(bhole.x, bhole.y, r * 1.4, 0, 7); g.fill(); g.strokeStyle = '#c9a2ff'; g.lineWidth = 2; g.beginPath(); g.arc(bhole.x, bhole.y, r * (.6 + .1 * Math.sin(performance.now() / 80)), 0, 7); g.stroke(); g.globalCompositeOperation = 'lighter'; }
   for (const q of proj) { g.fillStyle = q.c || '#ffe36a'; if (q.solo) { g.globalAlpha = .45; g.fillRect(Math.round(q.x - q.vx * .02) - 2, Math.round(q.y - q.vy * .02) - 2, 4, 4); g.globalAlpha = 1; g.fillRect(Math.round(q.x) - 3, Math.round(q.y) - 3, 6, 6); g.fillStyle = '#fff'; g.fillRect(Math.round(q.x) - 1, Math.round(q.y) - 1, 2, 2); } else g.fillRect(q.x - 2, q.y - 2, 4, 4); }
@@ -709,7 +712,7 @@ function travelStep(dt) {
   for (let q = floats.length - 1; q >= 0; q--) { const o = floats[q]; o.y -= 26 * dt; if ((o.t -= dt) <= 0) floats.splice(q, 1); }
   for (let q = fx.length - 1; q >= 0; q--) if ((fx[q].t -= dt) <= 0) fx.splice(q, 1);
   if (warpT > 0) warpT -= dt; shake = Math.max(0, shake - dt * 30); if (intro > 0) intro -= dt;
-  proj.length = 0; meteors.length = 0; mines.length = 0; bhole = null; lineTarget = -1; G.star = null;
+  proj.length = 0; meteors.length = 0; novas.length = 0; mines.length = 0; bhole = null; lineTarget = -1; G.star = null;
   if (travel <= 0) { travel = 0; pOff = 0; }
   if (!isFinite(ship.x) || !isFinite(ship.y)) { ship.x = W / 2; ship.y = 40; ship.vx = ship.vy = 0; }
   ship.x = Math.max(14, Math.min(W - 14, ship.x)); ship.y = Math.max(14, Math.min(H - 14, ship.y));
