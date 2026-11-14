@@ -300,21 +300,20 @@ function resize() {
 function buildPlanet(removed) {
   const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0, pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : PAL[(p - 1) % PAL.length];
   CELL = Math.max(7, Math.floor(Math.min(W, H * 1.1) / 44)); COLS = Math.floor(W / CELL); ROWS = Math.floor(H / CELL);
-  const ox = Math.floor((W - COLS * CELL) / 2), oy = Math.floor((H - ROWS * CELL) / 2), hp0 = Math.pow(1.95, p - 1) * (1 + .15 * (p - 1)) * (boss ? 3 : 1), v0 = Math.pow(1.62, p - 1) * (boss ? 2.5 : 1);
+  const ox = Math.floor((W - COLS * CELL) / 2), oy = Math.floor((H - ROWS * CELL) / 2), hp0 = 2 * Math.pow(2.05, p - 1) * (1 + .2 * (p - 1)) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = Math.pow(1.62, p - 1) * (boss ? 2.5 : 1);
   const N = COLS * ROWS, alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
-  const sz = boss ? 1 : .72 + rnd() * .28, ell = .82 + rnd() * .36;
+  const sz = boss ? 1 : .72 + rnd() * .28, ell = .9 + rnd() * .2;
   const ccx = (COLS - 1) / 2, ccy = (ROWS - 1) / 2, R = Math.max(4, (Math.min(W, H) / 2 - 56) / (CELL * 1.22) * sz);
-  const bumps = Array.from({ length: 2 + (rnd() * 4 | 0) }, () => [rnd() * 6.283, .02 + rnd() * .05, 2 + (rnd() * 6 | 0)]);
-  const craters = Array.from({ length: 2 + (rnd() * 3 | 0) }, () => { const a = rnd() * 6.283, d = R * (.75 + rnd() * .3); return [ccx + Math.cos(a) * d, ccy + Math.sin(a) * d, 1.5 + rnd() * 2.5]; });
+  const bumps = Array.from({ length: 2 + (rnd() * 4 | 0) }, () => [rnd() * 6.283, .012 + rnd() * .025, 2 + (rnd() * 5 | 0)]);
+  
   const oreCh = (.025 + .015 * SK('ore')) * (boss ? 2 : 1);
   let total = 0;
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     const dx = (c - ccx) / ell, dy = (r - ccy) * ell, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
     let rr = R; for (const [ph, amp, f] of bumps) rr += R * amp * Math.round(Math.sin(a * f + ph) * 2) / 2 * .5;
     if (d > rr) continue;
-    if (craters.some(([x, y, s]) => Math.hypot(c - x, r - y) < s)) continue;
     const i = r * COLS + c; alive[i] = 1; total++;
     const depth = 1 - d / rr; dep[i] = depth; lit[i] = Math.max(0, (-dx - dy) / (Math.SQRT2 * R));
     mx[i] = hp[i] = hp0 * (1 + depth * 2.2) * (.85 + rnd() * .3);
