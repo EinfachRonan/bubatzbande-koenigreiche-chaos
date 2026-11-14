@@ -177,7 +177,7 @@ const WEAP = [
   { id: 'scatter', n: 'Nilles Streufeuer', d: '7 Schüsse im Fächer' },
   { id: 'drones', n: 'DonPatrons Drohnen', d: '3 Drohnen ballern mit' },
   { id: 'chain', n: 'Marwins Kettenblitz', d: 'Blitz springt über 6 Blöcke' },
-  { id: 'saw', n: 'LG3s Kräutersäge', d: '2 Sägeblätter kreisen ums Schiff' },
+  { id: 'saw', n: 'LG3s Kräutersäge', d: '2 große Sägeblätter kreisen ums Schiff' },
   { id: 'mine', n: 'Allans Minenwerfer', d: 'Minen explodieren auf der Oberfläche' },
   { id: 'sniper', n: 'Königsschuss', d: 'Ein Riesenschuss auf das wertvollste Erz' }
 ];
@@ -209,14 +209,18 @@ const PAL = [
   ['#3f9a3a', '#1c4a1a', '#b5ff8a'], ['#c8344f', '#5e1222', '#ff9ab0'], ['#7aa8d8', '#28466a', '#e2f2ff'], ['#d9b22a', '#6e550c', '#fff0a0']
 ];
 const WARP = [
-  { id: 'start', n: 'Startkapital', d: l => 'Start mit ' + fmt(startCr(l + 1)) + ' CR', max: 10, cost: l => l + 1, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
-  { id: 'kris', n: 'Kristallregen', d: () => '+1 ◆ pro Planet', max: 5, cost: l => 2 * (l + 1), ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/>' },
-  { id: 'boost', n: 'Nachbrenner', d: () => 'Boost +2 min', max: 5, cost: l => 2 * (l + 1), ico: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' },
-  { id: 'skip', n: 'Hyperraum', d: () => 'Start +3 Planeten', max: 5, cost: l => 3 * (l + 1), ico: '<path d="M4 12h12M12 6l6 6-6 6M4 6v12"/>' },
-  { id: 'comet', n: 'Kometenjäger', d: () => 'Kometen öfter, +50 %', max: 3, cost: l => 3 * (l + 1), ico: '<circle cx="16" cy="8" r="3"/><path d="M13 11L4 20M11 7L5 13M17 13l-6 6"/>' },
-  { id: 'auto', n: 'Autopilot', d: () => 'Zündet Fähigkeiten selbst', max: 1, cost: () => 30, ico: '<rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/>' },
+  { id: 'slot', n: 'Waffenslots', d: () => '+1 Platz für eine Waffe', max: 8, cost: l => Math.round(25 * Math.pow(4, l)), ico: '<rect x="3" y="6" width="7" height="12"/><rect x="14" y="6" width="7" height="12"/><path d="M17.5 10v4M15.5 12h4"/>' },
+  { id: 'start', n: 'Startkapital', d: l => 'Start mit ' + fmt(startCr(l + 1)) + ' CR', max: 10, cost: l => Math.round(3 * Math.pow(2.2, l)), ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
+  { id: 'kris', n: 'Kristallregen', d: () => '+1 ◆ pro Planet', max: 5, cost: l => Math.round(4 * Math.pow(2.4, l)), ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/>' },
+  { id: 'boost', n: 'Nachbrenner', d: () => 'Boost +2 min', max: 5, cost: l => Math.round(4 * Math.pow(2.2, l)), ico: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' },
+  { id: 'skip', n: 'Hyperraum', d: () => 'Start +2 Planeten', max: 3, cost: l => Math.round(30 * Math.pow(4, l)), ico: '<path d="M4 12h12M12 6l6 6-6 6M4 6v12"/>' },
+  { id: 'comet', n: 'Kometenjäger', d: () => 'Kometen öfter, +50 %', max: 3, cost: l => Math.round(6 * Math.pow(2.5, l)), ico: '<circle cx="16" cy="8" r="3"/><path d="M13 11L4 20M11 7L5 13M17 13l-6 6"/>' },
+  { id: 'auto', n: 'Autopilot', d: () => 'Zündet Fähigkeiten selbst', max: 1, cost: () => 60, ico: '<rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/>' },
 ];
-const startCr = l => l ? 500 * Math.pow(12, l - 1) : 0;
+const startCr = l => l ? 300 * Math.pow(8, l - 1) : 0;
+const wpOpen = id => (S.wpu || []).includes(id);
+const wpUnlCost = () => Math.round(5 * Math.pow(3, (S.wpu || []).length));
+const maxWeapons = () => 2 + WP('slot');
 const NAMES = ['Kräuterhöhle', 'Rostrot', 'Violettia', 'Moosmond', 'Spießerstern', 'Frostkugel', 'Goldader'];
 const fmt = n => { if (!isFinite(n)) return '∞'; if (n < 1000) return n < 10 && n % 1 ? n.toFixed(1) : Math.floor(n).toString();
   const u = ['K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc']; let i = -1; while (n >= 1000 && i < u.length - 1) { n /= 1000; i++; } return n.toFixed(n < 10 ? 2 : n < 100 ? 1 : 0) + u[i]; };
@@ -225,9 +229,9 @@ const $ = id => document.getElementById(id);
 // ================== Speicherstand ==================
 let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
-const VER = 3;
-const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null });
-const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: Object.assign({ h_pfeil: 1, r_basis: 1, t_basis: 1 }, (o && o.inv) || {}), eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
+const VER = 4;
+const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
+const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: Object.assign({ h_pfeil: 1, r_basis: 1, t_basis: 1 }, (o && o.inv) || {}), eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
 S = S && typeof S.cr === 'number' && S.v === VER ? norm(S) : fresh();
 const logged = () => !!(window.BB && BB.loggedIn);
@@ -266,7 +270,7 @@ const WP = id => S.wp[id] || 0;
 
 // ================== Werte ==================
 const boosting = () => S.boostEnd > Date.now();
-const dmBonus = () => 1 + .1 * (S.dmAll || 0);
+const dmBonus = () => 1 + .04 * (S.dmAll || 0);
 const dmGain = () => S.p < 3 ? 0 : Math.max(1, Math.floor(Math.pow(S.p - 1, 1.5) / 2.2));
 const mult = () => (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 3 : 1);
 const crMult = () => (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * (1 + .02 * (S.best - 1)) * dmBonus() * itemBonus('r') * (buf('cr') ? 3 : 1);
@@ -281,10 +285,10 @@ const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l
 const ST = id => msN(WL(id));
 const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller' };
 const wDps = w => { const l = WL(w.id); return l ? T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() : 0; };
-const wCost = (w, n = 1) => { const l = WL(w.id); let c = 0; for (let i = 0; i < n; i++) c += T_UP[tier(w.id)] * Math.pow(1.17, l - 1 + i); return c; };
+const wCost = (w, n = 1) => { const l = WL(w.id); let c = 0; for (let i = 0; i < n; i++) c += T_UP[tier(w.id)] * Math.pow(1.2, l - 1 + i); return c; };
 const skCost = id => SK(id) + 1;
 let buyN = 1;
-const maxBuy = w => { let n = 0, c = 0; while (n < 500) { const k = T_UP[tier(w.id)] * Math.pow(1.17, WL(w.id) - 1 + n); if (c + k > S.cr) break; c += k; n++; } return n; };
+const maxBuy = w => { let n = 0, c = 0; while (n < 500) { const k = T_UP[tier(w.id)] * Math.pow(1.2, WL(w.id) - 1 + n); if (c + k > S.cr) break; c += k; n++; } return n; };
 
 // ================== Planet ==================
 const cv = $('cv'), g = cv.getContext('2d');
@@ -306,7 +310,7 @@ function buildPlanet(removed) {
   CELL = Math.max(14, 2 * Math.round(Math.min(W, 520) / 52)); // gerade Zahl: keine Nähte zwischen den Blöcken
   const Rc = boss ? 27 : 16 + rnd() * 10 + Math.min(4, p * .15);
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = Math.pow(1.8, p - 1) * (1 + .1 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = Math.pow(1.7, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = 1.5 * Math.pow(1.8, p - 1) * (1 + .1 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = Math.pow(1.7, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
@@ -362,6 +366,7 @@ const ship = { x: 0, y: 40, vx: 0, vy: 0, orb: -Math.PI / 2, ang: 0 };
 const proj = [], drones = [0, 1, 2, 3, 4, 5].map(k => ({ a: k * 1.047, cd: k * .07 }));
 const extraT = [];
 const novas = [], waves = [];
+const SAWR = 58; // Sägen kreisen ums Schiff und reichen bis in die Blöcke
 let cdBlast = 0, cdChain = 0, sawA = 0, cdMine = 0, cdSnip = 0; const saws = [], mines = [];
 let starA = 0, cdDrill = 0, cdNova = 0, cdScatter = 0, lineTarget = -1, surfR = 0, surfT = 0;
 function nearest(x, y, jitter) {
@@ -450,8 +455,8 @@ function step(dt) {
     pts.forEach(p => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .2 })); }
   // 8) Kräutersäge
   const dW = WD('saw');
-  if (dW) { sawA += dt * 3.2 * R; const nsw = Math.min(4, 2 + Math.floor(ST('saw') / 2)); saws.length = nsw; for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, sc = Math.atan2(G.cy - ship.y, G.cx - ship.x), x = ship.x + Math.cos(sc) * 42 + Math.cos(a) * 26, y = ship.y + Math.sin(sc) * 42 + Math.sin(a) * 26; saws[k] = [x, y];
-    for (const [ox, oy] of [[0, 0], [CELL, 0], [-CELL, 0], [0, CELL], [0, -CELL]]) hit(cellAt(x + ox, y + oy), dW / nsw / 5 * dt * 2 * (1 + 2 * critCh())); } }
+  if (dW) { sawA += dt * 3.2 * R; const nsw = Math.min(4, 2 + Math.floor(ST('saw') / 2)); saws.length = nsw; for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, x = ship.x + Math.cos(a) * SAWR, y = ship.y + Math.sin(a) * SAWR; saws[k] = [x, y];
+    for (const [ox, oy] of [[0, 0], [CELL, 0], [-CELL, 0], [0, CELL], [0, -CELL]]) hit(cellAt(x + ox, y + oy), dW / nsw / 2.5 * dt * 2 * (1 + 2 * critCh())); } }
   // 9) Minenwerfer
   const dM = WD('mine');
   if (dM && (cdMine -= dt * R) <= 0) { cdMine = 2; const nm = Math.min(8, 3 + ST('mine')); for (let k = 0; k < nm; k++) { const i = nearest(ship.x + (Math.random() - .5) * 140, ship.y + (Math.random() - .5) * 140, 30 * CELL * CELL); if (i < 0) break; const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, t: 0, d: dM * 2 / nm * critMul() }); } }
@@ -626,7 +631,8 @@ function draw(now) {
   if (comet) { const a = Math.atan2(comet.vy, comet.vx); for (let k = 1; k <= 10; k++) { g.fillStyle = `rgba(255,214,90,${.5 - k * .045})`; const s = 7 - k * .5; g.fillRect(comet.x - Math.cos(a) * k * 7 - s / 2, comet.y - Math.sin(a) * k * 7 - s / 2, s, s); }
     g.save(); g.translate(comet.x, comet.y); g.rotate(performance.now() / 300); g.fillStyle = '#fff3b0'; g.shadowColor = '#ffd23f'; g.shadowBlur = 18; g.fillRect(-7, -7, 14, 14); g.restore(); }
   for (const f of fx) if (f.k === 'tap') { g.strokeStyle = `rgba(92,232,240,${f.t * 3})`; g.lineWidth = 2; g.strokeRect(f.x - (1.3 - f.t * 3) * 14, f.y - (1.3 - f.t * 3) * 14, (1.3 - f.t * 3) * 28, (1.3 - f.t * 3) * 28); }
-  if (WD('saw')) for (const [x, y] of saws) { g.save(); g.translate(x, y); g.rotate(sawA * 3); g.strokeStyle = '#9dff6a'; g.lineWidth = 2; g.beginPath(); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; g.lineTo(Math.cos(a) * 9, Math.sin(a) * 9); g.lineTo(Math.cos(a + .5) * 4, Math.sin(a + .5) * 4); } g.closePath(); g.stroke(); g.restore(); }
+  if (WD('saw')) for (const [x, y] of saws) { g.save(); g.translate(x, y); g.rotate(sawA * 3); g.strokeStyle = '#9dff6a'; g.fillStyle = 'rgba(157,255,106,.18)'; g.lineWidth = 2.5; g.beginPath(); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; g.lineTo(Math.cos(a) * 16, Math.sin(a) * 16); g.lineTo(Math.cos(a + .4) * 8, Math.sin(a + .4) * 8); } g.closePath(); g.fill(); g.stroke(); g.fillStyle = '#9dff6a'; g.fillRect(-2, -2, 4, 4); g.restore(); }
+  if (WD('saw')) { g.strokeStyle = 'rgba(157,255,106,.12)'; g.lineWidth = 1; g.beginPath(); g.arc(ship.x, ship.y, SAWR, 0, 7); g.stroke(); }
   g.fillStyle = '#ff8a5a'; for (const m of mines) { const x = m.x + (m.tx - m.x) * m.t, y = m.y + (m.ty - m.y) * m.t - Math.sin(m.t * Math.PI) * 30; g.fillRect(x - 3, y - 3, 6, 6); }
   for (const w of waves) { const a = Math.max(0, 1 - w.r / (w.rad * 1.15)); g.strokeStyle = `rgba(190,170,255,${a})`; g.lineWidth = 9; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.stroke(); g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = 2; g.stroke(); g.fillStyle = `rgba(160,130,255,${a * .18})`; g.fill(); }
   for (const n of novas) { const x = n.x + (n.tx - n.x) * n.t, y = n.y + (n.ty - n.y) * n.t; g.fillStyle = 'rgba(190,170,255,.35)'; g.beginPath(); g.arc(x, y, 9, 0, 7); g.fill(); g.fillStyle = '#e9e2ff'; g.fillRect(Math.round(x) - 3, Math.round(y) - 3, 6, 6); }
@@ -700,16 +706,17 @@ function render() {
       const w = WEAP.find(x => x.id === id), l = WL(id);
       h += `<div class="wp"><div class="nm"><b>${w.n}</b><div class="lv">Lv. ${l}${ST(id) ? ' <span class="stars">★' + ST(id) + '</span>' : ''} · ★ bei ${msNext(l)}</div></div><div class="dps" data-dps="${w.id}"></div><button class="br" data-up="${w.id}"></button><div class="pr"><i style="width:${(l - msPrev(l)) / (msNext(l) - msPrev(l)) * 100}%"></i></div></div>`;
     }
-    const of = offers(), rr = rrState();
-    if (of.length) {
-      h += `<div class="skh" style="margin-top:12px"><span>Nächste Waffe · ${fmt(nextUnl())} CR</span><b style="font-size:13px">${owned().length}/${WEAP.length}</b></div><div class="offer">${of.map(id => { const w = WEAP.find(x => x.id === id); return `<button class="br" data-unl="${id}"><b>${w.n}</b><small>${w.d}</small><span>${fmt(nextUnl())} CR</span></button>`; }).join('')}</div>
+    const of = offers(), rr = rrState(), full = owned().length >= maxWeapons();
+    if (of.length && full) h += `<div class="wh" style="margin-top:12px"><p>🔒 Alle ${maxWeapons()} Waffenslots belegt.<br>Mehr Slots gibt's in der <b style="display:inline;font-size:12px;color:#c9a2ff">Warp-Werkstatt</b> (Warp-Fähigkeit „Waffenslots“).</p></div>`;
+    if (of.length && !full) {
+      h += `<div class="skh" style="margin-top:12px"><span>Nächste Waffe · ${fmt(nextUnl())} CR</span><b style="font-size:13px">Slots ${owned().length}/${maxWeapons()}</b></div><div class="offer">${of.map(id => { const w = WEAP.find(x => x.id === id); return `<button class="br" data-unl="${id}"><b>${w.n}</b><small>${w.d}</small><span>${fmt(nextUnl())} CR</span></button>`; }).join('')}</div>
         <button class="br rr" id="reroll" ${rr.n && WEAP.length - owned().length > 2 ? '' : 'disabled'}>🎲 Neu würfeln (${rr.n}/${RR_MAX})${rr.n < RR_MAX ? ' · +' + RR_MAX + ' in ' + mmss(3600e3 - (Date.now() - rr.t)) : ''}</button>`;
     }
     h += `<div style="font-size:11px;color:var(--mut);text-align:center;padding:6px 4px 10px">Bei Stufe 10, 25, 50, 100 und danach alle 100 Stufen bekommt eine Waffe ein Upgrade: x2 Schaden und ein neuer Effekt.</div>`;
     L.innerHTML = h;
     L.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { buyN = b.dataset.n === 'max' ? 'max' : +b.dataset.n; render(); });
     L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; const s0 = ST(w.id); S.w[w.id] = WL(w.id) + n; if (ST(w.id) > s0) upgradeFx(w); if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
-    L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c) return; S.cr -= c; S.w[w.id] = 1; S.wo = owned().concat(w.id); S.offer = null; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
+    L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c || owned().length >= maxWeapons()) return; S.cr -= c; S.w[w.id] = 1; S.wo = owned().concat(w.id); S.offer = null; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
     if ($('reroll')) $('reroll').onclick = () => { const r = rrState(); if (!r.n) return; offers(); if (!S.offer) return; r.n--; const left = WEAP.filter(w => !WL(w.id) && !S.offer.includes(w.id)).map(w => w.id).sort(() => Math.random() - .5); const keep = left.length >= 2 ? [] : S.offer.slice(0, 2 - left.length); S.offer = left.slice(0, 2).concat(keep).slice(0, 2); save(true); render(); };
   } else if (tab === 'a') renderAb(L);
   else if (tab === 'h') renderHangar(L);
@@ -717,15 +724,19 @@ function render() {
   else if (tab === 'p') {
     const g0 = dmGain();
     L.innerHTML = `<div class="wh"><p>Warp-Sprung ab Planet 3: Je weiter du kommst, desto mehr ✦ gibt's. Du fängst bei Planet 1 neu an, verlierst CR und Waffen. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>
-      <b id="wgain">✦${g0}</b><p>Dunkle Materie · jede gibt für immer <b style="display:inline;font-size:12px">+10 % Schaden und CR</b><br>Aktuell: ✦${S.dmAll || 0} gesammelt = x${dmBonus().toFixed(2)} · ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'}</p>
+      <b id="wgain">✦${g0}</b><p>Dunkle Materie · jede gibt für immer <b style="display:inline;font-size:12px">+4 % Schaden und CR</b><br>Aktuell: ✦${S.dmAll || 0} gesammelt = x${dmBonus().toFixed(2)} · ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'}</p>
       <button class="br" id="wgo" ${g0 ? '' : 'disabled'}>${g0 ? 'WARP-SPRUNG' : 'Ab Planet 3 (noch ' + Math.max(0, 3 - S.p) + ')'}</button></div>
       <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${S.dm || 0}</b></div>
       <div class="sk wp6">${WARP.map(w => { const l = WP(w.id), mx = l >= w.max;
+        if (!wpOpen(w.id)) return `<button disabled class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>???</button>`;
         return `<button data-wp="${w.id}" class="${mx ? 'max' : ''}" ${mx || S.dm < w.cost(l) ? 'disabled' : ''}><span class="q"></span><span class="c">${l}/${w.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${w.ico}</svg>${w.n}<small>${mx ? 'Max' : w.d(l) + ' · ✦' + w.cost(l)}</small></button>`; }).join('')}</div>
+      ${WARP.some(w => !wpOpen(w.id)) ? `<button class="br unl" id="wpunl" style="margin-top:9px" ${S.dm < wpUnlCost() ? 'disabled' : ''}>NEUE WARP-FÄHIGKEIT FREISCHALTEN<br>✦${wpUnlCost()}</button>` : ''}
       <div class="savebar"><span id="svtxt">${logged() ? 'Dein Stand wird automatisch auf deinem Konto gespeichert.' : 'Melde dich an, damit dein Stand auf dem Konto landet.'}</span><button id="svnow">${logged() ? 'Jetzt speichern' : 'Anmelden'}</button></div>`;
     $('wgo').onclick = warp;
+    if ($('wpunl')) $('wpunl').onclick = () => { const c = wpUnlCost(), left = WARP.filter(w => !wpOpen(w.id)); if (!left.length || S.dm < c) return; S.dm -= c; const w = left[(Math.random() * left.length) | 0]; S.wpu = (S.wpu || []).concat(w.id); save('now');
+      overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${w.ico}</svg></div></div><h2 style="color:#c9a2ff">${w.n}</h2><p>${w.d(0)}<br>Jetzt mit ✦ leveln.</p>`, [['Nice', () => render()]]); };
     $('svnow').onclick = () => { if (!logged()) return BB.open && BB.open('login'); save('now'); toast('Gespeichert ☁'); };
-    L.querySelectorAll('[data-wp]').forEach(b => b.onclick = () => { const w = WARP.find(x => x.id === b.dataset.wp), l = WP(w.id); if (l >= w.max || S.dm < w.cost(l)) return; S.dm -= w.cost(l); S.wp[w.id] = l + 1; save('now'); render(); });
+    L.querySelectorAll('[data-wp]').forEach(b => b.onclick = () => { const w = WARP.find(x => x.id === b.dataset.wp), l = WP(w.id); if (!wpOpen(w.id) || l >= w.max || S.dm < w.cost(l)) return; S.dm -= w.cost(l); S.wp[w.id] = l + 1; save('now'); render(); });
   } else {
     L.innerHTML = `<div class="skh"><span>Kristalle gibt's für jeden Planeten</span><b>◆ ${S.cry}</b></div><div class="sk">${SKILLS.map(s => { const l = SK(s.id), mx = l >= s.max;
       return `<button data-sk="${s.id}" class="${mx ? 'max' : ''}" ${mx || S.cry < skCost(s.id) ? 'disabled' : ''}><span class="q"></span><span class="c">${l}/${s.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg>${s.n}<small>${mx ? 'Max' : s.d + ' · ◆' + skCost(s.id)}</small></button>`; }).join('')}</div>`;
@@ -777,10 +788,10 @@ function planetDone() {
 
 function warp() {
   const n = dmGain(); if (!n) return;
-  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>+ <b style="color:#ffe94d">✦${warpBonus(n)} Bonus</b> für Kisten<br>Danach: x${(1 + .1 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
+  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>+ <b style="color:#ffe94d">✦${warpBonus(n)} Bonus</b> für Kisten<br>Danach: x${(1 + .04 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
     [['SPRINGEN', () => {
       const wb = warpBonus(n); S.dm = (S.dm || 0) + n + wb; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
-      S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 3 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
+      S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now');
       if (window.BB) BB.unlock('drill_warp');
       toast(`Warp geschafft: ✦${n} + ✦${wb} Bonus · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
