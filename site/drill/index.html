@@ -302,7 +302,7 @@ function buildPlanet(removed) {
   const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0, pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : PAL[(p - 1) % PAL.length];
   CELL = Math.max(7, Math.floor(Math.min(W, H * 1.1) / 44)); COLS = Math.floor(W / CELL); ROWS = Math.floor(H / CELL);
   const ox = Math.floor((W - COLS * CELL) / 2), oy = Math.floor((H - ROWS * CELL) / 2), hp0 = 2 * Math.pow(2.05, p - 1) * (1 + .2 * (p - 1)) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = Math.pow(1.62, p - 1) * (boss ? 2.5 : 1);
-  const N = COLS * ROWS, alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
+  const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
   const sz = boss ? 1 : .72 + rnd() * .28, ell = .9 + rnd() * .2;
@@ -320,7 +320,7 @@ function buildPlanet(removed) {
     mx[i] = hp[i] = hp0 * (1 + depth * 2.2) * (.85 + rnd() * .3);
     if (rnd() < oreCh * (.6 + depth)) ore[i] = 1 + (rnd() < .12 + depth * .15 ? 1 : 0);
   }
-  G = { p, pal, ox, oy, alive, hp, mx, ore, dep, lit, total, v0, cx: ox + (ccx + .5) * CELL, cy: oy + (ccy + .5) * CELL, R: R * CELL, boss, name: boss ? 'Spießer-Festung ' + p / 10 : NAMES[(p - 1) % NAMES.length] + ' ' + (Math.floor((p - 1) / NAMES.length) + 1), clearing: 0 };
+  G = { p, pal, ox, oy, dst, alive, hp, mx, ore, dep, lit, total, v0, cx: ox + (ccx + .5) * CELL, cy: oy + (ccy + .5) * CELL, R: R * CELL, boss, name: boss ? 'Spießer-Festung ' + p / 10 : NAMES[(p - 1) % NAMES.length] + ' ' + (Math.floor((p - 1) / NAMES.length) + 1), clearing: 0 };
   G.left = total;
   // Fortschritt wiederherstellen: von außen nach innen abtragen
   let n = Math.min(removed | 0, total - 1);
@@ -336,7 +336,8 @@ let crBuf = 0, crBufT = 0, crBufX = 0, crBufY = 0, earnedSec = 0;
 const parts = [], floats = [], fx = [];
 function hit(i, d) {
   if (i < 0 || !G.alive[i]) return;
-  G.hp[i] -= d; if (G.hp[i] <= 0) kill(i, true);
+  G.hp[i] -= d; if (G.hp[i] <= 0) { kill(i, true); return; }
+  const st = Math.min(6, Math.floor((1 - G.hp[i] / G.mx[i]) * 7)); if (st !== G.dst[i]) { G.dst[i] = st; tDirty = true; }
 }
 function kill(i, reward) {
   G.alive[i] = 0; G.left--; tDirty = true;
@@ -477,7 +478,11 @@ function drawTerrain() {
   tg.clearRect(0, 0, W, H);
   const [c1, c2, edge] = G.pal, A = G.alive;
   // 5-stufige Farbrampe von Schatten bis Licht, dazwischen Schachbrett-Dithering wie bei alten Konsolen
-  const ramp = [mixH(c2, '#000000', .45), c2, mixH(c2, c1, .55), c1, mixH(c1, edge, .5), mixH(c1, '#ffffff', .55)];
+  // Planet in dunkler Variante seiner Farbe; getroffene Blöcke werden in 6 Stufen immer heller, ganz hell = kaputt
+  const ramp = [mixH(c2, '#000000', .62), mixH(c2, '#000000', .48), mixH(c1, '#000000', .64), mixH(c1, '#000000', .54), mixH(c1, '#000000', .42), mixH(c1, '#000000', .3)];
+  const hot = mixH(edge, '#ffffff', .55), DS = 6;
+  if (!G.rampC || G.rampC.key !== c1 + c2) { G.rampC = { key: c1 + c2, t: ramp.map(col => Array.from({ length: DS + 1 }, (_, s2) => mixH(col, hot, s2 / DS * .92))) }; }
+  const T = G.rampC.t;
   const R0 = G.R * 1.05;
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     const i = r * COLS + c; if (!A[i]) continue;
@@ -485,21 +490,18 @@ function drawTerrain() {
     let v = 2.6 + 1.9 * (-(cx + cy) / (1.414 * R0)) - G.dep[i] * 1.1;
     v = Math.max(0, Math.min(4.99, v));
     let k = Math.floor(v); if (v - k > .5 && ((c + r) & 1)) k = Math.min(4, k + 1);
+    const st = G.dst[i];
     if (G.ore[i]) {
-      const o2 = G.ore[i] === 2; tg.fillStyle = o2 ? '#7a1a63' : '#7a5410'; tg.fillRect(x, y, CELL, CELL);
+      const o2 = G.ore[i] === 2; tg.fillStyle = o2 ? '#4a0f3c' : '#4a330a'; tg.fillRect(x, y, CELL, CELL);
       tg.fillStyle = o2 ? '#ff5fd2' : '#ffd23f'; const q = Math.max(2, CELL / 4 | 0); tg.fillRect(x + q, y + q, CELL - 2 * q, CELL - 2 * q);
       tg.fillStyle = '#fff6c8'; tg.fillRect(x + q, y + q, q, q);
-    } else { tg.fillStyle = ramp[k]; tg.fillRect(x, y, CELL, CELL); }
+      if (st) { tg.fillStyle = `rgba(255,255,255,${st / DS * .75})`; tg.fillRect(x, y, CELL, CELL); }
+    } else { tg.fillStyle = T[k][st]; tg.fillRect(x, y, CELL, CELL); }
     // Kanten-Licht (voxel-Look)
     const b = Math.max(2, CELL / 5 | 0);
-    if (r === 0 || !A[i - COLS]) { tg.fillStyle = ramp[Math.min(5, k + 2)]; tg.fillRect(x, y, CELL, b); }
-    if (c === 0 || !A[i - 1]) { tg.fillStyle = ramp[Math.min(5, k + 1)]; tg.fillRect(x, y, b, CELL); }
+    if (r === 0 || !A[i - COLS]) { tg.fillStyle = T[Math.min(5, k + 1)][Math.min(DS, st + 1)]; tg.fillRect(x, y, CELL, b); }
+    if (c === 0 || !A[i - 1]) { tg.fillStyle = T[Math.min(5, k + 1)][st]; tg.fillRect(x, y, b, CELL); }
     if (r === ROWS - 1 || !A[i + COLS]) { tg.fillStyle = 'rgba(0,0,0,.35)'; tg.fillRect(x, y + CELL - b, CELL, b); }
-    // Risse, wenn der Block schon was abbekommen hat
-    const hp = G.hp[i] / G.mx[i];
-    if (hp < .7) { tg.fillStyle = 'rgba(0,0,0,.55)'; const p2 = Math.max(1, CELL / 6 | 0), s2 = (i * 7) % 3;
-      tg.fillRect(x + p2 * (1 + s2), y + p2, p2, p2); tg.fillRect(x + p2 * (2 + s2 % 2), y + p2 * 2, p2, p2); tg.fillRect(x + p2 * 2, y + p2 * 3, p2, p2);
-      if (hp < .35) { tg.fillRect(x + p2 * 3, y + p2 * 4, p2, p2); tg.fillRect(x + p2, y + p2 * 4, p2 * 2, p2); tg.fillStyle = 'rgba(0,0,0,.2)'; tg.fillRect(x, y, CELL, CELL); } }
   }
   // Leuchtende Kontur: erst breit und farbig, dann scharf weiß
   tg.beginPath();
