@@ -308,7 +308,8 @@ const $ = id => document.getElementById(id);
 // ================== Speicherstand ==================
 let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
-const VER = 6;
+const VER = 7; // interne Stand-Nummer (höher = einmaliger Reset)
+const VLABEL = '0.5'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
 const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
 const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: Object.assign({ h_pfeil: 1, r_basis: 1, t_basis: 1 }, (o && o.inv) || {}), eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
@@ -328,7 +329,7 @@ function svState() {
   const el = $('sv'); if (!el) return;
   if (!logged()) { el.className = 'sv'; el.textContent = '💾 nur auf diesem Gerät · v' + VER; return; }
   if (!pulled) { el.className = 'sv'; el.textContent = '☁ lädt …'; return; }
-  el.className = 'sv ok'; el.textContent = lastCloud ? '☁ gespeichert ' + new Date(lastCloud).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' · v' + VER : '☁ Konto verbunden · v' + VER;
+  el.className = 'sv ok'; el.textContent = lastCloud ? '☁ gespeichert ' + new Date(lastCloud).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' · Version ' + VLABEL : '☁ Konto verbunden · v' + VER;
 }
 async function pull() {
   if (!logged() || !BB.cloud) { pulled = true; svState(); return; }
@@ -353,6 +354,7 @@ const boosting = () => S.boostEnd > Date.now();
 const dmBonus = () => 1 + .04 * (S.dmAll || 0);
 const dmGain = () => S.p < 3 ? 0 : Math.max(1, Math.floor(Math.pow(S.p - 1, 1.5) / 2.2));
 const SU = { gold: { n: 'Goldbohrer', d: '+10 % CR pro Block', cost: l => 30 * Math.pow(1.3, l), ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' }, dmg: { n: 'Schadenskern', d: '+8 % Schaden aller Waffen', cost: l => 50 * Math.pow(1.32, l), ico: '<path d="M12 2l3 7h7l-5.5 4.5 2 7.5-6.5-4.5L5.5 21l2-7.5L2 9h7z"/>' } };
+const suHtml = () => `<div class="su2">${Object.entries(SU).map(([k, u]) => `<div class="su"><div class="nm"><b>${u.n}</b><div class="lv">Lv. ${SUL(k)} · ${u.d}</div></div><button class="br" data-su="${k}">${fmt(u.cost(SUL(k)))} CR</button></div>`).join('')}</div>`;
 const SUL = k => (S.su && S.su[k]) || 0;
 const mult = () => (1 + .08 * SUL('dmg')) * (1 + HA('dmg')) * (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 2 : 1);
 const crMult = () => (1 + .1 * SUL('gold')) * (1 + HA('cr')) * (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * (1 + .02 * (S.best - 1)) * dmBonus() * itemBonus('r') * (buf('cr') ? 2 : 1);
@@ -792,7 +794,6 @@ function render() {
   const L = $('list');
   if (tab === 'w') {
     let h = `<div class="mode">${[1, 10, 'max'].map(n => `<button data-n="${n}" class="${buyN === n ? 'on' : ''}">${n === 'max' ? 'Max' : 'x' + n}</button>`).join('')}</div>`;
-    h += `<div class="su2">${Object.entries(SU).map(([k, u]) => `<div class="su"><div class="wic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${u.ico}</svg></div><div class="nm"><b>${u.n}</b><div class="lv">Lv. ${SUL(k)} · ${u.d}</div></div><button class="br" data-su="${k}">${fmt(u.cost(SUL(k)))} CR</button></div>`).join('')}</div>`;
     for (const id of owned()) {
       const w = WEAP.find(x => x.id === id), l = WL(id);
       h += `<div class="wp"><div class="wic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${WICO[w.id] || ""}</svg></div><div class="nm"><b>${w.n}</b><div class="lv">Lv. ${l}${ST(id) ? ' <span class="stars">★' + ST(id) + '</span>' : ''} · ★ bei ${msNext(l)}</div><div class="dps" data-dps="${w.id}"></div></div><button class="br" data-up="${w.id}"></button><div class="pr"><i style="width:${(l - msPrev(l)) / (msNext(l) - msPrev(l)) * 100}%"></i></div></div>`;
@@ -806,7 +807,6 @@ function render() {
     h += `<div style="font-size:11px;color:var(--mut);text-align:center;padding:6px 4px 10px">Bei Stufe 10, 25, 50, 100 und danach alle 100 Stufen bekommt eine Waffe ein Upgrade: x2 Schaden und ein neuer Effekt.</div>`;
     L.innerHTML = h;
     L.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { buyN = b.dataset.n === 'max' ? 'max' : +b.dataset.n; render(); });
-    L.querySelectorAll('[data-su]').forEach(b => b.onclick = () => { const k = b.dataset.su, c = SU[k].cost(SUL(k)); if (S.cr < c) return; S.cr -= c; S.su = S.su || {}; S.su[k] = SUL(k) + 1; SND.fx.up(); save(); render(); });
     L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; const s0 = ST(w.id); S.w[w.id] = WL(w.id) + n; SND.fx.up(); if (ST(w.id) > s0) upgradeFx(w); if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
     L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c || owned().length >= maxWeapons()) return; S.cr -= c; S.w[w.id] = 1; S.wo = owned().concat(w.id); S.offer = null; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
     if ($('reroll')) $('reroll').onclick = () => { const r = rrState(); if (!r.n) return; offers(); if (!S.offer) return; r.n--; const left = WEAP.filter(w => !WL(w.id) && !S.offer.includes(w.id)).map(w => w.id).sort(() => Math.random() - .5); const keep = left.length >= 2 ? [] : S.offer.slice(0, 2 - left.length); S.offer = left.slice(0, 2).concat(keep).slice(0, 2); save(true); render(); };
@@ -830,8 +830,9 @@ function render() {
     $('svnow').onclick = () => { if (!logged()) return BB.open && BB.open('login'); save('now'); toast('Gespeichert ☁'); };
     L.querySelectorAll('[data-wp]').forEach(b => b.onclick = () => { const w = WARP.find(x => x.id === b.dataset.wp), l = WP(w.id); if (!wpOpen(w.id) || l >= w.max || S.dm < w.cost(l)) return; S.dm -= w.cost(l); S.wp[w.id] = l + 1; save('now'); render(); });
   } else {
-    L.innerHTML = `<div class="skh"><span>Kristalle gibt's für jeden Planeten</span><b>◆ ${S.cry}</b></div><div class="sk">${SKILLS.map(s => { const l = SK(s.id), mx = l >= s.max;
+    L.innerHTML = `<div class="skh"><span>Schiff-Upgrades · mit CR</span><b style="font-size:13px">${fmt(S.cr)} CR</b></div>${suHtml()}<div class="skh"><span>Kristalle gibt's für jeden Planeten</span><b>◆ ${S.cry}</b></div><div class="sk">${SKILLS.map(s => { const l = SK(s.id), mx = l >= s.max;
       return `<button data-sk="${s.id}" class="${mx ? 'max' : ''}" ${mx || S.cry < skCost(s.id) ? 'disabled' : ''}><span class="q"></span><span class="c">${l}/${s.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg>${s.n}<small>${mx ? 'Max' : s.d + ' · ◆' + skCost(s.id)}</small></button>`; }).join('')}</div>`;
+    L.querySelectorAll('[data-su]').forEach(b => b.onclick = () => { const k = b.dataset.su, c = SU[k].cost(SUL(k)); if (S.cr < c) return; S.cr -= c; S.su = S.su || {}; S.su[k] = SUL(k) + 1; SND.fx.up(); save(); render(); });
     L.querySelectorAll('[data-sk]').forEach(b => b.onclick = () => { const id = b.dataset.sk, s = SKILLS.find(x => x.id === id); if (SK(id) >= s.max || S.cry < skCost(id)) return; S.cry -= skCost(id); S.sk[id] = SK(id) + 1; save(true); render(); ui(); });
   }
   ui();
@@ -1204,7 +1205,7 @@ function openSettings() {
   overlay(`<h2>Einstellungen</h2>
     <div class="vrow"><span>🎵 Musik</span><input type="range" min="0" max="100" value="${Math.round(v.m * 100)}" id="vm"><b id="vmv">${Math.round(v.m * 100)}</b></div>
     <div class="vrow"><span>💥 Effekte</span><input type="range" min="0" max="100" value="${Math.round(v.s * 100)}" id="vs"><b id="vsv">${Math.round(v.s * 100)}</b></div>
-    <p style="margin-top:8px">${logged() ? '☁ Dein Stand wird auf deinem Konto gespeichert.' : '💾 Ohne Konto wird nur auf diesem Gerät gespeichert.'} · v${VER}</p>`, [['Fertig', null]]);
+    <p style="margin-top:8px">${logged() ? '☁ Dein Stand wird auf deinem Konto gespeichert.' : '💾 Ohne Konto wird nur auf diesem Gerät gespeichert.'} · Version ${VLABEL}</p>`, [['Fertig', null]]);
   const bind = (id, k) => { const el = $(id); el.oninput = () => { SND.set(k, el.value / 100); $(id + 'v').textContent = el.value; if (k === 's') SND.fx.up(); }; };
   bind('vm', 'm'); bind('vs', 's');
 }

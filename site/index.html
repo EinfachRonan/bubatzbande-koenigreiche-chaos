@@ -126,30 +126,42 @@ footer{text-align:center;color:#5d6578;font-size:12px;font-weight:700;margin:26p
 }
 @media (max-width:899px){.hub .side .rank{margin-top:20px}}
 @media (prefers-reduced-motion:reduce){.view.on{animation:none}}
+
+/* Raster: Handy = Profil, Held, Spiele, Rangliste, Sammlung · PC = Held und Rangliste nebeneinander */
+#v-hub{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"prof" "hero" "sec" "games" "rank" "col" "foot";column-gap:16px}
+#prof{grid-area:prof}#v-hub>.hero{grid-area:hero;margin-top:12px}#spiele{grid-area:sec}#gAll{grid-area:games}#rank{grid-area:rank;margin-top:20px}#v-hub>.col{grid-area:col}#v-hub>footer{grid-area:foot}
+@media (min-width:900px){#v-hub{grid-template-columns:1.6fr 1fr;grid-template-areas:"prof prof" "hero rank" "sec sec" "games games" "col col" "foot foot"}#rank{margin-top:12px}#v-hub>.hero{min-height:340px}}
+.gc .chip{max-width:calc(100% - 46px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Startseite v3: alles auf einer Seite, Spiele groß und klar anklickbar */
+.top2{display:grid;gap:14px;margin-top:12px}
+.top2 .hero{margin-top:0;min-height:210px}
+.sec .cnt{color:var(--mut);font-weight:800;font-size:13px}
+.games{gap:14px}
+.gc{min-height:236px}
+.gc .art{height:138px}
+.gc .bd{padding:0 13px 14px;display:flex;flex-direction:column;flex:1}
+.gc h3{font-size:20px}
+.gc p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}
+.gc .chip{align-self:flex-start;margin-top:auto;padding-top:5px}
+.gc .go{position:absolute;right:12px;bottom:14px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(#ffd666,#e3a326);color:#1a1206;font-weight:900;box-shadow:0 4px 12px rgba(255,201,77,.35)}
+.rank{margin:0}
+@media (min-width:700px){.games{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:900px){.top2{grid-template-columns:1.6fr 1fr;align-items:stretch}.top2 .hero{min-height:340px}.games{grid-template-columns:repeat(4,minmax(0,1fr))}.gc{min-height:270px}.gc .art{height:160px}}
 </style>
 </head>
 <body>
 <div class="bgimg"></div><div class="bgfx"></div>
 <div class="app">
-  <section class="view on" id="v-hub">
+  <section id="v-hub">
     <div class="card prof" id="prof"></div>
-    <div class="hub">
-      <div>
-        <div class="card hero"><img src="krieg/img/hero.jpg" srcset="krieg/img/hero-s.jpg 1000w, krieg/img/hero.jpg 2000w" sizes="(max-width:900px) 100vw, 700px" alt="Die Bubatzbande">
-          <div class="in"><div><div class="kick" id="nG">8 Spiele · 1 Bande</div><h1>Bubatzbande</h1></div><button class="play" data-go="games">SPIELEN ›</button></div></div>
-        <div class="sec"><h2>Spiele</h2><button data-go="games">Alle ›</button></div>
-        <div class="games" id="gPrev"></div>
-        <a class="card col" href="bande/"><div class="fan"><img src="bande/img/mr-mollymann.jpg" alt=""><img src="bande/img/der-koenig-von-deutschland.jpg" alt=""><img src="bande/img/der-graue-geist.jpg" alt=""></div>
-          <div><b>Kartensammlung</b><p>Bandengold aus allen Spielen, Kräuterbeutel öffnen, 30 Karten sammeln.</p><span class="chip"><span class="c"></span><span id="cBg">0</span> · 🃏 <span id="cCards">0</span>/30</span></div></a>
-      </div>
-      <div class="side"><div class="card rank" id="rank"><div class="hd"><b>Rangliste</b><small>Gesamt · alle Spiele</small></div><div class="empty">Lade …</div></div></div>
-    </div>
-    <footer>bubatzbande.de · Königreiche &amp; Chaos</footer>
-  </section>
-  <section class="view all" id="v-games">
-    <div class="vhead"><h2>Alle Spiele</h2><span id="nG2"></span></div>
+    <div class="card hero"><img src="krieg/img/hero.jpg" srcset="krieg/img/hero-s.jpg 1000w, krieg/img/hero.jpg 2000w" sizes="(max-width:900px) 100vw, 700px" alt="Die Bubatzbande">
+        <div class="in"><div><div class="kick" id="nG">8 Spiele · 1 Bande</div><h1>Bubatzbande</h1></div><button class="play" data-go="games">SPIELEN ↓</button></div></div>
+      <div class="card rank" id="rank"><div class="hd"><b>Rangliste</b><small>Gesamt · alle Spiele</small></div><div class="empty">Lade …</div></div>
+    <div class="sec" id="spiele"><h2>Alle Spiele</h2><span class="cnt" id="nG2"></span></div>
     <div class="games" id="gAll"></div>
-    <footer>Ein Konto, eine Bestenliste für alles.</footer>
+    <a class="card col" href="bande/"><div class="fan"><img src="bande/img/mr-mollymann.jpg" alt=""><img src="bande/img/der-koenig-von-deutschland.jpg" alt=""><img src="bande/img/der-graue-geist.jpg" alt=""></div>
+      <div><b>Kartensammlung</b><p>Bandengold aus allen Spielen, Kräuterbeutel öffnen, 30 Karten sammeln.</p><span class="chip"><span class="c"></span><span id="cBg">0</span> · 🃏 <span id="cCards">0</span>/30</span></div></a>
+    <footer>bubatzbande.de · Königreiche &amp; Chaos</footer>
   </section>
 </div>
 <div class="tabs"><nav>
@@ -180,9 +192,8 @@ const $ = id => document.getElementById(id);
 const B = () => window.BB;
 const card = g => { const b = B(), best = b && b.best(g.k);
   return `<a class="card gc" href="${g.url}" style="--c:${g.c};--c2:${g.c2}"><div class="art"><img src="${IMG(g.who)}" alt="" loading="lazy"><span class="tg${g.neu ? ' n' : ''}">${esc(g.tag)}</span></div>
-    <div class="bd"><h3>${esc(g.name)}</h3><p>${esc(g.text)}</p><span class="chip">${best ? '🏆 ' + b.fmt(g.k, best.s) : '▶ Jetzt spielen'}</span></div></a>`; };
+    <div class="bd"><h3>${esc(g.name)}</h3><p>${esc(g.text)}</p>${best ? `<span class="chip">🏆 ${b.fmt(g.k, best.s)}</span>` : ''}<span class="go">▶</span></div></a>`; };
 function draw() {
-  $('gPrev').innerHTML = GAMES.slice(0, 4).map(card).join('');
   $('gAll').innerHTML = GAMES.map(card).join('');
   $('nG').textContent = GAMES.length + ' Spiele · 1 Bande'; $('nG2').textContent = GAMES.length + ' Spiele';
   const b = B(), P = b ? b.profile : null, pr = $('prof');
@@ -221,14 +232,15 @@ function avOf(x) { return x.img && x.id ? `api/bb.php?a=img&u=${x.id}&v=${x.img}
 function go(v) {
   if (v === 'rank') { B() && B().open('board', '_all'); return; }
   if (v === 'me') { B() && B().open(B().loggedIn ? 'profil' : 'login'); return; }
-  document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + v));
+  if (v === 'games') { const el = $('spiele'); scrollTo({ top: el.getBoundingClientRect().top + scrollY - 10, behavior: 'smooth' }); }
+  else scrollTo({ top: 0, behavior: 'smooth' });
   document.querySelectorAll('.tabs [data-tab]').forEach(x => x.classList.toggle('on', x.dataset.tab === v));
-  scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
-  try { history.replaceState(null, '', v === 'games' ? '#spiele' : location.pathname); } catch (e) {}
 }
+// Tab-Leiste zeigt an, wo man gerade ist
+addEventListener('scroll', () => { const y = $('spiele').getBoundingClientRect().top; document.querySelectorAll('.tabs [data-tab]').forEach(x => x.classList.toggle('on', x.dataset.tab === (y < innerHeight * .5 ? 'games' : 'hub'))); }, { passive: true });
 document.querySelectorAll('[data-go]').forEach(x => x.onclick = () => go(x.dataset.go));
 document.querySelectorAll('.tabs [data-tab]').forEach(x => x.onclick = () => go(x.dataset.tab));
-if (location.hash === '#spiele') go('games');
+if (location.hash === '#spiele') setTimeout(() => go('games'), 300);
 draw(); rank();
 if (window.BB) {
   BB.chip($('bbChip'));
