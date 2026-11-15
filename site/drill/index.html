@@ -668,7 +668,7 @@ function step(dt) {
   for (let k = fx.length - 1; k >= 0; k--) if ((fx[k].t -= dt) <= 0) fx.splice(k, 1);
   if ((crBufT -= dt) <= 0 && crBuf > 0) { floats.push({ x: crBufX, y: crBufY - 14, t: .9, s: '+' + fmt(crBuf) + ' CR', c: '#cfe6ea' }); crBuf = 0; crBufT = .45; }
   // Planet fertig?
-  if (G.left <= Math.max(2, G.total * .015) && !G.clearing) { G.clearing = 1.2; fx.push({ k: 'nova', x: ship.x, y: ship.y, r: Math.max(W, H) * .8, t: 1 }); }
+  if (G.left <= 0 && !G.clearing) { /* erst wenn wirklich jeder Block weg ist */ G.clearing = 1.2; fx.push({ k: 'nova', x: ship.x, y: ship.y, r: Math.max(W, H) * .8, t: 1 }); }
   if (G.clearing) { G.clearing -= dt; if (G.clearing <= 0) planetDone(); }
 }
 
