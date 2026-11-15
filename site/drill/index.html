@@ -358,7 +358,7 @@ html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261115g"></script>
+<script src="../bb.js?v=20261115h"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -1047,7 +1047,7 @@ function render() {
   else if (tab === 'p') {
     const g0 = dmGain();
     L.innerHTML = `<div class="wh wbox"><div class="wrow"><div><small>Warp bringt</small><b id="wgain">✦${g0}</b></div><div><small>Multiplikator</small><b class="wm">x${(S.wm || 1).toFixed(2)} → <span id="wmto">x${((S.wm || 1) + wmGain()).toFixed(2)}</span></b></div></div>
-      <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR, Waffen und Skills sind weg, von deinen ◆ behältst du ${keepPct()} % (mehr mit „Kristallspeicher“). Fähigkeiten, Hangar und Werkstatt bleiben. ✦: ab Planet 3 bringt jeder Planet ✦, und alle 2 Planeten gibt's +0,5 mehr pro Planet (gerade +${String(dmPer(Math.max(1, S.p - 1))).replace('.', ',')} pro Planet). Multiplikator: pro Warp +0.02, ab Planet 11 +0.02 extra pro geschafftem Universum. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'}.</p>
+      <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR, Waffen und Skills sind weg, von deinen ◆ behältst du ${keepPct()} % (mehr mit „Kristallspeicher“). Fähigkeiten, Hangar und Werkstatt bleiben. ✦: ab Planet 3 bringt jeder Planet ✦, und alle 2 Planeten gibt's +0,5 mehr pro Planet (gerade +${String(dmPer(Math.max(1, S.p - 1))).replace('.', ',')} pro Planet). Multiplikator: pro Warp +0.02, ab Planet 11 +0.02 extra pro geschafftem Universum. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'} · Spielzeit ${(S.play || 0) >= 3600 ? ((S.play || 0) / 3600).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' Std.' : Math.floor((S.play || 0) / 60) + ' Min.'}.</p>
       <button class="br" id="wgo" ${g0 ? '' : 'disabled'}>${g0 ? 'WARP-SPRUNG' : 'Ab Planet 3 (noch ' + Math.max(0, 3 - S.p) + ')'}</button></div>
       <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${S.dm || 0}</b></div>
       <div class="sk wp6">${WARP.map(w => { const l = WP(w.id), mx = l >= w.max;
@@ -1583,6 +1583,7 @@ function loop(now) {
   const dt = Math.min(.05, Math.max(0, (now - (tLast || now)) / 1000)); tLast = now;
   try {
     if (G && W > 20 && H > 20) { step(dt); draw(now); }
+    if (document.visibilityState === 'visible') S.play = (S.play || 0) + dt; // Spielzeit für die Bestenliste
     if ((emaT += dt) >= 1) { const v = S.ema * .9 + (earnedSec / emaT) * .1; S.ema = isFinite(v) ? v : 0; earnedSec = 0; emaT = 0; }
     if ((uiT += dt) > .2) { uiT = 0; ui(); }
     if (!isFinite(S.cr) || S.cr < 0) S.cr = 0;

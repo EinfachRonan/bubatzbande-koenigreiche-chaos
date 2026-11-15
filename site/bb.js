@@ -16,7 +16,7 @@
     duell: { name: 'Kneipen-Duell', ico: '🍺', unit: 'Kneipenpunkte', what: 'Siege gegen den Wirt', url: 'duell/', meta: m => m && m.w ? `${m.w} Siege` : '' },
     runner: { name: 'Kobold-Runner', ico: '🏃', unit: 'Punkte', what: 'Bester Lauf', url: 'runner/', meta: m => m && m.m ? `${m.m.toLocaleString('de-DE')} m · 🪙 ${m.c}` : '' },
     hof: { name: 'Bandenhof', ico: '🏡', unit: 'Gold', what: 'Gold verdient', url: 'hof/', fmt: n => n >= 1e6 ? (n / (n >= 1e9 ? 1e9 : 1e6)).toLocaleString('de-DE', { maximumFractionDigits: 2 }) + (n >= 1e9 ? ' Mrd' : ' Mio') : Math.round(n).toLocaleString('de-DE'), meta: m => m && m.b != null ? `${m.l ? 'Hof-Stufe ' + m.l + ' · ' : ''}${m.b}/8 Bande` : '' },
-    drill: { name: 'Galaxie-Bohrer', ico: '🚀', unit: 'Planeten', what: 'Höchster Planet', url: 'drill/', meta: m => m ? [m.n, m.w != null ? m.w + ' Warps' : '', m.d ? fmtN(m.d) + ' DPS' : ''].filter(Boolean).join(' · ') : '' },
+    drill: { name: 'Galaxie-Bohrer', ico: '🚀', unit: 'Planeten', what: 'Höchster Planet', url: 'drill/', meta: m => m ? [m.pt ? '⏱ ' + (m.pt >= 3600 ? (m.pt / 3600).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' Std.' : Math.floor(m.pt / 60) + ' Min.') : '', m.n, m.w != null ? m.w + ' Warps' : '', m.d ? fmtN(m.d) + ' DPS' : ''].filter(Boolean).join(' · ') : '' },
     schach: { name: 'Schlagabtausch', ico: '♞', unit: '', what: 'Schnellster Sieg gegen Herrn Holz', url: 'schach/', asc: true, fmt: fmtTime, meta: m => m && m.d ? String(m.d) : '' }
   };
   const ACH = [

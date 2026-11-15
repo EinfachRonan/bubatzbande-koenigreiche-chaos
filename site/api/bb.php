@@ -126,6 +126,7 @@ if ($a === 'gstat') {
       $best = max(1, (int) $num($j['best'] ?? 1));
       $st[] = ['Universum', (int) floor(($best - 1) / 10) + 1];
       $st[] = ['Aktueller Planet', (int) $num($j['p'] ?? 1)];
+      $pt = (int) $num($j['play'] ?? 0); $st[] = ['Spielzeit', $pt >= 3600 ? number_format($pt / 3600, 1, ',', '.') . ' Std.' : (int) floor($pt / 60) . ' Min.'];
       $st[] = ['Warps', (int) $num($j['pc'] ?? 0)];
       $st[] = ['Dunkle Materie gesamt', (int) $num($j['dmAll'] ?? 0)];
       $st[] = ['Waffen', is_array($j['w'] ?? null) ? count($j['w']) : 0];
@@ -171,7 +172,9 @@ if ($a === 'top') {
   $asc = $GAMES[$g]['asc']; $rows = [];
   foreach ($d['users'] as $id => $u) {
     $b = $u['best'][$g] ?? null; if (!$b) continue;
-    $rows[] = ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 's' => $b['s'], 'm' => $b['m'] ?? null, 't' => $b['t'] ?? 0, 'ls' => max((int) ($u['gs'][$g]['t'] ?? 0), (int) ($b['t'] ?? 0))];
+    $m = $b['m'] ?? null;
+    if ($g === 'drill' && isset($u['gs']['drill']['d'])) { $j = json_decode($u['gs']['drill']['d'], true); if (is_array($j) && isset($j['play']) && is_numeric($j['play'])) { if (!is_array($m)) $m = []; $m['pt'] = (int) $j['play']; } }
+    $rows[] = ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 's' => $b['s'], 'm' => $m, 't' => $b['t'] ?? 0, 'ls' => max((int) ($u['gs'][$g]['t'] ?? 0), (int) ($b['t'] ?? 0))];
   }
   usort($rows, fn($x, $y) => $asc ? ($x['s'] <=> $y['s'] ?: $x['t'] <=> $y['t']) : ($y['s'] <=> $x['s'] ?: $x['t'] <=> $y['t']));
   $me = $_GET['u'] ?? ''; $mine = null;
