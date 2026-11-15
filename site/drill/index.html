@@ -380,16 +380,18 @@ const PAL = [
   ['#0e4c52', '#0a3439', '#38d6d8'], ['#e07b32', '#7a3613', '#ffb46a'], ['#8c4be0', '#3d1d6d', '#d9a8ff'],
   ['#3f9a3a', '#1c4a1a', '#b5ff8a'], ['#c8344f', '#5e1222', '#ff9ab0'], ['#7aa8d8', '#28466a', '#e2f2ff'], ['#d9b22a', '#6e550c', '#fff0a0']
 ];
+// Alle Warp-Fähigkeiten kosten gleich: Stufe 1 gratis, dann 25, 50, 75, 100 ✦ …
+const wpCost = l => 25 * Math.max(1, l);
 const WARP = [
-  { id: 'kraft', n: 'Dunkle Kraft', d: () => '+50 % Schaden und CR', max: 20, cost: l => Math.round(2 * Math.pow(1.55, l)), ico: '<path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/><circle cx="12" cy="12" r="2"/>' },
-  { id: 'slot', n: 'Waffenslots', d: () => '+1 Platz für eine Waffe', max: 8, cost: l => 25 * Math.max(1, l), /* Stufe 1 gratis, dann 25, 50, 75, 100 ... */ ico: '<rect x="3" y="6" width="7" height="12"/><rect x="14" y="6" width="7" height="12"/><path d="M17.5 10v4M15.5 12h4"/>' },
-  { id: 'start', n: 'Startkapital', d: l => 'Start mit ' + fmt(startCr(l + 1)) + ' CR', max: 10, cost: l => Math.round(3 * Math.pow(2.2, l)), ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
-  { id: 'keep', n: 'Kristallspeicher', d: l => 'Warp behält ' + keepPct(l) + ' % → ' + keepPct(l + 1) + ' % ◆', max: 6, cost: l => Math.round(4 * Math.pow(2.3, l)), ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M8 12h8M12 8v8"/>' },
-  { id: 'kris', n: 'Kristallregen', d: () => '+2 ◆ pro Planet', max: 5, cost: l => Math.round(4 * Math.pow(2.4, l)), ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/>' },
-  { id: 'boost', n: 'Nachbrenner', d: () => 'Boost +2 min', max: 5, cost: l => Math.round(4 * Math.pow(2.2, l)), ico: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' },
-  { id: 'skip', n: 'Hyperraum', d: () => 'Start +2 Planeten', max: 3, cost: l => Math.round(30 * Math.pow(4, l)), ico: '<path d="M4 12h12M12 6l6 6-6 6M4 6v12"/>' },
-  { id: 'comet', n: 'Kometenjäger', d: () => 'Kometen öfter, +50 %', max: 3, cost: l => Math.round(6 * Math.pow(2.5, l)), ico: '<circle cx="16" cy="8" r="3"/><path d="M13 11L4 20M11 7L5 13M17 13l-6 6"/>' },
-  { id: 'auto', n: 'Autopilot', d: () => 'Zündet Fähigkeiten selbst', max: 1, cost: () => 60, ico: '<rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/>' },
+  { id: 'kraft', n: 'Dunkle Kraft', d: () => '+50 % Schaden und CR', max: 20, cost: wpCost, ico: '<path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/><circle cx="12" cy="12" r="2"/>' },
+  { id: 'slot', n: 'Waffenslots', d: () => '+1 Platz für eine Waffe', max: 8, cost: wpCost, ico: '<rect x="3" y="6" width="7" height="12"/><rect x="14" y="6" width="7" height="12"/><path d="M17.5 10v4M15.5 12h4"/>' },
+  { id: 'start', n: 'Startkapital', d: l => 'Start mit ' + fmt(startCr(l + 1)) + ' CR', max: 10, cost: wpCost, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
+  { id: 'keep', n: 'Kristallspeicher', d: l => 'Warp behält ' + keepPct(l) + ' % → ' + keepPct(l + 1) + ' % ◆', max: 6, cost: wpCost, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M8 12h8M12 8v8"/>' },
+  { id: 'kris', n: 'Kristallregen', d: () => '+2 ◆ pro Planet', max: 5, cost: wpCost, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/>' },
+  { id: 'boost', n: 'Nachbrenner', d: () => 'Boost +2 min', max: 5, cost: wpCost, ico: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' },
+  { id: 'skip', n: 'Hyperraum', d: () => 'Start +2 Planeten', max: 3, cost: wpCost, ico: '<path d="M4 12h12M12 6l6 6-6 6M4 6v12"/>' },
+  { id: 'comet', n: 'Kometenjäger', d: () => 'Kometen öfter, +50 %', max: 3, cost: wpCost, ico: '<circle cx="16" cy="8" r="3"/><path d="M13 11L4 20M11 7L5 13M17 13l-6 6"/>' },
+  { id: 'auto', n: 'Autopilot', d: () => 'Zündet Fähigkeiten selbst', max: 1, cost: wpCost, ico: '<rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/>' },
 ];
 const keepPct = l => 20 + 10 * (l == null ? WP('keep') : l);
 const startCr = l => l ? 300 * Math.pow(8, l - 1) : 0;
