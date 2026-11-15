@@ -300,6 +300,10 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .fx-p i{position:absolute;left:0;top:0;width:var(--sz);height:var(--sz);background:var(--rc);box-shadow:0 0 6px var(--rc);animation:brst 1.1s var(--dl) cubic-bezier(.1,.8,.3,1) forwards;opacity:0}
 @keyframes brst{0%{transform:translate(0,0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
 .frev{opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s}.frev.on{opacity:1;transform:none}
+.ov.bare{background:rgba(0,0,0,.86);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.ov.bare .bx{border:0!important;background:none!important;box-shadow:none!important;animation:ovPop .35s cubic-bezier(.2,1.5,.4,1)}
+@keyframes ovPop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.ov.bare .bx h2{text-shadow:0 0 18px currentColor}
 html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
 /* ===== PC / Desktop: Vollbild – großes Spielfeld links, Menü als Seitenleiste rechts ===== */
 @media (min-width:900px) and (min-height:540px){
@@ -1074,7 +1078,7 @@ function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boos
 $('lb').onclick = () => window.BB && BB.open('board', 'drill');
 $('opt').onclick = openSettings;
 let toastT = 0; function toast(s) { const t = $('toast'); if (!t) return; t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
-function overlay(html, btns) { $('ovb').innerHTML = html + btns.map((b, k) => `<button class="br" data-k="${k}">${b[0]}</button>`).join(''); $('ov').classList.remove('hide'); $('ovb').querySelectorAll('[data-k]').forEach(el => el.onclick = () => { $('ov').classList.add('hide'); btns[+el.dataset.k][1] && btns[+el.dataset.k][1](); }); }
+function overlay(html, btns) { $('ovb').innerHTML = html + btns.map((b, k) => `<button class="br" data-k="${k}">${b[0]}</button>`).join(''); $('ov').classList.toggle('bare', /class="(flip|crate)"/.test(html)); $('ov').classList.remove('hide'); $('ovb').style.animation = 'none'; void $('ovb').offsetWidth; $('ovb').style.animation = ''; $('ovb').querySelectorAll('[data-k]').forEach(el => el.onclick = () => { $('ov').classList.add('hide'); btns[+el.dataset.k][1] && btns[+el.dataset.k][1](); }); }
 
 // Nach dem Abbau: Schiff fliegt raus, Sterne ziehen vorbei, neuer Planet schwebt rein
 let travel = 0, built = true, pOff = 0, travT0 = 2.6;
