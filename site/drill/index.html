@@ -973,7 +973,7 @@ function beam(x1, y1, x2, y2, col, w) { g.strokeStyle = col; g.globalAlpha = .35
 let tab = 'w', uiT = 0;
 function ui() {
   $('cr').textContent = fmt(S.cr) + ' CR';
-  { const m = $('mul'), on = boosting(); m.textContent = (on ? '⚡' : '') + 'DMG x' + fmtX(mult()) + ' · CR x' + fmtX(crMult()); m.classList.toggle('bon', on); }
+  { const m = $('mul'), on = boosting(); m.textContent = (on ? '⚡' : '') + 'x' + fmtX(crMult()); m.classList.toggle('bon', on); }
   $('cry').innerHTML = '◆' + fmt(S.cry) + ` <span class="dm">✦${S.dm || 0}</span> <span class="chp">⬢${S.chip || 0}</span>`;
   $('pln').textContent = 'U' + uniOf(S.p) + ' · ' + (G.boss ? 'BOSS' : 'Planet ' + pInU(S.p)); $('pln').classList.toggle('boss', !!G.boss); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
   hotbar();
