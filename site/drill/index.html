@@ -127,6 +127,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .ist{list-style:none;font-size:12px;margin:4px 0 8px;line-height:1.6}.ist em{font-style:normal;color:var(--li)}.ist .hab{color:#ffe94d}
 .mlt{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.mlt button{position:relative;width:52px;height:56px;background:#05080a;border:1.5px solid var(--rc);color:var(--txt);display:flex;flex-direction:column;align-items:center;justify-content:center;font:600 9px var(--mono);cursor:pointer}.mlt button em{font-style:normal;color:var(--li);font-size:9px}.mlt button:disabled{opacity:.4}
 .inv button.sel{outline:2px solid #fff;outline-offset:1px}.inv .dupb{position:absolute;left:3px;top:2px;font:400 9px Silkscreen,var(--mono);font-style:normal;color:#ffe94d}
+.su2{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}.su{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:9px;background:linear-gradient(180deg,#151a0b,#0b0e07);box-shadow:inset 0 0 0 1px #3a4a1c,inset 3px 0 0 #9dff6a}.su .wic{display:none}.su b{font:400 11px Silkscreen,var(--mono);color:#cfff9a}.su .lv{font-size:10.5px;color:#9fb08a;margin-top:2px}.su .br{min-width:0;height:36px;font-size:13px}
 .offer{display:grid;grid-template-columns:1fr 1fr;gap:8px}.offer .br{min-width:0;height:auto;padding:12px 8px;display:flex;flex-direction:column;gap:5px;text-align:center}.offer .br b{font-size:13px}.offer .br small{font-size:10.5px;color:#cfd8da;line-height:1.35;font-weight:600}.offer .br span{font-size:13px;color:var(--cy)}.offer .br:disabled span{color:var(--pk)}
 .rr{width:100%;height:40px;margin:8px 0 2px;font-size:12px}
 .hint{font-size:11px;color:var(--mut);text-align:center;padding:8px 4px 10px;line-height:1.45}
@@ -158,6 +159,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 /* ===== Menü-Design v2: Neon-Terminal mit Pixel-Kanten ===== */
 .hud{background:linear-gradient(180deg,#0a0d10,#06080a);border-bottom:1px solid #1b2328;padding-bottom:8px}
 .hud::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--cy) 30%,var(--pk) 70%,transparent);opacity:.55}
+.lb2{width:34px!important;height:34px!important}.lb2 svg{width:17px!important;height:17px!important}.lb2{left:54px}.lb3{left:92px}.back{width:36px!important;height:34px!important}
+.mid{padding-left:92px}.cr{font-size:23px!important}
+.vrow{display:flex;align-items:center;gap:10px;margin:12px 0;font-size:14px;text-align:left}.vrow span{width:92px}.vrow input{flex:1;accent-color:#5ce8f0}.vrow b{width:30px;text-align:right;color:var(--cy)}
 .back,.lb2{border-color:#2a3338;background:#0b1013;box-shadow:inset 0 -3px 0 #050708}
 .cry{display:flex;gap:6px;font-size:12px}
 .cry,.cry .dm{font-family:Silkscreen,var(--mono)}
@@ -206,9 +210,10 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 <div id="app">
   <div class="hud">
     <a class="back" href="../" aria-label="Zur Startseite">←</a>
+    <button class="lb2 lb3" id="opt" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>
     <button class="lb2" id="lb" aria-label="Bestenliste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/></svg></button>
     <span class="cry" id="cry">◆0</span>
-    <div class="mid"><div class="cr" id="cr">0 CR</div><div class="mul" id="mul">x1.00</div><div class="sv" id="sv"></div></div>
+    <div class="mid"><div class="cr" id="cr">0 CR</div><div class="mul" id="mul">x1.00</div><div class="sv" id="sv" hidden></div></div>
     <div class="pl"><div class="box"><canvas id="mini" width="124" height="124"></canvas><i id="plc" hidden></i></div><small id="pln">Planet 1</small><small id="plp">0/0</small></div>
   </div>
   <canvas id="cv"></canvas>
@@ -345,8 +350,10 @@ const WP = id => S.wp[id] || 0;
 const boosting = () => S.boostEnd > Date.now();
 const dmBonus = () => 1 + .04 * (S.dmAll || 0);
 const dmGain = () => S.p < 3 ? 0 : Math.max(1, Math.floor(Math.pow(S.p - 1, 1.5) / 2.2));
-const mult = () => (1 + HA('dmg')) * (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 2 : 1);
-const crMult = () => (1 + HA('cr')) * (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * (1 + .02 * (S.best - 1)) * dmBonus() * itemBonus('r') * (buf('cr') ? 2 : 1);
+const SU = { gold: { n: 'Goldbohrer', d: '+10 % CR pro Block', cost: l => 30 * Math.pow(1.3, l), ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' }, dmg: { n: 'Schadenskern', d: '+8 % Schaden aller Waffen', cost: l => 50 * Math.pow(1.32, l), ico: '<path d="M12 2l3 7h7l-5.5 4.5 2 7.5-6.5-4.5L5.5 21l2-7.5L2 9h7z"/>' } };
+const SUL = k => (S.su && S.su[k]) || 0;
+const mult = () => (1 + .08 * SUL('dmg')) * (1 + HA('dmg')) * (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 2 : 1);
+const crMult = () => (1 + .1 * SUL('gold')) * (1 + HA('cr')) * (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * (1 + .02 * (S.best - 1)) * dmBonus() * itemBonus('r') * (buf('cr') ? 2 : 1);
 const totalDps = () => WEAP.reduce((a, w) => a + wDps(w), 0);
 const WD = id => wDps(WEAP.find(x => x.id === id));
 const critCh = () => .04 * SK('crit') + HA('crit');
@@ -426,7 +433,9 @@ function hit(i, d) {
 function kill(i, reward) {
   G.alive[i] = 0; G.left--; tDirty = true; if (G.dirty) { G.dirty.add(i); G.dirty.add(i - 1); G.dirty.add(i + 1); G.dirty.add(i - COLS); G.dirty.add(i + COLS); }
   if (!reward) return;
+  if (G.ore[i]) SND.fx.ore(); else SND.fx.brk();
   const [x, y] = cellXY(i);
+  if (fx.length < 160) fx.push({ k: 'sq', x, y, t: .28, c: G.ore[i] ? '#ffe36a' : (G.line || '#fff') });
   const val = G.v0 * (1 + G.dep[i] * .8) * (G.ore[i] ? (G.ore[i] === 2 ? 40 : 10) : 1) * crMult();
   S.cr += val; earnedSec += val; crBuf += val; crBufX = x; crBufY = y;
   const col = G.ore[i] ? (G.ore[i] === 2 ? '#ff5fd2' : '#ffe36a') : G.pal[2], ax = x - G.cx, ay = y - G.cy, al = Math.hypot(ax, ay) || 1;
@@ -484,7 +493,7 @@ function step(dt) {
   if (lineTarget < 0 || !G.alive[lineTarget]) lineTarget = nearest(ship.x + Math.cos(ship.orb + 1.57) * 30, ship.y + Math.sin(ship.orb + 1.57) * 30); // nächster Block in Flugrichtung
   if (dL) {
     if ((cdBlast -= dt * R) <= 0 && lineTarget >= 0) { cdBlast = .25; const nb = 1 + Math.min(2, Math.floor(ST('line') / 2)), [tx2, ty2] = cellXY(lineTarget), a0 = Math.atan2(ty2 - ship.y, tx2 - ship.x);
-      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * .25 / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1 }); } } }
+      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; SND.fx.shoot(); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * .25 / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1 }); } } }
   // 2) Kristallstern: 4 rotierende Strahlen
   const dS = WD('star');
   if (dS) { starA += dt * 1.6 * R; G.star = []; const ns = Math.min(8, 4 + ST('star')); for (let k = 0; k < ns; k++) { const a = starA + k * Math.PI * 2 / ns, [i, ex, ey] = ray(ship.x, ship.y, a, 170); G.star.push([ex, ey]); if (i >= 0) hit(i, dS / ns * dt * 1.6 * (1 + 2 * critCh())); } } else G.star = null;
@@ -504,7 +513,7 @@ function step(dt) {
   for (let k = novas.length - 1; k >= 0; k--) { const n = novas[k]; n.t += dt * 2.6; if (n.t < 1) continue; novas.splice(k, 1);
     const c0 = Math.floor((n.tx - G.ox - n.rad) / CELL), c1 = Math.ceil((n.tx - G.ox + n.rad) / CELL), r0 = Math.floor((n.ty - G.oy - n.rad) / CELL), r1 = Math.ceil((n.ty - G.oy + n.rad) / CELL), cells = [];
     for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) for (let c = Math.max(0, c0); c <= Math.min(COLS - 1, c1); c++) { const i = r * COLS + c; if (!G.alive[i]) continue; const [x, y] = cellXY(i), d = Math.hypot(x - n.tx, y - n.ty); if (d <= n.rad) cells.push([d, i]); }
-    cells.sort((a2, b2) => a2[0] - b2[0]); waves.push({ x: n.tx, y: n.ty, rad: n.rad, r: 0, cells, j: 0, d: n.d }); shake = Math.max(shake, 3); }
+    SND.fx.boom(); cells.sort((a2, b2) => a2[0] - b2[0]); waves.push({ x: n.tx, y: n.ty, rad: n.rad, r: 0, cells, j: 0, d: n.d }); shake = Math.max(shake, 3); }
   // Welle breitet sich aus und trifft die Blöcke nach und nach
   for (let k = waves.length - 1; k >= 0; k--) { const w = waves[k]; w.r += dt * w.rad * 1.6; while (w.j < w.cells.length && w.cells[w.j][0] <= w.r) hit(w.cells[w.j++][1], w.d); if (w.r >= w.rad * 1.15) waves.splice(k, 1); }
   // 5) Streufeuer
@@ -528,7 +537,7 @@ function step(dt) {
   if (dK && (cdChain -= dt * R) <= 0) { cdChain = 1.5; let i = nearest(ship.x, ship.y), px = ship.x, py = ship.y; const pts = []; const used = new Set();
     const nj = Math.min(14, 6 + 2 * ST('chain')); for (let k = 0; k < nj && i >= 0; k++) { used.add(i); const [x, y] = cellXY(i); pts.push([px, py, x, y]); hit(i, dK * 1.5 / nj * critMul()); px = x; py = y;
       let nb = -1, bd = 1e9; const c = i % COLS, r = i / COLS | 0; for (let a = -3; a <= 3; a++) for (let b2 = -3; b2 <= 3; b2++) { const cc = c + a, rr = r + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS) continue; const j = rr * COLS + cc; if (!G.alive[j] || used.has(j)) continue; const d = a * a + b2 * b2 + Math.random() * 3; if (d < bd) { bd = d; nb = j; } } i = nb; }
-    pts.forEach(p => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .2 })); }
+    SND.fx.zap(); pts.forEach(p => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .2 })); }
   // 8) Kräutersäge
   const dW = WD('saw');
   if (dW) { sawA += dt * 3.2 * R; const nsw = Math.min(4, 2 + Math.floor(ST('saw') / 2)); saws.length = nsw; for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, x = ship.x + Math.cos(a) * SAWR, y = ship.y + Math.sin(a) * SAWR; saws[k] = [x, y];
@@ -543,7 +552,7 @@ function step(dt) {
     if (best >= 0) { const [x, y] = cellXY(best); hit(best, dP * cdSnip * 3 * critMul()); const c = best % COLS, r = best / COLS | 0; for (const [a, b2] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (c + a >= 0 && c + a < COLS && r + b2 >= 0 && r + b2 < ROWS) hit((r + b2) * COLS + c + a, dP); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: x, y2: y, t: .3, w: 2, c: '#ffd23f' }); } }
   abStep(dt);
   shake = Math.max(0, shake - dt * 30); if (intro > 0) intro -= dt;
-  { const e = eqItem('t'); if ((e.smoke || e.tr) && Math.random() < dt * (e.smoke ? 30 : 18) && parts.length < 420) { const a = ship.ang - Math.PI / 2; parts.push({ x: ship.x + Math.cos(a) * 14, y: ship.y + Math.sin(a) * 14, vx: Math.cos(a) * 30 + (Math.random() - .5) * 20, vy: Math.sin(a) * 30 + (Math.random() - .5) * 20, t: e.smoke ? 1.1 : .5, c: e.smoke ? '#7fbf6a' : (e.col === 'rainbow' ? `hsl(${Math.random() * 360},100%,65%)` : e.col) }); } }
+  { const e = eqItem('t'); if (Math.random() < dt * (e.smoke ? 30 : e.tr ? 18 : 10) && parts.length < 420) { const a = ship.ang - Math.PI / 2; parts.push({ x: ship.x + Math.cos(a) * 14, y: ship.y + Math.sin(a) * 14, vx: Math.cos(a) * 30 + (Math.random() - .5) * 20, vy: Math.sin(a) * 30 + (Math.random() - .5) * 20, t: e.smoke ? 1.1 : .5, c: e.smoke ? '#7fbf6a' : (e.col === 'rainbow' ? `hsl(${Math.random() * 360},100%,65%)` : e.col) }); } }
   // Bubatz-Komet
   if (!comet) { if ((cometT -= dt) <= 0) { const l = Math.random() < .5; comet = { x: cam.x + (l ? -W / 2 - 20 : W / 2 + 20), y: cam.y - H / 2 + H * (.12 + Math.random() * .35), vx: (l ? 1 : -1) * W / 7, vy: H * (.02 + Math.random() * .04), age: 0 }; } }
   else { comet.x += comet.vx * dt; comet.y += comet.vy * dt; comet.age += dt; if (comet.age > 2.2 && Math.hypot(comet.x - ship.x, comet.y - ship.y) < 260) { fx.push({ k: 'bolt', x: ship.x, y: ship.y, x2: comet.x, y2: comet.y, t: .25 }); grabComet(); } else if (Math.abs(comet.x - cam.x) > W / 2 + 60) { comet = null; cometT = nextComet(); } }
@@ -698,6 +707,7 @@ function draw(now) {
   if (G.star) for (const [x, y] of G.star) beam(ship.x, ship.y, x, y, '#ff4f7a', 1.6);
   for (const f of fx) {
     if (f.k === 'lance') beam(f.x, f.y, f.x2, f.y2, f.c || '#f4fbff', (f.w || 4) * f.t / .35 + 1);
+    else if (f.k === 'sq') { const z = CELL * (1 + (.28 - f.t) * 4); g.globalAlpha = f.t * 3.2; g.strokeStyle = f.c; g.lineWidth = 2; g.strokeRect(f.x - z / 2, f.y - z / 2, z, z); g.globalAlpha = 1; }
     else if (f.k === 'zap') { const mx = (f.x + f.x2) / 2 + (Math.random() - .5) * 10, my = (f.y + f.y2) / 2 + (Math.random() - .5) * 10; g.strokeStyle = '#a8c8ff'; g.lineWidth = 2; g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(mx, my); g.lineTo(f.x2, f.y2); g.stroke(); }
     else if (f.k === 'cast') { g.strokeStyle = `rgba(201,162,255,${f.t * 2})`; g.lineWidth = 3; g.beginPath(); g.arc(f.x, f.y, 50 * (1 - f.t * 2) + 10, 0, 7); g.stroke(); }
     else if (f.k === 'nova') { if (f.d == null) f.d = f.t; const k = 1 - f.t / f.d; const _u = (f.r > W * .9 ? 1 : .5); g.strokeStyle = `rgba(${f.c || '190,170,255'},${f.t * 1.6})`; g.lineWidth = f.thick ? 8 : 3; g.beginPath(); g.arc(f.x, f.y, f.r * Math.min(1, k + .1), 0, 7); g.stroke(); if (f.thick) { g.fillStyle = `rgba(190,170,255,${f.t * .5})`; g.fill(); g.lineWidth = 2; g.strokeStyle = `rgba(255,255,255,${f.t * 1.4})`; g.stroke(); } }
@@ -771,6 +781,7 @@ function ui() {
   // Knöpfe aktualisieren, ohne die Liste neu zu bauen
   document.querySelectorAll('[data-up]').forEach(el => { const w = WEAP.find(x => x.id === el.dataset.up), n = buyN === 'max' ? Math.max(1, maxBuy(w)) : buyN, c = wCost(w, n); el.disabled = S.cr < c; const l0 = WL(w.id), f = l => T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult(), gn = f(l0 + n) - f(l0); el.innerHTML = (n > 1 ? `x${n} · ` : '') + fmt(c) + ' CR' + `<small class="gn">+${fmt(gn)} DPS${msN(l0 + n) > msN(l0) ? ' ★' : ''}</small>`; });
   document.querySelectorAll('[data-unl]').forEach(el => { el.disabled = S.cr < nextUnl(); });
+  document.querySelectorAll('[data-su]').forEach(el => { const c = SU[el.dataset.su].cost(SUL(el.dataset.su)); el.disabled = S.cr < c; el.textContent = fmt(c) + ' CR'; });
   document.querySelectorAll('[data-dps]').forEach(el => { el.textContent = 'DPS ' + fmt(wDps(WEAP.find(x => x.id === el.dataset.dps))) + '/s'; });
 }
 const mmss = ms => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
@@ -778,6 +789,7 @@ function render() {
   const L = $('list');
   if (tab === 'w') {
     let h = `<div class="mode">${[1, 10, 'max'].map(n => `<button data-n="${n}" class="${buyN === n ? 'on' : ''}">${n === 'max' ? 'Max' : 'x' + n}</button>`).join('')}</div>`;
+    h += `<div class="su2">${Object.entries(SU).map(([k, u]) => `<div class="su"><div class="wic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${u.ico}</svg></div><div class="nm"><b>${u.n}</b><div class="lv">Lv. ${SUL(k)} · ${u.d}</div></div><button class="br" data-su="${k}">${fmt(u.cost(SUL(k)))} CR</button></div>`).join('')}</div>`;
     for (const id of owned()) {
       const w = WEAP.find(x => x.id === id), l = WL(id);
       h += `<div class="wp"><div class="wic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${WICO[w.id] || ""}</svg></div><div class="nm"><b>${w.n}</b><div class="lv">Lv. ${l}${ST(id) ? ' <span class="stars">★' + ST(id) + '</span>' : ''} · ★ bei ${msNext(l)}</div><div class="dps" data-dps="${w.id}"></div></div><button class="br" data-up="${w.id}"></button><div class="pr"><i style="width:${(l - msPrev(l)) / (msNext(l) - msPrev(l)) * 100}%"></i></div></div>`;
@@ -791,7 +803,8 @@ function render() {
     h += `<div style="font-size:11px;color:var(--mut);text-align:center;padding:6px 4px 10px">Bei Stufe 10, 25, 50, 100 und danach alle 100 Stufen bekommt eine Waffe ein Upgrade: x2 Schaden und ein neuer Effekt.</div>`;
     L.innerHTML = h;
     L.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { buyN = b.dataset.n === 'max' ? 'max' : +b.dataset.n; render(); });
-    L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; const s0 = ST(w.id); S.w[w.id] = WL(w.id) + n; if (ST(w.id) > s0) upgradeFx(w); if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
+    L.querySelectorAll('[data-su]').forEach(b => b.onclick = () => { const k = b.dataset.su, c = SU[k].cost(SUL(k)); if (S.cr < c) return; S.cr -= c; S.su = S.su || {}; S.su[k] = SUL(k) + 1; SND.fx.up(); save(); render(); });
+    L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; const s0 = ST(w.id); S.w[w.id] = WL(w.id) + n; SND.fx.up(); if (ST(w.id) > s0) upgradeFx(w); if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
     L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c || owned().length >= maxWeapons()) return; S.cr -= c; S.w[w.id] = 1; S.wo = owned().concat(w.id); S.offer = null; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
     if ($('reroll')) $('reroll').onclick = () => { const r = rrState(); if (!r.n) return; offers(); if (!S.offer) return; r.n--; const left = WEAP.filter(w => !WL(w.id) && !S.offer.includes(w.id)).map(w => w.id).sort(() => Math.random() - .5); const keep = left.length >= 2 ? [] : S.offer.slice(0, 2 - left.length); S.offer = left.slice(0, 2).concat(keep).slice(0, 2); save(true); render(); };
   } else if (tab === 'a') renderAb(L);
@@ -821,10 +834,11 @@ function render() {
   ui();
 }
 document.querySelectorAll('.nav [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; $('list').scrollTop = 0; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x === b)); render(); });
-function upgradeFx(w) { const n = ST(w.id); fx.push({ k: 'nova', x: ship.x, y: ship.y, r: 90, t: .8, c: '255,233,77' }); for (let k = 0; k < 30; k++) parts.push({ x: ship.x, y: ship.y, vx: (Math.random() - .5) * 300, vy: (Math.random() - .5) * 300, t: .8, c: '#ffe94d' });
+function upgradeFx(w) { SND.fx.win(); const n = ST(w.id); fx.push({ k: 'nova', x: ship.x, y: ship.y, r: 90, t: .8, c: '255,233,77' }); for (let k = 0; k < 30; k++) parts.push({ x: ship.x, y: ship.y, vx: (Math.random() - .5) * 300, vy: (Math.random() - .5) * 300, t: .8, c: '#ffe94d' });
   overlay(`<div class="crate" style="--rc:#ffe94d"><div class="cbox" style="font-size:44px;color:#ffe94d">★${n}</div></div><h2 style="color:#ffe94d">${w.n} aufgewertet!</h2><p>x2 Schaden${UPTXT[w.id] ? ' · ' + UPTXT[w.id] : ''}<br>Nächstes Upgrade bei Stufe ${msNext(WL(w.id))}</p>`, [['Stark', null]]); }
 function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3; S.boostCd = Date.now() + 15 * 60e3; toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); }
 $('lb').onclick = () => window.BB && BB.open('board', 'drill');
+$('opt').onclick = openSettings;
 let toastT = 0; function toast(s) { const t = $('toast'); if (!t) return; t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
 function overlay(html, btns) { $('ovb').innerHTML = html + btns.map((b, k) => `<button class="br" data-k="${k}">${b[0]}</button>`).join(''); $('ov').classList.remove('hide'); $('ovb').querySelectorAll('[data-k]').forEach(el => el.onclick = () => { $('ov').classList.add('hide'); btns[+el.dataset.k][1] && btns[+el.dataset.k][1](); }); }
 
@@ -852,6 +866,7 @@ function travelStep(dt) {
 }
 const warpBonus = n => 5 + Math.ceil(n * .5);
 function planetDone() {
+  SND.fx.win();
   const gain = (1 + Math.floor(S.p / 3) + WP('kris')) * (G.boss ? 3 : 1), old = G.name;
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
   if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
@@ -866,8 +881,8 @@ function warp() {
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>+ <b style="color:#ffe94d">✦${warpBonus(n)} Bonus</b> für Kisten<br>Danach: x${(1 + .04 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
     [['SPRINGEN', () => {
       const wb = warpBonus(n); S.dm = (S.dm || 0) + n + wb; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
-      S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
-      travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now');
+      S.cr = startCr(WP('start')); S.su = {}; S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
+      travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
       toast(`Warp geschafft: ✦${n} + ✦${wb} Bonus · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
     }], ['Noch nicht', null]]);
@@ -905,7 +920,7 @@ let bhole = null;
 function cast(id, auto) {
   const a = ABIL.find(x => x.id === id); if (!a || !AL(id) || !abReady(id) || !G || G.clearing || travel > 0) return;
   const P = abPow(id), D = Math.max(totalDps(), 1);
-  S.abT[id] = Date.now() + abCd(a) * 1000;
+  S.abT[id] = Date.now() + abCd(a) * 1000; SND.fx.cast();
   if (id === 'over') S.buf.dmg = Date.now() + 12000 * (1 + .1 * (AL(id) - 1)) ;
   else if (id === 'gold') S.buf.cr = Date.now() + 12000 * (1 + .1 * (AL(id) - 1));
   else if (id === 'meteor') { for (let k = 0; k < 14; k++) { const i = randAlive(); if (i < 0) break; const [x, y] = cellXY(i); meteors.push({ x: x + (Math.random() - .5) * 120, y: cam.y - H / 2 - 20 - k * 30, tx: x, ty: y, d: D * .8 * P, v: 380 + Math.random() * 120 }); } }
@@ -1110,6 +1125,84 @@ function renderHangar(L) {
   if ($('imeltall')) $('imeltall').onclick = () => { for (const m of meltList(sel.id).filter(x => x.spare)) for (let k = 0; k < m.n && (S.inv[sel.id] || 1) < ITEM_MAX; k++) melt(m.it.id, 1); save('now'); render(); };
   $('best').onclick = bestEquip;
   L.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => goTab('k'));
+}
+
+// ================== Sound: ruhiger Idle-Soundtrack + Effekte (alles live erzeugt, keine Dateien) ==================
+const SND = (() => {
+  let ctx = null, master, mus, sfx, verb, dly, started = false, nextT = 0, step = 0, timer = 0;
+  let vol = { m: .5, s: .5 }; try { const v = JSON.parse(localStorage.getItem('gb_vol')); if (v && typeof v.m === 'number') vol = v; } catch (e) {}
+  const curve = v => v * v; // gehörrichtig
+  function ir(sec) { const n = ctx.sampleRate * sec, b = ctx.createBuffer(2, n, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.6); } return b; }
+  function init() {
+    if (ctx) return; const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    ctx = new AC(); master = ctx.createGain(); master.gain.value = .9; master.connect(ctx.destination);
+    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -18; comp.ratio.value = 3; comp.connect(master);
+    mus = ctx.createGain(); sfx = ctx.createGain(); mus.connect(comp); sfx.connect(comp);
+    verb = ctx.createConvolver(); verb.buffer = ir(3.2); const vg = ctx.createGain(); vg.gain.value = .35; verb.connect(vg); vg.connect(mus);
+    dly = ctx.createDelay(1); dly.delayTime.value = 60 / 76 * .75; const fb = ctx.createGain(); fb.gain.value = .32; const dlf = ctx.createBiquadFilter(); dlf.type = 'lowpass'; dlf.frequency.value = 2200;
+    dly.connect(dlf); dlf.connect(fb); fb.connect(dly); const dg = ctx.createGain(); dg.gain.value = .25; dlf.connect(dg); dg.connect(mus);
+    apply();
+  }
+  function apply() { if (!ctx) return; mus.gain.setTargetAtTime(curve(vol.m) * .55, ctx.currentTime, .1); sfx.gain.setTargetAtTime(curve(vol.s) * .7, ctx.currentTime, .05); }
+  const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+  // A-Moll Lo-Fi: Am9 – Fmaj7 – Cmaj7 – G6 · 76 BPM
+  const CH = [[57, 60, 64, 67, 71], [53, 57, 60, 64, 67], [48, 55, 59, 64, 67], [55, 59, 62, 64, 69]], BASS = [45, 41, 36, 43];
+  const SCALE = [69, 72, 74, 76, 79, 81, 84, 86];
+  function pad(t, notes, dur) {
+    for (const n of notes) { const o = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
+      o.type = 'sawtooth'; o2.type = 'sawtooth'; o.frequency.value = hz(n); o2.frequency.value = hz(n) * 1.004; f.type = 'lowpass'; f.frequency.setValueAtTime(500, t); f.frequency.linearRampToValueAtTime(1100, t + dur * .5); f.frequency.linearRampToValueAtTime(600, t + dur); f.Q.value = .4;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.022, t + 1.2); g.gain.setValueAtTime(.022, t + dur - .8); g.gain.linearRampToValueAtTime(0, t + dur + .6);
+      o.connect(f); o2.connect(f); f.connect(g); g.connect(mus); g.connect(verb); o.start(t); o2.start(t); o.stop(t + dur + .7); o2.stop(t + dur + .7); }
+  }
+  function pluck(t, n, v) { const o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter(); o.type = 'triangle'; o.frequency.value = hz(n); f.type = 'lowpass'; f.frequency.value = 2600;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .01); g.gain.exponentialRampToValueAtTime(.0008, t + .9); o.connect(f); f.connect(g); g.connect(mus); g.connect(dly); g.connect(verb); o.start(t); o.stop(t + 1); }
+  function bass(t, n, dur) { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = hz(n); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12, t + .03); g.gain.exponentialRampToValueAtTime(.002, t + dur); o.connect(g); g.connect(mus); o.start(t); o.stop(t + dur + .05); }
+  function kick(t) { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(42, t + .18); g.gain.setValueAtTime(.16, t); g.gain.exponentialRampToValueAtTime(.001, t + .3); o.connect(g); g.connect(mus); o.start(t); o.stop(t + .32); }
+  let nz = null; function noise() { if (nz) return nz; const n = ctx.sampleRate * .5, b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; return nz = b; }
+  function hat(t, v, dest) { const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = noise(); f.type = 'highpass'; f.frequency.value = 7000; g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0005, t + .06); s.connect(f); f.connect(g); g.connect(dest || mus); s.start(t); s.stop(t + .08); }
+  // Taktgeber: plant immer ein Stück voraus, Achtel bei 76 BPM, 4 Takte pro Akkord-Runde
+  function tick() {
+    if (!ctx) return; const e = 60 / 76 / 2;
+    while (nextT < ctx.currentTime + .4) {
+      const t = nextT, bar = Math.floor(step / 8), ci = bar % 4, s8 = step % 8, ch = CH[ci];
+      if (s8 === 0) { pad(t, ch, e * 8); bass(t, BASS[ci], e * 3.5); }
+      if (s8 === 4) bass(t, BASS[ci] + 7, e * 2.5);
+      if (step >= 32) { if (s8 === 0 || s8 === 5) kick(t); if (s8 % 2 === 1) hat(t, .018); }
+      // Arpeggio: sanft, mit Lücken, damit es nicht nervt
+      if ((s8 % 2 === 0 || Math.random() < .3) && Math.random() < .78) { const pool = SCALE.filter(n => ch.some(c => (n - c) % 12 === 0) || Math.random() < .25); pluck(t, pool[(Math.random() * pool.length) | 0] || 76, .05); }
+      nextT += e; step++;
+    }
+  }
+  function start() { init(); if (!ctx) return; if (ctx.state === 'suspended') ctx.resume(); if (!started) { started = true; nextT = ctx.currentTime + .1; timer = setInterval(tick, 100); } }
+  // Effekte (gedrosselt, damit es bei vielen Treffern nicht kracht)
+  const last = {};
+  const ok = (k, gap) => { const n = ctx ? ctx.currentTime : 0; if (!ctx || ctx.state !== 'running' || vol.s <= 0 || (last[k] && n - last[k] < gap)) return false; last[k] = n; return true; };
+  function blip(f0, f1, dur, type, v, dest) { const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0005, t + dur); o.connect(g); g.connect(dest || sfx); o.start(t); o.stop(t + dur + .02); }
+  const fx = {
+    shoot() { if (ok('shoot', .11)) blip(900 + Math.random() * 120, 420, .07, 'square', .025); },
+    hit() { if (ok('hit', .05)) hat(ctx.currentTime, .03, sfx); },
+    brk() { if (!ok('brk', .06)) return; const t = ctx.currentTime, s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = noise(); f.type = 'bandpass'; f.frequency.value = 500 + Math.random() * 600; f.Q.value = 1.2; g.gain.setValueAtTime(.09, t); g.gain.exponentialRampToValueAtTime(.001, t + .14); s.connect(f); f.connect(g); g.connect(sfx); s.start(t); s.stop(t + .16); },
+    ore() { if (!ok('ore', .08)) return; const t = ctx.currentTime; [0, .06].forEach((d, k) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = [1568, 2093][k]; g.gain.setValueAtTime(.06, t + d); g.gain.exponentialRampToValueAtTime(.001, t + d + .35); o.connect(g); g.connect(sfx); g.connect(verb); o.start(t + d); o.stop(t + d + .4); }); },
+    boom() { if (!ok('boom', .12)) return; blip(160, 40, .35, 'sine', .14); const t = ctx.currentTime, s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = noise(); f.type = 'lowpass'; f.frequency.value = 900; g.gain.setValueAtTime(.08, t); g.gain.exponentialRampToValueAtTime(.001, t + .4); s.connect(f); f.connect(g); g.connect(sfx); s.start(t); s.stop(t + .45); },
+    zap() { if (ok('zap', .2)) blip(2400, 300, .18, 'sawtooth', .03); },
+    up() { if (!ok('up', .05)) return; const t = ctx.currentTime; [0, .05, .1].forEach((d, k) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.value = hz([76, 79, 83][k]); g.gain.setValueAtTime(.07, t + d); g.gain.exponentialRampToValueAtTime(.001, t + d + .25); o.connect(g); g.connect(sfx); o.start(t + d); o.stop(t + d + .3); }); },
+    win() { if (!ok('win', .5)) return; const t = ctx.currentTime; [72, 76, 79, 84, 88].forEach((n, k) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.value = hz(n); g.gain.setValueAtTime(.08, t + k * .09); g.gain.exponentialRampToValueAtTime(.001, t + k * .09 + .6); o.connect(g); g.connect(sfx); g.connect(verb); o.start(t + k * .09); o.stop(t + k * .09 + .7); }); },
+    cast() { if (!ok('cast', .2)) return; blip(300, 1200, .35, 'sine', .07); },
+    warp() { if (!ok('warp', 1)) return; blip(80, 1600, 1.6, 'sawtooth', .05); blip(120, 2400, 1.8, 'sine', .06); },
+    click() { if (ok('click', .03)) blip(1400, 900, .04, 'square', .02); }
+  };
+  ['pointerdown', 'keydown', 'touchstart'].forEach(ev => window.addEventListener(ev, start, { passive: true }));
+  document.addEventListener('visibilitychange', () => { if (!ctx) return; if (document.hidden) ctx.suspend(); else if (started) ctx.resume(); });
+  return { fx, get vol() { return vol; }, set(k, v) { vol[k] = Math.max(0, Math.min(1, v)); try { localStorage.setItem('gb_vol', JSON.stringify(vol)); } catch (e) {} apply(); }, start };
+})();
+function openSettings() {
+  const v = SND.vol;
+  overlay(`<h2>Einstellungen</h2>
+    <div class="vrow"><span>🎵 Musik</span><input type="range" min="0" max="100" value="${Math.round(v.m * 100)}" id="vm"><b id="vmv">${Math.round(v.m * 100)}</b></div>
+    <div class="vrow"><span>💥 Effekte</span><input type="range" min="0" max="100" value="${Math.round(v.s * 100)}" id="vs"><b id="vsv">${Math.round(v.s * 100)}</b></div>
+    <p style="margin-top:8px">${logged() ? '☁ Dein Stand wird auf deinem Konto gespeichert.' : '💾 Ohne Konto wird nur auf diesem Gerät gespeichert.'} · v${VER}</p>`, [['Fertig', null]]);
+  const bind = (id, k) => { const el = $(id); el.oninput = () => { SND.set(k, el.value / 100); $(id + 'v').textContent = el.value; if (k === 's') SND.fx.up(); }; };
+  bind('vm', 'm'); bind('vs', 's');
 }
 
 // ================== Schleife ==================
