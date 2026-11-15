@@ -901,14 +901,14 @@ function render() {
     if (of.length && full) h += `<div class="wh" style="margin-top:12px"><p>🔒 Alle ${maxWeapons()} Waffenslots belegt.<br>Mehr Slots gibt's in der <b style="display:inline;font-size:12px;color:#c9a2ff">Warp-Werkstatt</b> (Warp-Fähigkeit „Waffenslots“).</p></div>`;
     if (of.length && !full) {
       h += `<div class="skh" style="margin-top:12px"><span>Nächste Waffe · ${fmt(nextUnl())} CR</span><b style="font-size:13px">Slots ${owned().length}/${maxWeapons()}</b></div><div class="offer">${of.map(id => { const w = WEAP.find(x => x.id === id); return `<button class="br" data-unl="${id}"><b>${w.n}</b><small>${w.d}</small><span>${fmt(nextUnl())} CR</span></button>`; }).join('')}</div>
-        <button class="br rr" id="reroll" ${rr.n && WEAP.length - owned().length > 2 ? '' : 'disabled'}>🎲 Neu würfeln (${rr.n}/${RR_MAX})${rr.n < RR_MAX ? ' · +' + RR_MAX + ' in ' + mmss(3600e3 - (Date.now() - rr.t)) : ''}</button>`;
+        <button class="br rr" id="reroll" ${!S.rrUsed && WEAP.length - owned().length > 2 ? '' : 'disabled'}>${S.rrUsed ? '🎲 Schon neu gewürfelt' : '🎲 Einmal neu würfeln'}</button>`;
     }
     h += `<div style="font-size:11px;color:var(--mut);text-align:center;padding:6px 4px 10px">Bei Stufe 10, 25, 50, 100 und danach alle 100 Stufen bekommt eine Waffe ein Upgrade: x2 Schaden und ein neuer Effekt.</div>`;
     L.innerHTML = h;
     L.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { buyN = b.dataset.n === 'max' ? 'max' : +b.dataset.n; render(); });
     L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; const s0 = ST(w.id); S.w[w.id] = WL(w.id) + n; SND.fx.up(); if (ST(w.id) > s0) upgradeFx(w); if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
-    L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c || owned().length >= maxWeapons()) return; S.cr -= c; S.w[w.id] = 1; S.wo = owned().concat(w.id); S.offer = null; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
-    if ($('reroll')) $('reroll').onclick = () => { const r = rrState(); if (!r.n) return; offers(); if (!S.offer) return; r.n--; const left = WEAP.filter(w => !WL(w.id) && !S.offer.includes(w.id)).map(w => w.id).sort(() => Math.random() - .5); const keep = left.length >= 2 ? [] : S.offer.slice(0, 2 - left.length); S.offer = left.slice(0, 2).concat(keep).slice(0, 2); save(true); render(); };
+    L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c || owned().length >= maxWeapons()) return; S.cr -= c; S.w[w.id] = 1; S.wo = owned().concat(w.id); S.offer = null; S.rrUsed = false; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
+    if ($('reroll')) $('reroll').onclick = () => { if (S.rrUsed) return; offers(); if (!S.offer) return; S.rrUsed = true; const left = WEAP.filter(w => !WL(w.id) && !S.offer.includes(w.id)).map(w => w.id).sort(() => Math.random() - .5); const keep = left.length >= 2 ? [] : S.offer.slice(0, 2 - left.length); S.offer = left.slice(0, 2).concat(keep).slice(0, 2); save(true); render(); };
   } else if (tab === 'a') renderAb(L);
   else if (tab === 'h') renderHangar(L);
   else if (tab === 'k') renderShop(L);
@@ -984,7 +984,7 @@ function warp() {
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)${S.p > 10 ? '<br><small>inkl. Universums-Bonus +' + (wmGain() - .02).toFixed(2) + '</small>' : ''}<br><br>Du behältst <b style="color:var(--txt)">${keepPct()} % deiner ◆</b> (◆${fmt(S.cry)} → ◆${fmt(Math.floor(S.cry * keepPct() / 100))}).<br>CR, Waffen, Planet und Skills werden zurückgesetzt. Fähigkeiten, Hangar und Warp-Werkstatt bleiben.</p>`,
     [['SPRINGEN', () => {
       S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
-      S.cry = Math.floor(S.cry * keepPct() / 100); S.sk = {}; S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
+      S.cry = Math.floor(S.cry * keepPct() / 100); S.sk = {}; S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
       toast(`Warp geschafft: ✦${n} · Multiplikator x${S.wm.toFixed(2)} · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
