@@ -235,6 +235,26 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .ov .key{display:block;width:100%;max-width:260px;aspect-ratio:1;object-fit:cover;margin:0 auto 10px;border:1.5px solid var(--cy2);box-shadow:0 0 24px rgba(92,232,240,.3)}
 .howto{list-style:none;text-align:left;font-size:12.5px;line-height:1.45;margin:8px 0 12px;display:grid;gap:6px}.howto li{background:#070b0d;border:1px solid #1b262b;padding:6px 8px}.howto b{color:var(--cy)}
 html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
+/* ===== PC / Desktop: Vollbild – großes Spielfeld links, Menü als Seitenleiste rechts ===== */
+@media (min-width:900px) and (min-height:540px){
+  #app{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) clamp(390px,30vw,500px);grid-template-rows:auto minmax(0,1fr);border:0}
+  .hud{grid-column:1;grid-row:1;padding:12px 18px 10px}
+  #cv{grid-column:1;grid-row:2;min-height:0!important;height:100%}
+  .panel{grid-column:2;grid-row:1/3;height:100%!important;max-height:none;border-left:1px solid #1b2328}
+  .panel::after{content:"";position:absolute;left:-1px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--cy) 30%,var(--pk) 70%,transparent);opacity:.45;pointer-events:none}
+  .nav{order:-1;border-top:0;border-bottom:1px solid #1b2328;padding:12px 10px 10px}
+  .nav button{height:58px}
+  .hot{order:0;border-top:0;border-bottom:1px solid #1b2328;padding:10px}
+  .list{padding:12px 12px 16px;scrollbar-width:thin}
+  .cr{font-size:34px}.mul{font-size:16px}
+  .toast{left:calc((100% - clamp(390px,30vw,500px)) / 2);top:120px}
+  .hsheet{left:auto;width:clamp(390px,30vw,500px)}
+  .ov .bx{max-width:460px}
+  .keys{display:block!important}
+}
+@media (min-width:1400px){ .sk{grid-template-columns:repeat(4,minmax(0,1fr))!important} .inv2{grid-template-columns:repeat(4,minmax(0,1fr))} }
+.keys{display:none;position:absolute;left:14px;bottom:12px;z-index:3;font-size:11px;color:#6f8287;pointer-events:none;letter-spacing:.3px}
+.keys b{display:inline-block;min-width:18px;padding:1px 5px;margin-right:3px;border:1px solid #2a363b;background:#070b0d;color:#bfe;text-align:center;font-weight:400}
 /* Kleine Handys (z. B. iPhone SE): Spielfeld etwas kleiner, unten mehr Platz zum Bedienen */
 @media (max-height:760px){
   .panel{height:calc(100% - 300px);max-height:none}
@@ -258,6 +278,7 @@ html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
   </div>
   <canvas id="cv"></canvas>
   <div class="toast" id="toast"></div>
+  <div class="keys" aria-hidden="true"><b>1</b>–<b>5</b> Fähigkeiten · <b>B</b> Boost · <b>Q W E R T</b> Menü</div>
   <div class="panel">
     <div class="hot" id="hot"></div>
     <div class="list" id="list"></div>
@@ -435,6 +456,7 @@ function buildPlanet(removed) {
   const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0, pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : PAL[(p - 1) % PAL.length];
   // Großer Planet: man sieht nur einen Ausschnitt, die Kamera folgt dem Schiff, die Minimap zeigt alles
   CELL = Math.max(14, 2 * Math.round(Math.min(W, 520) / 52)); // gerade Zahl: keine Nähte zwischen den Blöcken
+  if (innerWidth >= 900 && H >= 420) CELL = Math.max(12, Math.min(18, 2 * Math.round(H / 140))); // PC: Planet passt fast ganz ins Bild
   const Rc = boss ? 27 : 16 + rnd() * 10 + Math.min(4, p * .15);
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
   const ox = 0, oy = 0, hp0 = 12 * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (boss ? 3 : 1), v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
@@ -1279,6 +1301,16 @@ function loop(now) {
     if (errN % 300 === 299 && G) { try { tDirty = true; fx.length = 0; parts.length = 0; } catch (e3) {} }
   }
 }
+// Tastatur am PC: 1-5 Fähigkeiten, B Boost, Q/W/E/R/T Menü-Reiter, Esc schließt Teile-Fenster
+addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || /input|textarea|select/i.test((e.target && e.target.tagName) || '')) return;
+  const k = e.key.toLowerCase();
+  if (k === 'escape') { const sh = document.querySelector('.hsheet'); if (sh) { sh.querySelector('.hsx').click(); return; } return; }
+  if (!$('ov').classList.contains('hide')) return;
+  if (/^[1-5]$/.test(k)) { const b = $('hot').querySelectorAll('.hs')[+k - 1]; if (b && !b.disabled) b.click(); return; }
+  if (k === 'b') { const b = $('boost'); if (b && !b.disabled) b.click(); return; }
+  const t = { q: 'w', w: 's', e: 'a', r: 'h', t: 'p' }[k]; if (t) goTab(t);
+});
 window.addEventListener('resize', () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 200); });
 setInterval(() => save(), 5000);
 setInterval(() => save(true), 20000);
