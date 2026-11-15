@@ -95,6 +95,17 @@ if ($a === 'img') {
 
 $h = fopen($file, 'c+'); if (!$h) fail('io', 500);
 
+// Einmaliger Neustart (Epoche 2): Bestenlisten, Erfolge, Statistiken und Rahmen auf 0. Vorher wird eine Sicherung angelegt.
+const EP = 2;
+flock($h, LOCK_EX); $d0 = load($h);
+if (($d0['ep'] ?? 1) < EP && filesize($file) > 0) {
+  @copy($file, "$dir/backup-ep" . ($d0['ep'] ?? 1) . '-' . date('Ymd-His') . '.json');
+  foreach ($d0['users'] as &$u0) { $u0['best'] = []; $u0['ach'] = []; $u0['stats'] = []; $u0['rh'] = ''; unset($u0['gs']['drill']); }
+  unset($u0); $d0['ep'] = EP;
+  ftruncate($h, 0); rewind($h); fwrite($h, json_encode($d0, JSON_UNESCAPED_UNICODE)); fflush($h);
+}
+flock($h, LOCK_UN); unset($d0);
+
 if ($a === 'user') {
   flock($h, LOCK_SH); $d = load($h); flock($h, LOCK_UN); fclose($h);
   $id = (string) ($_GET['u'] ?? '');
@@ -318,6 +329,9 @@ if ($a === 'save') {
     if (mb_strlen((string) $in['pass']) < 4) $stop('pass');
     $U['ph'] = password_hash((string) $in['pass'], PASSWORD_DEFAULT);
   }
+  // Alte Seiten (vor dem Neustart) dürfen keine alten Bestwerte/Erfolge zurückschreiben
+  $epOk = (int) ($in['ep'] ?? 0) >= EP;
+  if (!$epOk) { unset($in['best'], $in['ach'], $in['stats']); }
   // Bestwerte: nur bessere übernehmen
   foreach (($in['best'] ?? []) as $g => $b) {
     if (!isset($GAMES[$g]) || !is_array($b)) continue;

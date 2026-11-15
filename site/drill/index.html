@@ -136,6 +136,29 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .eqrow span{display:block;color:var(--cy);font-size:12px;margin-bottom:6px}
 .eqrow .ib{width:56px;height:56px;margin:0 auto;border:1.5px solid;display:flex;align-items:center;justify-content:center}
 .eqrow small{display:block;font-size:10px;color:#cfd8da;margin-top:5px;line-height:1.3}
+.hslots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:8px}
+.hslots button{display:flex;align-items:center;gap:6px;padding:6px;background:#070b0d;border:1.5px solid #1e2a2f;color:var(--txt);cursor:pointer;text-align:left;min-width:0}
+.hslots button.on{border-color:var(--cy);background:#0a1a1d;box-shadow:0 0 10px rgba(92,232,240,.25)}
+.hslots .hi{flex:none;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--rc);background:#05080a}
+.hslots .ht{min-width:0}.hslots b{display:block;font:400 10px Silkscreen,var(--mono);color:var(--cy)}.hslots button:not(.on) b{color:#9fb3b8}
+.hslots small{display:block;font-size:9.5px;line-height:1.25;color:#cfd8da;margin-top:2px}
+.hab2{font-size:11px;color:#ffe94d;margin:-2px 0 8px;padding:5px 8px;border-left:3px solid #ffe94d;background:#14130a}
+.inv2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.inv2 button{position:relative;height:86px;background:#0b0e10;border:1.5px solid color-mix(in srgb,var(--rc) 55%,#1e2a2f);color:var(--txt);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px 6px;overflow:hidden}
+.inv2 .rb{position:absolute;inset:0 0 auto 0;height:3px;background:var(--rc)}
+.inv2 b{font:700 10px var(--mono);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--rc)}
+.inv2 small{font-size:10px;color:#9fb3b8}.inv2 small em{font-style:normal;color:#ffe94d}
+.inv2 button.on{background:#0c1a12;border-color:var(--li)}
+.inv2 .eqb{position:absolute;right:4px;top:5px;width:16px;height:16px;background:var(--li);color:#041204;font:700 11px/16px var(--mono);text-align:center}
+.inv2 button.no{opacity:.4;border-style:dashed;cursor:default}.inv2 .qq{font:400 22px Silkscreen,var(--mono);color:#5c6b70}
+.hsheet{position:absolute;inset:0;z-index:7;display:flex;flex-direction:column;justify-content:flex-end}
+.hsbg{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+.hsp{position:relative;max-height:78%;overflow-y:auto;background:#080c0e;border-top:2px solid var(--rc);padding:14px 12px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -10px 30px color-mix(in srgb,var(--rc) 20%,transparent);animation:hsUp .18s ease-out}
+@keyframes hsUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.hsx{position:absolute;right:10px;top:10px;width:30px;height:30px;background:#0f171a;border:1px solid #2a363b;color:var(--txt);font-size:14px;cursor:pointer}
+.ist2{display:grid;gap:6px;margin:4px 0 10px}.ist2>div{background:#0d1316;border:1px solid #1e2a2f;padding:7px 9px}
+.ist2 small{display:block;font-size:10px;color:#8fa3a8}.ist2 b{display:block;font:400 15px Silkscreen,var(--mono);color:var(--txt)}.ist2 em{font-style:normal;font-size:10.5px;color:var(--li)}
+.ist2 .hab b{font:700 12px var(--mono);color:#ffe94d}
 .inv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:2px 0 4px}
 .inv button{position:relative;aspect-ratio:1;background:#0b0e10;border:1.5px solid var(--rc);color:var(--txt);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:700 10px var(--mono)}
 .inv button.on{background:#141018;box-shadow:inset 0 0 10px color-mix(in srgb,var(--rc) 40%,transparent)}
@@ -233,7 +256,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261115e"></script>
+<script src="../bb.js?v=20261115f"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -311,7 +334,7 @@ const $ = id => document.getElementById(id);
 // ================== Speicherstand ==================
 let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
-const VER = 10; // interne Stand-Nummer (höher = einmaliger Reset)
+const VER = 11; // interne Stand-Nummer (höher = einmaliger Reset)
 const VLABEL = '0.6'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
 const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
 const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: Object.assign({ h_pfeil: 1, r_basis: 1, t_basis: 1 }, (o && o.inv) || {}), eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
@@ -791,6 +814,7 @@ function ui() {
 }
 const mmss = ms => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 function render() {
+  if (tab !== 'h') document.querySelectorAll('.hsheet').forEach(x => x.remove());
   const L = $('list');
   if (tab === 'w') {
     let h = `<div class="mode">${[1, 10, 'max'].map(n => `<button data-n="${n}" class="${buyN === n ? 'on' : ''}">${n === 'max' ? 'Max' : 'x' + n}</button>`).join('')}</div>`;
@@ -1102,32 +1126,40 @@ function meltList(target) {
   return out;
 }
 function renderHangar(L) {
+  document.querySelectorAll('.hsheet').forEach(x => x.remove());
   const sel = hSel && S.inv[hSel] ? IT(hSel) : null;
-  let det = '';
-  if (sel) { const lv = S.inv[sel.id], xp = (S.xp || {})[sel.id] || 0, need = xpNeed(lv), on = S.eq[sel.s] === sel.id, ml = meltList(sel.id), spareXp = ml.filter(m => m.spare).reduce((a, m) => a + XPV[m.it.r] * m.n, 0);
-    det = `<div class="idet" style="--rc:${RAR[sel.r].c}"><div class="ihd"><div class="ib">${itemSvg(sel, 46)}</div><div><b>${sel.n}</b><small>[${RAR[sel.r].n}] · ${SLOT[sel.s].n} · Lvl. ${lv}/${ITEM_MAX}</small></div></div>
-      <div class="xpb"><i style="width:${lv >= ITEM_MAX ? 100 : Math.min(100, xp / need * 100)}%"></i><span>${lv >= ITEM_MAX ? 'MAX' : xp + ' / ' + need + ' XP'}</span></div>
-      <ul class="ist"><li>+${Math.round(itemVal(sel, lv) * 100)} % ${SLOT[sel.s].st} <em>→ +${Math.round(itemVal(sel, Math.min(ITEM_MAX, lv + 1)) * 100)} %</em></li>${HULLAB[sel.id] ? `<li class="hab">★ ${HULLAB[sel.id].d} <em>(x${(1 + .1 * (lv - 1)).toFixed(1)})</em></li>` : ''}</ul>
-      <div class="row2"><button class="br" id="ieq" ${on ? 'disabled' : ''}>${on ? 'Ausgerüstet' : 'Ausrüsten'}</button><button class="br" id="imeltall" ${spareXp && lv < ITEM_MAX ? '' : 'disabled'}>Ersatzteile rein · +${spareXp} XP</button></div>
-      <div class="mlt">${ml.length ? ml.map(m => `<button data-melt="${m.it.id}" data-sp="${m.spare}" style="--rc:${RAR[m.it.r].c}" ${lv >= ITEM_MAX ? 'disabled' : ''}>${itemSvg(m.it, 24)}<small>${m.spare ? 'x' + m.n : 'Teil'}</small><em>+${XPV[m.it.r]}</em></button>`).join('') : '<span class="hint">Nichts zum Einschmelzen. Doppelte Teile aus Kisten landen hier.</span>'}</div>
-      <div class="hint">Tipp ein Teil an, um es einzuschmelzen. Gewöhnlich +${XPV.g} · Selten +${XPV.s} · Episch +${XPV.e} · Legendär +${XPV.l} XP</div></div>`; }
-  L.innerHTML = `<div class="eqrow">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<div><span>${SLOT[s].n}</span><div class="ib" style="border-color:${RAR[it.r].c}">${itemSvg(it, 40)}</div><small>Lvl. ${S.inv[it.id] || 1} · +${Math.round(itemVal(it, S.inv[it.id]) * 100)} % ${SLOT[s].st}</small></div>`; }).join('')}</div>
-    ${HULLAB[eqItem('h').id] ? `<div class="hint" style="color:var(--li);padding-top:0">Rumpf-Fähigkeit: ${HULLAB[eqItem('h').id].d}</div>` : ''}
-    ${det}
-    <div class="mode">${['h', 'r', 't'].map(s => `<button data-hs="${s}" class="${hTab === s ? 'on' : ''}">${SLOT[s].n}</button>`).join('')}</div>
-    <div class="inv">${ITEMS.filter(x => x.s === hTab).map(it => { const l = S.inv[it.id], on = S.eq[it.s] === it.id, d = (S.dup || {})[it.id];
-      return `<button data-it="${it.id}" ${l ? '' : 'disabled'} style="--rc:${RAR[it.r].c}" class="${on ? 'on' : ''} ${l ? '' : 'no'} ${hSel === it.id ? 'sel' : ''}">${l ? itemSvg(it, 34) : '?'}<small>${l ? 'Lvl. ' + l : RAR[it.r].n}</small>${on ? '<em>AUSG</em>' : ''}${d ? `<i class="dupb">x${d}</i>` : ''}</button>`; }).join('')}</div>
-    <div class="hint">Tipp auf ein Teil: Werte ansehen, ausrüsten und mit anderen Teilen aufleveln (max. Lvl. ${ITEM_MAX}).</div>
-    <button class="br" id="best" style="width:100%;margin:2px 0 12px">Beste ausrüsten</button>
-    <button class="br unl" data-shop="1" style="margin-top:4px">🛒 ZUM SHOP · KISTEN</button>`;
-  L.querySelectorAll('[data-hs]').forEach(b => b.onclick = () => { hTab = b.dataset.hs; render(); });
-  L.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { hSel = hSel === b.dataset.it ? null : b.dataset.it; render(); });
-  if ($('ieq')) $('ieq').onclick = () => { S.eq[sel.s] = sel.id; save('now'); render(); toast(`${sel.n} ausgerüstet`); };
-  const melt = (id, spare) => { const m = IT(id); if (spare) { if (!S.dup[id]) return; S.dup[id]--; if (!S.dup[id]) delete S.dup[id]; } else { if (S.eq[m.s] === id || id === sel.id) return; const d = S.dup[id] || 0; if (d) { S.dup[id]--; if (!S.dup[id]) delete S.dup[id]; } else { delete S.inv[id]; if (S.xp) delete S.xp[id]; } } const up = addXp(sel.id, XPV[m.r]); if (up) toast(`${sel.n} ist jetzt Lvl. ${S.inv[sel.id]}!`); };
-  L.querySelectorAll('[data-melt]').forEach(b => b.onclick = () => { melt(b.dataset.melt, b.dataset.sp === '1'); save('now'); render(); });
-  if ($('imeltall')) $('imeltall').onclick = () => { for (const m of meltList(sel.id).filter(x => x.spare)) for (let k = 0; k < m.n && (S.inv[sel.id] || 1) < ITEM_MAX; k++) melt(m.it.id, 1); save('now'); render(); };
+  const pct = it => Math.round(itemVal(it, S.inv[it.id] || 1) * 100);
+  const own = ITEMS.filter(x => x.s === hTab && S.inv[x.id]).length, all = ITEMS.filter(x => x.s === hTab).length;
+  // Oben: die 3 Slots sind gleichzeitig die Reiter
+  L.innerHTML = `<div class="hslots">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-hs="${s}" class="${hTab === s ? 'on' : ''}" style="--rc:${RAR[it.r].c}"><span class="hi">${itemSvg(it, 30)}</span><span class="ht"><b>${SLOT[s].n}</b><small>Lvl. ${S.inv[it.id] || 1} · +${pct(it)} % ${SLOT[s].st}</small></span></button>`; }).join('')}</div>
+    ${hTab === 'h' && HULLAB[eqItem('h').id] ? `<div class="hab2">★ Rumpf-Fähigkeit: ${HULLAB[eqItem('h').id].d}</div>` : ''}
+    <div class="skh"><span>${SLOT[hTab].n} · ${own}/${all} gefunden</span><b style="font-size:11px">tippen = Details</b></div>
+    <div class="inv2">${ITEMS.filter(x => x.s === hTab).map(it => { const l = S.inv[it.id], on = S.eq[it.s] === it.id, d = (S.dup || {})[it.id];
+      return l ? `<button data-it="${it.id}" style="--rc:${RAR[it.r].c}" class="${on ? 'on' : ''}"><i class="rb"></i>${itemSvg(it, 30)}<b>${it.n}</b><small>Lvl. ${l}${d ? ` · <em>+${d}</em>` : ''}</small>${on ? '<span class="eqb">✓</span>' : ''}</button>`
+        : `<button disabled class="no" style="--rc:${RAR[it.r].c}"><i class="rb"></i><span class="qq">?</span><small>${RAR[it.r].n}</small></button>`; }).join('')}</div>
+    <div class="row2" style="margin:10px 0 12px"><button class="br" id="best">Beste ausrüsten</button><button class="br" data-shop="1">🛒 Kisten-Shop</button></div>`;
+  L.querySelectorAll('[data-hs]').forEach(b => b.onclick = () => { hTab = b.dataset.hs; hSel = null; render(); });
+  L.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { hSel = b.dataset.it; render(); });
   $('best').onclick = bestEquip;
   L.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => goTab('k'));
+  if (!sel) return;
+  // Details als Fenster von unten
+  const lv = S.inv[sel.id], xp = (S.xp || {})[sel.id] || 0, need = xpNeed(lv), on = S.eq[sel.s] === sel.id, ml = meltList(sel.id), spareXp = ml.filter(m => m.spare).reduce((a, m) => a + XPV[m.it.r] * m.n, 0), mx = lv >= ITEM_MAX;
+  const sh = document.createElement('div'); sh.className = 'hsheet';
+  sh.innerHTML = `<div class="hsbg"></div><div class="hsp" style="--rc:${RAR[sel.r].c}"><button class="hsx" aria-label="Schließen">✕</button>
+    <div class="ihd"><div class="ib">${itemSvg(sel, 46)}</div><div><b>${sel.n}</b><small>${RAR[sel.r].n} · ${SLOT[sel.s].n}${on ? ' · <span style="color:var(--li)">ausgerüstet</span>' : ''}</small></div></div>
+    <div class="xpb"><i style="width:${mx ? 100 : Math.min(100, xp / need * 100)}%"></i><span>${mx ? 'MAX · LVL. ' + ITEM_MAX : 'LVL. ' + lv + ' · ' + xp + ' / ' + need + ' XP'}</span></div>
+    <div class="ist2"><div><small>${SLOT[sel.s].st}</small><b>+${Math.round(itemVal(sel, lv) * 100)} %</b>${mx ? '' : `<em>nächste Stufe +${Math.round(itemVal(sel, lv + 1) * 100)} %</em>`}</div>${HULLAB[sel.id] ? `<div class="hab"><small>Rumpf-Fähigkeit</small><b>★ ${HULLAB[sel.id].d}</b><em>x${(1 + .1 * (lv - 1)).toFixed(1)} durch Level</em></div>` : ''}</div>
+    <div class="row2"><button class="br" id="ieq" ${on ? 'disabled' : ''}>${on ? 'Ausgerüstet ✓' : 'Ausrüsten'}</button><button class="br" id="imeltall" ${spareXp && !mx ? '' : 'disabled'}>Doppelte rein · +${spareXp} XP</button></div>
+    <div class="skh" style="margin-top:10px"><span>Einschmelzen = XP</span><b style="font-size:10px">G +${XPV.g} · S +${XPV.s} · E +${XPV.e} · L +${XPV.l}</b></div>
+    <div class="mlt">${ml.length ? ml.map(m => `<button data-melt="${m.it.id}" data-sp="${m.spare}" style="--rc:${RAR[m.it.r].c}" ${mx ? 'disabled' : ''}>${itemSvg(m.it, 24)}<small>${m.spare ? 'x' + m.n : 'Teil'}</small><em>+${XPV[m.it.r]}</em></button>`).join('') : '<span class="hint">Nichts zum Einschmelzen. Doppelte Teile aus Kisten landen hier.</span>'}</div></div>`;
+  $('app').appendChild(sh);
+  const close = () => { hSel = null; sh.remove(); };
+  sh.querySelector('.hsbg').onclick = close; sh.querySelector('.hsx').onclick = close;
+  $('ieq').onclick = () => { S.eq[sel.s] = sel.id; save('now'); render(); toast(`${sel.n} ausgerüstet`); };
+  const melt = (id, spare) => { const m = IT(id); if (spare) { if (!S.dup[id]) return; S.dup[id]--; if (!S.dup[id]) delete S.dup[id]; } else { if (S.eq[m.s] === id || id === sel.id) return; const d = S.dup[id] || 0; if (d) { S.dup[id]--; if (!S.dup[id]) delete S.dup[id]; } else { delete S.inv[id]; if (S.xp) delete S.xp[id]; } } const up = addXp(sel.id, XPV[m.r]); SND.fx.up(); if (up) toast(`${sel.n} ist jetzt Lvl. ${S.inv[sel.id]}!`); };
+  sh.querySelectorAll('[data-melt]').forEach(b => b.onclick = () => { melt(b.dataset.melt, b.dataset.sp === '1'); save('now'); render(); });
+  $('imeltall').onclick = () => { for (const m of meltList(sel.id).filter(x => x.spare)) for (let k = 0; k < m.n && (S.inv[sel.id] || 1) < ITEM_MAX; k++) melt(m.it.id, 1); save('now'); render(); };
 }
 
 // ================== Sound: ruhiger Idle-Soundtrack + Effekte (alles live erzeugt, keine Dateien) ==================

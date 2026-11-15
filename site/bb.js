@@ -74,11 +74,14 @@
   // ---------- Speicher ----------
   // P: Konto (id, token) + Profil-Cache + Fortschritt. Ohne Konto wird der Fortschritt lokal gesammelt und beim Anmelden übernommen.
   const KEY = 'bb_acc';
-  const fresh = () => ({ id: null, token: null, user: '', name: '', av: 'artur', img: 0, rh: '', best: {}, ach: {}, stats: {}, fr: [], req: [], sent: [], dirty: false });
+  const fresh = () => ({ id: null, token: null, user: '', name: '', av: 'artur', img: 0, rh: '', best: {}, ach: {}, stats: {}, fr: [], req: [], sent: [], dirty: false, ep: 2 });
   let P;
   try { P = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { P = null; }
   if (!P || typeof P !== 'object') P = fresh();
   P = Object.assign(fresh(), P);
+  // Einmaliger Neustart: Bestwerte, Erfolge und Rahmen auf 0 (passt zur Epoche im Server)
+  const EP = 2;
+  if ((P.ep || 1) < EP) { P.best = {}; P.ach = {}; P.stats = {}; P.rh = ''; P.ep = EP; P.dirty = false; try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} };
   const logged = () => !!(P.id && P.token);
   // Profilrahmen: werden über Erfolge freigeschaltet (Zahl = so viele Erfolge insgesamt)
@@ -100,7 +103,7 @@
 
   // ---------- Server ----------
   async function post(a, body) {
-    const r = await fetch(API + '?a=' + a, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign(logged() ? { id: P.id, token: P.token } : {}, body || {})) });
+    const r = await fetch(API + '?a=' + a, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign(logged() ? { id: P.id, token: P.token } : {}, { ep: EP }, body || {})) });
     let j = {}; try { j = await r.json(); } catch (e) { throw new Error('net'); }
     if (j.e === 'auth') { logoutLocal(); }
     if (!r.ok || j.e) throw new Error(j.e || 'net');
