@@ -353,12 +353,14 @@ const WARP = [
   { id: 'kraft', n: 'Dunkle Kraft', d: () => '+50 % Schaden und CR', max: 20, cost: l => Math.round(2 * Math.pow(1.55, l)), ico: '<path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/><circle cx="12" cy="12" r="2"/>' },
   { id: 'slot', n: 'Waffenslots', d: () => '+1 Platz für eine Waffe', max: 8, cost: l => Math.round(25 * Math.pow(4, l)), ico: '<rect x="3" y="6" width="7" height="12"/><rect x="14" y="6" width="7" height="12"/><path d="M17.5 10v4M15.5 12h4"/>' },
   { id: 'start', n: 'Startkapital', d: l => 'Start mit ' + fmt(startCr(l + 1)) + ' CR', max: 10, cost: l => Math.round(3 * Math.pow(2.2, l)), ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
-  { id: 'kris', n: 'Kristallregen', d: () => '+1 ◆ pro Planet', max: 5, cost: l => Math.round(4 * Math.pow(2.4, l)), ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/>' },
+  { id: 'keep', n: 'Kristallspeicher', d: l => 'Warp behält ' + keepPct(l) + ' % → ' + keepPct(l + 1) + ' % ◆', max: 6, cost: l => Math.round(4 * Math.pow(2.3, l)), ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M8 12h8M12 8v8"/>' },
+  { id: 'kris', n: 'Kristallregen', d: () => '+2 ◆ pro Planet', max: 5, cost: l => Math.round(4 * Math.pow(2.4, l)), ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/>' },
   { id: 'boost', n: 'Nachbrenner', d: () => 'Boost +2 min', max: 5, cost: l => Math.round(4 * Math.pow(2.2, l)), ico: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' },
   { id: 'skip', n: 'Hyperraum', d: () => 'Start +2 Planeten', max: 3, cost: l => Math.round(30 * Math.pow(4, l)), ico: '<path d="M4 12h12M12 6l6 6-6 6M4 6v12"/>' },
   { id: 'comet', n: 'Kometenjäger', d: () => 'Kometen öfter, +50 %', max: 3, cost: l => Math.round(6 * Math.pow(2.5, l)), ico: '<circle cx="16" cy="8" r="3"/><path d="M13 11L4 20M11 7L5 13M17 13l-6 6"/>' },
   { id: 'auto', n: 'Autopilot', d: () => 'Zündet Fähigkeiten selbst', max: 1, cost: () => 60, ico: '<rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/>' },
 ];
+const keepPct = l => 20 + 10 * (l == null ? WP('keep') : l);
 const startCr = l => l ? 300 * Math.pow(8, l - 1) : 0;
 const wpOpen = id => id === 'kraft' || (S.wpu || []).includes(id);
 const wpUnlCost = () => Math.round(5 * Math.pow(3, (S.wpu || []).filter(x => x !== 'kraft').length));
@@ -882,7 +884,7 @@ function render() {
   else if (tab === 'p') {
     const g0 = dmGain();
     L.innerHTML = `<div class="wh wbox"><div class="wrow"><div><small>Warp bringt</small><b id="wgain">✦${g0}</b></div><div><small>Multiplikator</small><b class="wm">x${(S.wm || 1).toFixed(2)} → <span id="wmto">x${((S.wm || 1) + wmGain()).toFixed(2)}</span></b></div></div>
-      <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR und Waffen sind weg. Skills, ◆, Fähigkeiten, Hangar und Werkstatt bleiben. ✦: ab Planet 3 einer, jeder Planet +1, ab Universum 2 sogar +2 pro Planet. Multiplikator: pro Warp +0.02, ab Planet 11 +0.02 extra pro geschafftem Universum. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'}.</p>
+      <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR, Waffen und Skills sind weg, von deinen ◆ behältst du ${keepPct()} % (mehr mit „Kristallspeicher“). Fähigkeiten, Hangar und Werkstatt bleiben. ✦: ab Planet 3 einer, jeder Planet +1, ab Universum 2 sogar +2 pro Planet. Multiplikator: pro Warp +0.02, ab Planet 11 +0.02 extra pro geschafftem Universum. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'}.</p>
       <button class="br" id="wgo" ${g0 ? '' : 'disabled'}>${g0 ? 'WARP-SPRUNG' : 'Ab Planet 3 (noch ' + Math.max(0, 3 - S.p) + ')'}</button></div>
       <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${S.dm || 0}</b></div>
       <div class="sk wp6">${WARP.map(w => { const l = WP(w.id), mx = l >= w.max;
@@ -896,7 +898,7 @@ function render() {
     $('svnow').onclick = () => { if (!logged()) return BB.open && BB.open('login'); save('now'); toast('Gespeichert ☁'); };
     L.querySelectorAll('[data-wp]').forEach(b => b.onclick = () => { const w = WARP.find(x => x.id === b.dataset.wp), l = WP(w.id); if (!wpOpen(w.id) || l >= w.max || S.dm < w.cost(l)) return; S.dm -= w.cost(l); S.wp[w.id] = l + 1; save('now'); render(); });
   } else {
-    L.innerHTML = `<div class="skh"><span>Skills · mit ◆ Kristallen leveln</span><b>◆ ${S.cry}</b></div><div class="sk">${SKILLS.map(s => { const l = SK(s.id), mx = l >= s.max;
+    L.innerHTML = `<div class="skh"><span>Skills · mit ◆ leveln · gelten bis zum nächsten Warp</span><b>◆ ${S.cry}</b></div><div class="sk">${SKILLS.map(s => { const l = SK(s.id), mx = l >= s.max;
       return `<button data-sk="${s.id}" class="${mx ? 'max' : ''}" ${mx || S.cry < skCost(s.id) ? 'disabled' : ''}><span class="q"></span><span class="c">${l}/${s.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg>${s.n}<small>${s.id === 'off' ? (mx ? 'Max · ' + offH(l) + ' h offline' : 'Offline ' + offH(l) + ' h → ' + offH(l + 1) + ' h · ◆' + skCost(s.id)) : mx ? 'Max' : s.d + ' · ◆' + skCost(s.id)}</small></button>`; }).join('')}</div>`;
     L.querySelectorAll('[data-sk]').forEach(b => b.onclick = () => { const id = b.dataset.sk, s = SKILLS.find(x => x.id === id); if (SK(id) >= s.max || S.cry < skCost(id)) return; S.cry -= skCost(id); S.sk[id] = SK(id) + 1; save(true); render(); ui(); });
   }
@@ -936,7 +938,7 @@ function travelStep(dt) {
 const warpBonus = n => 5 + Math.ceil(n * .5);
 function planetDone() {
   SND.fx.win();
-  const gain = (2 + S.p + WP('kris')) * (G.boss ? 3 : 1), old = G.name;
+  const gain = (4 + S.p + 2 * WP('kris')) * (G.boss ? 3 : 1), old = G.name;
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
   let bgN = 0;
   if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); bgN = (BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut', true)) || 0; if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
@@ -948,10 +950,10 @@ function planetDone() {
 
 function warp() {
   const n = dmGain(); if (!n) return;
-  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)${S.p > 10 ? '<br><small>inkl. Universums-Bonus +' + (wmGain() - .02).toFixed(2) + '</small>' : ''}<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
+  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)${S.p > 10 ? '<br><small>inkl. Universums-Bonus +' + (wmGain() - .02).toFixed(2) + '</small>' : ''}<br><br>Du behältst <b style="color:var(--txt)">${keepPct()} % deiner ◆</b> (◆${fmt(S.cry)} → ◆${fmt(Math.floor(S.cry * keepPct() / 100))}).<br>CR, Waffen, Planet und Skills werden zurückgesetzt. Fähigkeiten, Hangar und Warp-Werkstatt bleiben.</p>`,
     [['SPRINGEN', () => {
       S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
-      S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
+      S.cry = Math.floor(S.cry * keepPct() / 100); S.sk = {}; S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
       toast(`Warp geschafft: ✦${n} · Multiplikator x${S.wm.toFixed(2)} · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
@@ -1055,7 +1057,7 @@ const ITEMS = [
 ];
 const IT = id => ITEMS.find(x => x.id === id);
 const eqItem = s => IT(S.eq[s]) || ITEMS.find(x => x.s === s);
-const ITEM_MAX = 20;
+const ITEM_MAX = 25; // max. Hangar-Level
 const itemVal = (it, lv) => RAR[it.r].b * (1 + .35 * ((lv || 1) - 1));
 // Jeder Raketen-Rumpf hat eine eigene Grundfähigkeit, die mit der Stufe wächst
 const HULLAB = {
@@ -1068,18 +1070,27 @@ const HULLAB = {
   h_koenig: { d: 'Fähigkeiten laden 15 % schneller', cd: .15 },
   h_drache: { d: '+35 % Schaden aller Waffen', dmg: .35 }
 };
-const hullK = () => { const it = eqItem('h'); return 1 + .1 * ((S.inv[it.id] || 1) - 1); };
+const hullK = () => 1 + .1 * (HL() - 1);
 const HA = k => { const a = HULLAB[eqItem('h').id] || {}; return (a[k] || 0) * hullK(); };
 const HAw = id => { const a = HULLAB[eqItem('h').id] || {}; return ((a.w && a.w[id]) || 0) * hullK(); };
-const XPV = { g: 10, s: 35, e: 120, l: 450 };
-const xpNeed = lv => Math.round(20 * Math.pow(lv, 1.6));
-function addXp(id, xp) { S.xp = S.xp || {}; S.xp[id] = (S.xp[id] || 0) + xp; let up = 0; while ((S.inv[id] || 1) < ITEM_MAX && S.xp[id] >= xpNeed(S.inv[id] || 1)) { S.xp[id] -= xpNeed(S.inv[id] || 1); S.inv[id] = (S.inv[id] || 1) + 1; up++; } if (S.inv[id] >= ITEM_MAX) S.xp[id] = 0; return up; }
-const itemBonus = s => { const it = eqItem(s); return 1 + itemVal(it, S.inv[it.id] || 1); };
-const itemLv = s => { const it = eqItem(s); return ({ g: 0, s: 1, e: 2, l: 4 })[it.r] + ((S.inv[it.id] || 1) - 1) * .3; };
+// Hangar-Level: ein Level für den ganzen Hangar. Jedes eingeschmolzene Teil gibt feste XP, jedes Level braucht eine feste Menge.
+const XPV = { g: 10, s: 30, e: 90, l: 300 };
+const xpNeed = lv => 40 + 30 * (lv - 1);
+function HL() {
+  if (S.hl == null) { // alter Stand: Item-Level in Hangar-XP umrechnen
+    const oldNeed = lv => Math.round(20 * Math.pow(lv, 1.6)); let tot = 0;
+    for (const id in S.inv) { for (let k = 1; k < (S.inv[id] || 1); k++) tot += oldNeed(k); tot += (S.xp && S.xp[id]) || 0; S.inv[id] = 1; }
+    S.hl = 1; S.hx = 0; delete S.xp; addHx(tot);
+  }
+  return S.hl;
+}
+function addHx(xp) { HL(); S.hx = (S.hx || 0) + xp; let up = 0; while (S.hl < ITEM_MAX && S.hx >= xpNeed(S.hl)) { S.hx -= xpNeed(S.hl); S.hl++; up++; } if (S.hl >= ITEM_MAX) S.hx = 0; return up; }
+const itemBonus = s => { const it = eqItem(s); return 1 + itemVal(it, HL()); };
+const itemLv = s => { const it = eqItem(s); return ({ g: 0, s: 1, e: 2, l: 4 })[it.r] + (HL() - 1) * .3; };
 const CRATES = [
-  { id: 'k1', n: 'Raketen-Kiste', cost: 10, w: { g: 60, s: 28, e: 10, l: 2 }, c: '#5ce8f0', d: 'Ein Schiffsteil für den Hangar' },
+  { id: 'k1', n: 'Raketen-Kiste', cost: 10, w: { g: 45, s: 35, e: 15, l: 5 }, c: '#5ce8f0', d: 'Ein Schiffsteil für den Hangar' },
   { id: 'k2', n: 'Fähigkeiten-Kiste', cost: 10, ab: 1, c: '#c9a2ff', d: 'Neue Fähigkeit oder +1 Stufe' },
-  { id: 'k3', n: 'Ultimative Kiste', cost: 30, w: { g: 0, s: 45, e: 40, l: 15 }, ab: 1, c: '#ffe94d', d: 'Schiffsteil (mind. selten) + Fähigkeit' }
+  { id: 'k3', n: 'Ultimative Kiste', cost: 30, w: { g: 0, s: 35, e: 43, l: 22 }, ab: 1, c: '#ffe94d', d: 'Schiffsteil (mind. selten) + Fähigkeit' }
 ];
 // Fähigkeit aus einer Kiste: neu oder eine Stufe hoch
 function rollAbility() {
@@ -1103,11 +1114,11 @@ function openCrate(k) {
   const pool = ITEMS.filter(x => x.r === r), it = pool[(Math.random() * pool.length) | 0], had = S.inv[it.id] || 0;
   let extra = '';
   S.dup = S.dup || {};
-  if (had) { S.dup[it.id] = (S.dup[it.id] || 0) + 1; extra = `<br>Doppelt! Liegt als Ersatzteil im Hangar (+${XPV[r]} XP zum Einschmelzen)`; }
+  if (had) { S.dup[it.id] = (S.dup[it.id] || 0) + 1; extra = `<br>Doppelt! Im Hangar einschmelzen = +${XPV[r]} Hangar-XP`; }
   else S.inv[it.id] = 1;
   if (r === 'l' && window.BB) BB.unlock('drill_legende');
   save('now');
-  overlay(`<div class="crate" style="--rc:${RAR[r].c}"><div class="cbox">${itemSvg(it, 76)}</div></div><h2 style="color:${RAR[r].c}">${it.n}</h2><p>[${RAR[r].n}] · ${SLOT[it.s].n}<br>${had ? '' : 'Neu im Hangar!'}${extra}<br><b style="color:var(--txt)">+${Math.round(itemVal(it, S.inv[it.id]) * 100)} % ${SLOT[it.s].st}</b>${HULLAB[it.id] ? '<br><span style="color:var(--li)">' + HULLAB[it.id].d + '</span>' : ''}</p>`,
+  overlay(`<div class="crate" style="--rc:${RAR[r].c}"><div class="cbox">${itemSvg(it, 76)}</div></div><h2 style="color:${RAR[r].c}">${it.n}</h2><p>[${RAR[r].n}] · ${SLOT[it.s].n}<br>${had ? '' : 'Neu im Hangar!'}${extra}<br><b style="color:var(--txt)">+${Math.round(itemVal(it, HL()) * 100)} % ${SLOT[it.s].st}</b>${HULLAB[it.id] ? '<br><span style="color:var(--li)">' + HULLAB[it.id].d + '</span>' : ''}</p>`,
     [['Ausrüsten', () => { S.eq[it.s] = it.id; save('now'); render(); }], ['Weiter', () => render()]]);
   if (k.ab) { const r2 = rollAbility(); save('now'); $('ovb').insertAdjacentHTML('afterbegin', `<div class="ultab"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.8">${r2.a.ico}</svg><span><b>${r2.a.n}</b><br>${r2.txt}</span></div>`); }
 }
@@ -1118,7 +1129,7 @@ function itemSvg(it, size) {
   const fc = it.col === 'rainbow' ? '#ff5fe0' : it.col;
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.5"><rect x="3" y="8" width="11" height="8" rx="2"/><path d="M14 9l4-2v10l-4-2M6 8v8M9 8v8"/><path d="M19 10l3-1M19 14l3 1" stroke="${fc}"/></svg>`;
 }
-function bestEquip() { for (const s of ['h', 'r', 't']) { let best = null, bv = -1; for (const it of ITEMS) if (it.s === s && S.inv[it.id]) { const v = itemVal(it, S.inv[it.id]); if (v > bv) { bv = v; best = it; } } if (best) S.eq[s] = best.id; } save('now'); render(); }
+function bestEquip() { for (const s of ['h', 'r', 't']) { let best = null, bv = -1; for (const it of ITEMS) if (it.s === s && S.inv[it.id]) { const v = itemVal(it, HL()); if (v > bv) { bv = v; best = it; } } if (best) S.eq[s] = best.id; } save('now'); render(); }
 // ================== Hotbar ==================
 let hotSig = '';
 function hotbar(force) {
@@ -1167,47 +1178,56 @@ function renderShop(L) {
   L.querySelectorAll('[data-cr]').forEach(b => b.onclick = () => openShopCrate(CRATES.find(k => k.id === b.dataset.cr)));
 }
 let hSel = null;
-function meltList(target) {
-  // alles, was eingeschmolzen werden kann: Ersatzteile + nicht ausgerüstete Teile (außer dem Ziel)
+// alles, was eingeschmolzen werden kann: doppelte Teile + nicht ausgerüstete Teile
+function meltList() {
   const out = []; S.dup = S.dup || {};
-  for (const it of ITEMS) { if (S.dup[it.id]) out.push({ it, n: S.dup[it.id], spare: 1 }); if (S.inv[it.id] && it.id !== target && S.eq[it.s] !== it.id) out.push({ it, n: 1, spare: 0 }); }
+  for (const it of ITEMS) { if (S.dup[it.id]) out.push({ it, n: S.dup[it.id], spare: 1 }); if (S.inv[it.id] && S.eq[it.s] !== it.id) out.push({ it, n: 1, spare: 0 }); }
   return out;
+}
+function melt(id, spare) {
+  const m = IT(id); S.dup = S.dup || {};
+  if (spare) { if (!S.dup[id]) return 0; S.dup[id]--; if (!S.dup[id]) delete S.dup[id]; }
+  else { if (S.eq[m.s] === id || !S.inv[id]) return 0; delete S.inv[id]; }
+  return addHx(XPV[m.r]);
 }
 function renderHangar(L) {
   document.querySelectorAll('.hsheet').forEach(x => x.remove());
+  const lv = HL(), mx = lv >= ITEM_MAX, need = xpNeed(lv), xp = S.hx || 0;
   const sel = hSel && S.inv[hSel] ? IT(hSel) : null;
-  const pct = it => Math.round(itemVal(it, S.inv[it.id] || 1) * 100);
+  const pct = it => Math.round(itemVal(it, lv) * 100);
   const own = ITEMS.filter(x => x.s === hTab && S.inv[x.id]).length, all = ITEMS.filter(x => x.s === hTab).length;
-  // Oben: die 3 Slots sind gleichzeitig die Reiter
-  L.innerHTML = `<div class="hslots">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-hs="${s}" class="${hTab === s ? 'on' : ''}" style="--rc:${RAR[it.r].c}"><span class="hi">${itemSvg(it, 30)}</span><span class="ht"><b>${SLOT[s].n}</b><small>Lvl. ${S.inv[it.id] || 1} · +${pct(it)} % ${SLOT[s].st}</small></span></button>`; }).join('')}</div>
-    ${hTab === 'h' && HULLAB[eqItem('h').id] ? `<div class="hab2">★ Rumpf-Fähigkeit: ${HULLAB[eqItem('h').id].d}</div>` : ''}
+  const ml = meltList(), spareXp = ml.filter(m => m.spare).reduce((a, m) => a + XPV[m.it.r] * m.n, 0);
+  L.innerHTML = `<div class="idet" style="--rc:#5ce8f0"><div class="ihd"><div class="ib" style="font:400 20px Silkscreen,var(--mono);color:var(--cy)">${lv}</div><div><b>Hangar-Level ${lv}${mx ? ' · MAX' : ''}</b><small>Gilt für alle Teile · jedes Level macht jedes Teil stärker</small></div></div>
+      <div class="xpb"><i style="width:${mx ? 100 : Math.min(100, xp / need * 100)}%"></i><span>${mx ? 'MAX · LVL. ' + ITEM_MAX : xp + ' / ' + need + ' XP bis Lvl. ' + (lv + 1)}</span></div>
+      <div class="row2"><button class="br" id="hmeltall" ${spareXp && !mx ? '' : 'disabled'}>Alle Doppelten rein · +${spareXp} XP</button></div>
+      <div class="skh" style="margin-top:10px"><span>Einschmelzen · tippen = rein</span><b style="font-size:10px">G +${XPV.g} · S +${XPV.s} · E +${XPV.e} · L +${XPV.l}</b></div>
+      <div class="mlt">${ml.length ? ml.map(m => `<button data-melt="${m.it.id}" data-sp="${m.spare}" style="--rc:${RAR[m.it.r].c}" ${mx ? 'disabled' : ''}>${itemSvg(m.it, 24)}<small>${m.spare ? 'x' + m.n : 'Teil'}</small><em>+${XPV[m.it.r]}</em></button>`).join('') : '<span class="hint">Nichts zum Einschmelzen. Doppelte Teile aus Kisten landen hier.</span>'}</div></div>
+    <div class="hslots">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-hs="${s}" class="${hTab === s ? 'on' : ''}" style="--rc:${RAR[it.r].c}"><span class="hi">${itemSvg(it, 30)}</span><span class="ht"><b>${SLOT[s].n}</b><small>+${pct(it)} % ${SLOT[s].st}</small></span></button>`; }).join('')}</div>
+    ${hTab === 'h' && HULLAB[eqItem('h').id] ? `<div class="hab2">★ Rumpf-Fähigkeit: ${HULLAB[eqItem('h').id].d} · x${hullK().toFixed(1)} durch Hangar-Level</div>` : ''}
     <div class="skh"><span>${SLOT[hTab].n} · ${own}/${all} gefunden</span><b style="font-size:11px">tippen = Details</b></div>
     <div class="inv2">${ITEMS.filter(x => x.s === hTab).map(it => { const l = S.inv[it.id], on = S.eq[it.s] === it.id, d = (S.dup || {})[it.id];
-      return l ? `<button data-it="${it.id}" style="--rc:${RAR[it.r].c}" class="${on ? 'on' : ''}"><i class="rb"></i>${itemSvg(it, 30)}<b>${it.n}</b><small>Lvl. ${l}${d ? ` · <em>+${d}</em>` : ''}</small>${on ? '<span class="eqb">✓</span>' : ''}</button>`
+      return l ? `<button data-it="${it.id}" style="--rc:${RAR[it.r].c}" class="${on ? 'on' : ''}"><i class="rb"></i>${itemSvg(it, 30)}<b>${it.n}</b><small>+${pct(it)} %${d ? ` · <em>x${d} doppelt</em>` : ''}</small>${on ? '<span class="eqb">✓</span>' : ''}</button>`
         : `<button disabled class="no" style="--rc:${RAR[it.r].c}"><i class="rb"></i><span class="qq">?</span><small>${RAR[it.r].n}</small></button>`; }).join('')}</div>
     <div class="row2" style="margin:10px 0 12px"><button class="br" id="best">Beste ausrüsten</button><button class="br" data-shop="1">🛒 Kisten-Shop</button></div>`;
   L.querySelectorAll('[data-hs]').forEach(b => b.onclick = () => { hTab = b.dataset.hs; hSel = null; render(); });
   L.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { hSel = b.dataset.it; render(); });
   $('best').onclick = bestEquip;
   L.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => goTab('k'));
+  const lvToast = l0 => { if (HL() > l0) { SND.fx.win(); toast(`Hangar-Level ${HL()}!`); } else SND.fx.up(); };
+  L.querySelectorAll('[data-melt]').forEach(b => b.onclick = () => { const l0 = HL(); melt(b.dataset.melt, b.dataset.sp === '1'); lvToast(l0); save('now'); render(); });
+  $('hmeltall').onclick = () => { const l0 = HL(); for (const m of meltList().filter(x => x.spare)) for (let k = 0; k < m.n && HL() < ITEM_MAX; k++) melt(m.it.id, 1); lvToast(l0); save('now'); render(); };
   if (!sel) return;
   // Details als Fenster von unten
-  const lv = S.inv[sel.id], xp = (S.xp || {})[sel.id] || 0, need = xpNeed(lv), on = S.eq[sel.s] === sel.id, ml = meltList(sel.id), spareXp = ml.filter(m => m.spare).reduce((a, m) => a + XPV[m.it.r] * m.n, 0), mx = lv >= ITEM_MAX;
+  const on = S.eq[sel.s] === sel.id;
   const sh = document.createElement('div'); sh.className = 'hsheet';
   sh.innerHTML = `<div class="hsbg"></div><div class="hsp" style="--rc:${RAR[sel.r].c}"><button class="hsx" aria-label="Schließen">✕</button>
     <div class="ihd"><div class="ib">${itemSvg(sel, 46)}</div><div><b>${sel.n}</b><small>${RAR[sel.r].n} · ${SLOT[sel.s].n}${on ? ' · <span style="color:var(--li)">ausgerüstet</span>' : ''}</small></div></div>
-    <div class="xpb"><i style="width:${mx ? 100 : Math.min(100, xp / need * 100)}%"></i><span>${mx ? 'MAX · LVL. ' + ITEM_MAX : 'LVL. ' + lv + ' · ' + xp + ' / ' + need + ' XP'}</span></div>
-    <div class="ist2"><div><small>${SLOT[sel.s].st}</small><b>+${Math.round(itemVal(sel, lv) * 100)} %</b>${mx ? '' : `<em>nächste Stufe +${Math.round(itemVal(sel, lv + 1) * 100)} %</em>`}</div>${HULLAB[sel.id] ? `<div class="hab"><small>Rumpf-Fähigkeit</small><b>★ ${HULLAB[sel.id].d}</b><em>x${(1 + .1 * (lv - 1)).toFixed(1)} durch Level</em></div>` : ''}</div>
-    <div class="row2"><button class="br" id="ieq" ${on ? 'disabled' : ''}>${on ? 'Ausgerüstet ✓' : 'Ausrüsten'}</button><button class="br" id="imeltall" ${spareXp && !mx ? '' : 'disabled'}>Doppelte rein · +${spareXp} XP</button></div>
-    <div class="skh" style="margin-top:10px"><span>Einschmelzen = XP</span><b style="font-size:10px">G +${XPV.g} · S +${XPV.s} · E +${XPV.e} · L +${XPV.l}</b></div>
-    <div class="mlt">${ml.length ? ml.map(m => `<button data-melt="${m.it.id}" data-sp="${m.spare}" style="--rc:${RAR[m.it.r].c}" ${mx ? 'disabled' : ''}>${itemSvg(m.it, 24)}<small>${m.spare ? 'x' + m.n : 'Teil'}</small><em>+${XPV[m.it.r]}</em></button>`).join('') : '<span class="hint">Nichts zum Einschmelzen. Doppelte Teile aus Kisten landen hier.</span>'}</div></div>`;
+    <div class="ist2"><div><small>${SLOT[sel.s].st} bei Hangar-Lvl. ${lv}</small><b>+${pct(sel)} %</b>${mx ? '' : `<em>bei Lvl. ${lv + 1}: +${Math.round(itemVal(sel, lv + 1) * 100)} %</em>`}</div>${HULLAB[sel.id] ? `<div class="hab"><small>Rumpf-Fähigkeit</small><b>★ ${HULLAB[sel.id].d}</b><em>x${hullK().toFixed(1)} durch Hangar-Level</em></div>` : ''}</div>
+    <div class="row2"><button class="br" id="ieq" ${on ? 'disabled' : ''}>${on ? 'Ausgerüstet ✓' : 'Ausrüsten'}</button></div></div>`;
   $('app').appendChild(sh);
   const close = () => { hSel = null; sh.remove(); };
   sh.querySelector('.hsbg').onclick = close; sh.querySelector('.hsx').onclick = close;
   $('ieq').onclick = () => { S.eq[sel.s] = sel.id; save('now'); render(); toast(`${sel.n} ausgerüstet`); };
-  const melt = (id, spare) => { const m = IT(id); if (spare) { if (!S.dup[id]) return; S.dup[id]--; if (!S.dup[id]) delete S.dup[id]; } else { if (S.eq[m.s] === id || id === sel.id) return; const d = S.dup[id] || 0; if (d) { S.dup[id]--; if (!S.dup[id]) delete S.dup[id]; } else { delete S.inv[id]; if (S.xp) delete S.xp[id]; } } const up = addXp(sel.id, XPV[m.r]); SND.fx.up(); if (up) toast(`${sel.n} ist jetzt Lvl. ${S.inv[sel.id]}!`); };
-  sh.querySelectorAll('[data-melt]').forEach(b => b.onclick = () => { melt(b.dataset.melt, b.dataset.sp === '1'); save('now'); render(); });
-  $('imeltall').onclick = () => { for (const m of meltList(sel.id).filter(x => x.spare)) for (let k = 0; k < m.n && (S.inv[sel.id] || 1) < ITEM_MAX; k++) melt(m.it.id, 1); save('now'); render(); };
 }
 
 // ================== Sound: ruhiger Idle-Soundtrack + Effekte (alles live erzeugt, keine Dateien) ==================
