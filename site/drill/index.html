@@ -274,6 +274,8 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .mod small{display:block;font-size:10px;color:#ff9f43;margin-top:2px;letter-spacing:.05em}.mod em{display:block;font-style:normal;font-size:10.5px;color:#e9dccb;margin-top:3px;line-height:1.3}.mod em.nx{color:#9a8a76}
 .mod .br{min-width:62px;height:40px}
 .mod .br:not(:disabled){border-color:#ff9f43;background:linear-gradient(180deg,#3a2510,#1d1309);box-shadow:0 0 10px rgba(255,159,67,.2)}.mod .br:not(:disabled)::before,.mod .br:not(:disabled)::after{border-color:#ff9f43}
+.aut{width:100%;height:auto;min-height:48px;padding:7px 10px;margin:0 0 9px;font-family:Silkscreen,var(--mono);font-size:12px;font-weight:400}
+.aut.on{border-color:var(--li)!important;color:var(--li);box-shadow:0 0 14px rgba(157,255,106,.3)!important}
 html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
 /* ===== PC / Desktop: Vollbild – großes Spielfeld links, Menü als Seitenleiste rechts ===== */
 @media (min-width:900px) and (min-height:540px){
@@ -633,6 +635,7 @@ function step(dt) {
   // Blickrichtung des Schiffs: alle Schüsse gehen dahin, wo die Spitze hinzeigt
   const face = ship.ang + Math.PI / 2, fcx = Math.cos(face), fcy = Math.sin(face);
   const front = (dist, r2, spread) => nearest(ship.x + fcx * dist + (spread ? (Math.random() - .5) * spread : 0), ship.y + fcy * dist + (spread ? (Math.random() - .5) * spread : 0), r2);
+  hullAtk(dt, face);
   // 1) Kobold-Strahl
   const dL = WD('line');
   if (lineTarget < 0 || !G.alive[lineTarget]) lineTarget = nearest(ship.x + Math.cos(ship.orb + 1.57) * 30, ship.y + Math.sin(ship.orb + 1.57) * 30); // nächster Block in Flugrichtung
@@ -1115,7 +1118,7 @@ function abStep(dt) {
     const c0 = Math.floor((bhole.x - G.ox) / CELL), r0 = Math.floor((bhole.y - G.oy) / CELL), n = Math.ceil(r / CELL);
     for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) { const cc = c0 + a, rr = r0 + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS || Math.hypot(a, b2) * CELL > r) continue; hit(rr * COLS + cc, bhole.d * dt / 2.2 / 6); }
     if (bhole.t <= 0) bhole = null; }
-  if (WP('auto')) for (const id of S.hot) if (id && AL(id) && abReady(id)) { cast(id, true); break; }
+  if (WP('auto') && !S.autoOff) for (const id of S.hot) if (id && AL(id) && abReady(id)) { cast(id, true); break; }
 }
 // ================== Hangar: Schiffsteile ==================
 const RAR = { g: { n: 'Gewöhnlich', c: '#c9d1d3', b: .1 }, s: { n: 'Selten', c: '#8dff5a', b: .25 }, e: { n: 'Episch', c: '#ff5fe0', b: .6 }, l: { n: 'Legendär', c: '#ffe94d', b: 1.5 } };
@@ -1160,6 +1163,37 @@ const HULLAB = {
   h_drache: { d: '+35 % Schaden aller Waffen', dmg: .35 }
 };
 const hullK = () => 1 + .1 * (HL() - 1);
+// Jeder Rumpf feuert eine eigene Basisattacke in Blickrichtung. Je seltener, desto stärker. Stärke wächst mit dem Hangar-Level.
+const HRF = { g: .15, s: .3, e: .6, l: 1.2 };
+const HATK = {
+  h_pfeil: { n: 'Pfeilschuss', d: 'Ein Pfeil, der durch 2 Blöcke fliegt', cd: 1.2 },
+  h_kobold: { n: 'Kobold-Granate', d: 'Granate explodiert 3×3', cd: 1.6 },
+  h_blatt: { n: 'Blattwirbel', d: '3 Blätter im Fächer, fliegen durch 3 Blöcke', cd: 1.4 },
+  h_molly: { n: 'Sternsplitter', d: '5 Splitter, doppelter Krit-Schaden', cd: 1.5 },
+  h_geist: { n: 'Geisterstrahl', d: 'Strahl durchbohrt alles bis zum Kern', cd: 2 },
+  h_don: { n: 'Goldkanone', d: '4 Goldkugeln explodieren 3×3', cd: 1.8 },
+  h_koenig: { n: 'Königsbann', d: 'Breiter Laser + Schockwelle ums Schiff', cd: 2.4 },
+  h_drache: { n: 'Drachenfeuer', d: 'Dauerhafter Flammenkegel', cd: .2 }
+};
+const hullPow = () => HRF[eqItem('h').r] * hullK();
+let cdHull = 0;
+function hullAtk(dt, face) {
+  const it = eqItem('h'), A = HATK[it.id]; if (!A) return;
+  if ((cdHull -= dt * rate()) > 0) return; cdHull = A.cd;
+  const bud = Math.max(2, totalDps()) * hullPow() * A.cd * critMul(), col = it.col;
+  const shoot = (a, d, o) => proj.push(Object.assign({ x: ship.x, y: ship.y, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, d, t: 2, c: col, solo: 1 }, o || {}));
+  switch (it.id) {
+    case 'h_pfeil': shoot(face, bud / .6, { pierce: 2 }); break;
+    case 'h_kobold': shoot(face, bud / .6 * .5, { boom: 1, solo: 0 }); break;
+    case 'h_blatt': for (let k = -1; k <= 1; k++) shoot(face + k * .25, bud / 3 / .6, { pierce: 3 }); break;
+    case 'h_molly': for (let k = -2; k <= 2; k++) shoot(face + k * .14, bud / 5 / .6 * 2, {}); break;
+    case 'h_geist': lanceShot(face, bud * 2, 1); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ship.x + Math.cos(face) * G.R * 2, y2: ship.y + Math.sin(face) * G.R * 2, t: .3, w: 3, c: '#dfe6ff' }); break;
+    case 'h_don': for (let k = -1.5; k <= 1.5; k++) shoot(face + k * .2, bud / 4 / .6 * .6, { boom: 1, solo: 0, c: '#ffd23f' }); break;
+    case 'h_koenig': { lanceShot(face, bud * 1.5, 2); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ship.x + Math.cos(face) * G.R * 2, y2: ship.y + Math.sin(face) * G.R * 2, t: .35, w: 5, c: '#ffb43a' });
+      const n = 4, c0 = cellAt(ship.x, ship.y); for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) if (a * a + b * b <= n * n) hit(cellAt(ship.x + a * CELL, ship.y + b * CELL), bud * .08); fx.push({ k: 'nova', x: ship.x, y: ship.y, r: CELL * (n + 1), t: .4, c: '255,180,58' }); break; }
+    case 'h_drache': for (let k = 0; k < 4; k++) { const a = face + (Math.random() - .5) * .6; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 360, vy: Math.sin(a) * 360, d: bud / 4 / .6, t: .35 + Math.random() * .15, c: Math.random() < .5 ? '#ff4f7a' : '#ffb43a' }); } break;
+  }
+}
 const HA = k => { const a = HULLAB[eqItem('h').id] || {}; return (a[k] || 0) * hullK(); };
 const HAw = id => { const a = HULLAB[eqItem('h').id] || {}; return ((a.w && a.w[id]) || 0) * hullK(); };
 // Hangar-Level: ein Level für den ganzen Hangar. Jedes eingeschmolzene Teil gibt feste XP, jedes Level braucht eine feste Menge.
@@ -1244,6 +1278,7 @@ let hTab = 'h', abSel = null;
 function renderAb(L) {
   const own = ABIL.filter(a => AL(a.id)), dc = drawCost(), allOwned = own.length === ABIL.length;
   L.innerHTML = `<div class="skh"><span>Fähigkeiten · tippen = auf Hotbar</span><b>◆ ${fmt(S.cry)}</b></div>
+    <button class="br aut ${WP('auto') && !S.autoOff ? 'on' : ''}" id="autot" ${WP('auto') ? '' : 'disabled'}>${WP('auto') ? (S.autoOff ? '🤖 AUTOPILOT: AUS' : '🤖 AUTOPILOT: AN') : '🔒 Autopilot (Warp-Werkstatt)'}<span class="gn">${WP('auto') ? 'zündet Fähigkeiten automatisch · tippen = umschalten' : 'erst in der Warp-Werkstatt freischalten'}</span></button>
     ${own.length ? '' : `<div class="wh" style="text-align:center"><p style="margin-bottom:8px">Noch keine Fähigkeit. Die erste gibt's aus der <b style="display:inline;font-size:inherit;color:#c9a2ff">Fähigkeiten-Kiste</b> für ◆10 – dann einfach antippen und auf die Hotbar legen.</p><button class="br" data-shop="1" style="width:100%">🛒 Zum Shop</button></div>`}
     <div class="sk ab">${ABIL.map(a => { const l = AL(a.id), on = S.hot.includes(a.id);
       return l ? `<button data-ab="${a.id}" class="${on ? 'on' : ''}"><span class="c">${l}/10</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg>${a.n}<small>${a.d} · ${Math.round(abCd(a))} s<br><i class="upc">${l >= 10 ? 'MAX' : '⬆ ◆' + abUpCost(a.id)}</i></small>${on ? '<em>AUSG</em>' : ''}</button>`
@@ -1253,6 +1288,7 @@ function renderAb(L) {
     <div class="row2" style="margin-top:10px"><button class="br" id="aball" ${own.some(a => AL(a.id) < 10 && S.cry >= abUpCost(a.id)) ? '' : 'disabled'}>Alle verbessern</button><button class="br" id="abbest" ${own.length ? '' : 'disabled'}>Beste ausrüsten</button></div>
     <button class="br unl" data-shop="1" style="margin-top:9px">🛒 FÄHIGKEITEN-KISTE IM SHOP</button>
     <div class="hint">◆ Kristalle gibt's für jeden abgebauten Planeten (je weiter, desto mehr, Boss x3) – ✦ Dunkle Materie gibt's nur beim Warp.</div>`;
+  $('autot').onclick = () => { if (!WP('auto')) return; S.autoOff = !S.autoOff; toast(S.autoOff ? 'Autopilot aus' : 'Autopilot an'); save('now'); render(); };
   L.querySelectorAll('[data-ab]').forEach(b => b.onclick = () => { abSel = abSel === b.dataset.ab ? null : b.dataset.ab; render(); });
   if ($('abeq')) $('abeq').onclick = () => { const i = S.hot.indexOf(abSel); if (i >= 0) S.hot[i] = null; else { const f = S.hot.findIndex(x => !x); if (f >= 0 && f < 5) S.hot[f] = abSel; else if (S.hot.length < 5) S.hot.push(abSel); else S.hot[4] = abSel; } S.hot = S.hot.slice(0, 5); save('now'); hotbar(true); render(); };
   if ($('abup')) $('abup').onclick = () => { const c = abUpCost(abSel); if (AL(abSel) >= 10 || S.cry < c) return; S.cry -= c; S.ab[abSel]++; save('now'); render(); };
@@ -1296,7 +1332,7 @@ function renderHangar(L) {
       <div class="hg-xpv">${['g', 's', 'e', 'l'].map(r => `<span style="color:${RAR[r].c}">■ ${RAR[r].n} +${XPV[r]}</span>`).join('')}</div></div>
     <div class="hg-h"><span>Ausgerüstet</span><button class="hg-best" id="best">Beste ausrüsten</button></div>
     <div class="hg-load">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-it="${it.id}" style="--rc:${RAR[it.r].c}"><span class="hg-slot">${SLOT[s].n}</span><span class="hg-ic">${itemSvg(it, 40)}</span><b>${it.n}</b><small>+${pct(it)} % ${SLOT[s].st}</small><i class="hg-rar">${RAR[it.r].n}</i></button>`; }).join('')}</div>
-    ${hab ? `<div class="hab2">★ Rumpf-Fähigkeit: ${hab.d} · x${hullK().toFixed(1)} durch Hangar-Level</div>` : ''}
+    ${HATK[eqItem('h').id] ? `<div class="hab2">⚔ Rumpf-Attacke: <b style="color:var(--txt)">${HATK[eqItem('h').id].n}</b> – ${HATK[eqItem('h').id].d} · ${Math.round(hullPow() * 100)} % deiner Waffen-DPS${hab ? `<br>★ Bonus: ${hab.d} · x${hullK().toFixed(1)} durch Hangar-Level` : ''}</div>` : ''}
     <div class="hg-h"><span>Sammlung</span><b>${ownAll}/${ITEMS.length}</b></div>
     <div class="hg-tot"><i style="width:${ownAll / ITEMS.length * 100}%"></i></div>
     ${['h', 'r', 't'].map(s => { const list = ITEMS.filter(x => x.s === s).sort((a, b2) => RO[a.r] - RO[b2.r]), own = list.filter(x => S.inv[x.id]).length;
@@ -1316,7 +1352,7 @@ function renderHangar(L) {
   const sh = document.createElement('div'); sh.className = 'hsheet';
   sh.innerHTML = `<div class="hsbg"></div><div class="hsp" style="--rc:${RAR[sel.r].c}"><button class="hsx" aria-label="Schließen">✕</button>
     <div class="ihd"><div class="ib">${itemSvg(sel, 46)}</div><div><b>${sel.n}</b><small>${RAR[sel.r].n} · ${SLOT[sel.s].n}${on ? ' · <span style="color:var(--li)">ausgerüstet</span>' : ''}</small></div></div>
-    <div class="ist2"><div><small>${SLOT[sel.s].st} bei Hangar-Lvl. ${lv}</small><b>+${pct(sel)} %</b>${mx ? '' : `<em>bei Lvl. ${lv + 1}: +${Math.round(itemVal(sel, lv + 1) * 100)} %</em>`}</div>${HULLAB[sel.id] ? `<div class="hab"><small>Rumpf-Fähigkeit</small><b>★ ${HULLAB[sel.id].d}</b><em>x${hullK().toFixed(1)} durch Hangar-Level</em></div>` : ''}</div>
+    <div class="ist2"><div><small>${SLOT[sel.s].st} bei Hangar-Lvl. ${lv}</small><b>+${pct(sel)} %</b>${mx ? '' : `<em>bei Lvl. ${lv + 1}: +${Math.round(itemVal(sel, lv + 1) * 100)} %</em>`}</div>${HATK[sel.id] ? `<div class="hab"><small>Rumpf-Attacke · ${RAR[sel.r].n}</small><b>⚔ ${HATK[sel.id].n}</b><span style="display:block;font-size:11px;color:#cfd8da;margin:2px 0">${HATK[sel.id].d}</span><em>${Math.round(HRF[sel.r] * hullK() * 100)} % deiner Waffen-DPS${mx ? '' : ` · bei Hangar-Lvl. ${lv + 1}: ${Math.round(HRF[sel.r] * (hullK() + .1) * 100)} %`}</em></div>` : ''}${HULLAB[sel.id] ? `<div class="hab"><small>Rumpf-Bonus</small><b>★ ${HULLAB[sel.id].d}</b><em>x${hullK().toFixed(1)} durch Hangar-Level${mx ? '' : ` · bei Lvl. ${lv + 1}: x${(hullK() + .1).toFixed(1)}`}</em></div>` : ''}</div>
     <div class="row2"><button class="br" id="ieq" ${on ? 'disabled' : ''}>${on ? 'Ausgerüstet ✓' : 'Ausrüsten'}</button><button class="br" id="imelt" ${canMelt ? '' : 'disabled'}>${mx ? 'Hangar ist Max' : canMelt ? `Einschmelzen<span class="gn">+${XPV[sel.r]} XP</span>` : 'Ausgerüstet'}</button></div>
     <p class="hint">${dp ? `Du hast ${sel.n} noch ${dp}x doppelt. Einschmelzen nimmt zuerst ein doppeltes.` : on ? 'Ausgerüstete Teile kann man nicht einschmelzen.' : 'Einschmelzen = das Teil ist weg und dein Hangar bekommt XP.'}</p></div>`;
   $('app').appendChild(sh);
