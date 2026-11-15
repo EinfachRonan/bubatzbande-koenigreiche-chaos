@@ -109,7 +109,7 @@ if ($a === 'top') {
   $asc = $GAMES[$g]['asc']; $rows = [];
   foreach ($d['users'] as $id => $u) {
     $b = $u['best'][$g] ?? null; if (!$b) continue;
-    $rows[] = ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 's' => $b['s'], 'm' => $b['m'] ?? null, 't' => $b['t'] ?? 0];
+    $rows[] = ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 's' => $b['s'], 'm' => $b['m'] ?? null, 't' => $b['t'] ?? 0, 'ls' => max((int) ($u['gs'][$g]['t'] ?? 0), (int) ($b['t'] ?? 0))];
   }
   usort($rows, fn($x, $y) => $asc ? ($x['s'] <=> $y['s'] ?: $x['t'] <=> $y['t']) : ($y['s'] <=> $x['s'] ?: $x['t'] <=> $y['t']));
   $me = $_GET['u'] ?? ''; $mine = null;
