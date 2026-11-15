@@ -164,6 +164,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .vrow{display:flex;align-items:center;gap:10px;margin:12px 0;font-size:14px;text-align:left}.vrow span{width:92px}.vrow input{flex:1;accent-color:#5ce8f0}.vrow b{width:30px;text-align:right;color:var(--cy)}
 .back,.lb2{border-color:#2a3338;background:#0b1013;box-shadow:inset 0 -3px 0 #050708}
 .cry{display:flex;gap:6px;font-size:12px}
+.cry .co,.skh .co{color:#ffd23f}
 .cry,.cry .dm{font-family:Silkscreen,var(--mono)}
 .mul{font-family:Silkscreen,var(--mono);font-size:13px;letter-spacing:.04em}
 .pl .box{border:1.5px solid var(--cy2);background:#05080a;box-shadow:0 0 12px rgba(92,232,240,.18),inset 0 0 10px rgba(0,0,0,.8)}
@@ -342,6 +343,7 @@ async function pull() {
   } catch (e) { setTimeout(pull, 8000); }
   svState();
 }
+if (S.coin == null) S.coin = Math.round((S.best || 1) * ((S.best || 1) - 1) / 2);
 const SK = id => S.sk[id] || 0;
 const WL = id => S.w[id] || 0;
 const WP = id => S.wp[id] || 0;
@@ -766,7 +768,8 @@ let tab = 'w', uiT = 0;
 function ui() {
   $('cr').textContent = fmt(S.cr) + ' CR';
   $('mul').textContent = 'x' + (crMult()).toFixed(2);
-  $('cry').innerHTML = '◆' + S.cry + ` <span class="dm">✦${S.dm || 0}</span>`;
+  if (S.coin == null) S.coin = Math.round((S.best || 1) * ((S.best || 1) - 1) / 2);
+  $('cry').innerHTML = '◆' + S.cry + ` <span class="dm">✦${S.dm || 0}</span> <span class="co">🪙${fmt(S.coin || 0)}</span>`;
   $('pln').textContent = 'U' + uniOf(S.p) + ' · ' + (G.boss ? 'BOSS' : 'Planet ' + pInU(S.p)); $('pln').classList.toggle('boss', !!G.boss); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
   hotbar();
   const b = $('boost'), bl = $('bl'), now = Date.now();
@@ -868,23 +871,24 @@ const warpBonus = n => 5 + Math.ceil(n * .5);
 function planetDone() {
   SND.fx.win();
   const gain = (1 + Math.floor(S.p / 3) + WP('kris')) * (G.boss ? 3 : 1), old = G.name;
+  const coinP = S.p * (G.boss ? 3 : 1); S.coin = (S.coin || 0) + coinP;
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
   if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
   travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
-  toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${gain} · Sprung nach ${uniName(uniOf(S.p))} · Warp bringt jetzt ✦${dmGain()}` : `Planet abgebaut! +◆${gain} · Warp bringt jetzt ✦${dmGain()}`);
+  toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${gain} +🪙${coinP} · Sprung nach ${uniName(uniOf(S.p))} · Warp bringt jetzt ✦${dmGain()}` : `Planet abgebaut! +◆${gain} +🪙${coinP} · Warp bringt jetzt ✦${dmGain()}`);
   if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);
   render();
 }
 
 function warp() {
   const n = dmGain(); if (!n) return;
-  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>+ <b style="color:#ffe94d">✦${warpBonus(n)} Bonus</b> für Kisten<br>Danach: x${(1 + .04 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
+  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>+ <b style="color:#ffe94d">🪙${warpBonus(n)} Münzen</b> für Kisten<br>Danach: x${(1 + .04 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
     [['SPRINGEN', () => {
-      const wb = warpBonus(n); S.dm = (S.dm || 0) + n + wb; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
+      const wb = warpBonus(n); S.dm = (S.dm || 0) + n; S.coin = (S.coin || 0) + wb; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
       S.cr = startCr(WP('start')); S.su = {}; S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
-      toast(`Warp geschafft: ✦${n} + ✦${wb} Bonus · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
+      toast(`Warp geschafft: ✦${n} + 🪙${wb} · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
     }], ['Noch nicht', null]]);
 }
 
@@ -1010,21 +1014,21 @@ const CRATES = [
 // Fähigkeit aus einer Kiste: neu oder eine Stufe hoch
 function rollAbility() {
   const a = ABIL[(Math.random() * ABIL.length) | 0], l = AL(a.id);
-  if (l >= 10) { S.dm += 4; return { a, txt: 'Schon auf Max · ✦4 zurück' }; }
+  if (l >= 10) { S.coin += 4; return { a, txt: 'Schon auf Max · 🪙4 zurück' }; }
   S.ab[a.id] = l + 1;
   if (!l) { const f = [0, 1, 2, 3, 4].find(k => !S.hot[k]); if (f != null) S.hot[f] = a.id; hotbar(true); return { a, txt: f != null ? 'Neu! Liegt jetzt auf deiner Hotbar.' : 'Neu!' }; }
   return { a, txt: `Doppelt! Jetzt Lvl. ${l + 1}` };
 }
 function openShopCrate(k) {
-  if (S.dm < k.cost) return;
-  if (!k.w) { S.dm -= k.cost; const r = rollAbility(); save('now');
-    overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${r.a.ico}</svg></div></div><h2 style="color:#c9a2ff">${r.a.n}</h2><p>${r.a.d}<br>${r.txt}</p>`, [['Nochmal ✦' + k.cost, () => openShopCrate(k)], ['Weiter', () => render()]]);
-    if (S.dm < k.cost) $('ovb').querySelector('[data-k="0"]').disabled = true; return; }
+  if (S.coin < k.cost) return;
+  if (!k.w) { S.coin -= k.cost; const r = rollAbility(); save('now');
+    overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${r.a.ico}</svg></div></div><h2 style="color:#c9a2ff">${r.a.n}</h2><p>${r.a.d}<br>${r.txt}</p>`, [['Nochmal 🪙' + k.cost, () => openShopCrate(k)], ['Weiter', () => render()]]);
+    if (S.coin < k.cost) $('ovb').querySelector('[data-k="0"]').disabled = true; return; }
   openCrate(k);
 }
 function openCrate(k) {
-  if (S.dm < k.cost) return;
-  S.dm -= k.cost;
+  if (S.coin < k.cost) return;
+  S.coin -= k.cost;
   let roll = Math.random() * 100, r = 'g'; for (const [rr, w] of Object.entries(k.w)) { if ((roll -= w) < 0) { r = rr; break; } }
   const pool = ITEMS.filter(x => x.r === r), it = pool[(Math.random() * pool.length) | 0], had = S.inv[it.id] || 0;
   let extra = '';
@@ -1069,26 +1073,26 @@ function goTab(t) { tab = t; $('list').scrollTop = 0; document.querySelectorAll(
 let hTab = 'h', abSel = null;
 function renderAb(L) {
   const own = ABIL.filter(a => AL(a.id)), dc = drawCost(), allOwned = own.length === ABIL.length;
-  L.innerHTML = `<div class="skh"><span>Fähigkeiten · tippen = auf Hotbar legen</span><b class="dm">✦ ${S.dm || 0}</b></div>
+  L.innerHTML = `<div class="skh"><span>Fähigkeiten · tippen = auf Hotbar legen</span><b class="co">🪙 ${S.coin || 0}</b></div>
     <div class="sk ab">${ABIL.map(a => { const l = AL(a.id), on = S.hot.includes(a.id);
       return l ? `<button data-ab="${a.id}" class="${on ? 'on' : ''}"><span class="c">${l}/10</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg>${a.n}<small>${a.d} · ${Math.round(abCd(a))} s</small>${on ? '<em>AUSG</em>' : ''}</button>`
         : `<button class="lock" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>???</button>`; }).join('')}</div>
     ${abSel && AL(abSel) ? (() => { const a = ABIL.find(x => x.id === abSel), l = AL(abSel), c = abUpCost(abSel); return `<div class="wh" style="margin-top:10px"><p><b style="display:inline;font-size:14px;color:var(--txt)">${a.n}</b> · Lvl. ${l}<br>Stärke x${abPow(abSel).toFixed(2)} · Abklingzeit ${Math.round(abCd(a))} s</p>
-      <div class="row2"><button class="br" id="abeq">${S.hot.includes(abSel) ? 'Ablegen' : 'Ausrüsten'}</button><button class="br" id="abup" ${l >= 10 || S.dm < c ? 'disabled' : ''}>${l >= 10 ? 'Max' : 'Verbessern ✦' + c}</button></div></div>`; })() : ''}
-    <div class="row2" style="margin-top:10px"><button class="br" id="aball" ${own.some(a => AL(a.id) < 10 && S.dm >= abUpCost(a.id)) ? '' : 'disabled'}>Alle verbessern</button><button class="br" id="abbest" ${own.length ? '' : 'disabled'}>Beste ausrüsten</button></div>
+      <div class="row2"><button class="br" id="abeq">${S.hot.includes(abSel) ? 'Ablegen' : 'Ausrüsten'}</button><button class="br" id="abup" ${l >= 10 || S.coin < c ? 'disabled' : ''}>${l >= 10 ? 'Max' : 'Verbessern 🪙' + c}</button></div></div>`; })() : ''}
+    <div class="row2" style="margin-top:10px"><button class="br" id="aball" ${own.some(a => AL(a.id) < 10 && S.coin >= abUpCost(a.id)) ? '' : 'disabled'}>Alle verbessern</button><button class="br" id="abbest" ${own.length ? '' : 'disabled'}>Beste ausrüsten</button></div>
     <button class="br unl" data-shop="1" style="margin-top:9px">🛒 FÄHIGKEITEN-KISTE IM SHOP</button>
-    <div class="hint">✦ Dunkle Materie bekommst du bei jedem Warp-Sprung (ab Planet 3).</div>`;
+    <div class="hint">🪙 Münzen gibt's für jeden abgebauten Planeten (Planet 5 = 5 Münzen, Boss x3) und als Bonus beim Warp.</div>`;
   L.querySelectorAll('[data-ab]').forEach(b => b.onclick = () => { abSel = abSel === b.dataset.ab ? null : b.dataset.ab; render(); });
   if ($('abeq')) $('abeq').onclick = () => { const i = S.hot.indexOf(abSel); if (i >= 0) S.hot[i] = null; else { const f = S.hot.findIndex(x => !x); if (f >= 0 && f < 5) S.hot[f] = abSel; else if (S.hot.length < 5) S.hot.push(abSel); else S.hot[4] = abSel; } S.hot = S.hot.slice(0, 5); save('now'); hotbar(true); render(); };
-  if ($('abup')) $('abup').onclick = () => { const c = abUpCost(abSel); if (AL(abSel) >= 10 || S.dm < c) return; S.dm -= c; S.ab[abSel]++; save('now'); render(); };
-  $('aball').onclick = () => { let go = true; while (go) { go = false; const c = own.filter(a => AL(a.id) < 10).sort((a, b) => abUpCost(a.id) - abUpCost(b.id))[0]; if (c && S.dm >= abUpCost(c.id)) { S.dm -= abUpCost(c.id); S.ab[c.id]++; go = true; } } save('now'); render(); };
+  if ($('abup')) $('abup').onclick = () => { const c = abUpCost(abSel); if (AL(abSel) >= 10 || S.coin < c) return; S.coin -= c; S.ab[abSel]++; save('now'); render(); };
+  $('aball').onclick = () => { let go = true; while (go) { go = false; const c = own.filter(a => AL(a.id) < 10).sort((a, b) => abUpCost(a.id) - abUpCost(b.id))[0]; if (c && S.coin >= abUpCost(c.id)) { S.coin -= abUpCost(c.id); S.ab[c.id]++; go = true; } } save('now'); render(); };
   $('abbest').onclick = () => { S.hot = own.slice().sort((a, b) => AL(b.id) - AL(a.id)).slice(0, 5).map(a => a.id); save('now'); hotbar(true); render(); };
   L.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => goTab('k'));
 }
 function renderShop(L) {
-  L.innerHTML = `<div class="skh"><span>Shop</span><b class="dm">✦ ${S.dm || 0}</b></div>
-    <div class="shop">${CRATES.map(k => `<div class="sbox" style="--rc:${k.c}"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.4"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/>${k.ab && k.w ? '<path d="M7 3l1 2M17 3l-1 2M12 1v3"/>' : ''}</svg><div><b>${k.n}</b><small>${k.d}</small>${k.w ? `<small class="odds">${['g', 's', 'e', 'l'].filter(r => k.w[r]).map(r => `<i style="color:${RAR[r].c}">${k.w[r]} %</i>`).join(' ')}</small>` : ''}</div><button class="br" data-cr="${k.id}" ${S.dm < k.cost ? 'disabled' : ''}>✦${k.cost}</button></div>`).join('')}</div>
-    <div class="hint">✦ Dunkle Materie gibt's bei jedem Warp-Sprung (ab Planet 3). Prozente = Chance auf Gewöhnlich / Selten / Episch / Legendär.</div>`;
+  L.innerHTML = `<div class="skh"><span>Shop</span><b class="co">🪙 ${S.coin || 0}</b></div>
+    <div class="shop">${CRATES.map(k => `<div class="sbox" style="--rc:${k.c}"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.4"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/>${k.ab && k.w ? '<path d="M7 3l1 2M17 3l-1 2M12 1v3"/>' : ''}</svg><div><b>${k.n}</b><small>${k.d}</small>${k.w ? `<small class="odds">${['g', 's', 'e', 'l'].filter(r => k.w[r]).map(r => `<i style="color:${RAR[r].c}">${k.w[r]} %</i>`).join(' ')}</small>` : ''}</div><button class="br" data-cr="${k.id}" ${S.coin < k.cost ? 'disabled' : ''}>🪙${k.cost}</button></div>`).join('')}</div>
+    <div class="hint">🪙 Münzen gibt's für jeden abgebauten Planeten und beim Warp. Prozente = Chance auf Gewöhnlich / Selten / Episch / Legendär.</div>`;
   L.querySelectorAll('[data-cr]').forEach(b => b.onclick = () => openShopCrate(CRATES.find(k => k.id === b.dataset.cr)));
 }
 let hSel = null;
