@@ -303,6 +303,45 @@
 .bb-rhinfo{font-size:12.5px;color:#a6abb9;min-height:16px;margin-bottom:4px}
 .bb-chip .bb-fr{padding:2px}
 .bb-pw{margin-top:16px;border-top:1px solid rgba(255,201,77,.15);padding-top:10px}.bb-pw summary{cursor:pointer;color:#ffe08a;font:800 14px Cinzel,Georgia,serif}.bb-pw .bb-in{margin-top:8px}
+/* ===== Design v2: passend zur neuen Startseite (Navy, feiner Goldrand, ruhiger) ===== */
+.bb-ov{background:rgba(4,6,10,.82)}
+.bb-box{background:linear-gradient(180deg,#151c2b,#0c111b);border:1px solid rgba(255,201,77,.35);outline:0;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.05);padding:18px 16px}
+.bb-box::before{content:"";position:absolute;left:24px;right:24px;top:-1px;height:1px;background:linear-gradient(90deg,transparent,#ffe08a,transparent)}
+.bb-h{font:400 28px "Lilita One","Cinzel Decorative",sans-serif;letter-spacing:.01em}
+.bb-x{border-radius:12px;border-color:#2a3348;background:#0a0e16}
+.bb-tabs{gap:4px;padding:4px;background:#0a0e16;border:1px solid #222b3d;border-radius:14px}
+.bb-tabs button{border:0;border-radius:10px;background:none;color:#9aa3b6;font:800 12.5px Nunito,sans-serif;padding:8px 4px}
+.bb-tabs button.on{background:linear-gradient(#ffd666,#e3a326);color:#1a1206;box-shadow:0 4px 14px rgba(255,201,77,.25)}
+.bb-gs{flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:4px;scrollbar-width:none;margin:0 -16px 10px;padding-left:16px;padding-right:16px}
+.bb-gs::-webkit-scrollbar{display:none}
+.bb-gs button{flex:0 0 auto;padding:8px 12px;border-radius:999px;border:1px solid #273046;background:#0a0e16;color:#dfe3ec;font:800 12.5px Nunito,sans-serif;white-space:nowrap}
+.bb-gs button.on{background:linear-gradient(#ffd666,#e3a326);color:#1a1206;border-color:#ffe9a8}
+.bb-seg{border-radius:12px;background:#0a0e16;border-color:#222b3d}
+.bb-seg button{border-radius:9px;font:800 13px Nunito,sans-serif;color:#9aa3b6}
+.bb-seg button.on{background:#1c2436;color:#ffe08a;box-shadow:inset 0 0 0 1px rgba(255,201,77,.35)}
+.bb-row{gap:10px;padding:9px 10px;margin-bottom:6px;border:1px solid #1e2636;border-radius:12px;background:rgba(10,14,22,.65)}
+.bb-row.you{border-color:rgba(255,201,77,.5);background:rgba(255,201,77,.07)}
+.bb-row .n{font:400 17px "Lilita One",sans-serif;color:#9aa3b6}
+.bb-row .nm{font:800 15px Nunito,sans-serif}
+.bb-row .nm small{display:block;font:700 11.5px Nunito,sans-serif;color:#8792a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bb-row .s{font:400 19px "Lilita One",sans-serif;color:#ffe08a}
+.bb-row .s small{display:block;font:700 10.5px Nunito,sans-serif;color:#8792a8}
+.bb-go{border-radius:12px;font:400 17px "Lilita One",sans-serif;letter-spacing:.03em;box-shadow:0 4px 0 #8a5d10}
+.bb-mut{color:#8f98ab;font-family:Nunito,sans-serif}
+.bb-sec{font:400 18px "Lilita One",sans-serif;color:#ffe08a}
+.bb-in{border-radius:12px;border-color:#2a3348;background:#0a0e16;font:600 16px Nunito,sans-serif}
+.bb-rr{border-radius:12px;background:rgba(10,14,22,.65)}
+.bb-chip{font-family:Nunito,sans-serif}
+.bb-pod{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:8px;margin:6px 0 12px}
+.bb-pd{text-align:center;cursor:pointer;padding:10px 4px;border-radius:14px}
+.bb-pd.p1{background:linear-gradient(180deg,rgba(255,201,77,.18),rgba(255,201,77,.02));border:1px solid rgba(255,201,77,.35)}
+.bb-pd b{display:block;font:400 15px/1.1 "Lilita One",sans-serif;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bb-pd span{font:800 13px Nunito,sans-serif;color:#ffe08a}
+.bb-pd i{display:block;font:900 11px Nunito,sans-serif;font-style:normal;color:#8792a8}
+.bb-pd img{width:54px;height:54px;border-radius:50%;object-fit:cover;display:block;border:2px solid #0d121c}
+.bb-pd.p1 img{width:68px;height:68px;box-shadow:0 0 20px rgba(255,201,77,.5)}
+.bb-pd>span:first-child,.bb-pd>img:first-child{margin:0 auto}
+.bb-pd .bb-fr{margin:0 auto}
 `;
     document.head.appendChild(st);
   }
@@ -498,7 +537,8 @@
       if (scope === 'fr') { const ok = new Set([...(P.fr || []), P.id]); j.list = j.list.filter(x => ok.has(x.id)); const k = j.list.findIndex(x => x.you); j.me = k >= 0 ? { rank: k + 1 } : null; }
       else j.list = j.list.slice(0, 50);
       const row = (x, i) => `<div class="bb-row ${x.you ? 'you' : ''}" data-u="${x.id}"><span class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span>${avH(x)}<span class="nm">${esc(x.name)}${x.you ? ' (du)' : ''}<small>${ALL ? `🎖️${x.nach} · 🎮${x.ng}/${Object.keys(GAMES).length}` : esc(GG.meta(x.m) || '')}${x.ls ? ` · 🕒 ${lastSeen(x.ls)}` : ''}</small></span><span class="s">${ALL ? x.s : fmt(g, x.s)}<small>${GG.unit}</small></span></div>`;
-      el.innerHTML = j.list.length ? j.list.map(row).join('') + (j.me && j.me.rank > j.list.length ? `<div class="bb-mut">… du bist auf Platz ${j.me.rank} von ${j.n}</div>` : '')
+      const podium = scope === 'all' && j.list.length >= 3 ? `<div class="bb-pod">${[1, 0, 2].map(k => { const x = j.list[k]; return `<div class="bb-pd ${k === 0 ? 'p1' : ''}" data-u="${x.id}">${avH(x)}<b>${esc(x.name)}${x.you ? ' (du)' : ''}</b><span>${ALL ? x.s + ' P' : fmt(g, x.s)}</span><i>${k + 1}. Platz</i></div>`; }).join('')}</div>` : '';
+      el.innerHTML = j.list.length ? podium + j.list.map(row).slice(podium ? 3 : 0).join('') + (j.me && j.me.rank > j.list.length ? `<div class="bb-mut">… du bist auf Platz ${j.me.rank} von ${j.n}</div>` : '')
         : `<div class="bb-mut">${scope === 'fr' ? 'Von deinen Freunden steht noch keiner drauf.' : 'Noch keiner drauf. Sei der Erste!'}</div>`;
       if (scope === 'fr' && !(P.fr || []).length) el.innerHTML += `<div class="bb-mut">Du hast noch keine Freunde hinzugefügt. <a href="#" id="bbToFr" style="color:#f0d37a">Freunde finden</a></div>`;
       el.querySelectorAll('[data-u]').forEach(r => r.onclick = () => showUser(r.dataset.u));
