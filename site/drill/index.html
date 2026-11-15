@@ -464,14 +464,17 @@ function step(dt) {
   // Schiff kreist um den Planeten
   if ((surfT -= dt) <= 0) { surfaceBins(); surfT = .4; }
   const lr = localR(ship.orb), orbR = lr + CELL * 2.2 + 16;
-  ship.orb += dt * 46 / Math.max(80, orbR) * (boosting() ? 1.6 : 1) * (lr < G.R * .35 ? 5 : 1); // leere Seite schnell überfliegen
+  // Fokus: solange der aktuelle Block lebt, bleibt das Schiff über ihm und dreht nur langsam weiter
+  if (lineTarget >= 0 && G.alive[lineTarget]) { const [fx0, fy0] = cellXY(lineTarget); let da = Math.atan2(fy0 - G.cy, fx0 - G.cx) - ship.orb; da = Math.atan2(Math.sin(da), Math.cos(da)); ship.orb += da * Math.min(1, dt * 1.2) + dt * 4 / Math.max(80, orbR); }
+  else ship.orb += dt * 46 / Math.max(80, orbR) * (boosting() ? 1.6 : 1) * (lr < G.R * .35 ? 5 : 1); // leere Seite schnell überfliegen
   const tx = G.cx + Math.cos(ship.orb) * orbR, ty = G.cy + Math.sin(ship.orb) * orbR;
   ship.vx += ((tx - ship.x) * 3 - ship.vx * 2.6) * dt; ship.vy += ((ty - ship.y) * 3 - ship.vy * 2.6) * dt;
   ship.x += ship.vx * dt; ship.y += ship.vy * dt; camStep(dt);
   const toC = Math.atan2(G.cy - ship.y, G.cx - ship.x);
   // 1) Kobold-Strahl
   const dL = WD('line');
-  if (dL) { if (lineTarget < 0 || !G.alive[lineTarget] || Math.random() < dt * 2) lineTarget = nearest(ship.x, ship.y);
+  if (lineTarget < 0 || !G.alive[lineTarget]) lineTarget = nearest(ship.x + Math.cos(ship.orb + 1.57) * 30, ship.y + Math.sin(ship.orb + 1.57) * 30); // nächster Block in Flugrichtung
+  if (dL) {
     if ((cdBlast -= dt * R) <= 0 && lineTarget >= 0) { cdBlast = .25; const nb = 1 + Math.min(2, Math.floor(ST('line') / 2)), [tx2, ty2] = cellXY(lineTarget), a0 = Math.atan2(ty2 - ship.y, tx2 - ship.x);
       for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * .25 / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1 }); } } }
   // 2) Kristallstern: 4 rotierende Strahlen
@@ -1131,7 +1134,7 @@ resize(); hotbar(true); render(); requestAnimationFrame(loop); svState();
 if (logged()) pull().then(offline); else offline();
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
-window.GB = { get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
+window.GB = { get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
 </script>
 </body>
 </html>
