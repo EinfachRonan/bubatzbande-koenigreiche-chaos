@@ -96,7 +96,7 @@ if ($a === 'img') {
 $h = fopen($file, 'c+'); if (!$h) fail('io', 500);
 
 // Einmaliger Neustart (Epoche 2): Bestenlisten, Erfolge, Statistiken und Rahmen auf 0. Vorher wird eine Sicherung angelegt.
-const EP = 2;
+const EP = 3;
 flock($h, LOCK_EX); $d0 = load($h);
 if (($d0['ep'] ?? 1) < EP && filesize($file) > 0) {
   @copy($file, "$dir/backup-ep" . ($d0['ep'] ?? 1) . '-' . date('Ymd-His') . '.json');
@@ -133,6 +133,7 @@ if ($a === 'gstat') {
       $st[] = ['Skill-Stufen', (int) $sum($j['sk'] ?? [])];
       $st[] = ['Fähigkeiten', is_array($j['ab'] ?? null) ? count($j['ab']) : 0];
       $st[] = ['Teile im Hangar', is_array($j['inv'] ?? null) ? count($j['inv']) : 0];
+      $st[] = ['Multiplikator', 'x' . number_format((float) ($j['wm'] ?? 1), 2)];
       $st[] = ['Kristalle', (int) $num($j['cry'] ?? 0)];
     } else {
       foreach ($j as $k => $v) {

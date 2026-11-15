@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta property="og:image" content="https://bubatzbande.de/drill/key.jpg">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>Galaxie-Bohrer · Bubatzbande</title>
 <meta name="theme-color" content="#050607">
@@ -219,7 +220,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 @keyframes pulse{50%{box-shadow:0 0 26px rgba(92,232,240,.45),inset 0 -3px 0 rgba(0,0,0,.45)}}
 .offer .br{background:linear-gradient(180deg,#0d1a1e,#081013)}
 .skh{padding:6px 8px;background:#060a0c;border-left:3px solid var(--cy2)}
-.skh span{font-size:11px}
+.skh{gap:10px}.skh span{font-size:11px;min-width:0;line-height:1.4}.skh b{flex:none;white-space:nowrap}
 .sk button{background:linear-gradient(180deg,#0c150c,#070c07);box-shadow:inset 0 -3px 0 rgba(0,0,0,.5)}
 .sk button:not(:disabled):not(.lock){box-shadow:0 0 10px rgba(157,255,106,.15),inset 0 -3px 0 rgba(0,0,0,.5)}
 .wh{background:#070b0d;border:1px solid #1b262b;padding:10px;margin-bottom:8px}
@@ -229,9 +230,22 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .nav button.on svg{filter:drop-shadow(0 0 4px rgba(92,232,240,.8))}
 .sbox{background:linear-gradient(90deg,#0b1114,#080c0e);box-shadow:inset 3px 0 0 var(--rc)}
 .ov .bx{background:linear-gradient(180deg,#0c1215,#070a0c);box-shadow:0 0 40px rgba(92,232,240,.2)}
+.wbox .wrow{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}.wbox .wrow>div{background:#05080a;border:1px solid #1e2a2f;padding:8px;text-align:center}.wbox small{display:block;font-size:10px;color:#8fa3a8;margin-bottom:3px}.wbox .wrow b{display:block;font:400 18px Silkscreen,var(--mono);color:#c9a2ff}.wbox .wrow b.wm{font-size:14px;color:var(--txt);line-height:1.6}.wbox .wrow b.wm span{color:var(--cy)}.wbox #wgo{width:100%}
+.sk small .upc{font-style:normal;color:var(--cy)}
+.ov .key{display:block;width:100%;max-width:260px;aspect-ratio:1;object-fit:cover;margin:0 auto 10px;border:1.5px solid var(--cy2);box-shadow:0 0 24px rgba(92,232,240,.3)}
+.howto{list-style:none;text-align:left;font-size:12.5px;line-height:1.45;margin:8px 0 12px;display:grid;gap:6px}.howto li{background:#070b0d;border:1px solid #1b262b;padding:6px 8px}.howto b{color:var(--cy)}
+/* Kleine Handys (z. B. iPhone SE): Spielfeld etwas kleiner, unten mehr Platz zum Bedienen */
+@media (max-height:760px){
+  .panel{height:calc(100% - 300px);max-height:none}
+  #cv{min-height:170px}
+  .hud{padding-bottom:4px}.cr{font-size:23px}.mul{font-size:13px}
+  .hot{padding:5px 8px}.hs{max-height:44px}
+  .nav{padding-top:5px}.nav button{height:44px;gap:2px}.nav button svg{width:18px;height:18px}
+}
+@media (max-height:620px){ .panel{height:calc(100% - 260px)} #cv{min-height:140px} }
 </style>
 </head>
-<body>
+<body data-bbtoast="top">
 <div id="app">
   <div class="hud">
     <a class="back" href="../" aria-label="Zur Startseite">←</a>
@@ -256,7 +270,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261115f"></script>
+<script src="../bb.js?v=20261115g"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -314,6 +328,7 @@ const PAL = [
   ['#3f9a3a', '#1c4a1a', '#b5ff8a'], ['#c8344f', '#5e1222', '#ff9ab0'], ['#7aa8d8', '#28466a', '#e2f2ff'], ['#d9b22a', '#6e550c', '#fff0a0']
 ];
 const WARP = [
+  { id: 'kraft', n: 'Dunkle Kraft', d: () => '+25 % Schaden und CR', max: 20, cost: l => Math.round(2 * Math.pow(1.55, l)), ico: '<path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/><circle cx="12" cy="12" r="2"/>' },
   { id: 'slot', n: 'Waffenslots', d: () => '+1 Platz für eine Waffe', max: 8, cost: l => Math.round(25 * Math.pow(4, l)), ico: '<rect x="3" y="6" width="7" height="12"/><rect x="14" y="6" width="7" height="12"/><path d="M17.5 10v4M15.5 12h4"/>' },
   { id: 'start', n: 'Startkapital', d: l => 'Start mit ' + fmt(startCr(l + 1)) + ' CR', max: 10, cost: l => Math.round(3 * Math.pow(2.2, l)), ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
   { id: 'kris', n: 'Kristallregen', d: () => '+1 ◆ pro Planet', max: 5, cost: l => Math.round(4 * Math.pow(2.4, l)), ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/>' },
@@ -323,8 +338,8 @@ const WARP = [
   { id: 'auto', n: 'Autopilot', d: () => 'Zündet Fähigkeiten selbst', max: 1, cost: () => 60, ico: '<rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/>' },
 ];
 const startCr = l => l ? 300 * Math.pow(8, l - 1) : 0;
-const wpOpen = id => (S.wpu || []).includes(id);
-const wpUnlCost = () => Math.round(5 * Math.pow(3, (S.wpu || []).length));
+const wpOpen = id => id === 'kraft' || (S.wpu || []).includes(id);
+const wpUnlCost = () => Math.round(5 * Math.pow(3, (S.wpu || []).filter(x => x !== 'kraft').length));
 const maxWeapons = () => 2 + WP('slot');
 const NAMES = ['Kräuterhöhle', 'Rostrot', 'Violettia', 'Moosmond', 'Spießerstern', 'Frostkugel', 'Goldader'];
 const fmt = n => { if (!isFinite(n)) return '∞'; if (n < 1000) return n < 10 && n % 1 ? n.toFixed(1) : Math.floor(n).toString();
@@ -334,9 +349,9 @@ const $ = id => document.getElementById(id);
 // ================== Speicherstand ==================
 let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
-const VER = 11; // interne Stand-Nummer (höher = einmaliger Reset)
+const VER = 12; // interne Stand-Nummer (höher = einmaliger Reset)
 const VLABEL = '0.6'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
-const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, cr: 0, cry: 0, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
+const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
 const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: Object.assign({ h_pfeil: 1, r_basis: 1, t_basis: 1 }, (o && o.inv) || {}), eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
 S = S && typeof S.cr === 'number' && S.v === VER ? norm(S) : fresh();
@@ -377,10 +392,12 @@ const WP = id => S.wp[id] || 0;
 
 // ================== Werte ==================
 const boosting = () => S.boostEnd > Date.now();
-const dmBonus = () => 1 + .04 * (S.dmAll || 0);
+// Warp-Multiplikator: startet bei x1.00, +0.02 pro Warp, +0.02 extra für jedes geschaffte Universum (alle 10 Planeten) in dem Lauf
+const wmGain = () => Math.round((.02 + .02 * Math.floor((S.p - 1) / 10)) * 100) / 100;
+const dmBonus = () => (S.wm || 1) * (1 + .25 * WP('kraft'));
 const dmGain = () => S.p < 3 ? 0 : Math.max(1, Math.floor(Math.pow(S.p - 1, 1.5) / 2.2));
 const mult = () => (1 + .08 * SK('core')) * (1 + HA('dmg')) * (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 2 : 1);
-const crMult = () => (1 + .1 * SK('gold')) * (1 + HA('cr')) * (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * (1 + .02 * (S.best - 1)) * dmBonus() * itemBonus('r') * (buf('cr') ? 2 : 1);
+const crMult = () => (1 + .1 * SK('gold')) * (1 + HA('cr')) * (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('r') * (buf('cr') ? 2 : 1);
 const totalDps = () => WEAP.reduce((a, w) => a + wDps(w), 0);
 const WD = id => wDps(WEAP.find(x => x.id === id));
 const critCh = () => .04 * SK('crit') + HA('crit');
@@ -419,7 +436,7 @@ function buildPlanet(removed) {
   CELL = Math.max(14, 2 * Math.round(Math.min(W, 520) / 52)); // gerade Zahl: keine Nähte zwischen den Blöcken
   const Rc = boss ? 27 : 16 + rnd() * 10 + Math.min(4, p * .15);
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = 12 * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = 12 * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (boss ? 3 : 1), v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
@@ -794,18 +811,19 @@ function beam(x1, y1, x2, y2, col, w) { g.strokeStyle = col; g.globalAlpha = .35
 let tab = 'w', uiT = 0;
 function ui() {
   $('cr').textContent = fmt(S.cr) + ' CR';
-  $('mul').textContent = 'x' + (crMult()).toFixed(2);
+  $('mul').textContent = 'x' + (S.wm || 1).toFixed(2);
   $('cry').innerHTML = '◆' + fmt(S.cry) + ` <span class="dm">✦${S.dm || 0}</span>`;
   $('pln').textContent = 'U' + uniOf(S.p) + ' · ' + (G.boss ? 'BOSS' : 'Planet ' + pInU(S.p)); $('pln').classList.toggle('boss', !!G.boss); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
   hotbar();
   const b = $('boost'), bl = $('bl'), now = Date.now();
   if (boosting()) { b.classList.add('act'); bl.textContent = mmss(S.boostEnd - now); b.disabled = true; }
   else if (S.boostCd > now) { b.classList.remove('act'); bl.textContent = mmss(S.boostCd - now); b.disabled = true; }
-  else { b.classList.remove('act'); bl.textContent = 'Boost x2'; b.disabled = false;
-  $('abdot').hidden = true;
-  $('hgdot').hidden = true; }
+  else { b.classList.remove('act'); bl.textContent = 'Boost x2'; b.disabled = false; }
+  // rote Punkte: neue Fähigkeit liegt noch nicht auf der Hotbar / doppelte Teile zum Einschmelzen
+  $('abdot').hidden = !(ABIL.some(a => AL(a.id) && !S.hot.includes(a.id)) && S.hot.filter(Boolean).length < 5);
+  $('hgdot').hidden = !Object.keys(S.dup || {}).some(k => S.dup[k] > 0);
   $('wpdot').hidden = !(dmGain() > 0 || WARP.some(w => WP(w.id) < w.max && S.dm >= w.cost(WP(w.id))));
-  if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + dmGain(); $('wgo').disabled = !dmGain(); }
+  if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + dmGain(); $('wmto').textContent = 'x' + ((S.wm || 1) + wmGain()).toFixed(2); $('wgo').disabled = !dmGain(); }
   $('skdot').hidden = !SKILLS.some(s => SK(s.id) < s.max && S.cry >= skCost(s.id));
   // Knöpfe aktualisieren, ohne die Liste neu zu bauen
   document.querySelectorAll('[data-up]').forEach(el => { const w = WEAP.find(x => x.id === el.dataset.up), n = buyN === 'max' ? Math.max(1, maxBuy(w)) : buyN, c = wCost(w, n); el.disabled = S.cr < c; const l0 = WL(w.id), f = l => T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult(), gn = f(l0 + n) - f(l0); el.innerHTML = (n > 1 ? `x${n} · ` : '') + fmt(c) + ' CR' + `<small class="gn">+${fmt(gn)} DPS${msN(l0 + n) > msN(l0) ? ' ★' : ''}</small>`; });
@@ -839,8 +857,8 @@ function render() {
   else if (tab === 'k') renderShop(L);
   else if (tab === 'p') {
     const g0 = dmGain();
-    L.innerHTML = `<div class="wh"><p>Warp-Sprung ab Planet 3: Je weiter du kommst, desto mehr ✦ gibt's. Du fängst bei Planet 1 neu an, verlierst CR und Waffen. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>
-      <b id="wgain">✦${g0}</b><p>Dunkle Materie · jede gibt für immer <b style="display:inline;font-size:12px">+4 % Schaden und CR</b><br>Aktuell: ✦${S.dmAll || 0} gesammelt = x${dmBonus().toFixed(2)} · ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'}</p>
+    L.innerHTML = `<div class="wh wbox"><div class="wrow"><div><small>Warp bringt</small><b id="wgain">✦${g0}</b></div><div><small>Multiplikator</small><b class="wm">x${(S.wm || 1).toFixed(2)} → <span id="wmto">x${((S.wm || 1) + wmGain()).toFixed(2)}</span></b></div></div>
+      <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR und Waffen sind weg. Skills, ◆, Fähigkeiten, Hangar und Werkstatt bleiben. Pro Warp +0.02, ab Planet 11 +0.02 extra pro geschafftem Universum. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'}.</p>
       <button class="br" id="wgo" ${g0 ? '' : 'disabled'}>${g0 ? 'WARP-SPRUNG' : 'Ab Planet 3 (noch ' + Math.max(0, 3 - S.p) + ')'}</button></div>
       <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${S.dm || 0}</b></div>
       <div class="sk wp6">${WARP.map(w => { const l = WP(w.id), mx = l >= w.max;
@@ -896,22 +914,23 @@ function planetDone() {
   SND.fx.win();
   const gain = (2 + S.p + WP('kris')) * (G.boss ? 3 : 1), old = G.name;
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
-  if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
+  let bgN = 0;
+  if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); bgN = (BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut', true)) || 0; if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
   travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
-  toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${gain} · Sprung nach ${uniName(uniOf(S.p))} · Warp bringt jetzt ✦${dmGain()}` : `Planet abgebaut! +◆${gain} · Warp bringt jetzt ✦${dmGain()}`);
+  toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${gain} · Sprung nach ${uniName(uniOf(S.p))} · Warp bringt jetzt ✦${dmGain()}` : `Planet abgebaut! +◆${gain}${bgN ? ` · +${bgN} Bandengold` : ''} · Warp bringt jetzt ✦${dmGain()}`);
   if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);
   render();
 }
 
 function warp() {
   const n = dmGain(); if (!n) return;
-  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Danach: x${(1 + .04 * ((S.dmAll || 0) + n)).toFixed(2)} Schaden und CR für immer.<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
+  overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)${S.p > 10 ? '<br><small>inkl. Universums-Bonus +' + (wmGain() - .02).toFixed(2) + '</small>' : ''}<br><br>CR, Waffen und Planet werden zurückgesetzt. Skills, Kristalle, Fähigkeiten, Hangar und Warp-Upgrades bleiben.</p>`,
     [['SPRINGEN', () => {
-      S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
+      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
       S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
-      toast(`Warp geschafft: ✦${n} · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
+      toast(`Warp geschafft: ✦${n} · Multiplikator x${S.wm.toFixed(2)} · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
     }], ['Noch nicht', null]]);
 }
 
@@ -1096,9 +1115,10 @@ function goTab(t) { tab = t; $('list').scrollTop = 0; document.querySelectorAll(
 let hTab = 'h', abSel = null;
 function renderAb(L) {
   const own = ABIL.filter(a => AL(a.id)), dc = drawCost(), allOwned = own.length === ABIL.length;
-  L.innerHTML = `<div class="skh"><span>Fähigkeiten · tippen = auf Hotbar legen</span><b>◆ ${fmt(S.cry)}</b></div>
+  L.innerHTML = `<div class="skh"><span>Fähigkeiten · tippen = auf Hotbar</span><b>◆ ${fmt(S.cry)}</b></div>
+    ${own.length ? '' : `<div class="wh" style="text-align:center"><p style="margin-bottom:8px">Noch keine Fähigkeit. Die erste gibt's aus der <b style="display:inline;font-size:inherit;color:#c9a2ff">Fähigkeiten-Kiste</b> für ◆10 – dann einfach antippen und auf die Hotbar legen.</p><button class="br" data-shop="1" style="width:100%">🛒 Zum Shop</button></div>`}
     <div class="sk ab">${ABIL.map(a => { const l = AL(a.id), on = S.hot.includes(a.id);
-      return l ? `<button data-ab="${a.id}" class="${on ? 'on' : ''}"><span class="c">${l}/10</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg>${a.n}<small>${a.d} · ${Math.round(abCd(a))} s</small>${on ? '<em>AUSG</em>' : ''}</button>`
+      return l ? `<button data-ab="${a.id}" class="${on ? 'on' : ''}"><span class="c">${l}/10</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg>${a.n}<small>${a.d} · ${Math.round(abCd(a))} s<br><i class="upc">${l >= 10 ? 'MAX' : '⬆ ◆' + abUpCost(a.id)}</i></small>${on ? '<em>AUSG</em>' : ''}</button>`
         : `<button class="lock" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>???</button>`; }).join('')}</div>
     ${abSel && AL(abSel) ? (() => { const a = ABIL.find(x => x.id === abSel), l = AL(abSel), c = abUpCost(abSel); return `<div class="wh" style="margin-top:10px"><p><b style="display:inline;font-size:14px;color:var(--txt)">${a.n}</b> · Lvl. ${l}<br>Stärke x${abPow(abSel).toFixed(2)} · Abklingzeit ${Math.round(abCd(a))} s</p>
       <div class="row2"><button class="br" id="abeq">${S.hot.includes(abSel) ? 'Ablegen' : 'Ausrüsten'}</button><button class="br" id="abup" ${l >= 10 || S.cry < c ? 'disabled' : ''}>${l >= 10 ? 'Max' : 'Verbessern ◆' + c}</button></div></div>`; })() : ''}
@@ -1266,7 +1286,14 @@ window.addEventListener('pagehide', () => save(true));
 
 resize(); hotbar(true); render(); requestAnimationFrame(loop); svState();
 
-if (logged()) pull().then(offline); else offline();
+// Erster Start: kurzes Titelbild mit den wichtigsten Infos (einmal pro Gerät)
+function showIntro() {
+  let seen = false; try { seen = !!localStorage.getItem('gb_intro'); } catch (e) {}
+  if (seen || S.pc || S.p > 1 || S.done > 20) return;
+  try { localStorage.setItem('gb_intro', '1'); } catch (e) {}
+  overlay(`<img class="key" src="key.jpg" alt=""><h2>Galaxie-Bohrer</h2><ul class="howto"><li>🚀 Dein Schiff bohrt von alleine – du musst nichts tippen.</li><li>⬆ Mit <b>CR</b> levelst du Waffen, mit <b>◆</b> Skills, Kisten und Fähigkeiten.</li><li>🌀 Ab Planet 3: <b>Warp</b> = Neustart mit ✦ und dauerhaft mehr Multiplikator.</li><li>💤 Auch offline wird weiter gebohrt.</li></ul>`, [["LOS GEHT'S", null]]);
+}
+if (logged()) pull().then(offline).then(showIntro); else { offline(); showIntro(); }
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
 window.GB = { get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };

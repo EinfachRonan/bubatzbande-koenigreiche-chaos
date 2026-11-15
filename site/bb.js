@@ -74,13 +74,13 @@
   // ---------- Speicher ----------
   // P: Konto (id, token) + Profil-Cache + Fortschritt. Ohne Konto wird der Fortschritt lokal gesammelt und beim Anmelden übernommen.
   const KEY = 'bb_acc';
-  const fresh = () => ({ id: null, token: null, user: '', name: '', av: 'artur', img: 0, rh: '', best: {}, ach: {}, stats: {}, fr: [], req: [], sent: [], dirty: false, ep: 2 });
+  const fresh = () => ({ id: null, token: null, user: '', name: '', av: 'artur', img: 0, rh: '', best: {}, ach: {}, stats: {}, fr: [], req: [], sent: [], dirty: false, ep: 3 });
   let P;
   try { P = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { P = null; }
   if (!P || typeof P !== 'object') P = fresh();
   P = Object.assign(fresh(), P);
   // Einmaliger Neustart: Bestwerte, Erfolge und Rahmen auf 0 (passt zur Epoche im Server)
-  const EP = 2;
+  const EP = 3;
   if ((P.ep || 1) < EP) { P.best = {}; P.ach = {}; P.stats = {}; P.rh = ''; P.ep = EP; P.dirty = false; try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} };
   const logged = () => !!(P.id && P.token);
@@ -141,6 +141,7 @@
 .bb-toasts{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(92vw,420px)}
 .bb-toast{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:12px;background:linear-gradient(#2a1e0c,#140e06);border:1px solid #ffc94d;color:#f3f1ea;font:15px/1.3 Georgia,serif;box-shadow:0 10px 30px rgba(0,0,0,.7),0 0 20px rgba(255,201,77,.25);animation:bbIn .4s ease-out}
 .bb-toast b{font-family:Cinzel,Georgia,serif;color:#ffe08a}.bb-toast .i{font-size:28px}
+.bb-toasts.top{top:calc(max(10px,env(safe-area-inset-top)) + 172px);bottom:auto}.bb-toasts.top .bb-toast{padding:7px 12px;font-size:13px}.bb-toasts.top .bb-toast .i{font-size:20px}
 .bb-toast.out{opacity:0;transform:translateY(10px);transition:.4s}
 @keyframes bbIn{from{opacity:0;transform:translateY(20px) scale(.9)}}
 .bb-ov{position:fixed;inset:0;z-index:9990;background:rgba(3,3,4,.8);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:max(14px,env(safe-area-inset-top)) 12px 24px;font:15px/1.4 Georgia,serif;color:#f3f1ea;-webkit-user-select:text;user-select:text}
@@ -359,6 +360,9 @@
     addCss();
     let box = document.querySelector('.bb-toasts');
     if (!box) { box = document.createElement('div'); box.className = 'bb-toasts'; document.body.appendChild(box); }
+    // Spiele können die Meldungen nach oben legen (data-bbtoast="top") – max. 2 gleichzeitig, damit nichts zugemüllt wird
+    box.classList.toggle('top', document.body.dataset.bbtoast === 'top');
+    while (box.children.length >= 2) box.firstElementChild.remove();
     const t = document.createElement('div'); t.className = 'bb-toast' + (onClick ? ' bb-tclick' : ''); t.innerHTML = (ico ? `<span class="i">${ico}</span>` : '') + `<div>${html}</div>` + (onClick ? '<span class="bb-tgo">›</span>' : '');
     if (onClick) t.onclick = () => { t.remove(); onClick(); };
     box.appendChild(t);
@@ -799,11 +803,11 @@
   const lvl = id => (M.cards[id] && M.cards[id].lv) || 0;
   const cardVal = id => { const c = CARDS.find(x => x.id === id); return c ? lvl(id) * c.per : 0; };
   const bgBonus = () => CARDS.filter(c => c.kind === 'item').reduce((a, c) => a + lvl(c.id) * c.per, 0);
-  function earn(n, why) {
+  function earn(n, why, quiet) {
     n = Math.round(n * (1 + bgBonus() / 100));
     if (!(n > 0)) return 0;
     M.bg += n; msave(); if (M.bg >= 10000) unlock('reich');
-    toast(`<b>+${n} Bandengold</b>${why ? '<br>' + esc(why) : ''}`, '🪙');
+    if (!quiet) toast(`<b>+${n} Bandengold</b>${why ? '<br>' + esc(why) : ''}`, '🪙');
     return n;
   }
   function spend(n) { if (M.bg < n) return false; M.bg -= n; msave(); return true; }

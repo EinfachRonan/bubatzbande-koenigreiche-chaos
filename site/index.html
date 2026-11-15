@@ -52,6 +52,7 @@ a{color:inherit;text-decoration:none}button{font:inherit;color:inherit}
 .hero .in{position:relative;z-index:1;padding:16px;width:100%;display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
 .hero .kick{font:900 11px "Nunito";letter-spacing:.14em;text-transform:uppercase;color:var(--gold2)}
 .hero h1{font:400 34px/1 "Lilita One",sans-serif;text-shadow:0 3px 14px rgba(0,0,0,.7);margin-top:4px}
+@media (max-width:400px){.hero h1{font-size:29px}.hero .in>div{min-width:0}.hero .play{height:44px;padding:0 14px;font-size:17px}}
 .play{flex:none;display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 22px;border-radius:12px;border:1px solid #ffe9a8;background:linear-gradient(#ffdb73,#e3a326);color:#1a1206;font:400 20px "Lilita One",sans-serif;letter-spacing:.04em;box-shadow:0 5px 0 #8a5d10,0 10px 24px rgba(255,201,77,.35);cursor:pointer}
 .play:active{transform:translateY(3px);box-shadow:0 2px 0 #8a5d10}
 /* Abschnitte */
@@ -64,6 +65,7 @@ a{color:inherit;text-decoration:none}button{font:inherit;color:inherit}
 .gc:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(0,0,0,.55),0 0 0 1px rgba(255,201,77,.45)}
 .gc .art{position:relative;height:120px;overflow:hidden;border-radius:15px 15px 0 0;background:radial-gradient(circle at 60% 40%,var(--c),var(--c2))}
 .gc .art img{position:absolute;right:-4%;top:-8%;width:78%;aspect-ratio:1;object-fit:cover;-webkit-mask:radial-gradient(circle at 50% 45%,#000 50%,transparent 70%);mask:radial-gradient(circle at 50% 45%,#000 50%,transparent 70%);transition:transform .3s}
+.gc .art.full img{inset:0;right:auto;top:0;width:100%;height:100%;aspect-ratio:auto;object-position:50% 45%;-webkit-mask:none;mask:none;image-rendering:auto}
 .gc:hover .art img{transform:scale(1.06)}
 .gc .art::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(13,18,28,.95),transparent 55%)}
 .gc .tg{position:absolute;z-index:1;left:10px;top:10px;font:900 10px "Nunito";letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12)}
@@ -173,12 +175,12 @@ footer{text-align:center;color:#5d6578;font-size:12px;font-weight:700;margin:26p
 </nav></div>
 <span id="bbChip" hidden></span>
 <script src="art.js?v=20261111b"></script>
-<script src="bb.js?v=20261115f"></script>
+<script src="bb.js?v=20261115g"></script>
 <script>
 'use strict';
 const IMG = k => 'krieg/img/' + k + '.jpg';
 const GAMES = [
-  { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', who: 'marwin', c: '#14b8c4', c2: '#041a1e', text: 'Idle: Dein Schiff bohrt Pixel-Planeten weg.', tag: 'Neu', neu: 1 },
+  { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', who: 'marwin', art: 'drill/key.jpg', c: '#14b8c4', c2: '#041a1e', text: 'Idle: Dein Schiff bohrt Pixel-Planeten weg.', tag: 'Neu', neu: 1 },
   { k: 'runner', url: 'runner/', name: 'Kobold-Runner', who: 'kobold', c: '#3f9a2c', c2: '#0b2a0c', text: 'Springen, rutschen, Gold sammeln.', tag: 'Endlos' },
   { k: 'krieg', url: 'krieg/', name: 'Bandenkrieg', who: 'artur', c: '#c0392b', c2: '#2a0a08', text: 'Kampagne mit 8 Schlachten.', tag: 'Strategie' },
   { k: 'match', url: 'match/', name: 'Kräuter-Match', who: 'molly', c: '#3557d6', c2: '#0c1238', text: 'Drei in eine Reihe, Level ohne Ende.', tag: 'Puzzle' },
@@ -191,7 +193,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 const $ = id => document.getElementById(id);
 const B = () => window.BB;
 const card = g => { const b = B(), best = b && b.best(g.k);
-  return `<a class="card gc" href="${g.url}" style="--c:${g.c};--c2:${g.c2}"><div class="art"><img src="${IMG(g.who)}" alt="" loading="lazy"><span class="tg${g.neu ? ' n' : ''}">${esc(g.tag)}</span></div>
+  return `<a class="card gc" href="${g.url}" style="--c:${g.c};--c2:${g.c2}"><div class="art${g.art ? ' full' : ''}"><img src="${g.art || IMG(g.who)}" alt="" loading="lazy"><span class="tg${g.neu ? ' n' : ''}">${esc(g.tag)}</span></div>
     <div class="bd"><h3>${esc(g.name)}</h3><p>${esc(g.text)}</p>${best ? `<span class="chip">🏆 ${b.fmt(g.k, best.s)}</span>` : ''}<span class="go">▶</span></div></a>`; };
 function draw() {
   $('gAll').innerHTML = GAMES.map(card).join('');
