@@ -234,6 +234,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .sk small .upc{font-style:normal;color:var(--cy)}
 .ov .key{display:block;width:100%;max-width:260px;aspect-ratio:1;object-fit:cover;margin:0 auto 10px;border:1.5px solid var(--cy2);box-shadow:0 0 24px rgba(92,232,240,.3)}
 .howto{list-style:none;text-align:left;font-size:12.5px;line-height:1.45;margin:8px 0 12px;display:grid;gap:6px}.howto li{background:#070b0d;border:1px solid #1b262b;padding:6px 8px}.howto b{color:var(--cy)}
+html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
 /* Kleine Handys (z. B. iPhone SE): Spielfeld etwas kleiner, unten mehr Platz zum Bedienen */
 @media (max-height:760px){
   .panel{height:calc(100% - 300px);max-height:none}
@@ -328,7 +329,7 @@ const PAL = [
   ['#3f9a3a', '#1c4a1a', '#b5ff8a'], ['#c8344f', '#5e1222', '#ff9ab0'], ['#7aa8d8', '#28466a', '#e2f2ff'], ['#d9b22a', '#6e550c', '#fff0a0']
 ];
 const WARP = [
-  { id: 'kraft', n: 'Dunkle Kraft', d: () => '+25 % Schaden und CR', max: 20, cost: l => Math.round(2 * Math.pow(1.55, l)), ico: '<path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/><circle cx="12" cy="12" r="2"/>' },
+  { id: 'kraft', n: 'Dunkle Kraft', d: () => '+50 % Schaden und CR', max: 20, cost: l => Math.round(2 * Math.pow(1.55, l)), ico: '<path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/><circle cx="12" cy="12" r="2"/>' },
   { id: 'slot', n: 'Waffenslots', d: () => '+1 Platz für eine Waffe', max: 8, cost: l => Math.round(25 * Math.pow(4, l)), ico: '<rect x="3" y="6" width="7" height="12"/><rect x="14" y="6" width="7" height="12"/><path d="M17.5 10v4M15.5 12h4"/>' },
   { id: 'start', n: 'Startkapital', d: l => 'Start mit ' + fmt(startCr(l + 1)) + ' CR', max: 10, cost: l => Math.round(3 * Math.pow(2.2, l)), ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
   { id: 'kris', n: 'Kristallregen', d: () => '+1 ◆ pro Planet', max: 5, cost: l => Math.round(4 * Math.pow(2.4, l)), ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/>' },
@@ -394,7 +395,7 @@ const WP = id => S.wp[id] || 0;
 const boosting = () => S.boostEnd > Date.now();
 // Warp-Multiplikator: startet bei x1.00, +0.02 pro Warp, +0.02 extra für jedes geschaffte Universum (alle 10 Planeten) in dem Lauf
 const wmGain = () => Math.round((.02 + .02 * Math.floor((S.p - 1) / 10)) * 100) / 100;
-const dmBonus = () => (S.wm || 1) * (1 + .25 * WP('kraft'));
+const dmBonus = () => (S.wm || 1) * (1 + .5 * WP('kraft'));
 const dmGain = () => S.p < 3 ? 0 : Math.max(1, Math.floor(Math.pow(S.p - 1, 1.5) / 2.2));
 const mult = () => (1 + .08 * SK('core')) * (1 + HA('dmg')) * (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 2 : 1);
 const crMult = () => (1 + .1 * SK('gold')) * (1 + HA('cr')) * (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('r') * (buf('cr') ? 2 : 1);
@@ -428,8 +429,8 @@ function resize() {
   else buildPlanet(G ? G.total - G.left : S.done || 0);
   if (!isFinite(ship.x) || !ship.x) { ship.orb = -Math.PI / 2; ship.x = G.cx; ship.y = G.cy - G.R - 60; } surfaceBins(); cam.x = ship.x; cam.y = ship.y;
 }
-// Block-Leben: x2,3 pro Planet, auf den ersten Planeten steiler, damit Planet 2-4 nicht plötzlich durchrauschen
-const hpCurve = p => { let g = 1; for (let k = 2; k <= p; k++) g *= 2.3 + 2 * Math.exp(-(k - 2) / 1.5); return g; };
+// Block-Leben: x2,1 pro Planet, auf den ersten Planeten steiler, damit Planet 2-4 nicht plötzlich durchrauschen
+const hpCurve = p => { let g = 1; for (let k = 2; k <= p; k++) g *= 2.1 + 1.2 * Math.exp(-(k - 2) / 1.5); return g; };
 function buildPlanet(removed) {
   const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0, pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : PAL[(p - 1) % PAL.length];
   // Großer Planet: man sieht nur einen Ausschnitt, die Kamera folgt dem Schiff, die Minimap zeigt alles
