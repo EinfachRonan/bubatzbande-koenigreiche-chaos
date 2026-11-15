@@ -443,7 +443,8 @@ async function pull() {
 if (!(S.cry >= 0)) S.cry = 0; delete S.coin;
 const SK = id => S.sk[id] || 0;
 const WL = id => S.w[id] || 0;
-const WP = id => S.wp[id] || 0;
+// Warp-Fähigkeiten: freigeschaltete starten immer mit Stufe 1 (gilt auch für alte Spielstände)
+const WP = id => wpOpen(id) ? Math.max(1, S.wp[id] || 0) : (S.wp[id] || 0);
 
 // ================== Werte ==================
 const boosting = () => S.boostEnd > Date.now();
@@ -927,7 +928,7 @@ function render() {
       <div class="savebar"><span id="svtxt">${logged() ? 'Dein Stand wird automatisch auf deinem Konto gespeichert.' : 'Melde dich an, damit dein Stand auf dem Konto landet.'}</span><button id="svnow">${logged() ? 'Jetzt speichern' : 'Anmelden'}</button></div>`;
     $('wgo').onclick = warp;
     if ($('wpunl')) $('wpunl').onclick = () => { const c = wpUnlCost(), left = WARP.filter(w => !wpOpen(w.id)); if (!left.length || S.dm < c) return; S.dm -= c; const w = left[(Math.random() * left.length) | 0]; S.wpu = (S.wpu || []).concat(w.id); save('now');
-      overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${w.ico}</svg></div></div><h2 style="color:#c9a2ff">${w.n}</h2><p>${w.d(0)}<br>Jetzt mit ✦ leveln.</p>`, [['Nice', () => render()]]); };
+      overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${w.ico}</svg></div></div><h2 style="color:#c9a2ff">${w.n}</h2><p>Startet direkt mit <b style="color:var(--txt)">Stufe 1</b>.<br>Weiter leveln mit ✦.</p>`, [['Nice', () => render()]]); };
     $('svnow').onclick = () => { if (!logged()) return BB.open && BB.open('login'); save('now'); toast('Gespeichert ☁'); };
     L.querySelectorAll('[data-wp]').forEach(b => b.onclick = () => { const w = WARP.find(x => x.id === b.dataset.wp), l = WP(w.id); if (!wpOpen(w.id) || l >= w.max || S.dm < w.cost(l)) return; S.dm -= w.cost(l); S.wp[w.id] = l + 1; save('now'); render(); });
   } else {
