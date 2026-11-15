@@ -390,8 +390,7 @@ const SKILLS = [
   { id: 'cr', n: 'Goldgier', d: '+15 % CR', max: 10, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
   { id: 'crit', n: 'Krit-Kern', d: '+4 % Krit (x3)', max: 10, ico: '<path d="M12 2v6M12 16v6M4 12h4M16 12h4M6 6l3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/>' },
   { id: 'spd', n: 'Turbo', d: '+10 % Feuerrate', max: 10, ico: '<path d="M4 20l16-16M9 4h11v11"/>' },
-  { id: 'ore', n: 'Erzader', d: '+1,5 % Erze', max: 8, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M12 7l4 2.5v5L12 17l-4-2.5v-5z"/>' },
-  { id: 'off', n: 'Überstunden', d: 'mehr Offline-Zeit', max: 5, ico: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' }
+  { id: 'ore', n: 'Erzader', d: '+1,5 % Erze', max: 8, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M12 7l4 2.5v5L12 17l-4-2.5v-5z"/>' }
 ];
 const PAL = [
   ['#0e4c52', '#0a3439', '#38d6d8'], ['#e07b32', '#7a3613', '#ffb46a'], ['#8c4be0', '#3d1d6d', '#d9a8ff'],
@@ -408,6 +407,7 @@ const WARP = [
   { id: 'boost', n: 'Nachbrenner', d: () => 'Boost +2 min', max: 5, cost: wpCost, ico: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' },
   { id: 'skip', n: 'Hyperraum', d: () => 'Start +2 Planeten', max: 3, cost: wpCost, ico: '<path d="M4 12h12M12 6l6 6-6 6M4 6v12"/>' },
   { id: 'comet', n: 'Kometenjäger', d: () => 'Kometen öfter, +50 %', max: 3, cost: wpCost, ico: '<circle cx="16" cy="8" r="3"/><path d="M13 11L4 20M11 7L5 13M17 13l-6 6"/>' },
+  { id: 'off', n: 'Überstunden', d: l => 'Offline ' + offH(l) + ' h → ' + offH(l + 1) + ' h', max: 5, cost: wpCost, ico: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' },
   { id: 'auto', n: 'Autopilot', d: () => 'Zündet Fähigkeiten selbst', max: 1, cost: wpCost, ico: '<rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/>' },
 ];
 const keepPct = l => 20 + 10 * (l == null ? WP('keep') : l);
@@ -515,9 +515,9 @@ const WPTXT = {
   kraft: 'Dunkle Materie verstärkt alles: mehr Schaden und mehr CR, für immer.', slot: 'Mehr Plätze im Waffen-Tab, damit du mehr Waffen gleichzeitig benutzen kannst.',
   start: 'Nach jedem Warp startest du direkt mit CR, um sofort Waffen zu kaufen.', keep: 'Wie viel Prozent deiner ◆ Kristalle du beim Warp behältst.',
   kris: 'Jeder geschaffte Planet bringt zusätzliche ◆ Kristalle.', boost: 'Der Boost (x2 Schaden und CR) hält länger.',
-  skip: 'Nach dem Warp startest du ein paar Planeten weiter.', comet: 'Kometen tauchen öfter auf und bringen mehr CR.', auto: 'Zündet deine Fähigkeiten von der Hotbar automatisch, sobald sie bereit sind.'
+  skip: 'Nach dem Warp startest du ein paar Planeten weiter.', comet: 'Kometen tauchen öfter auf und bringen mehr CR.', off: 'Wie lange dein Schiff weiter CR sammelt, wenn du nicht im Spiel bist. Bleibt für immer.', auto: 'Zündet deine Fähigkeiten von der Hotbar automatisch, sobald sie bereit sind.'
 };
-const wpVal = (id, l) => ({ kraft: '+' + 50 * l + ' % Schaden & CR', slot: (2 + l) + ' Waffenslots', start: fmt(startCr(l)) + ' CR', keep: keepPct(l) + ' % ◆', kris: '+' + 2 * l + ' ◆ pro Planet', boost: (5 + 2 * l) + ' min Boost', skip: 'Start ab Planet ' + (1 + 2 * l), comet: '+' + 50 * l + ' % Kometen', auto: l ? 'an' : 'aus' })[id];
+const wpVal = (id, l) => ({ kraft: '+' + 50 * l + ' % Schaden & CR', slot: (2 + l) + ' Waffenslots', start: fmt(startCr(l)) + ' CR', keep: keepPct(l) + ' % ◆', kris: '+' + 2 * l + ' ◆ pro Planet', boost: (5 + 2 * l) + ' min Boost', skip: 'Start ab Planet ' + (1 + 2 * l), comet: '+' + 50 * l + ' % Kometen', off: offH(l) + ' h offline', auto: l ? 'an' : 'aus' })[id];
 function wpInfo(id) { const w = WARP.find(x => x.id === id), l = WP(id), mx = l >= w.max, c = w.cost(l);
   infoSheet({ n: w.n, ico: w.ico, col: '#c9a2ff', sub: 'Warp-Fähigkeit · Stufe ' + l + '/' + w.max + ' · bleibt für immer', txt: WPTXT[id], rows: [['Wirkung', wpVal(id, l), mx ? null : wpVal(id, l + 1)], ['Kosten', mx ? 'MAX' : '✦' + c]],
     buy: [mx ? 'MAX' : 'Leveln · ✦' + c, mx || S.dm < c, () => { if (WP(id) >= w.max || S.dm < w.cost(WP(id))) return; S.dm -= w.cost(WP(id)); S.wp[id] = WP(id) + 1; save('now'); render(); wpInfo(id); }] }); }
@@ -1108,16 +1108,16 @@ function warp() {
 
 // ================== Offline-Ertrag ==================
 // Offline: das Schiff sammelt nur CR (30 % vom normalen Tempo), der Planet wird dabei NICHT fertig.
-// Wie lange gesammelt wird, bestimmt der Skill „Überstunden“: 2 h + 2 h pro Stufe (max. 12 h).
+// Wie lange gesammelt wird, bestimmt die Warp-Fähigkeit „Überstunden“: 2 h + 2 h pro Stufe (max. 12 h).
 const offH = l => 2 + 2 * l;
 function offline(since) {
-  const raw = (Date.now() - (since || S.last || Date.now())) / 1000, cap = offH(SK('off')) * 3600, away = Math.min(cap, raw);
+  const raw = (Date.now() - (since || S.last || Date.now())) / 1000, cap = offH(WP('off')) * 3600, away = Math.min(cap, raw);
   if (raw < 60 || !(S.ema > 0)) return;
   const got = S.ema * away * .3;
   if (got < 1) return;
   S.cr += got; save('now');
   const hm = t => `${Math.floor(t / 3600)} h ${Math.floor(t % 3600 / 60)} min`;
-  overlay(`<h2>Willkommen zurück!</h2><p>Du warst ${hm(raw)} weg. Dein Schiff hat ${hm(away)} lang weiter Gold gesammelt${raw > cap ? ` <small style="color:#ffb86b">(mehr geht erst mit „Überstunden“, gerade max. ${offH(SK('off'))} h)</small>` : ''}.<br><b style="color:var(--cy);font-size:18px">+${fmt(got)} CR</b><br><small style="color:#8fa3a8">Offline wird nur gesammelt – dein Planet ist noch genau da, wo du aufgehört hast.</small></p>`, [['Einsammeln', null]]);
+  overlay(`<h2>Willkommen zurück!</h2><p>Du warst ${hm(raw)} weg. Dein Schiff hat ${hm(away)} lang weiter Gold gesammelt${raw > cap ? ` <small style="color:#ffb86b">(mehr geht mit der Warp-Fähigkeit „Überstunden“, gerade max. ${offH(WP('off'))} h)</small>` : ''}.<br><b style="color:var(--cy);font-size:18px">+${fmt(got)} CR</b><br><small style="color:#8fa3a8">Offline wird nur gesammelt – dein Planet ist noch genau da, wo du aufgehört hast.</small></p>`, [['Einsammeln', null]]);
 }
 
 // ================== Fähigkeiten ==================
