@@ -396,7 +396,7 @@ const WARP = [
 const keepPct = l => 20 + 10 * (l == null ? WP('keep') : l);
 const startCr = l => l ? 300 * Math.pow(8, l - 1) : 0;
 const wpOpen = id => id === 'kraft' || (S.wpu || []).includes(id);
-const wpUnlCost = () => Math.round(5 * Math.pow(3, (S.wpu || []).filter(x => x !== 'kraft').length));
+const wpUnlCost = () => 15; /* neue Warp-Fähigkeit freischalten: immer 15 ✦ */
 const maxWeapons = () => 2 + WP('slot');
 const NAMES = ['Kräuterhöhle', 'Rostrot', 'Violettia', 'Moosmond', 'Spießerstern', 'Frostkugel', 'Goldader'];
 const fmt = n => { if (!isFinite(n)) return '∞'; if (n < 1000) return n < 10 && n % 1 ? n.toFixed(1) : Math.floor(n).toString();
