@@ -332,6 +332,13 @@
 .bb-in{border-radius:12px;border-color:#2a3348;background:#0a0e16;font:600 16px Nunito,sans-serif}
 .bb-rr{border-radius:12px;background:rgba(10,14,22,.65)}
 .bb-chip{font-family:Nunito,sans-serif}
+.bb-det{margin:-2px 0 8px;padding:10px 12px;border:1px solid rgba(255,201,77,.25);border-radius:12px;background:#0a0e16}
+.bb-det table{width:100%;border-collapse:collapse;font:700 13px Nunito,sans-serif}
+.bb-det th{text-align:right;color:#ffe08a;font:400 14px "Lilita One",sans-serif;padding:2px 6px 6px}
+.bb-det td{padding:5px 6px;border-top:1px solid #1e2636;text-align:right;color:#dfe3ec}
+.bb-det td:first-child{text-align:left;color:#8f98ab}
+.bb-det td.w{color:#9dff6a}
+.bb-det td.w::after{content:" ▲";font-size:10px}
 .bb-pod{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:8px;margin:6px 0 12px}
 .bb-pd{text-align:center;cursor:pointer;padding:10px 4px;border-radius:14px}
 .bb-pd.p1{background:linear-gradient(180deg,rgba(255,201,77,.18),rgba(255,201,77,.02));border:1px solid rgba(255,201,77,.35)}
@@ -541,12 +548,31 @@
       el.innerHTML = j.list.length ? podium + j.list.map(row).slice(podium ? 3 : 0).join('') + (j.me && j.me.rank > j.list.length ? `<div class="bb-mut">… du bist auf Platz ${j.me.rank} von ${j.n}</div>` : '')
         : `<div class="bb-mut">${scope === 'fr' ? 'Von deinen Freunden steht noch keiner drauf.' : 'Noch keiner drauf. Sei der Erste!'}</div>`;
       if (scope === 'fr' && !(P.fr || []).length) el.innerHTML += `<div class="bb-mut">Du hast noch keine Freunde hinzugefügt. <a href="#" id="bbToFr" style="color:#f0d37a">Freunde finden</a></div>`;
-      el.querySelectorAll('[data-u]').forEach(r => r.onclick = () => showUser(r.dataset.u));
+      el.querySelectorAll('[data-u]').forEach(r => r.onclick = () => ALL ? showUser(r.dataset.u) : detail(r, g, r.dataset.u));
       const tf = el.querySelector('#bbToFr'); if (tf) tf.onclick = e => { e.preventDefault(); tab = 'friends'; render(); };
-      if (!logged()) el.innerHTML += `<div class="bb-mut">${!ALL && P.best[g] ? `Dein Bestwert: <b style="color:#fff3c4">${fmt(g, P.best[g].s)}</b>. ` : ''}<a href="#" id="bbLog" style="color:#f0d37a">Melde dich an</a>, um mitzumachen.</div>`;
-      else if (!j.me) el.innerHTML += `<div class="bb-mut">Du stehst noch nicht drauf. ${ALL ? 'Hol dir in irgendeinem Spiel einen Bestwert!' : 'Spiel eine Runde ' + esc(GAMES[g].name) + '!'}</div>`;
+      if (!logged()) el.insertAdjacentHTML('beforeend', `<div class="bb-mut">${!ALL && P.best[g] ? `Dein Bestwert: <b style="color:#fff3c4">${fmt(g, P.best[g].s)}</b>. ` : ''}<a href="#" id="bbLog" style="color:#f0d37a">Melde dich an</a>, um mitzumachen.</div>`);
+      else if (!j.me) el.insertAdjacentHTML('beforeend', `<div class="bb-mut">Du stehst noch nicht drauf. ${ALL ? 'Hol dir in irgendeinem Spiel einen Bestwert!' : 'Spiel eine Runde ' + esc(GAMES[g].name) + '!'}</div>`);
       const lg = el.querySelector('#bbLog'); if (lg) lg.onclick = e => { e.preventDefault(); tab = 'login'; render(); };
     } catch (e) { el.innerHTML = `<div class="bb-mut">Bestenliste gerade nicht erreichbar.${!ALL && P.best[g] ? `<br>Dein Bestwert: <b style="color:#fff3c4">${fmt(g, P.best[g].s)}</b>` : ''}</div>`; }
+  }
+  // Detail-Vergleich in der Bestenliste: Werte des Spielers neben deinen eigenen
+  const LBL = { level: 'Level', stars: 'Sterne', coins: 'Münzen', gold: 'Gold', best: 'Bestwert', dist: 'Strecke', runs: 'Läufe', wins: 'Siege', lv: 'Stufe', bg: 'Bandengold', p: 'Planet' };
+  const lbl = k => { const n = k.endsWith('#'), b = n ? k.slice(0, -1) : k; const t = LBL[b] || (b.charAt(0).toUpperCase() + b.slice(1)); return n ? t + ' (Anzahl)' : t; };
+  async function gstat(g, id) { const r = await fetch(`${API}?a=gstat&g=${g}&u=${id}`, { cache: 'no-store' }); return r.json(); }
+  async function detail(row, g, id) {
+    const anc = row.closest('.bb-pod') || row, nx = anc.nextElementSibling, had = nx && nx.classList.contains('bb-det') && nx.dataset.for === id;
+    anc.parentNode.querySelectorAll('.bb-det').forEach(x => x.remove()); if (had) return;
+    const box = document.createElement('div'); box.className = 'bb-det'; box.dataset.for = id; box.innerHTML = '<div class="bb-mut">Lade Werte …</div>'; anc.after(box);
+    try {
+      const mine = logged() && id !== P.id;
+      const [a, me] = await Promise.all([gstat(g, id), mine ? gstat(g, P.id).catch(() => null) : null]);
+      const meMap = new Map(((me && me.stats) || []).map(x => [x[0], x[1]]));
+      const val = (k, v) => typeof v === 'number' ? (k === 'Bestwert' ? fmt(g, v) : v.toLocaleString('de-DE')) : esc(String(v));
+      box.innerHTML = (a.stats && a.stats.length ? `<table><tr><th></th><th>${esc(a.name)}</th>${mine ? '<th>Du</th>' : ''}</tr>${a.stats.map(([k, v]) => { const m = meMap.get(k), win = mine && typeof v === 'number' && typeof m === 'number' ? (v > m ? 1 : v < m ? -1 : 0) : 0;
+          return `<tr><td>${esc(lbl(k))}</td><td class="${win > 0 ? 'w' : ''}">${val(k, v)}</td>${mine ? `<td class="${win < 0 ? 'w' : ''}">${m == null ? '–' : val(k, m)}</td>` : ''}</tr>`; }).join('')}</table>` : '<div class="bb-mut">Noch keine Details gespeichert.</div>')
+        + `${a.ls ? `<div class="bb-mut" style="padding:6px 0 0">🕒 zuletzt ${lastSeen(a.ls)}</div>` : ''}<button class="bb-skip" data-prof="${id}">Profil ansehen ›</button>`;
+      box.querySelector('[data-prof]').onclick = () => showUser(id);
+    } catch (e) { box.innerHTML = '<div class="bb-mut">Details gerade nicht erreichbar.</div>'; }
   }
   // „zuletzt gespeichert“: heute 07:31 · gestern 22:10 · 12.11. 18:00
   function lastSeen(t) { const d = new Date(t * 1000), n = new Date(), hm = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }), y = new Date(n); y.setDate(n.getDate() - 1);

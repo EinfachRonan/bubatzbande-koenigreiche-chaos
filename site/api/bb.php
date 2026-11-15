@@ -102,6 +102,37 @@ if ($a === 'user') {
   out(['user' => full($d['users'][$id], $id)]);
 }
 
+if ($a === 'gstat') {
+  // Detail-Werte eines Spielers für ein Spiel (zum Vergleichen in der Bestenliste)
+  flock($h, LOCK_SH); $d = load($h); flock($h, LOCK_UN); fclose($h);
+  $id = (string) ($_GET['u'] ?? ''); $g = (string) ($_GET['g'] ?? '');
+  if (!isset($d['users'][$id]) || !isset($GAMES[$g])) fail('nouser', 404);
+  $u = $d['users'][$id]; $b = $u['best'][$g] ?? null; $x = $u['gs'][$g] ?? null; $j = $x ? json_decode($x['d'], true) : null; $st = [];
+  $num = fn($v) => is_numeric($v) ? $v + 0 : 0; $sum = fn($a) => is_array($a) ? array_sum(array_map(fn($v) => is_numeric($v) ? $v + 0 : 0, $a)) : 0;
+  if ($b) $st[] = ['Bestwert', $b['s']];
+  if (is_array($j)) {
+    if ($g === 'drill') {
+      $best = max(1, (int) $num($j['best'] ?? 1));
+      $st[] = ['Universum', (int) floor(($best - 1) / 10) + 1];
+      $st[] = ['Aktueller Planet', (int) $num($j['p'] ?? 1)];
+      $st[] = ['Warps', (int) $num($j['pc'] ?? 0)];
+      $st[] = ['Dunkle Materie gesamt', (int) $num($j['dmAll'] ?? 0)];
+      $st[] = ['Waffen', is_array($j['w'] ?? null) ? count($j['w']) : 0];
+      $st[] = ['Waffen-Stufen', (int) $sum($j['w'] ?? [])];
+      $st[] = ['Skill-Stufen', (int) $sum($j['sk'] ?? [])];
+      $st[] = ['Fähigkeiten', is_array($j['ab'] ?? null) ? count($j['ab']) : 0];
+      $st[] = ['Teile im Hangar', is_array($j['inv'] ?? null) ? count($j['inv']) : 0];
+      $st[] = ['Kristalle', (int) $num($j['cry'] ?? 0)];
+    } else {
+      foreach ($j as $k => $v) {
+        if (count($st) >= 12 || in_array($k, ['t', 'v', 'seed', 'own', 'last'], true)) continue;
+        if (is_numeric($v)) $st[] = [(string) $k, $v + 0]; elseif (is_array($v)) $st[] = [(string) $k . '#', count($v)];
+      }
+    }
+  }
+  out(['stats' => $st, 'ls' => max((int) ($x['t'] ?? 0), (int) ($b['t'] ?? 0)), 'name' => $u['name']]);
+}
+
 if ($a === 'overall') {
   // Gesamt-Rangliste über alle Spiele: Punkte nach Platzierung (wie Formel 1)
   flock($h, LOCK_SH); $d = load($h); flock($h, LOCK_UN); fclose($h);
