@@ -226,7 +226,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261115a"></script>
+<script src="../bb.js?v=20261115b"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -383,7 +383,7 @@ function buildPlanet(removed) {
   CELL = Math.max(14, 2 * Math.round(Math.min(W, 520) / 52)); // gerade Zahl: keine Nähte zwischen den Blöcken
   const Rc = boss ? 27 : 16 + rnd() * 10 + Math.min(4, p * .15);
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = 12 * Math.pow(1.9, p - 1) * (1 + .15 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = 3 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = 12 * Math.pow(2.3, p - 1) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (1 + .25 * (S.pc || 0)) * (boss ? 3 : 1), v0 = 3 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
@@ -854,7 +854,7 @@ const warpBonus = n => 5 + Math.ceil(n * .5);
 function planetDone() {
   const gain = (1 + Math.floor(S.p / 3) + WP('kris')) * (G.boss ? 3 : 1), old = G.name;
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
-  if (window.BB) { BB.record('drill', S.p - 1, { n: old }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
+  if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut'); if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
   travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
   toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${gain} · Sprung nach ${uniName(uniOf(S.p))} · Warp bringt jetzt ✦${dmGain()}` : `Planet abgebaut! +◆${gain} · Warp bringt jetzt ✦${dmGain()}`);
   if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);

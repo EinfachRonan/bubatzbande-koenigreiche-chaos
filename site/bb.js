@@ -8,6 +8,7 @@
   const CHAR = { artur: 'Artur', kobold: 'Kobold', nille: 'Nille', geist: 'Grauer Geist', molly: 'Mollymann', lg3: 'LG3', fokuhila: 'Fokuhilamann', kraeuter: 'KräuterKönig', don: 'DonPatron', koenig: 'König', allan: 'Allan', marwin: 'Marwin' };
   const AV = Object.keys(CHAR);
   const fmtTime = s => { s = Math.max(0, s); const m = Math.floor(s / 60), r = s - m * 60; return m + ':' + (r < 10 ? '0' : '') + r.toFixed(1); };
+  const fmtN = n => n >= 1e12 ? (n / 1e12).toFixed(1) + 'T' : n >= 1e9 ? (n / 1e9).toFixed(1) + 'B' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(Math.round(n));
   const GAMES = {
     krieg: { name: 'Bandenkrieg', ico: '⚔️', unit: 'Punkte', what: 'Bester Sieg', url: 'krieg/', meta: m => m && m.d ? `${m.d}${m.t ? ' · ' + fmtTime(m.t).replace(/\.\d$/, '') : ''}` : '' },
     match: { name: 'Kräuter-Match', ico: '🌿', unit: 'Sterne', what: 'Sterne gesamt', url: 'match/', meta: m => m && m.lv ? `bis Level ${m.lv}` : '' },
@@ -15,7 +16,7 @@
     duell: { name: 'Kneipen-Duell', ico: '🍺', unit: 'Kneipenpunkte', what: 'Siege gegen den Wirt', url: 'duell/', meta: m => m && m.w ? `${m.w} Siege` : '' },
     runner: { name: 'Kobold-Runner', ico: '🏃', unit: 'Punkte', what: 'Bester Lauf', url: 'runner/', meta: m => m && m.m ? `${m.m.toLocaleString('de-DE')} m · 🪙 ${m.c}` : '' },
     hof: { name: 'Bandenhof', ico: '🏡', unit: 'Gold', what: 'Gold verdient', url: 'hof/', fmt: n => n >= 1e6 ? (n / (n >= 1e9 ? 1e9 : 1e6)).toLocaleString('de-DE', { maximumFractionDigits: 2 }) + (n >= 1e9 ? ' Mrd' : ' Mio') : Math.round(n).toLocaleString('de-DE'), meta: m => m && m.b != null ? `${m.l ? 'Hof-Stufe ' + m.l + ' · ' : ''}${m.b}/8 Bande` : '' },
-    drill: { name: 'Galaxie-Bohrer', ico: '🚀', unit: 'Planeten', what: 'Höchster Planet', url: 'drill/', meta: m => m && m.n ? String(m.n) : '' },
+    drill: { name: 'Galaxie-Bohrer', ico: '🚀', unit: 'Planeten', what: 'Höchster Planet', url: 'drill/', meta: m => m ? [m.n, m.w != null ? m.w + ' Warps' : '', m.d ? fmtN(m.d) + ' DPS' : ''].filter(Boolean).join(' · ') : '' },
     schach: { name: 'Schlagabtausch', ico: '♞', unit: '', what: 'Schnellster Sieg gegen Herrn Holz', url: 'schach/', asc: true, fmt: fmtTime, meta: m => m && m.d ? String(m.d) : '' }
   };
   const ACH = [
@@ -358,10 +359,10 @@
   }
 
   // ---------- Fenster ----------
-  let ov = null, tab = 'profil', curGame = 'krieg', authMode = 'login';
+  let ov = null, tab = 'profil', curGame = '_all', authMode = 'login';
   function open(t, g) {
     addCss();
-    if (t) tab = t; if (g && GAMES[g]) curGame = g;
+    if (t) tab = t; if (g && (GAMES[g] || g === '_all')) curGame = g; else if (t === 'board' && !g) curGame = '_all';
     if (!logged() && tab !== 'board' && tab !== 'ach') tab = 'login';
     if (!ov) {
       ov = document.createElement('div'); ov.className = 'bb-ov';
@@ -481,30 +482,31 @@
     });
   }
   async function board(body) {
-    body.innerHTML = `<div class="bb-gs">${Object.entries(GAMES).map(([g, G]) => `<button data-g="${g}" class="${g === curGame ? 'on' : ''}">${G.ico} ${esc(G.name)}</button>`).join('')}</div>
+    const ALL = curGame === '_all', GG = ALL ? { what: 'Punkte aus allen Spielen (1. Platz 25, 2. Platz 18, 3. Platz 15 …)', unit: 'Punkte', meta: () => '', name: '' } : GAMES[curGame];
+    body.innerHTML = `<div class="bb-gs"><button data-g="_all" class="${ALL ? 'on' : ''}">🏆 Gesamt</button>${Object.entries(GAMES).map(([g, G]) => `<button data-g="${g}" class="${g === curGame ? 'on' : ''}">${G.ico} ${esc(G.name)}</button>`).join('')}</div>
       <div class="bb-seg"><button data-s="all" class="${scope === 'all' ? 'on' : ''}">🌍 Alle</button><button data-s="fr" class="${scope === 'fr' ? 'on' : ''}">👥 Freunde</button></div>
-      <div style="text-align:center;font-size:13px;color:#b5a07c;margin-bottom:6px">${esc(GAMES[curGame].what)}</div><div id="bbList"><div class="bb-mut">Lade …</div></div>
-      <a class="bb-go" style="margin-top:14px;text-align:center;text-decoration:none;display:block" href="${ROOT + GAMES[curGame].url}">${GAMES[curGame].ico} ${esc(GAMES[curGame].name)} spielen</a>`;
+      <div style="text-align:center;font-size:13px;color:#b5a07c;margin-bottom:6px">${esc(GG.what)}</div><div id="bbList"><div class="bb-mut">Lade …</div></div>
+      ${ALL ? `<div class="bb-mut">Tipp auf einen Spieler, um sein Profil zu sehen und ihn als Freund zu adden.</div>` : `<a class="bb-go" style="margin-top:14px;text-align:center;text-decoration:none;display:block" href="${ROOT + GAMES[curGame].url}">${GAMES[curGame].ico} ${esc(GAMES[curGame].name)} spielen</a>`}`;
     body.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { curGame = b.dataset.g; board(body); });
     body.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { if (b.dataset.s === 'fr' && !logged()) { tab = 'login'; return render(); } scope = b.dataset.s; board(body); });
     const g = curGame, el = body.querySelector('#bbList');
     await sync();
     try {
-      const r = await fetch(`${API}?a=top&g=${g}&u=${P.id || ''}`, { cache: 'no-store' });
+      const r = await fetch(ALL ? `${API}?a=overall&u=${P.id || ''}` : `${API}?a=top&g=${g}&u=${P.id || ''}`, { cache: 'no-store' });
       const j = await r.json(); if (g !== curGame) return;
       if (!j.list) throw 0;
       if (scope === 'fr') { const ok = new Set([...(P.fr || []), P.id]); j.list = j.list.filter(x => ok.has(x.id)); const k = j.list.findIndex(x => x.you); j.me = k >= 0 ? { rank: k + 1 } : null; }
       else j.list = j.list.slice(0, 50);
-      const row = (x, i) => `<div class="bb-row ${x.you ? 'you' : ''}" data-u="${x.id}"><span class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span>${avH(x)}<span class="nm">${esc(x.name)}${x.you ? ' (du)' : ''}<small>${esc(GAMES[g].meta(x.m) || '')}${x.ls ? `${GAMES[g].meta(x.m) ? ' · ' : ''}🕒 ${lastSeen(x.ls)}` : ''}</small></span><span class="s">${fmt(g, x.s)}<small>${GAMES[g].unit}</small></span></div>`;
+      const row = (x, i) => `<div class="bb-row ${x.you ? 'you' : ''}" data-u="${x.id}"><span class="n">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span>${avH(x)}<span class="nm">${esc(x.name)}${x.you ? ' (du)' : ''}<small>${ALL ? `🎖️${x.nach} · 🎮${x.ng}/${Object.keys(GAMES).length}` : esc(GG.meta(x.m) || '')}${x.ls ? ` · 🕒 ${lastSeen(x.ls)}` : ''}</small></span><span class="s">${ALL ? x.s : fmt(g, x.s)}<small>${GG.unit}</small></span></div>`;
       el.innerHTML = j.list.length ? j.list.map(row).join('') + (j.me && j.me.rank > j.list.length ? `<div class="bb-mut">… du bist auf Platz ${j.me.rank} von ${j.n}</div>` : '')
         : `<div class="bb-mut">${scope === 'fr' ? 'Von deinen Freunden steht noch keiner drauf.' : 'Noch keiner drauf. Sei der Erste!'}</div>`;
       if (scope === 'fr' && !(P.fr || []).length) el.innerHTML += `<div class="bb-mut">Du hast noch keine Freunde hinzugefügt. <a href="#" id="bbToFr" style="color:#f0d37a">Freunde finden</a></div>`;
       el.querySelectorAll('[data-u]').forEach(r => r.onclick = () => showUser(r.dataset.u));
       const tf = el.querySelector('#bbToFr'); if (tf) tf.onclick = e => { e.preventDefault(); tab = 'friends'; render(); };
-      if (!logged()) el.innerHTML += `<div class="bb-mut">${P.best[g] ? `Dein Bestwert: <b style="color:#fff3c4">${fmt(g, P.best[g].s)}</b>. ` : ''}<a href="#" id="bbLog" style="color:#f0d37a">Melde dich an</a>, um mitzumachen.</div>`;
-      else if (!j.me) el.innerHTML += `<div class="bb-mut">Du stehst noch nicht drauf. Spiel eine Runde ${esc(GAMES[g].name)}!</div>`;
+      if (!logged()) el.innerHTML += `<div class="bb-mut">${!ALL && P.best[g] ? `Dein Bestwert: <b style="color:#fff3c4">${fmt(g, P.best[g].s)}</b>. ` : ''}<a href="#" id="bbLog" style="color:#f0d37a">Melde dich an</a>, um mitzumachen.</div>`;
+      else if (!j.me) el.innerHTML += `<div class="bb-mut">Du stehst noch nicht drauf. ${ALL ? 'Hol dir in irgendeinem Spiel einen Bestwert!' : 'Spiel eine Runde ' + esc(GAMES[g].name) + '!'}</div>`;
       const lg = el.querySelector('#bbLog'); if (lg) lg.onclick = e => { e.preventDefault(); tab = 'login'; render(); };
-    } catch (e) { el.innerHTML = `<div class="bb-mut">Bestenliste gerade nicht erreichbar.${P.best[g] ? `<br>Dein Bestwert: <b style="color:#fff3c4">${fmt(g, P.best[g].s)}</b>` : ''}</div>`; }
+    } catch (e) { el.innerHTML = `<div class="bb-mut">Bestenliste gerade nicht erreichbar.${!ALL && P.best[g] ? `<br>Dein Bestwert: <b style="color:#fff3c4">${fmt(g, P.best[g].s)}</b>` : ''}</div>`; }
   }
   // „zuletzt gespeichert“: heute 07:31 · gestern 22:10 · 12.11. 18:00
   function lastSeen(t) { const d = new Date(t * 1000), n = new Date(), hm = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }), y = new Date(n); y.setDate(n.getDate() - 1);

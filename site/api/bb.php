@@ -102,6 +102,25 @@ if ($a === 'user') {
   out(['user' => full($d['users'][$id], $id)]);
 }
 
+if ($a === 'overall') {
+  // Gesamt-Rangliste über alle Spiele: Punkte nach Platzierung (wie Formel 1)
+  flock($h, LOCK_SH); $d = load($h); flock($h, LOCK_UN); fclose($h);
+  $PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2]; $pts = []; $ng = [];
+  foreach ($GAMES as $g => $G) {
+    $rows = [];
+    foreach ($d['users'] as $id => $u) { $b = $u['best'][$g] ?? null; if ($b) $rows[] = [$id, $b['s'], $b['t'] ?? 0]; }
+    usort($rows, fn($x, $y) => $G['asc'] ? ($x[1] <=> $y[1] ?: $x[2] <=> $y[2]) : ($y[1] <=> $x[1] ?: $x[2] <=> $y[2]));
+    foreach ($rows as $i => $r) { $pts[$r[0]] = ($pts[$r[0]] ?? 0) + ($PTS[$i] ?? 1); $ng[$r[0]] = ($ng[$r[0]] ?? 0) + 1; }
+  }
+  $list = [];
+  foreach ($pts as $id => $pt) { $u = $d['users'][$id]; $ls = 0; foreach (($u['gs'] ?? []) as $x) $ls = max($ls, (int) ($x['t'] ?? 0)); foreach (($u['best'] ?? []) as $x) $ls = max($ls, (int) ($x['t'] ?? 0));
+    $list[] = ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 's' => $pt, 'nach' => count($u['ach'] ?? []), 'ng' => $ng[$id], 'ls' => $ls]; }
+  usort($list, fn($x, $y) => $y['s'] <=> $x['s'] ?: $y['nach'] <=> $x['nach']);
+  $me = $_GET['u'] ?? ''; $mine = null;
+  foreach ($list as $i => &$r) { $r['you'] = $r['id'] === $me; if ($r['you']) $mine = ['rank' => $i + 1, 's' => $r['s']]; } unset($r);
+  out(['list' => array_slice($list, 0, 300), 'n' => count($list), 'me' => $mine]);
+}
+
 if ($a === 'top') {
   flock($h, LOCK_SH); $d = load($h); flock($h, LOCK_UN); fclose($h);
   $g = $_GET['g'] ?? '';
