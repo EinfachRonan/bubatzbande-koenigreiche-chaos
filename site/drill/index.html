@@ -30,6 +30,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .mid{flex:1;text-align:center;min-width:0}
 .cr{font:400 27px/1.1 Silkscreen,var(--mono);letter-spacing:.01em;white-space:nowrap;text-shadow:0 0 12px rgba(92,232,240,.45),2px 2px 0 #0d3a40}
 .mul{color:var(--cy);font-size:15px}
+.mul.bon{color:var(--pk)!important;text-shadow:0 0 10px rgba(255,79,122,.7)}
 .cry{position:absolute;left:12px;top:calc(max(10px,env(safe-area-inset-top)) + 46px);font-size:14px;color:var(--txt)}
 .pl{flex:none;width:78px;text-align:center}
 .pl .box{width:62px;height:62px;margin:0 auto;border:1px solid #555;display:flex;align-items:center;justify-content:center}
@@ -837,7 +838,7 @@ function beam(x1, y1, x2, y2, col, w) { g.strokeStyle = col; g.globalAlpha = .35
 let tab = 'w', uiT = 0;
 function ui() {
   $('cr').textContent = fmt(S.cr) + ' CR';
-  $('mul').textContent = 'x' + (S.wm || 1).toFixed(2);
+  { const m = $('mul'), wm = S.wm || 1, on = boosting(); m.textContent = on ? 'x' + (wm * 2).toFixed(2) + ' · BOOST' : 'x' + wm.toFixed(2); m.classList.toggle('bon', on); }
   $('cry').innerHTML = '◆' + fmt(S.cry) + ` <span class="dm">✦${S.dm || 0}</span>`;
   $('pln').textContent = 'U' + uniOf(S.p) + ' · ' + (G.boss ? 'BOSS' : 'Planet ' + pInU(S.p)); $('pln').classList.toggle('boss', !!G.boss); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
   hotbar();
@@ -907,7 +908,7 @@ function render() {
 document.querySelectorAll('.nav [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; $('list').scrollTop = 0; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x === b)); render(); });
 function upgradeFx(w) { SND.fx.win(); const n = ST(w.id); fx.push({ k: 'nova', x: ship.x, y: ship.y, r: 90, t: .8, c: '255,233,77' }); for (let k = 0; k < 30; k++) parts.push({ x: ship.x, y: ship.y, vx: (Math.random() - .5) * 300, vy: (Math.random() - .5) * 300, t: .8, c: '#ffe94d' });
   overlay(`<div class="crate" style="--rc:#ffe94d"><div class="cbox" style="font-size:44px;color:#ffe94d">★${n}</div></div><h2 style="color:#ffe94d">${w.n} aufgewertet!</h2><p>x2 Schaden${UPTXT[w.id] ? ' · ' + UPTXT[w.id] : ''}<br>Nächstes Upgrade bei Stufe ${msNext(WL(w.id))}</p>`, [['Stark', null]]); }
-function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3; S.boostCd = Date.now() + 15 * 60e3; toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); }
+function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3; S.boostCd = S.boostEnd + 3 * 60e3; /* 3 min Abklingzeit nach dem Boost */ toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); }
 $('lb').onclick = () => window.BB && BB.open('board', 'drill');
 $('opt').onclick = openSettings;
 let toastT = 0; function toast(s) { const t = $('toast'); if (!t) return; t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
