@@ -276,6 +276,10 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .mod .br:not(:disabled){border-color:#ff9f43;background:linear-gradient(180deg,#3a2510,#1d1309);box-shadow:0 0 10px rgba(255,159,67,.2)}.mod .br:not(:disabled)::before,.mod .br:not(:disabled)::after{border-color:#ff9f43}
 .aut{width:100%;height:auto;min-height:48px;padding:7px 10px;margin:0 0 9px;font-family:Silkscreen,var(--mono);font-size:12px;font-weight:400}
 .aut.on{border-color:var(--li)!important;color:var(--li);box-shadow:0 0 14px rgba(157,255,106,.3)!important}
+.abd{text-align:left}.abtx{font-size:12px;line-height:1.5;color:#cfd8da;margin:0 0 9px;padding:7px 9px;border-left:3px solid var(--cy2);background:#070b0d}.abh{display:flex;gap:10px;align-items:center;margin-bottom:8px}.abh svg{flex:none;width:34px;height:34px;color:var(--cy);border:1.5px solid var(--cy2);padding:5px;background:#05090b}
+.abh b{display:block;font:400 13px Silkscreen,var(--mono);color:var(--txt)}.abh small{font-size:11px;color:#9fb3b8}
+.abst{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}.abst>div{background:#0d1316;border:1px solid #1e2a2f;padding:6px 8px}
+.abst small{display:block;font-size:10px;color:#8fa3a8}.abst b{display:block;font:400 14px Silkscreen,var(--mono);color:var(--txt)}.abst em{font-style:normal;font-size:10.5px;color:var(--li)}
 html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
 /* ===== PC / Desktop: Vollbild – großes Spielfeld links, Menü als Seitenleiste rechts ===== */
 @media (min-width:900px) and (min-height:540px){
@@ -1080,6 +1084,29 @@ const ABIL = [
 const AL = id => (S.ab && S.ab[id]) || 0;
 const abPow = id => 1 + .25 * (AL(id) - 1);
 const abCd = a => a.cd * (1 - .04 * (AL(a.id) - 1)) * (1 - .04 * itemLv('t')) * (1 - Math.min(.5, HA('cd')));
+const ABTXT = {
+  over: 'Dein Schiff dreht durch: Alle Waffen und deine Rumpf-Attacke machen für ein paar Sekunden doppelten Schaden. Am besten zusammen mit Boost und anderen Fähigkeiten zünden.',
+  gold: 'Für ein paar Sekunden bringt jeder abgebaute Block doppelt so viele CR. Lohnt sich am meisten, wenn gerade viel kaputt geht, z. B. direkt nach dem Meteorschauer.',
+  meteor: '14 Meteore fallen aus dem All auf zufällige Stellen des Planeten und reißen dort Blöcke raus. Gut, um überall gleichzeitig Schaden zu machen.',
+  kanone: 'Ein riesiger, 7 Blöcke breiter Laser schießt vom Schiff quer durch den ganzen Planeten bis zum Kern und darüber hinaus.',
+  loch: 'Öffnet ein schwarzes Loch an einer zufälligen Stelle. Es zieht 2 Sekunden lang alles im Radius ein und frisst die Blöcke Stück für Stück.',
+  erz: 'Scannt den Planeten und verwandelt zufällige Blöcke in Erz. Erz bringt 10-mal so viele CR, manche werden sogar zu wertvollem pinkem Erz (40-mal).',
+  zeit: 'Spult die Zeit vor: Du bekommst sofort so viele CR, wie du sonst in rund einer Minute verdienen würdest. Ohne dass du warten musst.'
+};
+// Genaue Werte einer Fähigkeit auf Stufe lv (für die Detailansicht)
+function abStats(id, lv) {
+  const a = ABIL.find(x => x.id === id), P = 1 + .25 * (lv - 1), D = Math.max(totalDps(), 1), dur = 12 * (1 + .1 * (lv - 1));
+  const cd = a.cd * (1 - .04 * (lv - 1)) * (1 - .04 * itemLv('t')) * (1 - Math.min(.5, HA('cd')));
+  const r = [['Abklingzeit', cd.toFixed(1) + ' s'], ['Stärke', 'x' + P.toFixed(2)]];
+  if (id === 'over') r.push(['Effekt', 'x2 Schaden'], ['Dauer', dur.toFixed(1) + ' s']);
+  else if (id === 'gold') r.push(['Effekt', 'x2 CR'], ['Dauer', dur.toFixed(1) + ' s']);
+  else if (id === 'meteor') r.push(['Meteore', '14'], ['Schaden je Meteor', fmt(D * .8 * P)], ['Schaden gesamt', fmt(D * .8 * P * 14)]);
+  else if (id === 'kanone') r.push(['Laser-Schaden', fmt(D * 5 * P)], ['Breite', '7 Blöcke']);
+  else if (id === 'loch') r.push(['Radius', (2.6 + lv * .25).toFixed(2) + ' Blöcke'], ['Schaden', fmt(D * 3 * P)], ['Dauer', '2.2 s']);
+  else if (id === 'erz') r.push(['Neue Erze', Math.round(14 * P) + ' Blöcke']);
+  else if (id === 'zeit') r.push(['Sofort-Ertrag', fmt(Math.max(S.ema || 0, (G ? G.v0 : 1) * crMult() * 3) * 60 * P) + ' CR']);
+  return r;
+}
 const abReady = id => (S.abT[id] || 0) <= Date.now();
 const buf = k => (S.buf[k] || 0) > Date.now();
 const drawCost = () => 8 + 12 * Object.keys(S.ab).length;
@@ -1309,7 +1336,10 @@ function renderAb(L) {
     <div class="sk ab">${ABIL.map(a => { const l = AL(a.id), on = S.hot.includes(a.id);
       return l ? `<button data-ab="${a.id}" class="${on ? 'on' : ''}"><span class="c">${l}/10</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg>${a.n}<small>${a.d} · ${Math.round(abCd(a))} s<br><i class="upc">${l >= 10 ? 'MAX' : '⬆ ◆' + abUpCost(a.id)}</i></small>${on ? '<em>AUSG</em>' : ''}</button>`
         : `<button class="lock" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>???</button>`; }).join('')}</div>
-    ${abSel && AL(abSel) ? (() => { const a = ABIL.find(x => x.id === abSel), l = AL(abSel), c = abUpCost(abSel); return `<div class="wh" style="margin-top:10px"><p><b style="display:inline;font-size:14px;color:var(--txt)">${a.n}</b> · Lvl. ${l}<br>Stärke x${abPow(abSel).toFixed(2)} · Abklingzeit ${Math.round(abCd(a))} s</p>
+    ${abSel && AL(abSel) ? (() => { const a = ABIL.find(x => x.id === abSel), l = AL(abSel), c = abUpCost(abSel), now = abStats(abSel, l), nx = l < 10 ? abStats(abSel, l + 1) : null; return `<div class="wh abd" style="margin-top:10px"><div class="abh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg><div><b>${a.n}</b><small>Lvl. ${l}/10 · ${a.d}</small></div></div>
+      <p class="abtx">${ABTXT[abSel] || ''}</p>
+      <div class="abst">${now.map(([k, v], i) => `<div><small>${k}</small><b>${v}</b>${nx && nx[i][1] !== v ? `<em>→ ${nx[i][1]}</em>` : ''}</div>`).join('')}</div>
+      <p class="hint" style="padding:2px 0 8px">Schaden-Werte rechnen mit deiner aktuellen Waffen-DPS (${fmt(Math.max(totalDps(), 1))}/s).${nx ? ' Grün = Wert auf der nächsten Stufe.' : ''}</p>
       <div class="row2"><button class="br" id="abeq">${S.hot.includes(abSel) ? 'Ablegen' : 'Ausrüsten'}</button><button class="br" id="abup" ${l >= 10 || S.cry < c ? 'disabled' : ''}>${l >= 10 ? 'Max' : 'Verbessern ◆' + c}</button></div></div>`; })() : ''}
     <div class="row2" style="margin-top:10px"><button class="br" id="aball" ${own.some(a => AL(a.id) < 10 && S.cry >= abUpCost(a.id)) ? '' : 'disabled'}>Alle verbessern</button><button class="br" id="abbest" ${own.length ? '' : 'disabled'}>Beste ausrüsten</button></div>
     <button class="br unl" data-shop="1" style="margin-top:9px">🛒 FÄHIGKEITEN-KISTE IM SHOP</button>
