@@ -304,6 +304,14 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .ov.bare .bx{border:0!important;background:none!important;box-shadow:none!important;animation:ovPop .35s cubic-bezier(.2,1.5,.4,1)}
 @keyframes ovPop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
 .ov.bare .bx h2{text-shadow:0 0 18px currentColor}
+.hs .dot{position:absolute;top:3px;right:3px;width:10px;height:10px;border-radius:50%;background:var(--pk);box-shadow:0 0 6px var(--pk)}
+.mis{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.mis>div{display:flex;align-items:center;gap:8px;padding:8px;background:linear-gradient(90deg,#14130a,#0a0905);box-shadow:inset 3px 0 0 #6b5e1c,inset 0 0 0 1px #2a2610}
+.mis>div.d{box-shadow:inset 3px 0 0 #ffe94d,inset 0 0 0 1px #4a4416,0 0 10px rgba(255,233,77,.15)}.mis>div.c{opacity:.5}
+.mt{flex:1;min-width:0;position:relative}.mt b{display:block;font-size:12px;color:var(--txt)}.mt small{display:block;font-size:10.5px;color:#ffe94d;margin-top:2px}
+.mt i{display:block;height:5px;background:#1f1c0c;margin-top:5px;margin-right:46px}.mt i s{display:block;height:100%;background:#ffe94d;text-decoration:none}.mt em{position:absolute;right:0;bottom:-3px;font-style:normal;font-size:10px;color:#cfd8da}
+.mis .br{min-width:72px;height:38px;font-size:12px}
+.lgd{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:4px 0 12px}.lgd div{padding:6px 2px;border:1px solid #2a3338;background:#070b0d}.lgd small{display:block;font-size:9.5px;color:#8fa3a8}.lgd b{display:block;font-size:10.5px;color:#cfd8da;margin-top:2px;line-height:1.3}
+.lgd .ok{opacity:.45;border-color:#3e7a3a}.lgd .on{border-color:#ffe94d;box-shadow:0 0 12px rgba(255,233,77,.4);background:#14130a}.lgd .on b{color:#ffe94d}.lgd div:last-child{grid-column:span 2}
 html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
 /* ===== PC / Desktop: Vollbild – großes Spielfeld links, Menü als Seitenleiste rechts ===== */
 @media (min-width:900px) and (min-height:540px){
@@ -591,9 +599,19 @@ function resize() {
   if (!isFinite(ship.x) || !ship.x) { ship.orb = -Math.PI / 2; ship.x = G.cx; ship.y = G.cy - G.R - 60; } surfaceBins(); cam.x = ship.x; cam.y = ship.y;
 }
 // Block-Leben: x2,1 pro Planet, auf den ersten Planeten steiler, damit Planet 2-4 nicht plötzlich durchrauschen
+// Planeten-Typen: normal, Lava (Blöcke wachsen nach, mehr CR), Eis (weniger Leben, Blöcke zersplittern), Gold (voller Erz, härter), Kristall (viele ◆-Blöcke)
+const PTYPE = {
+  n: { n: '', crM: 1, hpM: 1 },
+  lava: { n: 'Lava', ico: '🌋', d: 'Blöcke wachsen nach · +50 % CR', pal: ['#d9532b', '#5a1a0a', '#ff3d0a'], crM: 1.5, hpM: 1 },
+  eis: { n: 'Eis', ico: '❄️', d: 'Weniger Leben · Blöcke zersplittern', pal: ['#8fd6ff', '#2a5470', '#5fd4ff'], crM: .9, hpM: .6 },
+  gold: { n: 'Gold', ico: '💰', d: 'Voller Erz · Blöcke härter', pal: ['#d9b22a', '#6e550c', '#ffc61a'], crM: 1, hpM: 1.4, ore: 6 },
+  kris: { n: 'Kristall', ico: '💎', d: '9 Kristall-Blöcke ◆', pal: ['#b48cff', '#3d1d6d', '#b06bff'], crM: 1, hpM: 1, kris: 9 }
+};
+function planetType(p, boss) { if (boss || p < 3) return 'n'; const r = mulberry(p * 104729 + (S.seed || 13) * 7)(); return r < .45 ? 'n' : r < .6 ? 'lava' : r < .75 ? 'eis' : r < .88 ? 'gold' : 'kris'; }
 const hpCurve = p => { let g = 1; for (let k = 2; k <= p; k++) g *= 2.1 + 1.2 * Math.exp(-(k - 2) / 1.5); return g; };
 function buildPlanet(removed) {
-  const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0, pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : PAL[(p - 1) % PAL.length];
+  const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0;
+  const ty = planetType(p, boss), TT = PTYPE[ty], pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : TT.pal || PAL[(p - 1) % PAL.length];
   // Großer Planet: man sieht nur einen Ausschnitt, die Kamera folgt dem Schiff, die Minimap zeigt alles
   CELL = Math.max(14, 2 * Math.round(Math.min(W, 520) / 52)); // gerade Zahl: keine Nähte zwischen den Blöcken
   if (innerWidth >= 900 && H >= 420) CELL = Math.max(12, Math.min(18, 2 * Math.round(H / 140))); // PC: Planet passt fast ganz ins Bild
@@ -607,7 +625,7 @@ function buildPlanet(removed) {
   const ccx = (COLS - 1) / 2, ccy = (ROWS - 1) / 2, R = Rc;
   const bumps = Array.from({ length: 2 + (rnd() * 4 | 0) }, () => [rnd() * 6.283, .012 + rnd() * .025, 2 + (rnd() * 5 | 0)]);
   
-  const oreCh = (.025 + .015 * SK('ore')) * (boss ? 2 : 1);
+  const oreCh = (.025 + .015 * SK('ore')) * (boss ? 2 : 1) * (TT.ore || 1);
   let total = 0;
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     const dx = (c - ccx) / ell, dy = (r - ccy) * ell, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
@@ -615,15 +633,15 @@ function buildPlanet(removed) {
     if (d > rr) continue;
     const i = r * COLS + c; alive[i] = 1; total++;
     const depth = 1 - d / rr; dep[i] = depth; lit[i] = Math.max(0, (-dx - dy) / (Math.SQRT2 * R));
-    mx[i] = hp[i] = hp0 * (1 + depth * 2.2) * (.85 + rnd() * .3);
+    mx[i] = hp[i] = hp0 * TT.hpM * (1 + depth * 2.2) * (.85 + rnd() * .3);
     if (rnd() < oreCh * (.6 + depth)) ore[i] = 1 + (rnd() < .12 + depth * .15 ? 1 : 0);
   }
   // Sonderblöcke: immer 3 Kristall-Blöcke (◆), manchmal 1–2 Blöcke mit Dunkler Materie (✦)
   { const ids = []; for (let i = 0; i < N; i++) if (alive[i]) ids.push(i);
     const pick = () => { for (let t = 0; t < 50; t++) { const i = ids[(rnd() * ids.length) | 0]; if (ore[i] < 3) return i; } return -1; };
-    for (let k = 0; k < 3; k++) { const i = pick(); if (i >= 0) ore[i] = 3; }
+    for (let k = 0; k < (TT.kris || 3); k++) { const i = pick(); if (i >= 0) ore[i] = 3; }
     if (rnd() < .35) { const n = rnd() < .5 ? 1 : 2; for (let k = 0; k < n; k++) { const i = pick(); if (i >= 0) ore[i] = 4; } } }
-  G = { p, pal, ox, oy, dst, alive, hp, mx, ore, dep, lit, total, v0, cx: ox + (ccx + .5) * CELL, cy: oy + (ccy + .5) * CELL, R: R * CELL, boss, name: boss ? 'Spießer-Festung ' + p / 10 : NAMES[(p - 1) % NAMES.length] + ' ' + (Math.floor((p - 1) / NAMES.length) + 1), clearing: 0 };
+  G = { p, pal, ox, oy, dst, alive, hp, mx, ore, dep, lit, total, v0, cx: ox + (ccx + .5) * CELL, cy: oy + (ccy + .5) * CELL, R: R * CELL, boss, name: boss ? 'Spießer-Festung ' + p / 10 : (TT.n ? TT.n + '-' : '') + NAMES[(p - 1) % NAMES.length] + ' ' + (Math.floor((p - 1) / NAMES.length) + 1), clearing: 0, type: ty, crM: TT.crM, dead: [], rg: 1 };
   G.left = total;
   // Fortschritt wiederherstellen: von außen nach innen abtragen
   let n = Math.min(removed | 0, total - 1);
@@ -650,12 +668,14 @@ function kill(i, reward) {
   if (G.ore[i]) SND.fx.ore(); else SND.fx.brk();
   const [x, y] = cellXY(i);
   if (fx.length < 160) fx.push({ k: 'sq', x, y, t: .28, c: G.ore[i] ? '#ffe36a' : (G.line || '#fff') });
-  const val = G.v0 * (1 + G.dep[i] * .8) * (G.ore[i] ? (G.ore[i] === 2 ? 40 : G.ore[i] === 1 ? 10 : 5) : 1) * crMult();
+  if (G.dead) G.dead.push(i);
+  if (G.type === 'eis' && Math.random() < .25) { const c = i % COLS; for (const j of [c > 0 ? i - 1 : -1, c < COLS - 1 ? i + 1 : -1, i - COLS, i + COLS]) if (j >= 0 && j < G.alive.length && G.alive[j]) hit(j, G.mx[j] * .45); if (fx.length < 160) fx.push({ k: 'nova', x, y, r: CELL * 1.6, t: .25, c: '200,240,255' }); }
+  const val = (G.crM || 1) * G.v0 * (1 + G.dep[i] * .8) * (G.ore[i] ? (G.ore[i] === 2 ? 40 : G.ore[i] === 1 ? 10 : 5) : 1) * crMult();
   S.cr += val; earnedSec += val; crBuf += val; crBufX = x; crBufY = y;
   const col = G.ore[i] ? (['', '#ffe36a', '#ff5fd2', '#ffffff', '#c9a2ff'])[G.ore[i]] : G.pal[2], ax = x - G.cx, ay = y - G.cy, al = Math.hypot(ax, ay) || 1;
   if (parts.length < 400) for (let k = 0; k < (G.ore[i] ? 7 : 3); k++) parts.push({ x, y, vx: ax / al * 90 + (Math.random() - .5) * 110, vy: ay / al * 90 + (Math.random() - .5) * 110, t: .5 + Math.random() * .4, c: col });
-  if (G.ore[i] === 3) { S.cry += SPC; floats.push({ x, y: y - 10, t: 1.6, s: '+◆' + SPC, c: '#ffffff' }); }
-  else if (G.ore[i] === 4) { S.dm = (S.dm || 0) + 2; floats.push({ x, y: y - 10, t: 1.8, s: '+✦2', c: '#c9a2ff' }); toast('Dunkle Materie gefunden! +✦2'); }
+  if (G.ore[i] === 3) { mis('cry'); S.cry += SPC; floats.push({ x, y: y - 10, t: 1.6, s: '+◆' + SPC, c: '#ffffff' }); }
+  else if (G.ore[i] === 4) { mis('dm'); S.dm = (S.dm || 0) + 2; floats.push({ x, y: y - 10, t: 1.8, s: '+✦2', c: '#c9a2ff' }); toast('Dunkle Materie gefunden! +✦2'); }
   else if (G.ore[i]) floats.push({ x, y: y - 10, t: 1.2, s: '+' + fmt(val) + ' CR', c: '#ffe36a' });
 }
 const SPC = 3; // ◆ pro Kristall-Block
@@ -710,6 +730,9 @@ function step(dt) {
   const face = ship.ang + Math.PI / 2, fcx = Math.cos(face), fcy = Math.sin(face);
   const front = (dist, r2, spread) => nearest(ship.x + fcx * dist + (spread ? (Math.random() - .5) * spread : 0), ship.y + fcy * dist + (spread ? (Math.random() - .5) * spread : 0), r2);
   hullAtk(dt, face); hentsStep(dt);
+  // Lava: abgebaute Blöcke wachsen langsam nach (am Ende nicht mehr, damit man fertig wird)
+  if (G.type === 'lava' && (G.rg -= dt) <= 0) { G.rg = .7; if (G.left > G.total * .1 && G.dead.length) { const k = (Math.random() * G.dead.length) | 0, i = G.dead[k]; G.dead.splice(k, 1);
+    if (!G.alive[i]) { G.alive[i] = 1; G.hp[i] = G.mx[i] * .6; G.dst[i] = 0; G.ore[i] = 0; G.left++; G.dirty.add(i); tDirty = true; const [x, y] = cellXY(i); fx.push({ k: 'sq', x, y, t: .5, c: '#ff8a3a' }); } } }
   // 1) Kobold-Strahl
   const dL = WD('line');
   if (lineTarget < 0 || !G.alive[lineTarget]) lineTarget = nearest(ship.x + Math.cos(ship.orb + 1.57) * 30, ship.y + Math.sin(ship.orb + 1.57) * 30); // nächster Block in Flugrichtung
@@ -973,7 +996,7 @@ function draw(now) {
   if (intro > 0) { const k = Math.min(1, (2.4 - intro) * 4, intro * 2), y = H * .16; g.globalAlpha = k;
     g.fillStyle = 'rgba(5,6,10,.75)'; g.fillRect(0, y - 26, W, 50); g.fillStyle = G.boss ? '#ff4f7a' : G.pal[2]; g.fillRect(0, y - 26, W, 2); g.fillRect(0, y + 22, W, 2);
     g.textAlign = 'center'; g.font = '22px Silkscreen,"Pixelify Sans",monospace'; g.fillStyle = '#fff'; const nu = pInU(S.p) === 1; g.fillText(nu ? 'UNIVERSUM ' + uniOf(S.p) : (G.boss ? 'BOSS' : 'PLANET ' + pInU(S.p)), W / 2 + (1 - k) * 40, y + 2);
-    g.font = '10px Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(nu ? uniName(uniOf(S.p)) + ' · Planet 1' : introName + ' · U' + uniOf(S.p), W / 2 - (1 - k) * 40, y + 17); g.globalAlpha = 1; }
+    g.font = '10px Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(nu ? uniName(uniOf(S.p)) + ' · Planet 1' : introName + ' · U' + uniOf(S.p), W / 2 - (1 - k) * 40, y + 17); if (G.type && G.type !== 'n') { g.fillStyle = '#ffe94d'; g.fillText(PTYPE[G.type].ico + ' ' + PTYPE[G.type].d, W / 2 - (1 - k) * 40, y + 32); } g.globalAlpha = 1; }
   // Röhrenbildschirm
   if (!scanPat) overlays(); g.fillStyle = scanPat; g.fillRect(0, 0, W, H); g.fillStyle = vign; g.fillRect(0, 0, W, H);
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -1008,6 +1031,7 @@ function ui() {
   $('hgdot').hidden = !Object.keys(S.dup || {}).some(k => S.dup[k] > 0);
   $('wpdot').hidden = !(dmGain() > 0 || WARP.some(w => WP(w.id) < w.max && S.dm >= w.cost(WP(w.id))));
   if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + dmGain(); $('wmto').textContent = 'x' + ((S.wm || 1) + wmGain()).toFixed(2); $('wgo').disabled = !dmGain(); }
+  if ($('shdot')) $('shdot').hidden = !dlyOpen();
   $('skdot').hidden = !SKILLS.some(s => SK(s.id) < s.max && S.cry >= skCost(s.id));
   // Knöpfe aktualisieren, ohne die Liste neu zu bauen
   document.querySelectorAll('[data-up]').forEach(el => { const w = WEAP.find(x => x.id === el.dataset.up), n = buyN === 'max' ? Math.max(1, maxBuy(w)) : buyN, c = wCost(w, n); el.disabled = S.cr < c; const l0 = WL(w.id), f = l => T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult(), gn = f(l0 + n) - f(l0); el.innerHTML = (n > 1 ? `x${n} · ` : '') + fmt(c) + ' CR' + `<small class="gn">+${fmt(gn)} DPS${msN(l0 + n) > msN(l0) ? ' ★' : ''}</small>`; });
@@ -1039,7 +1063,7 @@ function render() {
           <button class="br" data-mod="${w.id}" ${mx || (S.chip || 0) < c ? 'disabled' : ''}>${mx ? 'MAX' : '⬢' + c}</button></div>`; }).join('')}</div>`;
     L.innerHTML = h;
     L.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { buyN = b.dataset.n === 'max' ? 'max' : +b.dataset.n; render(); });
-    L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; const s0 = ST(w.id); S.w[w.id] = WL(w.id) + n; SND.fx.up(); if (ST(w.id) > s0) upgradeFx(w); if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
+    L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; const s0 = ST(w.id); S.w[w.id] = WL(w.id) + n; mis('wup', n); SND.fx.up(); if (ST(w.id) > s0) upgradeFx(w); if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
     L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c || owned().length >= maxWeapons()) return; S.cr -= c; S.w[w.id] = 1; S.wo = owned().concat(w.id); S.offer = null; S.rrUsed = false; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
     L.querySelectorAll('[data-wi]').forEach(b => b.onclick = () => wInfo(b.dataset.wi));
     L.querySelectorAll('[data-mod]').forEach(b => b.onclick = () => { const id = b.dataset.mod, l = ML(id), c = modCost(l); if (l >= MOD_MAX || (S.chip || 0) < c) return; S.chip -= c; S.mod = S.mod || {}; S.mod[id] = l + 1; SND.fx.win(); const w = WEAP.find(x => x.id === id);
@@ -1106,6 +1130,7 @@ const warpBonus = n => 5 + Math.ceil(n * .5);
 function planetDone() {
   SND.fx.win();
   const gain = (4 + S.p + 2 * WP('kris')) * (G.boss ? 3 : 1), old = G.name;
+  mis('planets'); if (G.boss) mis('boss');
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
   S.pAll = (S.pAll || 0) + 1; let chipT = ''; if (S.pAll % 5 === 0) { S.chip = (S.chip || 0) + 1; chipT = ' · +⬢1 Chip!'; setTimeout(() => toast('⬢ Waffen-Chip bekommen! Im Waffen-Tab bei „Waffen-Mods“ einsetzen.'), 2600); }
   let bgN = 0;
@@ -1120,7 +1145,7 @@ function warp() {
   const n = dmGain(); if (!n) return;
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)${S.p > 10 ? '<br><small>inkl. Universums-Bonus +' + (wmGain() - .02).toFixed(2) + '</small>' : ''}<br><br>Du behältst <b style="color:var(--txt)">${keepPct()} % deiner ◆</b> (◆${fmt(S.cry)} → ◆${fmt(Math.floor(S.cry * keepPct() / 100))}).<br>CR, Waffen, Planet und Skills werden zurückgesetzt. Fähigkeiten, Hangar und Warp-Werkstatt bleiben.</p>`,
     [['SPRINGEN', () => {
-      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
+      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
       S.cry = Math.floor(S.cry * keepPct() / 100); S.sk = {}; S.abT = {}; S.buf = {}; S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
@@ -1184,10 +1209,12 @@ const drawCost = () => 8 + 12 * Object.keys(S.ab).length;
 const abUpCost = id => 3 * AL(id);
 const meteors = [];
 let bhole = null;
+let lastCast = -1e9;
+window.gbHype = () => { if (!S || !G) return 0; let h = 0; if (boosting()) h++; if (buf('dmg') || buf('cr')) h++; if (Date.now() - lastCast < 7000) h++; if (G.boss) h = Math.max(h, 1) + (h ? 1 : 0); return Math.min(3, h); };
 function cast(id, auto) {
   const a = ABIL.find(x => x.id === id); if (!a || !AL(id) || !abReady(id) || !G || G.clearing || travel > 0) return;
   const P = abPow(id), D = Math.max(totalDps(), 1);
-  S.abT[id] = Date.now() + abCd(a) * 1000; SND.fx.cast();
+  S.abT[id] = Date.now() + abCd(a) * 1000; SND.fx.cast(); lastCast = Date.now(); mis('cast');
   if (id === 'over') S.buf.dmg = Date.now() + 12000 * (1 + .1 * (AL(id) - 1)) ;
   else if (id === 'gold') S.buf.cr = Date.now() + 12000 * (1 + .1 * (AL(id) - 1));
   else if (id === 'meteor') { for (let k = 0; k < 14; k++) { const i = randAlive(); if (i < 0) break; const [x, y] = cellXY(i); meteors.push({ x: x + (Math.random() - .5) * 120, y: cam.y - H / 2 - 20 - k * 30, tx: x, ty: y, d: D * .8 * P, v: 380 + Math.random() * 120 }); } }
@@ -1349,14 +1376,14 @@ function rollAbility() {
 }
 function openShopCrate(k) {
   if (S.cry < k.cost) return;
-  if (!k.w) { S.cry -= k.cost; const r = rollAbility(); save('now');
+  if (!k.w) { S.cry -= k.cost; mis('crate'); const r = rollAbility(); save('now');
     overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${r.a.ico}</svg></div></div><h2 style="color:#c9a2ff">${r.a.n}</h2><p>${r.a.d}<br>${r.txt}</p>`, [['Nochmal ◆' + k.cost, () => openShopCrate(k)], ['Weiter', () => render()]]);
     if (S.cry < k.cost) $('ovb').querySelector('[data-k="0"]').disabled = true; return; }
   openCrate(k);
 }
 function openCrate(k) {
   if (S.cry < k.cost) return;
-  S.cry -= k.cost;
+  S.cry -= k.cost; mis('crate');
   let roll = Math.random() * 100, r = 'g'; for (const [rr, w] of Object.entries(k.w)) { if ((roll -= w) < 0) { r = rr; break; } }
   const pool = ITEMS.filter(x => x.r === r), it = pool[(Math.random() * pool.length) | 0], had = S.inv[it.id] || 0;
   let extra = '';
@@ -1395,7 +1422,7 @@ function hotbar(force) {
     hotSig = sig;
     el.innerHTML = [0, 1, 2, 3, 4].map(k => { const id = S.hot[k], a = id && ABIL.find(x => x.id === id);
       return a ? `<button class="hs" data-cast="${id}" aria-label="${a.n}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg><i class="cd"></i><span class="ct"></span></button>`
-        : `<button class="hs empty" data-goab="1" aria-label="Fähigkeit hinzufügen">+</button>`; }).join('') + `<button class="hs shp" data-goshop="1" aria-label="Shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.4 11h10.2L20 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></button><button class="hs bst" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">x2</span></button>`;
+        : `<button class="hs empty" data-goab="1" aria-label="Fähigkeit hinzufügen">+</button>`; }).join('') + `<button class="hs shp" data-goshop="1" aria-label="Shop"><span class="dot" id="shdot" hidden></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.4 11h10.2L20 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></button><button class="hs bst" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">x2</span></button>`;
     el.querySelectorAll('[data-cast]').forEach(b => b.onclick = () => cast(b.dataset.cast));
     el.querySelectorAll('[data-goab]').forEach(b => b.onclick = () => goTab('a'));
     el.querySelectorAll('[data-goshop]').forEach(b => b.onclick = () => goTab('k'));
@@ -1432,11 +1459,44 @@ function renderAb(L) {
   $('abbest').onclick = () => { S.hot = own.slice().sort((a, b) => AL(b.id) - AL(a.id)).slice(0, 5).map(a => a.id); save('now'); hotbar(true); render(); };
   L.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => goTab('k'));
 }
+// ================== Täglich: Login-Belohnung + Tagesmissionen ==================
+const dayKey = t => { const d = new Date(t == null ? Date.now() : t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const LOGIN = [{ cry: 10 }, { cry: 15 }, { chip: 1 }, { cry: 25 }, { dm: 3 }, { cry: 40 }, { cry: 50, crate: 'k3' }];
+const MPOOL = [
+  { id: 'planets', t: 'Baue 5 Planeten ab', n: 5, rw: { cry: 20 } }, { id: 'cast', t: 'Zünde 12 Fähigkeiten', n: 12, rw: { cry: 15 } },
+  { id: 'cry', t: 'Zerstöre 6 Kristall-Blöcke', n: 6, rw: { chip: 1 } }, { id: 'dm', t: 'Finde einen Dunkle-Materie-Block', n: 1, rw: { dm: 3 } },
+  { id: 'crate', t: 'Öffne 3 Kisten', n: 3, rw: { cry: 12 } }, { id: 'boss', t: 'Zerlege eine Spießer-Festung', n: 1, rw: { dm: 5 } },
+  { id: 'wup', t: 'Kaufe 100 Waffen-Stufen', n: 100, rw: { cry: 15 } }, { id: 'melt', t: 'Schmelze 3 Teile ein', n: 3, rw: { chip: 1 } },
+  { id: 'warp', t: 'Mach einen Warp-Sprung', n: 1, rw: { dm: 3 } }, { id: 'min', t: 'Spiele 15 Minuten', n: 15, rw: { cry: 15 } }
+];
+const rwTxt = r => [r.cry ? '◆' + r.cry : '', r.dm ? '✦' + r.dm : '', r.chip ? '⬢' + r.chip : '', r.crate ? (CRATES.find(k => k.id === r.crate) || {}).n : ''].filter(Boolean).join(' + ');
+function giveRw(r) { if (r.cry) S.cry += r.cry; if (r.dm) S.dm = (S.dm || 0) + r.dm; if (r.chip) S.chip = (S.chip || 0) + r.chip; save('now'); ui(); if (r.crate) { const k = CRATES.find(x => x.id === r.crate); S.cry += k.cost; openCrate(k); } }
+function dly() {
+  S.dly = S.dly || { last: '', streak: 0, day: '', ms: [], bonus: 0 }; const D = S.dly, td = dayKey();
+  if (D.day !== td) { const r = mulberry(td.split('-').join('') * 1 + (S.seed || 7)), pool = MPOOL.slice(); D.ms = []; while (D.ms.length < 3) { const m = pool.splice((r() * pool.length) | 0, 1)[0]; D.ms.push({ id: m.id, p: 0, c: 0 }); } D.day = td; D.bonus = 0; }
+  return D;
+}
+function mis(id, n) { if (!S) return; const D = dly(); for (const m of D.ms) { const M = MPOOL.find(x => x.id === m.id); if (m.id !== id || m.p >= M.n) continue; m.p = Math.min(M.n, m.p + (n || 1)); if (m.p >= M.n) setTimeout(() => toast('✅ Mission geschafft: ' + M.t + ' · im Shop abholen'), 600); } }
+const dlyOpen = () => { const D = dly(); return D.ms.some(m => !m.c && m.p >= MPOOL.find(x => x.id === m.id).n) || (D.ms.every(m => m.c) && !D.bonus); };
+function loginCheck() {
+  const D = dly(), td = dayKey(); if (D.last === td) return;
+  if (!$('ov').classList.contains('hide')) { setTimeout(loginCheck, 1500); return; }
+  const st = D.last === dayKey(Date.now() - 864e5) ? D.streak % 7 + 1 : 1, rw = LOGIN[st - 1];
+  overlay(`<h2>Tägliche Belohnung</h2><div class="lgd">${LOGIN.map((r, k) => `<div class="${k + 1 < st ? 'ok' : k + 1 === st ? 'on' : ''}"><small>Tag ${k + 1}</small><b>${rwTxt(r).replace(' + ', '<br>')}</b></div>`).join('')}</div>
+    <p>${st > 1 ? `🔥 ${st} Tage in Folge!` : 'Komm jeden Tag wieder, Tag 7 bringt eine Ultimative Kiste.'}<br>Heute: <b style="color:var(--cy)">${rwTxt(rw)}</b></p>`,
+    [['Abholen', () => { D.last = td; D.streak = st; giveRw(rw); if (tab === 'k') render(); }]]);
+}
 function renderShop(L) {
-  L.innerHTML = `<div class="skh"><span>Shop</span><b>◆ ${fmt(S.cry)}</b></div>
+  const D = dly();
+  L.innerHTML = `<div class="skh" style="border-left-color:#ffe94d"><span>Tagesmissionen · 🔥 ${D.streak || 0} ${D.streak === 1 ? 'Tag' : 'Tage'} in Folge</span><b style="font-size:11px">neu um 0 Uhr</b></div>
+    <div class="mis">${D.ms.map((m, i) => { const M = MPOOL.find(x => x.id === m.id), dn = m.p >= M.n; return `<div class="${m.c ? 'c' : dn ? 'd' : ''}"><div class="mt"><b>${M.t}</b><small>${rwTxt(M.rw)}</small><i><s style="width:${Math.min(100, m.p / M.n * 100)}%"></s></i><em>${m.p}/${M.n}</em></div><button class="br" data-mi="${i}" ${dn && !m.c ? '' : 'disabled'}>${m.c ? '✓' : 'Abholen'}</button></div>`; }).join('')}
+      <div class="${D.bonus ? 'c' : D.ms.every(m => m.c) ? 'd' : ''}"><div class="mt"><b>Bonus: alle 3 geschafft</b><small>Ultimative Kiste</small></div><button class="br" id="mibo" ${D.ms.every(m => m.c) && !D.bonus ? '' : 'disabled'}>${D.bonus ? '✓' : 'Abholen'}</button></div></div>
+    <div class="skh"><span>Shop</span><b>◆ ${fmt(S.cry)}</b></div>
     <div class="shop">${CRATES.map(k => `<div class="sbox" style="--rc:${k.c}"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.4"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/>${k.ab && k.w ? '<path d="M7 3l1 2M17 3l-1 2M12 1v3"/>' : ''}</svg><div><b>${k.n}</b><small>${k.d}</small>${k.w ? `<small class="odds">${['g', 's', 'e', 'l'].filter(r => k.w[r]).map(r => `<i style="color:${RAR[r].c}">${String(k.w[r]).replace('.', ',')} %</i>`).join(' ')}</small>` : ''}</div><button class="br" data-cr="${k.id}" ${S.cry < k.cost ? 'disabled' : ''}>◆${k.cost}</button></div>`).join('')}</div>
     <div class="hint">◆ Kristalle gibt's für jeden abgebauten Planeten. Prozente = Chance auf Gewöhnlich / Selten / Episch / Legendär.</div>`;
   L.querySelectorAll('[data-cr]').forEach(b => b.onclick = () => openShopCrate(CRATES.find(k => k.id === b.dataset.cr)));
+  L.querySelectorAll('[data-mi]').forEach(b => b.onclick = () => { const m = D.ms[+b.dataset.mi], M = MPOOL.find(x => x.id === m.id); if (m.c || m.p < M.n) return; m.c = 1; SND.fx.win(); toast('Belohnung: ' + rwTxt(M.rw)); giveRw(M.rw); render(); });
+  $('mibo').onclick = () => { if (D.bonus || !D.ms.every(m => m.c)) return; D.bonus = 1; giveRw({ crate: 'k3' }); };
 }
 let hSel = null;
 // alles, was eingeschmolzen werden kann: doppelte Teile + nicht ausgerüstete Teile
@@ -1449,7 +1509,7 @@ function melt(id, spare) {
   const m = IT(id); S.dup = S.dup || {};
   if (spare) { if (!S.dup[id]) return 0; S.dup[id]--; if (!S.dup[id]) delete S.dup[id]; }
   else { if (S.eq[m.s] === id || !S.inv[id]) return 0; delete S.inv[id]; }
-  return addHx(XPV[m.r]);
+  mis('melt'); return addHx(XPV[m.r]);
 }
 function renderHangar(L) {
   document.querySelectorAll('.hsheet').forEach(x => x.remove());
@@ -1502,7 +1562,7 @@ function renderHangar(L) {
 
 // ================== Sound: ruhiger Idle-Soundtrack + Effekte (alles live erzeugt, keine Dateien) ==================
 const SND = (() => {
-  let ctx = null, master, mus, sfx, verb, dly, started = false, nextT = 0, step = 0, timer = 0;
+  let ctx = null, master, mus, sfx, verb, dly, started = false, nextT = 0, step = 0, timer = 0, hyS = 0;
   let vol = { m: .5, s: .5 }; try { const v = JSON.parse(localStorage.getItem('gb_vol')); if (v && typeof v.m === 'number') vol = v; } catch (e) {}
   const curve = v => v * v; // gehörrichtig
   function ir(sec) { const n = ctx.sampleRate * sec, b = ctx.createBuffer(2, n, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.6); } return b; }
@@ -1532,15 +1592,21 @@ const SND = (() => {
   function bass(t, n, dur) { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = hz(n); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12, t + .03); g.gain.exponentialRampToValueAtTime(.002, t + dur); o.connect(g); g.connect(mus); o.start(t); o.stop(t + dur + .05); }
   function kick(t) { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(42, t + .18); g.gain.setValueAtTime(.16, t); g.gain.exponentialRampToValueAtTime(.001, t + .3); o.connect(g); g.connect(mus); o.start(t); o.stop(t + .32); }
   let nz = null; function noise() { if (nz) return nz; const n = ctx.sampleRate * .5, b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; return nz = b; }
+  function clap(t, v) { const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = noise(); f.type = 'bandpass'; f.frequency.value = 1600; f.Q.value = .8; g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0005, t + .16); s.connect(f); f.connect(g); g.connect(mus); g.connect(verb); s.start(t); s.stop(t + .18); }
   function hat(t, v, dest) { const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = noise(); f.type = 'highpass'; f.frequency.value = 7000; g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0005, t + .06); s.connect(f); f.connect(g); g.connect(dest || mus); s.start(t); s.stop(t + .08); }
   // Taktgeber: plant immer ein Stück voraus, Achtel bei 76 BPM, 4 Takte pro Akkord-Runde
   function tick() {
-    if (!ctx) return; const e = 60 / 76 / 2;
+    if (!ctx) return;
+    // Intensität 0–3: steigt mit Boost, Hyperschub/Goldrausch, frisch gezündeten Fähigkeiten und Bossen
+    const hy = typeof window.gbHype === 'function' ? window.gbHype() : 0; hyS += (hy - hyS) * .25; const lv = Math.round(hyS);
+    const e = 60 / (76 + 14 * lv) / 2;
     while (nextT < ctx.currentTime + .4) {
       const t = nextT, bar = Math.floor(step / 8), ci = bar % 4, s8 = step % 8, ch = CH[ci];
       if (s8 === 0) { pad(t, ch, e * 8); bass(t, BASS[ci], e * 3.5); }
       if (s8 === 4) bass(t, BASS[ci] + 7, e * 2.5);
-      if (step >= 32) { if (s8 === 0 || s8 === 5) kick(t); if (s8 % 2 === 1) hat(t, .018); }
+      if (lv >= 2 && s8 % 2 === 0 && s8 !== 0 && s8 !== 4) bass(t, BASS[ci] + (s8 === 6 ? 12 : 0), e * 1.2);
+      if (step >= 32 || lv) { if (lv ? s8 % 2 === 0 : (s8 === 0 || s8 === 5)) kick(t); if (s8 % 2 === 1 || lv) hat(t, lv ? .026 : .018); if (lv >= 2) hat(t + e / 2, .014); if (lv >= 1 && (s8 === 2 || s8 === 6)) clap(t, lv >= 3 ? .07 : .045); }
+      if (lv >= 3) pluck(t, (SCALE[(step * 3) % SCALE.length] || 76) + 12, .035);
       // Arpeggio: sanft, mit Lücken, damit es nicht nervt
       if ((s8 % 2 === 0 || Math.random() < .3) && Math.random() < .78) { const pool = SCALE.filter(n => ch.some(c => (n - c) % 12 === 0) || Math.random() < .25); pluck(t, pool[(Math.random() * pool.length) | 0] || 76, .05); }
       nextT += e; step++;
@@ -1587,7 +1653,7 @@ function loop(now) {
   const dt = Math.min(.05, Math.max(0, (now - (tLast || now)) / 1000)); tLast = now;
   try {
     if (G && W > 20 && H > 20) { step(dt); draw(now); }
-    if (document.visibilityState === 'visible') S.play = (S.play || 0) + dt; // Spielzeit für die Bestenliste
+    if (document.visibilityState === 'visible') { const m0 = Math.floor((S.play || 0) / 60); S.play = (S.play || 0) + dt; if (Math.floor(S.play / 60) > m0) mis('min'); } // Spielzeit für die Bestenliste
     if ((emaT += dt) >= 1) { const v = S.ema * .9 + (earnedSec / emaT) * .1; S.ema = isFinite(v) ? v : 0; earnedSec = 0; emaT = 0; }
     if ((uiT += dt) > .2) { uiT = 0; ui(); }
     if (!isFinite(S.cr) || S.cr < 0) S.cr = 0;
@@ -1623,7 +1689,7 @@ function showIntro() {
   try { localStorage.setItem('gb_intro', '1'); } catch (e) {}
   overlay(`<img class="key" src="key.jpg" alt=""><h2>Galaxie-Bohrer</h2><ul class="howto"><li>🚀 Dein Schiff bohrt von alleine – du musst nichts tippen.</li><li>⬆ Mit <b>CR</b> levelst du Waffen, mit <b>◆</b> Skills, Kisten und Fähigkeiten.</li><li>🌀 Ab Planet 3: <b>Warp</b> = Neustart mit ✦ und dauerhaft mehr Multiplikator.</li><li>💤 Auch offline wird weiter gebohrt.</li></ul>`, [["LOS GEHT'S", null]]);
 }
-if (logged()) pull().then(() => offline()).then(showIntro); else { offline(); showIntro(); }
+if (logged()) pull().then(() => offline()).then(showIntro).then(() => setTimeout(loginCheck, 1200)); else { offline(); showIntro(); setTimeout(loginCheck, 1200); }
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
 window.GB = { get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
