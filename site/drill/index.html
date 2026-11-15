@@ -84,7 +84,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .nav .dot{position:absolute;top:-5px;right:-5px;width:12px;height:12px;border-radius:50%;background:var(--pk)}
 .sv{font-size:10px;color:var(--mut);white-space:nowrap;margin-top:3px}
 .sv.ok{color:var(--li)}
-.dm{color:#c9a2ff}
+.dm{color:#c9a2ff}.chp{color:#ff9f43}
 .boss{color:var(--pk)!important}
 .wh{border:1.5px solid #7b5cff;background:#0d0a18;padding:14px;margin-bottom:9px;text-align:center}
 .wh b{display:block;font-size:22px;color:#c9a2ff;margin:4px 0}
@@ -265,6 +265,15 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .hg-dup{position:absolute;left:3px;top:4px;font:400 8px Silkscreen,var(--mono);color:#ffe94d}
 .hg-grid button.no{opacity:.5;border-style:dashed;background:#06090b;cursor:default}.hg-grid button.no::before{opacity:.4}
 .hg-grid .qq{font:400 20px Silkscreen,var(--mono);color:#4c5a5f}.hg-grid button.no b{color:color-mix(in srgb,var(--rc) 70%,#555)}.hg-grid button.no small{font-size:8px}
+.mods{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.mod{display:flex;align-items:center;gap:9px;padding:8px;background:linear-gradient(90deg,#140e07,#0a0805);box-shadow:inset 3px 0 0 #6b4a22,inset 0 0 0 1px #2a1e10}
+.mod.on{box-shadow:inset 3px 0 0 #ff9f43,inset 0 0 0 1px #4a3216,0 0 10px rgba(255,159,67,.12)}
+.mod.nw{opacity:.6}
+.mod .wic{flex:none;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1.5px solid #ff9f43;color:#ff9f43;background:#0a0703}.mod .wic svg{width:22px;height:22px}
+.mod .nm{flex:1;min-width:0}.mod b{display:block;font:400 11px Silkscreen,var(--mono);color:#ffd9a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mod small{display:block;font-size:10px;color:#ff9f43;margin-top:2px;letter-spacing:.05em}.mod em{display:block;font-style:normal;font-size:10.5px;color:#e9dccb;margin-top:3px;line-height:1.3}.mod em.nx{color:#9a8a76}
+.mod .br{min-width:62px;height:40px}
+.mod .br:not(:disabled){border-color:#ff9f43;background:linear-gradient(180deg,#3a2510,#1d1309);box-shadow:0 0 10px rgba(255,159,67,.2)}.mod .br:not(:disabled)::before,.mod .br:not(:disabled)::after{border-color:#ff9f43}
 html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
 /* ===== PC / Desktop: Vollbild – großes Spielfeld links, Menü als Seitenleiste rechts ===== */
 @media (min-width:900px) and (min-height:540px){
@@ -469,7 +478,23 @@ const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(2
 const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l >= 200 ? Math.floor(l / 100) * 100 : p; };
 const ST = id => msN(WL(id));
 const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller' };
-const wDps = w => { const l = WL(w.id); return l ? T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() * (1 + HAw(w.id)) : 0; };
+const wDps = w => { const l = WL(w.id); return l ? T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() * (1 + HAw(w.id)) * (1 + .5 * ML(w.id)) : 0; };
+// ================== Waffen-Mods: mit ⬢ Chips (1 Chip pro 5 geschaffte Planeten), bleiben für immer ==================
+const ML = id => (S.mod || {})[id] || 0;
+const MOD_MAX = 5;
+const modCost = l => 5 * (l + 1); // 5, 10, 15, 20, 25
+const MODS = {
+  line: { s: 'Durchschlag: Schüsse fliegen durch Blöcke', f: l => 'durch ' + (l >= 3 ? 2 : 1) + ' Block' + (l >= 3 ? 'e' : '') },
+  star: { s: 'Längere Laser', f: l => '+' + 15 * l + ' % Reichweite' },
+  drill: { s: 'Lanze explodiert am Ende', f: l => 'Explosion ' + (l >= 3 ? 'groß' : 'klein') },
+  nova: { s: 'Größere Explosion', f: l => '+' + 15 * l + ' % Radius' },
+  scatter: { s: 'Kugeln explodieren beim Aufprall', f: l => (l >= 3 ? '5×5' : '3×3') + ' Explosion' },
+  drones: { s: 'Drohnen feuern schneller', f: l => '+' + 25 * l + ' % Feuerrate' },
+  chain: { s: 'Blitz springt weiter', f: l => '+' + 2 * l + ' Sprünge' },
+  saw: { s: 'Größere Sägeblätter', f: l => l >= 3 ? 'Riesensägen' : 'große Sägen' },
+  mine: { s: 'Größere Minen-Explosion', f: l => (l >= 3 ? '7×7' : '5×5') + ' Explosion' },
+  sniper: { s: 'Trifft mehrere Erze', f: l => (l >= 3 ? 3 : 2) + ' Ziele pro Schuss' }
+};
 const wCost = (w, n = 1) => { const l = WL(w.id); let c = 0; for (let i = 0; i < n; i++) c += T_UP[tier(w.id)] * Math.pow(1.22, l - 1 + i); return c; };
 const skCost = id => 1 + SK(id); // Stufe 1 = ◆1 … Stufe 10 = ◆10 → eine Skill-Reihe voll ≈ Planet 8-9
 let buyN = 1;
@@ -564,6 +589,7 @@ const ship = { x: 0, y: 40, vx: 0, vy: 0, orb: -Math.PI / 2, ang: 0 };
 const proj = [], drones = [0, 1, 2, 3, 4, 5].map(k => ({ a: k * 1.047, cd: k * .07 }));
 const extraT = [];
 const novas = [], waves = [];
+const sawPat = () => { const n = ML('saw') >= 3 ? 2 : ML('saw') ? 1.5 : 1, o = []; for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) if (Math.hypot(a, b) <= n) o.push([a * CELL, b * CELL]); return o; };
 const SAWR = 78; // Sägen kreisen ums Schiff und reichen bis in die Blöcke
 let cdBlast = 0, cdChain = 0, sawA = 0, cdMine = 0, cdSnip = 0; const saws = [], mines = [];
 let starA = 0, cdDrill = 0, cdNova = 0, cdScatter = 0, lineTarget = -1, surfR = 0, surfT = 0;
@@ -612,22 +638,23 @@ function step(dt) {
   if (lineTarget < 0 || !G.alive[lineTarget]) lineTarget = nearest(ship.x + Math.cos(ship.orb + 1.57) * 30, ship.y + Math.sin(ship.orb + 1.57) * 30); // nächster Block in Flugrichtung
   if (dL) {
     if ((cdBlast -= dt * R) <= 0 && lineTarget >= 0) { cdBlast = .25; const nb = 1 + Math.min(2, Math.floor(ST('line') / 2)), a0 = face;
-      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; SND.fx.shoot(); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * .25 / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1 }); } } }
+      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; SND.fx.shoot(); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * .25 / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1, pierce: ML('line') ? (ML('line') >= 3 ? 2 : 1) : 0 }); } } }
   // 2) Kristallstern: 4 rotierende Strahlen
   const dS = WD('star');
-  if (dS) { starA += dt * 1.6 * R; G.star = []; const ns = Math.min(8, 4 + ST('star')); for (let k = 0; k < ns; k++) { const a = starA + k * Math.PI * 2 / ns, [i, ex, ey] = ray(ship.x, ship.y, a, 170); G.star.push([ex, ey]); if (i >= 0) hit(i, dS / ns * dt * 1.6 * (1 + 2 * critCh())); } } else G.star = null;
+  if (dS) { starA += dt * 1.6 * R; G.star = []; const ns = Math.min(8, 4 + ST('star')); for (let k = 0; k < ns; k++) { const a = starA + k * Math.PI * 2 / ns, [i, ex, ey] = ray(ship.x, ship.y, a, 170 * (1 + .15 * ML('star'))); G.star.push([ex, ey]); if (i >= 0) hit(i, dS / ns * dt * 1.6 * (1 + 2 * critCh())); } } else G.star = null;
   // 3) Bohrlanze: durchschlagender Stoß Richtung Kern
   const dD = WD('drill');
   if (dD && (cdDrill -= dt * R) <= 0) {
     const cdD = 2.2 * Math.max(.5, 1 - .08 * ST('drill')); cdDrill = cdD; let b = dD * cdD * critMul(); const lw = ST('drill') >= 3 ? 2 : 1; const dx = fcx, dy = fcy; let ex = ship.x, ey = ship.y, seen = new Set();
     for (let l = 0; l < G.R * 2.6 && b > 0; l += CELL * .5) { const px = ship.x + dx * l, py = ship.y + dy * l; ex = px; ey = py; for (const [ox, oy] of (lw > 1 ? [[0, 0], [-dy * CELL * .6, dx * CELL * .6], [dy * CELL * .6, -dx * CELL * .6]] : [[0, 0], [-dy * CELL * .6, dx * CELL * .6]])) { const i = cellAt(px + ox, py + oy); if (i < 0 || !G.alive[i] || seen.has(i)) continue; seen.add(i); const d = Math.min(b, G.hp[i]); b -= d; hit(i, d + .0001); } }
     fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ex, y2: ey, t: .35 });
+    if (ML('drill')) { const n = ML('drill') >= 3 ? 3 : 2; for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) if (a * a + b2 * b2 <= n * n) hit(cellAt(ex + a * CELL, ey + b2 * CELL), dD * cdD * critMul() * .25); fx.push({ k: 'nova', x: ex, y: ey, r: CELL * (n + 1), t: .4, c: '120,230,255' }); SND.fx.boom(); }
   }
   // 4) Geister-Nova: Geisterkugel fliegt in den Planeten und explodiert dort mit Radius (wächst mit der Stufe)
   const dN = WD('nova');
   if (dN && (cdNova -= dt * R) <= 0) {
     cdNova = 3; const t0 = front(CELL * 4, 25 * CELL * CELL);
-    if (t0 >= 0) { const [tx0, ty0] = cellXY(t0), rad = CELL * (3.4 + Math.min(5, WL('nova') / 12) + ST('nova') * .8) * (1 + HA('novaR')), dx = G.cx - tx0, dy = G.cy - ty0, dl = Math.hypot(dx, dy) || 1;
+    if (t0 >= 0) { const [tx0, ty0] = cellXY(t0), rad = CELL * (3.4 + Math.min(5, WL('nova') / 12) + ST('nova') * .8) * (1 + HA('novaR')) * (1 + .15 * ML('nova')), dx = G.cx - tx0, dy = G.cy - ty0, dl = Math.hypot(dx, dy) || 1;
       novas.push({ x: ship.x, y: ship.y, tx: tx0 + dx / dl * rad * .6, ty: ty0 + dy / dl * rad * .6, rad, d: dN * 3 * critMul() / 7, t: 0 }); } }
   for (let k = novas.length - 1; k >= 0; k--) { const n = novas[k]; n.t += dt * 2.6; if (n.t < 1) continue; novas.splice(k, 1);
     const c0 = Math.floor((n.tx - G.ox - n.rad) / CELL), c1 = Math.ceil((n.tx - G.ox + n.rad) / CELL), r0 = Math.floor((n.ty - G.oy - n.rad) / CELL), r1 = Math.ceil((n.ty - G.oy + n.rad) / CELL), cells = [];
@@ -637,10 +664,12 @@ function step(dt) {
   for (let k = waves.length - 1; k >= 0; k--) { const w = waves[k]; w.r += dt * w.rad * 1.6; while (w.j < w.cells.length && w.cells[w.j][0] <= w.r) hit(w.cells[w.j++][1], w.d); if (w.r >= w.rad * 1.15) waves.splice(k, 1); }
   // 5) Streufeuer
   const dC = WD('scatter');
-  if (dC && (cdScatter -= dt * R) <= 0) { cdScatter = 1; const np = Math.min(15, 7 + 2 * ST('scatter')); for (let k = 0; k < np; k++) { const a = face + (k - (np - 1) / 2) * (.9 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC / np * critMul(), t: 2 }); } }
+  if (dC && (cdScatter -= dt * R) <= 0) { cdScatter = 1; const np = Math.min(15, 7 + 2 * ST('scatter')); for (let k = 0; k < np; k++) { const a = face + (k - (np - 1) / 2) * (.9 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC / np * critMul(), t: 2, boom: ML('scatter') ? (ML('scatter') >= 3 ? 2 : 1) : 0 }); } }
   for (let k = proj.length - 1; k >= 0; k--) {
     const q = proj[k]; q.x += q.vx * dt; q.y += q.vy * dt; q.t -= dt; const i = cellAt(q.x, q.y);
-    if (i >= 0 && G.alive[i]) { hit(i, q.d * .6); if (!q.solo) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) hit(cellAt(q.x + dx * CELL, q.y + dy * CELL), q.d * .1); fx.push({ k: 'pop', x: q.x, y: q.y, t: .25 }); proj.splice(k, 1); }
+    if (i >= 0 && G.alive[i] && i !== q.last) { hit(i, q.d * .6); if (!q.solo) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) hit(cellAt(q.x + dx * CELL, q.y + dy * CELL), q.d * .1);
+      if (q.boom) { const n = q.boom; for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) if (a || b2) hit(cellAt(q.x + a * CELL, q.y + b2 * CELL), q.d * .25); fx.push({ k: 'nova', x: q.x, y: q.y, r: CELL * (n + .8), t: .3, c: '255,200,90' }); }
+      fx.push({ k: 'pop', x: q.x, y: q.y, t: .25 }); if (q.pierce > 0) { q.pierce--; q.last = i; } else proj.splice(k, 1); }
     else if (q.t <= 0 || Math.hypot(q.x - G.cx, q.y - G.cy) > G.R * 1.4 + 400) proj.splice(k, 1);
   }
   // 6) Drohnen
@@ -649,25 +678,26 @@ function step(dt) {
   for (const d of drones.slice(0, ndr)) {
     d.a += dt * 1.8; d.x = ship.x + Math.cos(d.a) * 30; d.y = ship.y + Math.sin(d.a) * 30;
     if (!dR) continue;
-    if ((d.cd -= dt * R) <= 0) { d.cd = .4; const i = nearest(d.x, d.y, 40 * CELL * CELL); if (i >= 0) { hit(i, dR * .4 / ndr * critMul()); const [x, y] = cellXY(i); fx.push({ k: 'bolt', x: d.x, y: d.y, x2: x, y2: y, t: .15 }); } }
+    if ((d.cd -= dt * R) <= 0) { d.cd = .4 / (1 + .25 * ML('drones')); const i = nearest(d.x, d.y, 40 * CELL * CELL); if (i >= 0) { hit(i, dR * .4 / ndr * critMul()); const [x, y] = cellXY(i); fx.push({ k: 'bolt', x: d.x, y: d.y, x2: x, y2: y, t: .15 }); } }
   }
   // 7) Kettenblitz
   const dK = WD('chain');
   if (dK && (cdChain -= dt * R) <= 0) { cdChain = 1.5; let i = front(CELL * 3), px = ship.x, py = ship.y; const pts = []; const used = new Set();
-    const nj = Math.min(14, 6 + 2 * ST('chain')); for (let k = 0; k < nj && i >= 0; k++) { used.add(i); const [x, y] = cellXY(i); pts.push([px, py, x, y]); hit(i, dK * 1.5 / nj * critMul()); px = x; py = y;
+    const nj = Math.min(24, 6 + 2 * ST('chain') + 2 * ML('chain')); for (let k = 0; k < nj && i >= 0; k++) { used.add(i); const [x, y] = cellXY(i); pts.push([px, py, x, y]); hit(i, dK * 1.5 / nj * critMul()); px = x; py = y;
       let nb = -1, bd = 1e9; const c = i % COLS, r = i / COLS | 0; for (let a = -3; a <= 3; a++) for (let b2 = -3; b2 <= 3; b2++) { const cc = c + a, rr = r + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS) continue; const j = rr * COLS + cc; if (!G.alive[j] || used.has(j)) continue; const d = a * a + b2 * b2 + Math.random() * 3; if (d < bd) { bd = d; nb = j; } } i = nb; }
     SND.fx.zap(); pts.forEach(p => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .2 })); }
   // 8) Kräutersäge
   const dW = WD('saw');
   if (dW) { sawA += dt * 3.2 * R; const nsw = Math.min(4, 2 + Math.floor(ST('saw') / 2)); saws.length = nsw; for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, x = ship.x + Math.cos(a) * SAWR, y = ship.y + Math.sin(a) * SAWR; saws[k] = [x, y];
-    for (const [ox, oy] of [[0, 0], [CELL, 0], [-CELL, 0], [0, CELL], [0, -CELL]]) hit(cellAt(x + ox, y + oy), dW / nsw / 2.5 * dt * 2 * (1 + 2 * critCh())); } }
+    for (const [ox, oy] of sawPat()) hit(cellAt(x + ox, y + oy), dW / nsw / 2.5 * dt * 2 * (1 + 2 * critCh())); } }
   // 9) Minenwerfer
   const dM = WD('mine');
   if (dM && (cdMine -= dt * R) <= 0) { cdMine = 2; const nm = Math.min(8, 3 + ST('mine')); for (let k = 0; k < nm; k++) { const i = front(70, 30 * CELL * CELL, 110); if (i < 0) break; const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, t: 0, d: dM * 2 / nm * critMul() }); } }
-  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; for (let a = -1; a <= 1; a++) for (let b2 = -1; b2 <= 1; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 6); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * 2, t: .35, c: '255,120,80' }); mines.splice(k, 1); } }
+  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 6); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35, c: '255,120,80' }); mines.splice(k, 1); } }
   // 10) Königsschuss
   const dP = WD('sniper');
   if (dP && (cdSnip -= dt * R) <= 0) { cdSnip = 4 * Math.max(.4, 1 - .1 * ST('sniper')); let best = -1; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i] && (best < 0 || G.ore[i] > G.ore[best])) { const [x0, y0] = cellXY(i); let da = Math.atan2(y0 - ship.y, x0 - ship.x) - face; da = Math.atan2(Math.sin(da), Math.cos(da)); if (Math.abs(da) < .6) best = i; } if (best < 0) best = front(CELL * 3);
+    const extra = ML('sniper') ? (ML('sniper') >= 3 ? 2 : 1) : 0; if (best >= 0 && extra) { const used = new Set([best]); for (let e = 0; e < extra; e++) { let b2 = -1; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i] && !used.has(i) && (b2 < 0 || G.ore[i] > G.ore[b2])) { const [x0, y0] = cellXY(i); let da = Math.atan2(y0 - ship.y, x0 - ship.x) - face; da = Math.atan2(Math.sin(da), Math.cos(da)); if (Math.abs(da) < .9) b2 = i; } if (b2 < 0) b2 = front(CELL * (4 + e * 3), 40 * CELL * CELL); if (b2 < 0 || used.has(b2)) break; used.add(b2); const [x3, y3] = cellXY(b2); hit(b2, dP * cdSnip * 3 * critMul()); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: x3, y2: y3, t: .3, w: 2, c: '#ffd23f' }); } }
     if (best >= 0) { const [x, y] = cellXY(best); hit(best, dP * cdSnip * 3 * critMul()); const c = best % COLS, r = best / COLS | 0; for (const [a, b2] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (c + a >= 0 && c + a < COLS && r + b2 >= 0 && r + b2 < ROWS) hit((r + b2) * COLS + c + a, dP); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: x, y2: y, t: .3, w: 2, c: '#ffd23f' }); } }
   abStep(dt);
   shake = Math.max(0, shake - dt * 30); if (intro > 0) intro -= dt;
@@ -888,7 +918,7 @@ let tab = 'w', uiT = 0;
 function ui() {
   $('cr').textContent = fmt(S.cr) + ' CR';
   { const m = $('mul'), wm = S.wm || 1, on = boosting(); m.textContent = on ? 'x' + (wm * 2).toFixed(2) + ' · BOOST' : 'x' + wm.toFixed(2); m.classList.toggle('bon', on); }
-  $('cry').innerHTML = '◆' + fmt(S.cry) + ` <span class="dm">✦${S.dm || 0}</span>`;
+  $('cry').innerHTML = '◆' + fmt(S.cry) + ` <span class="dm">✦${S.dm || 0}</span> <span class="chp">⬢${S.chip || 0}</span>`;
   $('pln').textContent = 'U' + uniOf(S.p) + ' · ' + (G.boss ? 'BOSS' : 'Planet ' + pInU(S.p)); $('pln').classList.toggle('boss', !!G.boss); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
   hotbar();
   const b = $('boost'), bl = $('bl'), now = Date.now();
@@ -923,10 +953,18 @@ function render() {
         <button class="br rr" id="reroll" ${!S.rrUsed && WEAP.length - owned().length > 2 ? '' : 'disabled'}>${S.rrUsed ? '🎲 Schon neu gewürfelt' : '🎲 Einmal neu würfeln'}</button>`;
     }
     h += `<div style="font-size:11px;color:var(--mut);text-align:center;padding:6px 4px 10px">Bei Stufe 10, 25, 50, 100 und danach alle 100 Stufen bekommt eine Waffe ein Upgrade: x2 Schaden und ein neuer Effekt.</div>`;
+    const mo = WEAP.slice().sort((x, y) => (WL(y.id) ? 1 : 0) - (WL(x.id) ? 1 : 0));
+    h += `<div class="skh" style="margin-top:6px;border-left-color:#ff9f43"><span>Waffen-Mods · 1 ⬢ Chip pro 5 Planeten · bleiben für immer</span><b class="chp">⬢ ${S.chip || 0}</b></div>
+      <div class="mods">${mo.map(w => { const l = ML(w.id), m = MODS[w.id], mx = l >= MOD_MAX, c = modCost(l);
+        return `<div class="mod${l ? ' on' : ''}${WL(w.id) ? '' : ' nw'}"><div class="wic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${WICO[w.id] || ''}</svg></div>
+          <div class="nm"><b>${w.n}</b><small>${'◆'.repeat(l)}${'◇'.repeat(MOD_MAX - l)} · +${50 * l} % Schaden</small><em>${l ? '★ ' + m.s + ': ' + m.f(l) : 'Mod 1: ' + m.s}</em>${!mx && l && (l + 1 === 3) ? `<em class="nx">Mod 3: ${m.f(3)}</em>` : ''}</div>
+          <button class="br" data-mod="${w.id}" ${mx || (S.chip || 0) < c ? 'disabled' : ''}>${mx ? 'MAX' : '⬢' + c}</button></div>`; }).join('')}</div>`;
     L.innerHTML = h;
     L.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { buyN = b.dataset.n === 'max' ? 'max' : +b.dataset.n; render(); });
     L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; const s0 = ST(w.id); S.w[w.id] = WL(w.id) + n; SND.fx.up(); if (ST(w.id) > s0) upgradeFx(w); if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
     L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c || owned().length >= maxWeapons()) return; S.cr -= c; S.w[w.id] = 1; S.wo = owned().concat(w.id); S.offer = null; S.rrUsed = false; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
+    L.querySelectorAll('[data-mod]').forEach(b => b.onclick = () => { const id = b.dataset.mod, l = ML(id), c = modCost(l); if (l >= MOD_MAX || (S.chip || 0) < c) return; S.chip -= c; S.mod = S.mod || {}; S.mod[id] = l + 1; SND.fx.win(); const w = WEAP.find(x => x.id === id);
+      overlay(`<div class="crate" style="--rc:#ff9f43"><div class="cbox" style="color:#ff9f43"><svg width="66" height="66" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${WICO[id]}</svg></div></div><h2 style="color:#ff9f43">${w.n} · Mod ${l + 1}</h2><p>+${50 * (l + 1)} % Schaden<br><b style="color:var(--txt)">★ ${MODS[id].s}: ${MODS[id].f(l + 1)}</b></p>`, [['Stark', null]]); save('now'); render(); });
     if ($('reroll')) $('reroll').onclick = () => { if (S.rrUsed) return; offers(); if (!S.offer) return; S.rrUsed = true; const left = WEAP.filter(w => !WL(w.id) && !S.offer.includes(w.id)).map(w => w.id).sort(() => Math.random() - .5); const keep = left.length >= 2 ? [] : S.offer.slice(0, 2 - left.length); S.offer = left.slice(0, 2).concat(keep).slice(0, 2); save(true); render(); };
   } else if (tab === 'a') renderAb(L);
   else if (tab === 'h') renderHangar(L);
@@ -990,10 +1028,11 @@ function planetDone() {
   SND.fx.win();
   const gain = (4 + S.p + 2 * WP('kris')) * (G.boss ? 3 : 1), old = G.name;
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
+  S.pAll = (S.pAll || 0) + 1; let chipT = ''; if (S.pAll % 5 === 0) { S.chip = (S.chip || 0) + 1; chipT = ' · +⬢1 Chip!'; setTimeout(() => toast('⬢ Waffen-Chip bekommen! Im Waffen-Tab bei „Waffen-Mods“ einsetzen.'), 2600); }
   let bgN = 0;
   if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); bgN = (BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut', true)) || 0; if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
   travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
-  toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${gain} · Sprung nach ${uniName(uniOf(S.p))} · Warp bringt jetzt ✦${dmGain()}` : `Planet abgebaut! +◆${gain}${bgN ? ` · +${bgN} Bandengold` : ''} · Warp bringt jetzt ✦${dmGain()}`);
+  toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${gain} · Sprung nach ${uniName(uniOf(S.p))} · Warp bringt jetzt ✦${dmGain()}` : `Planet abgebaut! +◆${gain}${chipT}${bgN ? ` · +${bgN} Bandengold` : ''} · Warp bringt jetzt ✦${dmGain()}`);
   if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);
   render();
 }
@@ -1026,13 +1065,13 @@ function offline(since) {
 
 // ================== Fähigkeiten ==================
 const ABIL = [
-  { id: 'over', n: 'Hyperschub', d: 'x2 Schaden für 12 s', cd: 90, ico: '<path d="M3 17l7-3-4 7M5 12l9-4-3 8M8 6l13-3-5 13z"/>' },
-  { id: 'gold', n: 'Goldrausch', d: 'x2 CR für 12 s', cd: 120, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6M9 14h6"/>' },
-  { id: 'meteor', n: 'Meteorschauer', d: '14 Meteore schlagen ein', cd: 70, ico: '<circle cx="15" cy="15" r="4"/><path d="M12 12L4 4M15 10L9 4M10 15L4 9"/>' },
-  { id: 'kanone', n: 'Orbitalkanone', d: 'Riesen-Laser durch den Kern', cd: 45, ico: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v4M21 12h-4"/>' },
-  { id: 'loch', n: 'Schwarzes Loch', d: 'Frisst ein Stück Planet', cd: 75, ico: '<path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7a5 5 0 1 0 5 5"/><circle cx="12" cy="12" r="1.5"/>' },
-  { id: 'erz', n: 'Erzradar', d: 'Verwandelt Blöcke in Erz', cd: 100, ico: '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="11" cy="12" r="3.5"/><path d="M11 6.5v2M11 15.5v2M5.5 12h2M14.5 12h2M18 9v6"/>' },
-  { id: 'zeit', n: 'Zeitsprung', d: 'Sofort 60 s Ertrag', cd: 180, ico: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>' }
+  { id: 'over', n: 'Hyperschub', d: 'x2 Schaden für 12 s', cd: 40, ico: '<path d="M3 17l7-3-4 7M5 12l9-4-3 8M8 6l13-3-5 13z"/>' },
+  { id: 'gold', n: 'Goldrausch', d: 'x2 CR für 12 s', cd: 45, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6M9 14h6"/>' },
+  { id: 'meteor', n: 'Meteorschauer', d: '14 Meteore schlagen ein', cd: 35, ico: '<circle cx="15" cy="15" r="4"/><path d="M12 12L4 4M15 10L9 4M10 15L4 9"/>' },
+  { id: 'kanone', n: 'Orbitalkanone', d: 'Riesen-Laser durch den Kern', cd: 25, ico: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v4M21 12h-4"/>' },
+  { id: 'loch', n: 'Schwarzes Loch', d: 'Frisst ein Stück Planet', cd: 40, ico: '<path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7a5 5 0 1 0 5 5"/><circle cx="12" cy="12" r="1.5"/>' },
+  { id: 'erz', n: 'Erzradar', d: 'Verwandelt Blöcke in Erz', cd: 45, ico: '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="11" cy="12" r="3.5"/><path d="M11 6.5v2M11 15.5v2M5.5 12h2M14.5 12h2M18 9v6"/>' },
+  { id: 'zeit', n: 'Zeitsprung', d: 'Sofort 60 s Ertrag', cd: 60, ico: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>' }
 ];
 const AL = id => (S.ab && S.ab[id]) || 0;
 const abPow = id => 1 + .25 * (AL(id) - 1);
