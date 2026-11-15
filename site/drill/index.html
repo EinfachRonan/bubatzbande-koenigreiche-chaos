@@ -343,7 +343,7 @@ const SKILLS = [
   { id: 'crit', n: 'Krit-Kern', d: '+4 % Krit (x3)', max: 10, ico: '<path d="M12 2v6M12 16v6M4 12h4M16 12h4M6 6l3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/>' },
   { id: 'spd', n: 'Turbo', d: '+10 % Feuerrate', max: 10, ico: '<path d="M4 20l16-16M9 4h11v11"/>' },
   { id: 'ore', n: 'Erzader', d: '+1,5 % Erze', max: 8, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M12 7l4 2.5v5L12 17l-4-2.5v-5z"/>' },
-  { id: 'off', n: 'Überstunden', d: '+10 % offline', max: 5, ico: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' }
+  { id: 'off', n: 'Überstunden', d: 'mehr Offline-Zeit', max: 5, ico: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' }
 ];
 const PAL = [
   ['#0e4c52', '#0a3439', '#38d6d8'], ['#e07b32', '#7a3613', '#ffb46a'], ['#8c4be0', '#3d1d6d', '#d9a8ff'],
@@ -897,7 +897,7 @@ function render() {
     L.querySelectorAll('[data-wp]').forEach(b => b.onclick = () => { const w = WARP.find(x => x.id === b.dataset.wp), l = WP(w.id); if (!wpOpen(w.id) || l >= w.max || S.dm < w.cost(l)) return; S.dm -= w.cost(l); S.wp[w.id] = l + 1; save('now'); render(); });
   } else {
     L.innerHTML = `<div class="skh"><span>Skills · mit ◆ Kristallen leveln</span><b>◆ ${S.cry}</b></div><div class="sk">${SKILLS.map(s => { const l = SK(s.id), mx = l >= s.max;
-      return `<button data-sk="${s.id}" class="${mx ? 'max' : ''}" ${mx || S.cry < skCost(s.id) ? 'disabled' : ''}><span class="q"></span><span class="c">${l}/${s.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg>${s.n}<small>${mx ? 'Max' : s.d + ' · ◆' + skCost(s.id)}</small></button>`; }).join('')}</div>`;
+      return `<button data-sk="${s.id}" class="${mx ? 'max' : ''}" ${mx || S.cry < skCost(s.id) ? 'disabled' : ''}><span class="q"></span><span class="c">${l}/${s.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg>${s.n}<small>${s.id === 'off' ? (mx ? 'Max · ' + offH(l) + ' h offline' : 'Offline ' + offH(l) + ' h → ' + offH(l + 1) + ' h · ◆' + skCost(s.id)) : mx ? 'Max' : s.d + ' · ◆' + skCost(s.id)}</small></button>`; }).join('')}</div>`;
     L.querySelectorAll('[data-sk]').forEach(b => b.onclick = () => { const id = b.dataset.sk, s = SKILLS.find(x => x.id === id); if (SK(id) >= s.max || S.cry < skCost(id)) return; S.cry -= skCost(id); S.sk[id] = SK(id) + 1; save(true); render(); ui(); });
   }
   ui();
@@ -959,13 +959,17 @@ function warp() {
 }
 
 // ================== Offline-Ertrag ==================
-function offline() {
-  const away = Math.min(8 * 3600, (Date.now() - (S.last || Date.now())) / 1000);
-  if (away < 60 || !(S.ema > 0)) return;
-  const got = S.ema * away * (.25 + .1 * SK('off'));
+// Offline: das Schiff sammelt nur CR (30 % vom normalen Tempo), der Planet wird dabei NICHT fertig.
+// Wie lange gesammelt wird, bestimmt der Skill „Überstunden“: 2 h + 2 h pro Stufe (max. 12 h).
+const offH = l => 2 + 2 * l;
+function offline(since) {
+  const raw = (Date.now() - (since || S.last || Date.now())) / 1000, cap = offH(SK('off')) * 3600, away = Math.min(cap, raw);
+  if (raw < 60 || !(S.ema > 0)) return;
+  const got = S.ema * away * .3;
   if (got < 1) return;
-  S.cr += got;
-  overlay(`<h2>Willkommen zurück!</h2><p>Deine Bohrer waren ${Math.floor(away / 3600)} h ${Math.floor(away % 3600 / 60)} min fleißig.<br><b style="color:var(--cy);font-size:18px">+${fmt(got)} CR</b></p>`, [['Einsammeln', null]]);
+  S.cr += got; save('now');
+  const hm = t => `${Math.floor(t / 3600)} h ${Math.floor(t % 3600 / 60)} min`;
+  overlay(`<h2>Willkommen zurück!</h2><p>Du warst ${hm(raw)} weg. Dein Schiff hat ${hm(away)} lang weiter Gold gesammelt${raw > cap ? ` <small style="color:#ffb86b">(mehr geht erst mit „Überstunden“, gerade max. ${offH(SK('off'))} h)</small>` : ''}.<br><b style="color:var(--cy);font-size:18px">+${fmt(got)} CR</b><br><small style="color:#8fa3a8">Offline wird nur gesammelt – dein Planet ist noch genau da, wo du aufgehört hast.</small></p>`, [['Einsammeln', null]]);
 }
 
 // ================== Fähigkeiten ==================
@@ -1315,7 +1319,8 @@ addEventListener('keydown', e => {
 window.addEventListener('resize', () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 200); });
 setInterval(() => save(), 5000);
 setInterval(() => save(true), 20000);
-document.addEventListener('visibilitychange', () => { if (document.hidden) { save(true); window.BB && BB.cloud && BB.cloud.flush(); } });
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => { if (document.hidden) { hiddenAt = Date.now(); save(true); window.BB && BB.cloud && BB.cloud.flush(); } else if (hiddenAt) { const t = hiddenAt; hiddenAt = 0; offline(t); } });
 window.addEventListener('pagehide', () => save(true));
 
 resize(); hotbar(true); render(); requestAnimationFrame(loop); svState();
@@ -1327,7 +1332,7 @@ function showIntro() {
   try { localStorage.setItem('gb_intro', '1'); } catch (e) {}
   overlay(`<img class="key" src="key.jpg" alt=""><h2>Galaxie-Bohrer</h2><ul class="howto"><li>🚀 Dein Schiff bohrt von alleine – du musst nichts tippen.</li><li>⬆ Mit <b>CR</b> levelst du Waffen, mit <b>◆</b> Skills, Kisten und Fähigkeiten.</li><li>🌀 Ab Planet 3: <b>Warp</b> = Neustart mit ✦ und dauerhaft mehr Multiplikator.</li><li>💤 Auch offline wird weiter gebohrt.</li></ul>`, [["LOS GEHT'S", null]]);
 }
-if (logged()) pull().then(offline).then(showIntro); else { offline(); showIntro(); }
+if (logged()) pull().then(() => offline()).then(showIntro); else { offline(); showIntro(); }
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
 window.GB = { get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
