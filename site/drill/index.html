@@ -370,7 +370,7 @@ html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261115h"></script>
+<script src="../bb.js?v=20261116a"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -611,6 +611,7 @@ function planetType(p, boss) { if (boss || p < 3) return 'n'; const r = mulberry
 const hpCurve = p => { let g = 1; for (let k = 2; k <= p; k++) g *= 2.1 + 1.2 * Math.exp(-(k - 2) / 1.5); return g; };
 function buildPlanet(removed) {
   const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0;
+  const elite = !boss && p >= 4 && mulberry(p * 31337 + (S.seed || 13) * 3)() < .12;
   const ty = planetType(p, boss), TT = PTYPE[ty], pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : TT.pal || PAL[(p - 1) % PAL.length];
   // Großer Planet: man sieht nur einen Ausschnitt, die Kamera folgt dem Schiff, die Minimap zeigt alles
   CELL = Math.max(14, 2 * Math.round(Math.min(W, 520) / 52)); // gerade Zahl: keine Nähte zwischen den Blöcken
@@ -633,7 +634,7 @@ function buildPlanet(removed) {
     if (d > rr) continue;
     const i = r * COLS + c; alive[i] = 1; total++;
     const depth = 1 - d / rr; dep[i] = depth; lit[i] = Math.max(0, (-dx - dy) / (Math.SQRT2 * R));
-    mx[i] = hp[i] = hp0 * TT.hpM * (1 + depth * 2.2) * (.85 + rnd() * .3);
+    mx[i] = hp[i] = hp0 * TT.hpM * (elite ? 2 : 1) * (1 + depth * 2.2) * (.85 + rnd() * .3);
     if (rnd() < oreCh * (.6 + depth)) ore[i] = 1 + (rnd() < .12 + depth * .15 ? 1 : 0);
   }
   // Sonderblöcke: immer 3 Kristall-Blöcke (◆), manchmal 1–2 Blöcke mit Dunkler Materie (✦)
@@ -641,7 +642,7 @@ function buildPlanet(removed) {
     const pick = () => { for (let t = 0; t < 50; t++) { const i = ids[(rnd() * ids.length) | 0]; if (ore[i] < 3) return i; } return -1; };
     for (let k = 0; k < (TT.kris || 3); k++) { const i = pick(); if (i >= 0) ore[i] = 3; }
     if (rnd() < .35) { const n = rnd() < .5 ? 1 : 2; for (let k = 0; k < n; k++) { const i = pick(); if (i >= 0) ore[i] = 4; } } }
-  G = { p, pal, ox, oy, dst, alive, hp, mx, ore, dep, lit, total, v0, cx: ox + (ccx + .5) * CELL, cy: oy + (ccy + .5) * CELL, R: R * CELL, boss, name: boss ? 'Spießer-Festung ' + p / 10 : (TT.n ? TT.n + '-' : '') + NAMES[(p - 1) % NAMES.length] + ' ' + (Math.floor((p - 1) / NAMES.length) + 1), clearing: 0, type: ty, crM: TT.crM, dead: [], rg: 1 };
+  G = { p, pal, ox, oy, dst, alive, hp, mx, ore, dep, lit, total, v0, cx: ox + (ccx + .5) * CELL, cy: oy + (ccy + .5) * CELL, R: R * CELL, boss, name: boss ? 'Spießer-Festung ' + p / 10 : (TT.n ? TT.n + '-' : '') + NAMES[(p - 1) % NAMES.length] + ' ' + (Math.floor((p - 1) / NAMES.length) + 1), clearing: 0, type: ty, crM: TT.crM, dead: [], rg: 1, elite };
   G.left = total;
   // Fortschritt wiederherstellen: von außen nach innen abtragen
   let n = Math.min(removed | 0, total - 1);
@@ -836,7 +837,7 @@ function planetCols() {
   // Ein Grundton pro Planet (dunkel), Treffer hellen ihn in 7 Stufen auf, z. B. Dunkelblau -> Hellblau
   const base = G.boss ? '#3a3f4c' : mixH(G.pal[2], '#000000', .6), light = G.boss ? '#c3cad8' : mixH(G.pal[2], '#ffffff', .12);
   G.cols = Array.from({ length: 7 }, (_, k) => mixH(base, light, k / 6 * .9));
-  G.line = G.boss ? '#ff9ab0' : mixH(G.pal[2], '#ffffff', .55);
+  G.line = G.boss ? '#ff9ab0' : G.elite ? '#ff2a4a' : mixH(G.pal[2], '#ffffff', .55);
 }
 function drawCell(i) {
   if (i < 0 || i >= G.alive.length) return;
@@ -996,7 +997,7 @@ function draw(now) {
   if (intro > 0) { const k = Math.min(1, (2.4 - intro) * 4, intro * 2), y = H * .16; g.globalAlpha = k;
     g.fillStyle = 'rgba(5,6,10,.75)'; g.fillRect(0, y - 26, W, 50); g.fillStyle = G.boss ? '#ff4f7a' : G.pal[2]; g.fillRect(0, y - 26, W, 2); g.fillRect(0, y + 22, W, 2);
     g.textAlign = 'center'; g.font = '22px Silkscreen,"Pixelify Sans",monospace'; g.fillStyle = '#fff'; const nu = pInU(S.p) === 1; g.fillText(nu ? 'UNIVERSUM ' + uniOf(S.p) : (G.boss ? 'BOSS' : 'PLANET ' + pInU(S.p)), W / 2 + (1 - k) * 40, y + 2);
-    g.font = '10px Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(nu ? uniName(uniOf(S.p)) + ' · Planet 1' : introName + ' · U' + uniOf(S.p), W / 2 - (1 - k) * 40, y + 17); if (G.type && G.type !== 'n') { g.fillStyle = '#ffe94d'; g.fillText(PTYPE[G.type].ico + ' ' + PTYPE[G.type].d, W / 2 - (1 - k) * 40, y + 32); } g.globalAlpha = 1; }
+    g.font = '10px Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(nu ? uniName(uniOf(S.p)) + ' · Planet 1' : introName + ' · U' + uniOf(S.p), W / 2 - (1 - k) * 40, y + 17); if (G.type && G.type !== 'n') { g.fillStyle = '#ffe94d'; g.fillText(PTYPE[G.type].ico + ' ' + PTYPE[G.type].d, W / 2 - (1 - k) * 40, y + 32); } if (G.elite) { g.fillStyle = '#ff2a4a'; g.fillText('⚠ ELITE: doppelt so hart · Kiste garantiert', W / 2 - (1 - k) * 40, y + (G.type && G.type !== 'n' ? 46 : 32)); } g.globalAlpha = 1; }
   // Röhrenbildschirm
   if (!scanPat) overlays(); g.fillStyle = scanPat; g.fillRect(0, 0, W, H); g.fillStyle = vign; g.fillRect(0, 0, W, H);
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -1020,7 +1021,7 @@ function ui() {
   $('cr').textContent = fmt(S.cr) + ' CR';
   { const m = $('mul'), on = boosting(); m.textContent = (on ? '⚡' : '') + 'x' + fmtX(crMult()); m.classList.toggle('bon', on); }
   $('cry').innerHTML = '◆' + fmt(S.cry) + ` <span class="dm">✦${S.dm || 0}</span> <span class="chp">⬢${S.chip || 0}</span>`;
-  $('pln').textContent = 'U' + uniOf(S.p) + ' · ' + (G.boss ? 'BOSS' : 'Planet ' + pInU(S.p)); $('pln').classList.toggle('boss', !!G.boss); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
+  $('pln').textContent = 'U' + uniOf(S.p) + ' · ' + (G.boss ? 'BOSS' : (G.elite ? 'ELITE ' : 'Planet ') + pInU(S.p)); $('pln').classList.toggle('boss', !!(G.boss || G.elite)); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
   hotbar();
   const b = $('boost'), bl = $('bl'), now = Date.now();
   if (boosting()) { b.classList.add('act'); bl.textContent = mmss(S.boostEnd - now); b.disabled = true; }
@@ -1130,7 +1131,8 @@ const warpBonus = n => 5 + Math.ceil(n * .5);
 function planetDone() {
   SND.fx.win();
   const gain = (4 + S.p + 2 * WP('kris')) * (G.boss ? 3 : 1), old = G.name;
-  mis('planets'); if (G.boss) mis('boss');
+  if (G.elite) setTimeout(() => { toast('⚠ Elite-Planet geschafft: Raketen-Kiste!'); giveRw({ crate: 'k1' }); }, 1800);
+  mis('planets'); if (G.boss) { mis('boss'); vib([90, 60, 90, 60, 160]); } else vib(30);
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
   S.pAll = (S.pAll || 0) + 1; let chipT = ''; if (S.pAll % 5 === 0) { S.chip = (S.chip || 0) + 1; chipT = ' · +⬢1 Chip!'; setTimeout(() => toast('⬢ Waffen-Chip bekommen! Im Waffen-Tab bei „Waffen-Mods“ einsetzen.'), 2600); }
   let bgN = 0;
@@ -1145,7 +1147,7 @@ function warp() {
   const n = dmGain(); if (!n) return;
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${n} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)${S.p > 10 ? '<br><small>inkl. Universums-Bonus +' + (wmGain() - .02).toFixed(2) + '</small>' : ''}<br><br>Du behältst <b style="color:var(--txt)">${keepPct()} % deiner ◆</b> (◆${fmt(S.cry)} → ◆${fmt(Math.floor(S.cry * keepPct() / 100))}).<br>CR, Waffen, Planet und Skills werden zurückgesetzt. Fähigkeiten, Hangar und Warp-Werkstatt bleiben.</p>`,
     [['SPRINGEN', () => {
-      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
+      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); vib([40, 30, 40, 30, 300]); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
       S.cry = Math.floor(S.cry * keepPct() / 100); S.sk = {}; S.abT = {}; S.buf = {}; S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
@@ -1402,7 +1404,7 @@ function openCrate(k) {
     setTimeout(() => { fl.classList.add('r-' + r); $('frev').classList.add('on'); btns.forEach(x => x.style.visibility = '');
       if (r === 'l' || r === 'e') { SND.fx.win(); const P = $('fxp'), n = r === 'l' ? 46 : 18; for (let q = 0; q < n; q++) { const sp = document.createElement('i'), an = Math.random() * 6.283, d = 70 + Math.random() * (r === 'l' ? 120 : 60);
         sp.style.cssText = `--dx:${Math.cos(an) * d}px;--dy:${Math.sin(an) * d}px;--dl:${Math.random() * .25}s;--sz:${2 + Math.random() * 5}px`; P.appendChild(sp); } }
-      if (r === 'l') { shake = 14; toast('★ LEGENDÄR! ★'); if (window.BB) BB.unlock('drill_legende'); } }, 520); };
+      if (r === 'e') vib(60); if (r === 'l') { vib([80, 50, 80, 50, 220]); shake = 14; toast('★ LEGENDÄR! ★'); if (window.BB) BB.unlock('drill_legende'); } }, 520); };
   fl.onclick = reveal;
 }
 function itemSvg(it, size) {
@@ -1634,14 +1636,19 @@ const SND = (() => {
   document.addEventListener('visibilitychange', () => { if (!ctx) return; if (document.hidden) ctx.suspend(); else if (started) ctx.resume(); });
   return { fx, get vol() { return vol; }, set(k, v) { vol[k] = Math.max(0, Math.min(1, v)); try { localStorage.setItem('gb_vol', JSON.stringify(vol)); } catch (e) {} apply(); }, start };
 })();
+// Vibration am Handy (geht auf Android; iPhones unterstützen das im Browser nicht)
+let vibOn = true; try { vibOn = localStorage.getItem('gb_vib') !== '0'; } catch (e) {}
+const vib = pat => { try { if (vibOn && navigator.vibrate) navigator.vibrate(pat); } catch (e) {} };
 function openSettings() {
   const v = SND.vol;
   overlay(`<h2>Einstellungen</h2>
     <div class="vrow"><span>🎵 Musik</span><input type="range" min="0" max="100" value="${Math.round(v.m * 100)}" id="vm"><b id="vmv">${Math.round(v.m * 100)}</b></div>
     <div class="vrow"><span>💥 Effekte</span><input type="range" min="0" max="100" value="${Math.round(v.s * 100)}" id="vs"><b id="vsv">${Math.round(v.s * 100)}</b></div>
+    <label class="vrow" style="cursor:pointer"><span>📳 Vibration</span><input type="checkbox" id="vvib" ${vibOn ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">${navigator.vibrate ? '' : 'geht auf diesem Gerät nicht'}</b></label>
     <p style="margin-top:8px">${logged() ? '☁ Dein Stand wird auf deinem Konto gespeichert.' : '💾 Ohne Konto wird nur auf diesem Gerät gespeichert.'} · Version ${VLABEL}</p>`, [['Fertig', null]]);
   const bind = (id, k) => { const el = $(id); el.oninput = () => { SND.set(k, el.value / 100); $(id + 'v').textContent = el.value; if (k === 's') SND.fx.up(); }; };
   bind('vm', 'm'); bind('vs', 's');
+  $('vvib').onchange = e => { vibOn = e.target.checked; try { localStorage.setItem('gb_vib', vibOn ? '1' : '0'); } catch (x) {} if (vibOn) vib(60); };
 }
 
 // ================== Schleife ==================

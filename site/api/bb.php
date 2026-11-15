@@ -143,7 +143,9 @@ if ($a === 'gstat') {
       }
     }
   }
-  out(['stats' => $st, 'ls' => max((int) ($x['t'] ?? 0), (int) ($b['t'] ?? 0)), 'name' => $u['name']]);
+  $ship = null;
+  if ($g === 'drill' && is_array($j)) { $ship = ['eq' => $j['eq'] ?? null, 'hl' => (int) $num($j['hl'] ?? 1), 'w' => is_array($j['w'] ?? null) ? $j['w'] : (object) [], 'mod' => is_array($j['mod'] ?? null) ? $j['mod'] : (object) [], 'ab' => is_array($j['ab'] ?? null) ? $j['ab'] : (object) []]; }
+  out(['stats' => $st, 'ls' => max((int) ($x['t'] ?? 0), (int) ($b['t'] ?? 0)), 'name' => $u['name'], 'ship' => $ship]);
 }
 
 if ($a === 'overall') {

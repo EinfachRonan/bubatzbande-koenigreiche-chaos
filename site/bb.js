@@ -342,6 +342,10 @@
 .bb-det td{padding:5px 6px;border-top:1px solid #1e2636;text-align:right;color:#dfe3ec}
 .bb-det td:first-child{text-align:left;color:#8f98ab}
 .bb-det td.w{color:#9dff6a}
+.bb-ship{display:flex;gap:10px;align-items:center;margin:2px 0 8px;padding:10px;background:radial-gradient(circle at 20% 50%,#0f2328,#05080a 70%);border:1px solid #1d3a40}
+.bb-shv{flex:none;text-align:center}.bb-shv svg{display:block;filter:drop-shadow(0 0 8px var(--rc))}.bb-shv span{font-size:11px;color:#5ce8f0}
+.bb-spp{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}.bb-sp{padding:4px 7px;border-left:3px solid var(--rc);background:#070b0d}.bb-sp small{display:block;font-size:10px;color:#8fa3a8}.bb-sp b{display:block;font-size:12.5px;color:var(--rc)}.bb-sp i{font-style:normal;font-size:9.5px;color:#9fb3b8}
+.bb-shl{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}.bb-shl small{width:100%;font-size:10.5px;color:#8fa3a8}.bb-shl span{font-size:11px;padding:3px 6px;background:#0b1114;border:1px solid #1e2a2f;color:#cfd8da}.bb-shl b{color:#5ce8f0;font-weight:600}.bb-shl em{font-style:normal;color:#ff9f43}
 .bb-det td.w::after{content:" ▲";font-size:10px}
 .bb-pod{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:8px;margin:6px 0 12px}
 .bb-pd{text-align:center;cursor:pointer;padding:10px 4px;border-radius:14px}
@@ -566,6 +570,53 @@
   const LBL = { level: 'Level', stars: 'Sterne', coins: 'Münzen', gold: 'Gold', best: 'Bestwert', dist: 'Strecke', runs: 'Läufe', wins: 'Siege', lv: 'Stufe', bg: 'Bandengold', p: 'Planet' };
   const lbl = k => { const n = k.endsWith('#'), b = n ? k.slice(0, -1) : k; const t = LBL[b] || (b.charAt(0).toUpperCase() + b.slice(1)); return n ? t + ' (Anzahl)' : t; };
   async function gstat(g, id) { const r = await fetch(`${API}?a=gstat&g=${g}&u=${id}`, { cache: 'no-store' }); return r.json(); }
+  // Galaxie-Bohrer: Schiffsdaten zum Anschauen in der Bestenliste (Kopie aus drill/index.html)
+  const DR = (() => { const I = [
+  { id: 'h_pfeil', s: 'h', r: 'g', n: 'Pfeilgleiter', col: '#f4fbff', poly: [[0, 14], [-10, -10], [0, -4], [10, -10]] },
+  { id: 'h_kobold', s: 'h', r: 'g', n: 'Kobold-Kreuzer', col: '#9dff6a', poly: [[0, 14], [-6, 6], [-13, 9], [-9, -2], [-11, -10], [0, -6], [11, -10], [9, -2], [13, 9], [6, 6]] },
+  { id: 'h_blatt', s: 'h', r: 's', n: 'Kräuterblatt', col: '#5fe36b', poly: [[0, 16], [-3, 6], [-12, 10], [-6, 1], [-13, -3], [-4, -4], [-2, -11], [0, -6], [2, -11], [4, -4], [13, -3], [6, 1], [12, 10], [3, 6]] },
+  { id: 'h_molly', s: 'h', r: 's', n: 'Mollys Sternjäger', col: '#6ab0ff', poly: [[0, 15], [-4, 4], [-14, 2], [-5, -2], [-8, -11], [0, -5], [8, -11], [5, -2], [14, 2], [4, 4]] },
+  { id: 'h_geist', s: 'h', r: 'e', n: 'Geisterschiff', col: '#dfe6ff', poly: [[0, 14], [-8, 10], [-11, 0], [-11, -10], [-7, -6], [-4, -11], [0, -7], [4, -11], [7, -6], [11, -10], [11, 0], [8, 10]] },
+  { id: 'h_don', s: 'h', r: 'e', n: 'DonPatrons Goldyacht', col: '#ffd23f', poly: [[0, 14], [-5, 10], [-14, 4], [-14, -4], [-6, -10], [6, -10], [14, -4], [14, 4], [5, 10]] },
+  { id: 'h_koenig', s: 'h', r: 'l', n: 'Königsfregatte', col: '#ffb43a', poly: [[0, 16], [-8, 6], [-12, -6], [-12, -12], [-6, -7], [0, -13], [6, -7], [12, -12], [12, -6], [8, 6]] },
+  { id: 'h_drache', s: 'h', r: 'l', n: 'Nullraum-Drache', col: '#ff4f7a', poly: [[0, 16], [-3, 9], [-15, 12], [-8, 2], [-15, -6], [-5, -4], [0, -12], [5, -4], [15, -6], [8, 2], [15, 12], [3, 9]] },
+  { id: 'r_basis', s: 'r', r: 'g', n: 'Kohle-Reaktor', col: '#ffb06a' },
+  { id: 'r_kraut', s: 'r', r: 'g', n: 'Kräuterkern', col: '#7dff6a' },
+  { id: 'r_plasma', s: 'r', r: 's', n: 'Plasmakern', col: '#5ce8f0' },
+  { id: 'r_kristall', s: 'r', r: 's', n: 'Kristallherz', col: '#b48cff' },
+  { id: 'r_geist', s: 'r', r: 'e', n: 'Geisterflamme', col: '#e9f4ff' },
+  { id: 'r_sonne', s: 'r', r: 'e', n: 'Mini-Sonne', col: '#ffd23f' },
+  { id: 'r_null', s: 'r', r: 'l', n: 'Nullraum-Kern', col: '#ff4fd8' },
+  { id: 't_basis', s: 't', r: 'g', n: 'Standard-Düse', col: '#5ce8f0', f: 1 },
+  { id: 't_doppel', s: 't', r: 'g', n: 'Doppeldüse', col: '#5ce8f0', f: 2 },
+  { id: 't_ion', s: 't', r: 's', n: 'Ionen-Antrieb', col: '#6ab0ff', f: 1, tr: 1 },
+  { id: 't_blitz', s: 't', r: 's', n: 'Blitzantrieb', col: '#ffe36a', f: 2 },
+  { id: 't_rauch', s: 't', r: 'e', n: 'Bubatz-Rauch', col: '#9dff6a', f: 1, smoke: 1 },
+  { id: 't_regen', s: 't', r: 'e', n: 'Regenbogen-Schweif', col: 'rainbow', f: 2, tr: 1 },
+  { id: 't_warp', s: 't', r: 'l', n: 'Warp-Triebwerk', col: '#ff4fd8', f: 3, tr: 1 }
+]; const W = [
+  { id: 'line', n: 'Kobold-Blaster', d: 'Schießt Energie-Kugeln auf den nächsten Block' },
+  { id: 'star', n: 'Mollys Kristallstern', d: '4 rotierende Laser' },
+  { id: 'drill', n: 'Fokuhilas Bohrlanze', d: 'Durchschlagender Stoß bis zum Kern' },
+  { id: 'nova', n: 'Geister-Nova', d: 'Geisterkugel explodiert im Planeten' },
+  { id: 'scatter', n: 'Nilles Streufeuer', d: '7 Schüsse im Fächer' },
+  { id: 'drones', n: 'DonPatrons Drohnen', d: '3 Drohnen ballern mit' },
+  { id: 'chain', n: 'Marwins Kettenblitz', d: 'Blitz springt über 6 Blöcke' },
+  { id: 'saw', n: 'LG3s Kräutersäge', d: '2 große Sägeblätter kreisen ums Schiff' },
+  { id: 'mine', n: 'Allans Minenwerfer', d: 'Minen explodieren auf der Oberfläche' },
+  { id: 'sniper', n: 'Königsschuss', d: 'Ein Riesenschuss auf das wertvollste Erz' }
+]; const R = { g: { n: 'Gewöhnlich', c: '#c9d1d3', b: .1 }, s: { n: 'Selten', c: '#8dff5a', b: .25 }, e: { n: 'Episch', c: '#ff5fe0', b: .6 }, l: { n: 'Legendär', c: '#ffe94d', b: 1.5 } }; const A = {"over": "Hyperschub", "gold": "Goldrausch", "meteor": "Meteorschauer", "kanone": "Orbitalkanone", "loch": "Schwarzes Loch", "erz": "Erzradar", "zeit": "Zeitsprung"}; return { I, W, R, A }; })();
+  function shipCard(s) {
+    if (!s || !s.eq) return '';
+    const it = id => DR.I.find(x => x.id === id), h = it(s.eq.h) || DR.I[0], hl = s.hl || 1;
+    const part = (k, lb) => { const x = it(s.eq[k]); if (!x) return ''; const c = DR.R[x.r].c; return `<div class="bb-sp" style="--rc:${c}"><small>${lb}</small><b>${esc(x.n)}</b><i>${DR.R[x.r].n}</i></div>`; };
+    const ws = DR.W.filter(w => s.w && s.w[w.id]).map(w => `<span>${esc(w.n)} <b>Lv.${s.w[w.id]}</b>${s.mod && s.mod[w.id] ? ` <em>⬢${s.mod[w.id]}</em>` : ''}</span>`).join('');
+    const ab = Object.keys(s.ab || {}).filter(k => DR.A[k]).map(k => `<span>${esc(DR.A[k])} <b>Lv.${s.ab[k]}</b></span>`).join('');
+    const hc = DR.R[h.r].c;
+    return `<div class="bb-ship"><div class="bb-shv" style="--rc:${hc}"><svg viewBox="-20 -20 40 40" width="110" height="110"><polygon points="${h.poly.map(([x, y]) => x + ',' + (-y)).join(' ')}" fill="${h.col}22" stroke="${h.col}" stroke-width="1.4" stroke-linejoin="round"/></svg><span>Hangar-Lvl. ${hl}</span></div>
+      <div class="bb-spp">${part('h', 'Rumpf')}${part('r', 'Reaktor')}${part('t', 'Triebwerk')}</div></div>
+      ${ws ? `<div class="bb-shl"><small>Waffen</small>${ws}</div>` : ''}${ab ? `<div class="bb-shl"><small>Fähigkeiten</small>${ab}</div>` : ''}`;
+  }
   async function detail(row, g, id) {
     const anc = row.closest('.bb-pod') || row, nx = anc.nextElementSibling, had = nx && nx.classList.contains('bb-det') && nx.dataset.for === id;
     anc.parentNode.querySelectorAll('.bb-det').forEach(x => x.remove()); if (had) return;
@@ -575,7 +626,7 @@
       const [a, me] = await Promise.all([gstat(g, id), mine ? gstat(g, P.id).catch(() => null) : null]);
       const meMap = new Map(((me && me.stats) || []).map(x => [x[0], x[1]]));
       const val = (k, v) => typeof v === 'number' ? (k === 'Bestwert' ? fmt(g, v) : v.toLocaleString('de-DE')) : esc(String(v));
-      box.innerHTML = (a.stats && a.stats.length ? `<table><tr><th></th><th>${esc(a.name)}</th>${mine ? '<th>Du</th>' : ''}</tr>${a.stats.map(([k, v]) => { const m = meMap.get(k), win = mine && typeof v === 'number' && typeof m === 'number' ? (v > m ? 1 : v < m ? -1 : 0) : 0;
+      box.innerHTML = (g === 'drill' ? shipCard(a.ship) : '') + (a.stats && a.stats.length ? `<table><tr><th></th><th>${esc(a.name)}</th>${mine ? '<th>Du</th>' : ''}</tr>${a.stats.map(([k, v]) => { const m = meMap.get(k), win = mine && typeof v === 'number' && typeof m === 'number' ? (v > m ? 1 : v < m ? -1 : 0) : 0;
           return `<tr><td>${esc(lbl(k))}</td><td class="${win > 0 ? 'w' : ''}">${val(k, v)}</td>${mine ? `<td class="${win < 0 ? 'w' : ''}">${m == null ? '–' : val(k, m)}</td>` : ''}</tr>`; }).join('')}</table>` : '<div class="bb-mut">Noch keine Details gespeichert.</div>')
         + `${a.ls ? `<div class="bb-mut" style="padding:6px 0 0">🕒 zuletzt ${lastSeen(a.ls)}</div>` : ''}<button class="bb-skip" data-prof="${id}">Profil ansehen ›</button>`;
       box.querySelector('[data-prof]').onclick = () => showUser(id);
