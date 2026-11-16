@@ -1102,7 +1102,8 @@ function ui() {
   else { b.classList.remove('act'); bl.textContent = 'Boost x2'; b.disabled = false; }
   // rote Punkte: neue Fähigkeit liegt noch nicht auf der Hotbar / doppelte Teile zum Einschmelzen
   $('abdot').hidden = !(ABIL.some(a => AL(a.id) && !S.hot.includes(a.id)) && S.hot.filter(Boolean).length < 5);
-  $('hgdot').hidden = !Object.keys(S.dup || {}).some(k => S.dup[k] > 0);
+  // Roter Punkt im Hangar nur, wenn ein Teil leveln kann (5 Doppelte) oder ein besseres Teil nicht ausgerüstet ist
+  $('hgdot').hidden = !ITEMS.some(it => S.inv[it.id] && ((ILV(it.id) < ITEM_MAX && ((S.dup || {})[it.id] || 0) >= DUPN) || better(it)));
   $('wpdot').hidden = !(dmGain() > 0 || WARP.some(w => WP(w.id) < w.max && S.dm >= w.cost(WP(w.id))));
   if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + fmt(dmGain()); $('wmto').textContent = 'x' + ((S.wm || 1) + wmGain()).toFixed(2); $('wgo').disabled = !dmGain(); }
   if ($('shdot')) $('shdot').hidden = !dlyOpen();
