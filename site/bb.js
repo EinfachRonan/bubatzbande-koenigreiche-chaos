@@ -608,12 +608,12 @@
 ]; const R = { g: { n: 'Gewöhnlich', c: '#c9d1d3', b: .1 }, s: { n: 'Selten', c: '#8dff5a', b: .25 }, e: { n: 'Episch', c: '#ff5fe0', b: .6 }, l: { n: 'Legendär', c: '#ffe94d', b: 1.5 } }; const A = {"over": "Hyperschub", "gold": "Goldrausch", "meteor": "Meteorschauer", "kanone": "Orbitalkanone", "loch": "Schwarzes Loch", "erz": "Erzradar", "zeit": "Zeitsprung"}; return { I, W, R, A }; })();
   function shipCard(s) {
     if (!s || !s.eq) return '';
-    const it = id => DR.I.find(x => x.id === id), h = it(s.eq.h) || DR.I[0], hl = s.hl || 1;
-    const part = (k, lb) => { const x = it(s.eq[k]); if (!x) return ''; const c = DR.R[x.r].c; return `<div class="bb-sp" style="--rc:${c}"><small>${lb}</small><b>${esc(x.n)}</b><i>${DR.R[x.r].n}</i></div>`; };
+    const it = id => DR.I.find(x => x.id === id), h = it(s.eq.h) || DR.I[0], lv = id => (s.lv && s.lv[id]) || 1;
+    const part = (k, lb) => { const x = it(s.eq[k]); if (!x) return ''; const c = DR.R[x.r].c; return `<div class="bb-sp" style="--rc:${c}"><small>${lb}</small><b>${esc(x.n)}</b><i>${DR.R[x.r].n} · Lv. ${lv(x.id)}</i></div>`; };
     const ws = DR.W.filter(w => s.w && s.w[w.id]).map(w => `<span>${esc(w.n)} <b>Lv.${s.w[w.id]}</b>${s.mod && s.mod[w.id] ? ` <em>⬢${s.mod[w.id]}</em>` : ''}</span>`).join('');
     const ab = Object.keys(s.ab || {}).filter(k => DR.A[k]).map(k => `<span>${esc(DR.A[k])} <b>Lv.${s.ab[k]}</b></span>`).join('');
     const hc = DR.R[h.r].c;
-    return `<div class="bb-ship"><div class="bb-shv" style="--rc:${hc}"><svg viewBox="-20 -20 40 40" width="110" height="110"><polygon points="${h.poly.map(([x, y]) => x + ',' + (-y)).join(' ')}" fill="${h.col}22" stroke="${h.col}" stroke-width="1.4" stroke-linejoin="round"/></svg><span>Hangar-Lvl. ${hl}</span></div>
+    return `<div class="bb-ship"><div class="bb-shv" style="--rc:${hc}"><svg viewBox="-20 -20 40 40" width="110" height="110"><polygon points="${h.poly.map(([x, y]) => x + ',' + (-y)).join(' ')}" fill="${h.col}22" stroke="${h.col}" stroke-width="1.4" stroke-linejoin="round"/></svg><span>Rumpf Lv. ${lv(h.id)}</span></div>
       <div class="bb-spp">${part('h', 'Rumpf')}${part('r', 'Reaktor')}${part('t', 'Triebwerk')}</div></div>
       ${ws ? `<div class="bb-shl"><small>Waffen</small>${ws}</div>` : ''}${ab ? `<div class="bb-shl"><small>Fähigkeiten</small>${ab}</div>` : ''}`;
   }

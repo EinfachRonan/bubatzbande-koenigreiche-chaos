@@ -317,6 +317,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .mgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:6px 0 10px}
 .flip.mini{width:auto;height:auto;aspect-ratio:3/4;margin:0}.flip.mini .ff,.flip.mini .fb{border-width:1.5px;gap:3px}.flip.mini .fb span{font-size:7.5px;letter-spacing:.04em}
 .flip.mini .mab{position:absolute;right:2px;top:2px}
+.hg-info{font-size:11.5px;line-height:1.45;color:#cfd8da;padding:8px 10px;margin-bottom:8px;background:#070b0d;border-left:3px solid var(--cy2)}.hg-info b{color:var(--cy)}
+.hg-lvb{position:absolute;left:3px;top:3px;font:400 8px Silkscreen,var(--mono);color:var(--rc)}
+.hg-dp{display:block;width:80%;height:3px;background:#1a2226;margin-top:3px}.hg-dp s{display:block;height:100%;background:var(--rc);text-decoration:none}.hg-dt{font-style:normal;font-size:8.5px;color:#9fb3b8}
 html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
 /* ===== PC / Desktop: Vollbild – großes Spielfeld links, Menü als Seitenleiste rechts ===== */
 @media (min-width:900px) and (min-height:540px){
@@ -375,7 +378,7 @@ html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261116a"></script>
+<script src="../bb.js?v=20261116b"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -1338,7 +1341,9 @@ const ITEMS = [
 ];
 const IT = id => ITEMS.find(x => x.id === id);
 const eqItem = s => IT(S.eq[s]) || ITEMS.find(x => x.s === s);
-const ITEM_MAX = 25; // max. Hangar-Level
+const ITEM_MAX = 10; // max. Stufe pro Teil
+const DUPN = 5; // 5 Doppelte = +1 Stufe für genau dieses Teil
+const ILV = id => (S.lv || {})[id] || 1;
 const itemVal = (it, lv) => RAR[it.r].b * (1 + .35 * ((lv || 1) - 1));
 // Jeder Raketen-Rumpf hat eine eigene Grundfähigkeit, die mit der Stufe wächst
 const HULLAB = {
@@ -1351,7 +1356,7 @@ const HULLAB = {
   h_koenig: { d: 'Fähigkeiten laden 15 % schneller', cd: .15 },
   h_drache: { d: '+35 % Schaden aller Waffen', dmg: .35 }
 };
-const hullK = () => 1 + .1 * (HL() - 1);
+const hullK = () => 1 + .2 * (ILV(eqItem('h').id) - 1);
 // Jeder Rumpf feuert eine eigene Basisattacke in Blickrichtung. Je seltener, desto stärker. Stärke wächst mit dem Hangar-Level.
 const HRF = { g: .15, s: .3, e: .6, l: 1.2 };
 const HATK = {
@@ -1364,7 +1369,7 @@ const HATK = {
   h_koenig: { n: 'Königsbann', d: 'Breiter Laser + Schockwelle ums Schiff', cd: 2.4 },
   h_drache: { n: 'Drachenfeuer', d: 'Dauerhafter Flammenkegel', cd: .2 }
 };
-const hullAK = () => 1 + .05 * (HL() - 1); // Rumpf-Attacke wächst langsamer als der Rumpf-Bonus
+const hullAK = () => 1 + .1 * (ILV(eqItem('h').id) - 1); // Rumpf-Attacke wächst langsamer als der Rumpf-Bonus
 const hullPow = () => HRF[eqItem('h').r] * hullAK();
 let cdHull = 0; const hents = [];
 function boomAt(x, y, n, d, col) { for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) if (a * a + b * b <= n * n + 1) hit(cellAt(x + a * CELL, y + b * CELL), d); fx.push({ k: 'nova', x, y, r: CELL * (n + 1), t: .35, c: col }); }
@@ -1412,19 +1417,10 @@ function hullAtk(dt, face) {
 const HA = k => { const a = HULLAB[eqItem('h').id] || {}; return (a[k] || 0) * hullK(); };
 const HAw = id => { const a = HULLAB[eqItem('h').id] || {}; return ((a.w && a.w[id]) || 0) * hullK(); };
 // Hangar-Level: ein Level für den ganzen Hangar. Jedes eingeschmolzene Teil gibt feste XP, jedes Level braucht eine feste Menge.
-const XPV = { g: 10, s: 30, e: 90, l: 300 };
-const xpNeed = lv => 40 + 30 * (lv - 1);
-function HL() {
-  if (S.hl == null) { // alter Stand: Item-Level in Hangar-XP umrechnen
-    const oldNeed = lv => Math.round(20 * Math.pow(lv, 1.6)); let tot = 0;
-    for (const id in S.inv) { for (let k = 1; k < (S.inv[id] || 1); k++) tot += oldNeed(k); tot += (S.xp && S.xp[id]) || 0; S.inv[id] = 1; }
-    S.hl = 1; S.hx = 0; delete S.xp; addHx(tot);
-  }
-  return S.hl;
-}
-function addHx(xp) { HL(); S.hx = (S.hx || 0) + xp; let up = 0; while (S.hl < ITEM_MAX && S.hx >= xpNeed(S.hl)) { S.hx -= xpNeed(S.hl); S.hl++; up++; } if (S.hl >= ITEM_MAX) S.hx = 0; return up; }
-const itemBonus = s => { const it = eqItem(s); return 1 + itemVal(it, HL()); };
-const itemLv = s => { const it = eqItem(s); return ({ g: 0, s: 1, e: 2, l: 4 })[it.r] + (HL() - 1) * .3; };
+const MELTC = { g: 1, s: 3, e: 10, l: 40 }; // Einschmelzen gibt ◆ Kristalle
+function lvUp(id) { const d = (S.dup || {})[id] || 0, l = ILV(id); if (l >= ITEM_MAX || d < DUPN) return false; S.dup[id] = d - DUPN; if (!S.dup[id]) delete S.dup[id]; S.lv = S.lv || {}; S.lv[id] = l + 1; return true; }
+const itemBonus = s => { const it = eqItem(s); return 1 + itemVal(it, ILV(it.id)); };
+const itemLv = s => { const it = eqItem(s); return ({ g: 0, s: 1, e: 2, l: 4 })[it.r] + (ILV(it.id) - 1) * .3; };
 const CRATES = [
   { id: 'k1', n: 'Raketen-Kiste', cost: 10, w: { g: 55, s: 33, e: 11.94, l: .06 }, c: '#5ce8f0', d: 'Ein Schiffsteil für den Hangar' },
   { id: 'k2', n: 'Fähigkeiten-Kiste', cost: 10, ab: 1, c: '#c9a2ff', d: 'Neue Fähigkeit oder +1 Stufe' },
@@ -1476,12 +1472,12 @@ function openCrate(k) {
   if (S.cry < k.cost) return;
   S.cry -= k.cost; mis('crate');
   const { it, r, had } = rollItem(k);
-  const extra = had ? `<br>Doppelt! Im Hangar einschmelzen = +${XPV[r]} Hangar-XP` : '';
+  const extra = had ? `<br>Doppelt! ${(S.dup[it.id] || 0)}/${DUPN} für die nächste Stufe` : '';
   save('now');
   const r2 = k.ab ? rollAbility() : null; if (r2) save('now');
   overlay(`<div class="flip" id="flip" style="--rc:${RAR[r].c};--kc:${k.c}"><div class="fc"><div class="ff"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.4"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/></svg><span>${k.n}</span><small>Tippen zum Aufdecken</small></div>
       <div class="fb">${itemSvg(it, 84)}<span>${RAR[r].n.toUpperCase()}</span></div></div><div class="fx-p" id="fxp"></div></div>
-    <div id="frev" class="frev">${r2 ? `<div class="ultab"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.8">${r2.a.ico}</svg><span><b>${r2.a.n}</b><br>${r2.txt}</span></div>` : ''}<h2 style="color:${RAR[r].c}">${it.n}</h2><p>[${RAR[r].n}] · ${SLOT[it.s].n}<br>${had ? '' : 'Neu im Hangar!'}${extra}<br><b style="color:var(--txt)">+${Math.round(itemVal(it, HL()) * 100)} % ${SLOT[it.s].st}</b>${HATK[it.id] ? '<br><span style="color:var(--li)">⚔ ' + HATK[it.id].n + ': ' + HATK[it.id].d + '</span>' : ''}</p></div>`,
+    <div id="frev" class="frev">${r2 ? `<div class="ultab"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.8">${r2.a.ico}</svg><span><b>${r2.a.n}</b><br>${r2.txt}</span></div>` : ''}<h2 style="color:${RAR[r].c}">${it.n}</h2><p>[${RAR[r].n}] · ${SLOT[it.s].n}<br>${had ? '' : 'Neu im Hangar!'}${extra}<br><b style="color:var(--txt)">+${Math.round(itemVal(it, ILV(it.id)) * 100)} % ${SLOT[it.s].st}</b>${HATK[it.id] ? '<br><span style="color:var(--li)">⚔ ' + HATK[it.id].n + ': ' + HATK[it.id].d + '</span>' : ''}</p></div>`,
     [['Ausrüsten', () => { S.eq[it.s] = it.id; save('now'); render(); }], ['Weiter', () => render()]]);
   const ovb = $('ovb'), btns = ovb.querySelectorAll('[data-k]'); btns.forEach(x => x.style.visibility = 'hidden');
   const fl = $('flip'); let done = false;
@@ -1499,9 +1495,9 @@ function itemSvg(it, size) {
   const fc = it.col === 'rainbow' ? '#ff5fe0' : it.col;
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.5"><rect x="3" y="8" width="11" height="8" rx="2"/><path d="M14 9l4-2v10l-4-2M6 8v8M9 8v8"/><path d="M19 10l3-1M19 14l3 1" stroke="${fc}"/></svg>`;
 }
-function bestEquip() { const ch = []; for (const sl of ['h', 'r', 't']) { let best = null, bv = -1; for (const it of ITEMS) if (it.s === sl && S.inv[it.id]) { const v = itemVal(it, HL()); if (v > bv) { bv = v; best = it; } } if (best && S.eq[sl] !== best.id) { S.eq[sl] = best.id; ch.push(best.n); } }
+function bestEquip() { const ch = []; for (const sl of ['h', 'r', 't']) { let best = null, bv = -1; for (const it of ITEMS) if (it.s === sl && S.inv[it.id]) { const v = itemVal(it, ILV(it.id)); if (v > bv) { bv = v; best = it; } } if (best && S.eq[sl] !== best.id) { S.eq[sl] = best.id; ch.push(best.n); } }
   save('now'); render(); toast(ch.length ? '✓ Ausgerüstet: ' + ch.join(', ') : 'Du hast schon die besten Teile drin 👌'); if (ch.length) SND.fx.up(); }
-const better = it => { const e = eqItem(it.s); return S.eq[it.s] !== it.id && itemVal(it, 1) > itemVal(e, 1); };
+const better = it => { const e = eqItem(it.s); return S.eq[it.s] !== it.id && itemVal(it, ILV(it.id)) > itemVal(e, ILV(e.id)); };
 // ================== Hotbar ==================
 let hotSig = '';
 function hotbar(force) {
@@ -1599,56 +1595,52 @@ function melt(id, spare) {
   const m = IT(id); S.dup = S.dup || {};
   if (spare) { if (!S.dup[id]) return 0; S.dup[id]--; if (!S.dup[id]) delete S.dup[id]; }
   else { if (S.eq[m.s] === id || !S.inv[id]) return 0; delete S.inv[id]; }
-  mis('melt'); return addHx(XPV[m.r]);
+  mis('melt'); S.cry += MELTC[m.r]; return MELTC[m.r];
 }
 function renderHangar(L) {
   document.querySelectorAll('.hsheet').forEach(x => x.remove());
-  const lv = HL(), mx = lv >= ITEM_MAX, need = xpNeed(lv), xp = S.hx || 0;
   const sel = hSel && S.inv[hSel] ? IT(hSel) : null;
-  const pct = it => Math.round(itemVal(it, lv) * 100);
-  const ml = meltList(), spareXp = ml.filter(m => m.spare).reduce((a, m) => a + XPV[m.it.r] * m.n, 0);
+  const pct = it => Math.round(itemVal(it, ILV(it.id)) * 100);
+  const canLv = ITEMS.filter(it => S.inv[it.id] && ILV(it.id) < ITEM_MAX && ((S.dup || {})[it.id] || 0) >= DUPN);
   const ownAll = ITEMS.filter(x => S.inv[x.id]).length, RO = { l: 0, e: 1, s: 2, g: 3 };
   const hab = HULLAB[eqItem('h').id];
   L.innerHTML = `
-    <div class="hg-lv"><div class="hg-badge"><small>LVL</small><b>${lv}</b></div>
-      <div class="hg-lvm"><div class="hg-lvt"><span>Hangar-Level</span><em>${mx ? 'MAX' : xp + ' / ' + need + ' XP'}</em></div>
-        <div class="hg-bar"><i style="width:${mx ? 100 : Math.min(100, xp / need * 100)}%"></i></div>
-        <small>Gilt für alle Teile · jedes Level macht jedes Teil stärker</small></div></div>
-    <div class="hg-melt"><button class="br" id="hmeltall" ${spareXp && !mx ? '' : 'disabled'}>⚙ Alle Doppelten einschmelzen · +${spareXp} XP</button>
-      <div class="hg-xpv">${['g', 's', 'e', 'l'].map(r => `<span style="color:${RAR[r].c}">■ ${RAR[r].n} +${XPV[r]}</span>`).join('')}</div></div>
+    <div class="hg-info">⬆ Jedes Teil levelt einzeln: <b>${DUPN} Doppelte = +1 Stufe</b> (max. ${ITEM_MAX}). Einschmelzen gibt ◆.</div>
+    <button class="br unl" id="lvall" style="margin:0 0 8px" ${canLv.length ? '' : 'disabled'}>${canLv.length ? '⬆ ALLE LEVELN · ' + canLv.length + ' TEILE BEREIT' : 'NOCH KEIN TEIL BEREIT ZUM LEVELN'}</button>
     <button class="br unl" id="best" style="margin:0 0 10px">${ITEMS.some(it => S.inv[it.id] && better(it)) ? '⬆ BESTE AUSRÜSTEN · BESSERE TEILE DA' : '✓ BESTE AUSRÜSTEN'}</button>
     <div class="hg-h"><span>Ausgerüstet</span></div>
-    <div class="hg-load">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-it="${it.id}" style="--rc:${RAR[it.r].c}"><span class="hg-slot">${SLOT[s].n}</span><span class="hg-ic">${itemSvg(it, 40)}</span><b>${it.n}</b><small>+${pct(it)} % ${SLOT[s].st}</small><i class="hg-rar">${RAR[it.r].n}</i></button>`; }).join('')}</div>
-    ${HATK[eqItem('h').id] ? `<div class="hab2">⚔ Rumpf-Attacke: <b style="color:var(--txt)">${HATK[eqItem('h').id].n}</b> – ${HATK[eqItem('h').id].d} · ${Math.round(hullPow() * 100)} % deiner Waffen-DPS${hab ? `<br>★ Bonus: ${hab.d} · x${hullK().toFixed(1)} durch Hangar-Level` : ''}</div>` : ''}
+    <div class="hg-load">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-it="${it.id}" style="--rc:${RAR[it.r].c}"><span class="hg-slot">${SLOT[s].n} · Lv. ${ILV(it.id)}</span><span class="hg-ic">${itemSvg(it, 40)}</span><b>${it.n}</b><small>+${pct(it)} % ${SLOT[s].st}</small><i class="hg-rar">${RAR[it.r].n}</i></button>`; }).join('')}</div>
+    ${HATK[eqItem('h').id] ? `<div class="hab2">⚔ Rumpf-Attacke: <b style="color:var(--txt)">${HATK[eqItem('h').id].n}</b> – ${HATK[eqItem('h').id].d} · ${Math.round(hullPow() * 100)} % deiner Waffen-DPS${hab ? `<br>★ Bonus: ${hab.d} · x${hullK().toFixed(1)} durch die Stufe` : ''}</div>` : ''}
     <div class="hg-h"><span>Sammlung</span><b>${ownAll}/${ITEMS.length}</b></div>
     <div class="hg-tot"><i style="width:${ownAll / ITEMS.length * 100}%"></i></div>
     ${['h', 'r', 't'].map(s => { const list = ITEMS.filter(x => x.s === s).sort((a, b2) => RO[a.r] - RO[b2.r]), own = list.filter(x => S.inv[x.id]).length;
       return `<div class="hg-cat"><div class="hg-ch"><b>${SLOT[s].n}</b><span>${SLOT[s].st}</span><em>${own}/${list.length}</em></div>
-      <div class="hg-grid">${list.filter(it => S.inv[it.id]).map(it => { const on = S.eq[it.s] === it.id, d = (S.dup || {})[it.id];
-        return `<button data-it="${it.id}" class="${on ? 'on' : ''}" style="--rc:${RAR[it.r].c}"><span class="hg-ic">${itemSvg(it, 32)}</span><b>${it.n}</b><small>+${pct(it)} %</small>${on ? '<span class="eqb">✓</span>' : ''}${d ? `<span class="hg-dup">+${d}</span>` : ''}${better(it) ? '<span class="hg-up">⬆</span>' : ''}</button>`; }).join('')}</div></div>`; }).join('')}
+      <div class="hg-grid">${list.filter(it => S.inv[it.id]).map(it => { const on = S.eq[it.s] === it.id, d = (S.dup || {})[it.id] || 0, l = ILV(it.id), mx = l >= ITEM_MAX;
+        return `<button data-it="${it.id}" class="${on ? 'on' : ''}" style="--rc:${RAR[it.r].c}"><span class="hg-lvb">Lv.${l}</span><span class="hg-ic">${itemSvg(it, 32)}</span><b>${it.n}</b><small>+${pct(it)} %</small><i class="hg-dp"><s style="width:${mx ? 100 : Math.min(100, d / DUPN * 100)}%"></s></i><em class="hg-dt">${mx ? 'MAX' : d + '/' + DUPN}</em>${on ? '<span class="eqb">✓</span>' : ''}${better(it) ? '<span class="hg-up">⬆</span>' : ''}</button>`; }).join('')}</div></div>`; }).join('')}
     <button class="br unl" data-shop="1" style="margin:4px 0 12px">🛒 KISTEN-SHOP</button>`;
   L.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { hSel = b.dataset.it; render(); });
   $('best').onclick = bestEquip;
+  $('lvall').onclick = () => { let n = 0; for (const it of ITEMS) while (S.inv[it.id] && lvUp(it.id)) n++; if (n) { SND.fx.win(); vib(40); toast(`⬆ ${n} Stufe${n > 1 ? 'n' : ''} aufgewertet!`); } save('now'); render(); };
   L.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => goTab('k'));
-  const lvToast = l0 => { if (HL() > l0) { SND.fx.win(); toast(`Hangar-Level ${HL()}!`); } else SND.fx.up(); };
-  $('hmeltall').onclick = () => overlay(`<h2>Alle Doppelten einschmelzen?</h2><p>Alle doppelten Teile werden zu <b style="color:var(--cy)">+${spareXp} Hangar-XP</b>.<br>Deine ausgerüsteten Teile bleiben.</p>`, [['Einschmelzen', meltAll], ['Abbrechen', null]]);
-  const meltAll = () => { const l0 = HL(); for (const m of meltList().filter(x => x.spare)) for (let k = 0; k < m.n && HL() < ITEM_MAX; k++) melt(m.it.id, 1); lvToast(l0); save('now'); render(); };
   if (!sel) return;
   // Details als Fenster von unten
-  const on = S.eq[sel.s] === sel.id, dp = (S.dup || {})[sel.id] || 0, canMelt = !mx && (dp || !on);
+  const on = S.eq[sel.s] === sel.id, dp = (S.dup || {})[sel.id] || 0, lv = ILV(sel.id), mx = lv >= ITEM_MAX, canMelt = dp || !on;
   const sh = document.createElement('div'); sh.className = 'hsheet';
   sh.innerHTML = `<div class="hsbg"></div><div class="hsp" style="--rc:${RAR[sel.r].c}"><button class="hsx" aria-label="Schließen">✕</button>
-    <div class="ihd"><div class="ib">${itemSvg(sel, 46)}</div><div><b>${sel.n}</b><small>${RAR[sel.r].n} · ${SLOT[sel.s].n}${on ? ' · <span style="color:var(--li)">ausgerüstet</span>' : ''}</small></div></div>
-    <div class="ist2"><div><small>${SLOT[sel.s].st} bei Hangar-Lvl. ${lv}</small><b>+${pct(sel)} %</b>${mx ? '' : `<em>bei Lvl. ${lv + 1}: +${Math.round(itemVal(sel, lv + 1) * 100)} %</em>`}</div>${HATK[sel.id] ? `<div class="hab"><small>Rumpf-Attacke · ${RAR[sel.r].n}</small><b>⚔ ${HATK[sel.id].n}</b><span style="display:block;font-size:11px;color:#cfd8da;margin:2px 0">${HATK[sel.id].d}</span><em>${Math.round(HRF[sel.r] * hullAK() * 100)} % deiner Waffen-DPS${mx ? '' : ` · bei Hangar-Lvl. ${lv + 1}: ${Math.round(HRF[sel.r] * (hullAK() + .05) * 100)} %`}</em></div>` : ''}${HULLAB[sel.id] ? `<div class="hab"><small>Rumpf-Bonus</small><b>★ ${HULLAB[sel.id].d}</b><em>x${hullK().toFixed(1)} durch Hangar-Level${mx ? '' : ` · bei Lvl. ${lv + 1}: x${(hullK() + .1).toFixed(1)}`}</em></div>` : ''}</div>
-    <div class="row2"><button class="br" id="ieq" ${on ? 'disabled' : ''}>${on ? 'Ausgerüstet ✓' : 'Ausrüsten'}</button><button class="br" id="imelt" ${canMelt ? '' : 'disabled'}>${mx ? 'Hangar ist Max' : canMelt ? `Einschmelzen<span class="gn">+${XPV[sel.r]} XP</span>` : 'Ausgerüstet'}</button></div>
-    <p class="hint">${dp ? `Du hast ${sel.n} noch ${dp}x doppelt. Einschmelzen nimmt zuerst ein doppeltes.` : on ? 'Ausgerüstete Teile kann man nicht einschmelzen.' : 'Einschmelzen = das Teil ist weg und dein Hangar bekommt XP.'}</p></div>`;
+    <div class="ihd"><div class="ib">${itemSvg(sel, 46)}</div><div><b>${sel.n} · Lv. ${lv}</b><small>${RAR[sel.r].n} · ${SLOT[sel.s].n}${on ? ' · <span style="color:var(--li)">ausgerüstet</span>' : ''}</small></div></div>
+    <div class="xpb"><i style="width:${mx ? 100 : Math.min(100, dp / DUPN * 100)}%"></i><span>${mx ? 'MAX · LV. ' + ITEM_MAX : 'DOPPELTE ' + dp + ' / ' + DUPN + ' FÜR LV. ' + (lv + 1)}</span></div>
+    <div class="ist2"><div><small>${SLOT[sel.s].st} auf Lv. ${lv}</small><b>+${pct(sel)} %</b>${mx ? '' : `<em>auf Lv. ${lv + 1}: +${Math.round(itemVal(sel, lv + 1) * 100)} %</em>`}</div>${HATK[sel.id] ? `<div class="hab"><small>Rumpf-Attacke · ${RAR[sel.r].n}</small><b>⚔ ${HATK[sel.id].n}</b><span style="display:block;font-size:11px;color:#cfd8da;margin:2px 0">${HATK[sel.id].d}</span><em>${Math.round(HRF[sel.r] * (1 + .1 * (lv - 1)) * 100)} % deiner Waffen-DPS${mx ? '' : ` · auf Lv. ${lv + 1}: ${Math.round(HRF[sel.r] * (1 + .1 * lv) * 100)} %`}</em></div>` : ''}${HULLAB[sel.id] ? `<div class="hab"><small>Rumpf-Bonus</small><b>★ ${HULLAB[sel.id].d}</b><em>x${(1 + .2 * (lv - 1)).toFixed(1)} durch die Stufe${mx ? '' : ` · auf Lv. ${lv + 1}: x${(1 + .2 * lv).toFixed(1)}`}</em></div>` : ''}</div>
+    <div class="row2"><button class="br" id="ieq" ${on ? 'disabled' : ''}>${on ? 'Ausgerüstet ✓' : 'Ausrüsten'}</button><button class="br" id="ilv" ${!mx && dp >= DUPN ? '' : 'disabled'}>${mx ? 'MAX' : `Leveln<span class="gn">${DUPN} Doppelte</span>`}</button></div>
+    <button class="br" id="imelt" style="width:100%;margin-top:8px" ${canMelt ? '' : 'disabled'}>${canMelt ? `Einschmelzen<span class="gn">+◆${MELTC[sel.r]}</span>` : 'Ausgerüstet – kann nicht eingeschmolzen werden'}</button>
+    <p class="hint">${dp ? `Einschmelzen nimmt zuerst ein doppeltes. Doppelte brauchst du aber zum Leveln.` : on ? '' : 'Einschmelzen = das Teil ist weg und du bekommst ◆.'}</p></div>`;
   $('app').appendChild(sh);
   const close = () => { hSel = null; sh.remove(); };
   sh.querySelector('.hsbg').onclick = close; sh.querySelector('.hsx').onclick = close;
   $('ieq').onclick = () => { S.eq[sel.s] = sel.id; save('now'); render(); toast(`${sel.n} ausgerüstet`); };
+  $('ilv').onclick = () => { if (lvUp(sel.id)) { SND.fx.win(); vib(40); toast(`⬆ ${sel.n} ist jetzt Lv. ${ILV(sel.id)}!`); save('now'); render(); } };
   $('imelt').onclick = () => { if (!canMelt) return; sh.remove();
-    overlay(`<div class="crate" style="--rc:${RAR[sel.r].c}"><div class="cbox">${itemSvg(sel, 70)}</div></div><h2 style="color:${RAR[sel.r].c}">${sel.n} einschmelzen?</h2><p>${dp ? 'Ein doppeltes Exemplar' : 'Das Teil'} wird zu <b style="color:var(--cy)">+${XPV[sel.r]} Hangar-XP</b>.${dp ? '' : '<br>Danach ist es aus deiner Sammlung weg.'}</p>`,
-      [['Einschmelzen', () => { const l0 = HL(); melt(sel.id, dp ? 1 : 0); lvToast(l0); if (!S.inv[sel.id]) hSel = null; save('now'); render(); }], ['Abbrechen', () => render()]]); };
+    overlay(`<div class="crate" style="--rc:${RAR[sel.r].c}"><div class="cbox">${itemSvg(sel, 70)}</div></div><h2 style="color:${RAR[sel.r].c}">${sel.n} einschmelzen?</h2><p>${dp ? 'Ein doppeltes Exemplar' : 'Das Teil'} wird zu <b style="color:var(--cy)">+◆${MELTC[sel.r]}</b>.${dp ? '' : '<br>Danach ist es aus deiner Sammlung weg.'}</p>`,
+      [['Einschmelzen', () => { melt(sel.id, dp ? 1 : 0); SND.fx.up(); if (!S.inv[sel.id]) hSel = null; save('now'); render(); }], ['Abbrechen', () => render()]]); };
 }
 
 // ================== Sound: ruhiger Idle-Soundtrack + Effekte (alles live erzeugt, keine Dateien) ==================
@@ -1778,7 +1770,8 @@ window.addEventListener('pagehide', () => save(true));
 
 // Alte Spielstände aufräumen: Felder von früheren Versionen entfernen, kaputte Verweise reparieren
 function cleanSave() {
-  HL(); delete S.xp; delete S.rr; delete S.coin; if (S.sk) delete S.sk.off;
+  if (!S.lvReset) { S.lv = {}; delete S.hl; delete S.hx; S.lvReset = 1; } // Hangar-Level einmalig zurückgesetzt: jetzt levelt jedes Teil einzeln
+  delete S.xp; delete S.rr; delete S.coin; if (S.sk) delete S.sk.off;
   S.dup = S.dup || {}; for (const k in S.dup) if (!S.dup[k] || !IT(k)) delete S.dup[k];
   for (const k in S.inv) if (!IT(k)) delete S.inv[k];
   for (const sl of ['h', 'r', 't']) if (!S.inv[S.eq[sl]]) { const it = ITEMS.find(x => x.s === sl && S.inv[x.id]); if (it) S.eq[sl] = it.id; else { const b0 = { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }[sl]; S.inv[b0] = 1; S.eq[sl] = b0; } }
@@ -1801,7 +1794,7 @@ function showIntro() {
 if (logged()) pull().then(() => offline()).then(showIntro).then(() => setTimeout(loginCheck, 1200)); else { offline(); showIntro(); setTimeout(loginCheck, 1200); }
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
-window.GB = { get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, HL, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
+window.GB = { get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, ILV, lvUp, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
 </script>
 </body>
 </html>
