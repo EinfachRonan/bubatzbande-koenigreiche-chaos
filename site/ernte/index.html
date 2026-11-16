@@ -118,7 +118,7 @@ canvas{display:block}
 </style>
 </head>
 <body>
-<div class="ver">ERNTEZEIT · TEST v0.7 · nicht live</div>
+<div class="ver">ERNTEZEIT · v0.7.1 · nicht live</div>
 <div id="scope" class="hud"></div><div id="scopehint" class="hud"><span id="zoomt">4×</span> · MAUSRAD Zoom · SHIFT Atem anhalten<div class="bb"><div id="brb" style="width:100%"></div></div></div>
 <div id="cross" class="hud"><i class="h" id="cl"></i><i class="h" id="cr"></i><i class="v" id="ct"></i><i class="v" id="cb"></i><i class="d"></i></div>
 <div id="hitm" class="hud"><i class="h l"></i><i class="h r"></i><i class="v t"></i><i class="v b"></i></div>
@@ -1125,7 +1125,9 @@ function update(dt){
   let f=(keys.KeyW?1:0)-(keys.KeyS?1:0),s=(keys.KeyD?1:0)-(keys.KeyA?1:0);if(IS_TOUCH&&(T.jx||T.jy)){f=-T.jy;s=T.jx;}
   const wish=fwd.clone().multiplyScalar(f).addScaledVector(rt,s);const moving=wish.lengthSq()>.01;
   const shiftK=keys.ShiftLeft||keys.ShiftRight||T.sprint;
-  P.sprint=shiftK&&f>.3&&P.stam>.05&&!mouseR&&P.reloading<=0&&!(id==='chainsaw'&&mouseL);
+  if(P.stam<=.02)P.exh=true;else if(P.stam>.35)P.exh=false;
+  P.sprint=shiftK&&f>.3&&!P.exh&&!mouseR&&P.reloading<=0&&!(id==='chainsaw'&&mouseL);
+  P.sprB=(P.sprB||0)+((P.sprint&&moving?1:0)-(P.sprB||0))*Math.min(1,dt*7);const SB=P.sprB;
   if(P.sprint&&moving)P.stam=Math.max(0,P.stam-dt*.22);else P.stam=Math.min(1,P.stam+dt*(moving?.12:.25));
   const spd=(P.sprint?7.4:mouseR&&!w.melee?2.8:4.6)*(P.acidT>0?.7:1);if(moving)wish.clampLength(0,1).multiplyScalar(spd);
   const k=P.onGround?13:2;P.vel.x+=(wish.x-P.vel.x)*Math.min(1,k*dt);P.vel.z+=(wish.z-P.vel.z)*Math.min(1,k*dt);
@@ -1138,14 +1140,14 @@ function update(dt){
   const scoped=scopedNow();
   const wantAds=mouseR&&!w.melee&&P.reloading<=0&&!P.sprint&&P.switchT<=0;P.ads+=((wantAds?1:0)-P.ads)*Math.min(1,dt*(scoped?9:12));
   const adsFov=id==='ar'&&P.att.arScope?50:(w.fov||72);
-  const tf=lerp(72,adsFov,P.ads)+(P.sprint?6:0);camera.fov+=(tf-camera.fov)*Math.min(1,dt*14);camera.updateProjectionMatrix();
+  const tf=lerp(72,adsFov,P.ads)+SB*6;camera.fov+=(tf-camera.fov)*Math.min(1,dt*14);camera.updateProjectionMatrix();
   const inScope=scoped&&P.ads>.8;const zs=zoomsOf(id);if(scopeZoom>=zs.length)scopeZoom=0;
   $('scope').style.opacity=inScope?.85:0;$('scopehint').style.opacity=inScope?.85:0;$('zoomt').textContent=zs[scopeZoom]+'×';
   const wantHold=inScope&&(keys.ShiftLeft||keys.ShiftRight||T.sprint)&&!P.breathLock;if(wantHold){P.breath=Math.max(0,P.breath-dt/4.5);if(P.breath<=0){P.breathLock=true;SND.hurt();}}else{P.breath=Math.min(1,P.breath+dt/3.5);if(P.breath>.35)P.breathLock=false;}
   $('brb').style.width=(P.breath*100)+'%';const swAmp=inScope?(wantHold?.0007:P.breathLock?.011:.0045)*(1+(1-P.stam)*.8)*(id==='ar'?.5:1):0;P.swX=Math.sin(time*.83)*swAmp+Math.sin(time*2.1)*swAmp*.25;P.swY=Math.cos(time*.61)*swAmp*1.2;
   // camera
   shake=Math.max(0,shake-dt*3);P.kick=Math.max(0,P.kick-dt*6);
-  const bobA=(1-P.ads*.85)*(P.sprint?1.6:1);
+  const bobA=(1-P.ads*.85)*(1+SB*.6);
   camera.position.set(P.pos.x+rand(-1,1)*shake*.03,P.pos.y+1.65+(P.onGround?Math.abs(Math.sin(P.bob))*.045*bobA:0)+rand(-1,1)*shake*.03,P.pos.z);
   P.rec=Math.max(0,P.rec-dt*Math.max(.25,P.rec*7));camera.rotation.set(clamp(P.pitch+P.rec+P.swX,-1.5,1.5),P.yaw+P.swY,Math.sin(P.bob)*.006*bobA);
   // view model
@@ -1153,8 +1155,8 @@ function update(dt){
   const hp=U.hip,ap=(id==='ar'&&P.att.arScope)?U.adsS:U.ads;
   P.switchT=Math.max(0,P.switchT-dt);const sw=P.switchT>0?P.switchT/.35:0;const rp=P.reloading>0?1-P.reloading/P.reloadDur:0;const rl=P.reloading>0?Math.sin(Math.min(1,rp*1.2)*Math.PI)*.8+.2:0;
   const sawing=updSaw(dt,id);
-  vm.position.set(lerp(hp[0],ap[0],P.ads)+Math.sin(P.bob)*.012*bobA+(sawing?rand(-.004,.004):0),lerp(hp[1],ap[1],P.ads)-Math.abs(Math.cos(P.bob))*.01*bobA-sw*.3-rl*.04+(P.sprint?-.04:0)+(sawing?rand(-.004,.004):0),lerp(hp[2],ap[2],P.ads)+P.kick*.06-(sawing?.08:0));
-  vm.rotation.set(P.kick*.12+rl*.45+(P.sprint?-.35:0),P.sprint?.5:0,rl*.3+(P.sprint?.2:0));
+  vm.position.set(lerp(hp[0],ap[0],P.ads)+Math.sin(P.bob)*.012*bobA+(sawing?rand(-.004,.004):0),lerp(hp[1],ap[1],P.ads)-Math.abs(Math.cos(P.bob))*.01*bobA-sw*.3-rl*.04-SB*.04+(sawing?rand(-.004,.004):0),lerp(hp[2],ap[2],P.ads)+P.kick*.06-(sawing?.08:0));
+  vm.rotation.set(P.kick*.12+rl*.45-SB*.35,SB*.5,rl*.3+SB*.2);
   // weapon part animations
   if(U.mag){const mp=P.reloading>0&&!w.shell?rp:1;const off=mp<.35?mp/.35*.28:mp<.7?.28-(mp-.35)/.35*.28:0;U.mag.position.y=U.magY-off;U.mag.visible=!(mp>.33&&mp<.45);}
   if(U.la&&U.laP){const lp=U.laP;if(P.reloading>0){const t=Math.sin(rp*Math.PI);if(w.shell){const c=Math.sin(rp*Math.PI);U.la.position.set(lp.x+.02*c,lp.y-.03*c,lp.z+.24*c);}else U.la.position.set(lp.x+.01*t,lp.y-.12*t,lp.z+.28*t);}else U.la.position.copy(lp);}

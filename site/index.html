@@ -148,12 +148,13 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 </nav></div>
 <span id="bbChip" hidden></span>
 <script src="art.js?v=20261111b"></script>
-<script src="bb.js?v=20261116d"></script>
+<script src="bb.js?v=20261116e"></script>
 <script>
 'use strict';
 const IMG = k => 'krieg/img/' + k + '.jpg';
 const GAMES = [
-  { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', who: 'marwin', art: 'drill/key.jpg', text: 'Idle: Dein Schiff bohrt Pixel-Planeten weg.', tag: 'Idle', neu: 1 },
+  { k: 'ernte', url: 'ernte/', name: 'Erntezeit', who: 'artur', art: 'ernte/key.jpg', text: 'Zombie-Shooter auf Hof und Friedhof.', tag: 'Shooter', neu: 1 },
+  { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', who: 'marwin', art: 'drill/key.jpg', text: 'Idle: Dein Schiff bohrt Pixel-Planeten weg.', tag: 'Idle' },
   { k: 'runner', url: 'runner/', name: 'Kobold-Runner', who: 'kobold', text: 'Springen, rutschen, Gold sammeln.', tag: 'Endlos' },
   { k: 'krieg', url: 'krieg/', name: 'Bandenkrieg', who: 'artur', text: 'Kampagne mit 8 Schlachten.', tag: 'Strategie' },
   { k: 'match', url: 'match/', name: 'Kräuter-Match', who: 'molly', text: 'Drei in eine Reihe, Level ohne Ende.', tag: 'Puzzle' },
@@ -164,6 +165,7 @@ const GAMES = [
 ];
 // Karussell oben: was gerade neu oder groß ist
 const SLIDES = [
+  { k: 'ernte', kk: 'Neu · Shooter', t: 'Erntezeit', p: 'Zombie-Bauern, Traktor-Boss und eine Hacke in der Scheune.', img: 'ernte/key.jpg', pos: '50% 50%' },
   { k: 'drill', kk: 'Neu · Idle', t: 'Galaxie-Bohrer', p: 'Dein Schiff bohrt Planeten – auch wenn du offline bist.', img: 'drill/key.jpg', pos: '50% 45%' },
   { k: 'krieg', kk: 'Kampagne', t: 'Bandenkrieg', p: '8 Schlachten mit der ganzen Bande.', img: 'krieg/img/hero-s.jpg', pos: '55% 40%' },
   { k: 'match', kk: 'Puzzle', t: 'Kräuter-Match', p: 'Drei in eine Reihe, Level ohne Ende.', img: IMG('molly'), pos: '50% 30%' }
