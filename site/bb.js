@@ -81,7 +81,7 @@
   P = Object.assign(fresh(), P);
   // Einmaliger Neustart: Bestwerte, Erfolge und Rahmen auf 0 (passt zur Epoche im Server)
   const EP = 3;
-  const DEP = 1; // Neustart nur für den Galaxie-Bohrer
+  const DEP = 2; // Neustart nur für den Galaxie-Bohrer
   if ((P.dep || 0) < DEP) { delete P.best.drill; for (const k in P.ach) if (k.indexOf('drill') === 0) delete P.ach[k]; for (const k in P.stats) if (k.indexOf('drill') === 0) delete P.stats[k]; P.dep = DEP; try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} }
   if ((P.ep || 1) < EP) { P.best = {}; P.ach = {}; P.stats = {}; P.rh = ''; P.ep = EP; P.dirty = false; try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} };

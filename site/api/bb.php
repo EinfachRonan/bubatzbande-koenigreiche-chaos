@@ -105,7 +105,7 @@ if (($d0['ep'] ?? 1) < EP && filesize($file) > 0) {
   ftruncate($h, 0); rewind($h); fwrite($h, json_encode($d0, JSON_UNESCAPED_UNICODE)); fflush($h);
 }
 // Einmaliger Neustart nur für den Galaxie-Bohrer (für alle Spieler): Spielstand, Bestwert, Bohrer-Erfolge und -Statistiken weg. Mit Sicherung.
-const DEP = 1;
+const DEP = 2;
 if (($d0['dep'] ?? 0) < DEP && filesize($file) > 0) {
   @copy($file, "$dir/backup-drill" . DEP . '-' . date('Ymd-His') . '.json');
   foreach ($d0['users'] as &$u1) {

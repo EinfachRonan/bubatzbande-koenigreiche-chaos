@@ -379,7 +379,7 @@ html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261116c"></script>
+<script src="../bb.js?v=20261116d"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -434,8 +434,8 @@ const PAL = [
   ['#0e4c52', '#0a3439', '#38d6d8'], ['#e07b32', '#7a3613', '#ffb46a'], ['#8c4be0', '#3d1d6d', '#d9a8ff'],
   ['#3f9a3a', '#1c4a1a', '#b5ff8a'], ['#c8344f', '#5e1222', '#ff9ab0'], ['#7aa8d8', '#28466a', '#e2f2ff'], ['#d9b22a', '#6e550c', '#fff0a0']
 ];
-// Alle Warp-Fähigkeiten kosten gleich: Stufe 1 gratis, dann 25, 50, 75, 100 ✦ …
-const wpCost = l => 25 * Math.max(1, l);
+// Alle Warp-Fähigkeiten kosten gleich: Stufe 1 = 25 ✦, dann 50, 75, 100 …
+const wpCost = l => 25 * (l + 1); // Stufe 1 = 25, Stufe 2 = 50, Stufe 3 = 75 …
 const WARP = [
   { id: 'kraft', n: 'Dunkle Kraft', d: () => '+100 % Schaden und CR', max: 20, cost: wpCost, ico: '<path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/><circle cx="12" cy="12" r="2"/>' },
   { id: 'slot', n: 'Waffenslots', d: () => '+1 Platz für eine Waffe', max: 8, cost: wpCost, ico: '<rect x="3" y="6" width="7" height="12"/><rect x="14" y="6" width="7" height="12"/><path d="M17.5 10v4M15.5 12h4"/>' },
@@ -446,6 +446,13 @@ const WARP = [
   { id: 'skip', n: 'Hyperraum', d: () => 'Start +2 Planeten', max: 3, cost: wpCost, ico: '<path d="M4 12h12M12 6l6 6-6 6M4 6v12"/>' },
   { id: 'comet', n: 'Kometenjäger', d: () => 'Kometen öfter, +50 %', max: 3, cost: wpCost, ico: '<circle cx="16" cy="8" r="3"/><path d="M13 11L4 20M11 7L5 13M17 13l-6 6"/>' },
   { id: 'off', n: 'Überstunden', d: l => 'Offline ' + offH(l) + ' h → ' + offH(l + 1) + ' h', max: 5, cost: wpCost, ico: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' },
+  { id: 'chips', n: 'Chip-Fabrik', d: l => '+' + l + ' ⬢ extra alle 5 Planeten', max: 3, cost: wpCost, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M9 10h6v4H9z"/>' },
+  { id: 'elite', n: 'Elite-Jäger', d: () => 'Elite-Planeten öfter', max: 4, cost: wpCost, ico: '<path d="M12 3l9 16H3z"/><path d="M12 9v5M12 17h.01"/>' },
+  { id: 'kiste', n: 'Kistenglück', d: () => 'Episch und Legendär öfter', max: 5, cost: wpCost, ico: '<rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M12 4l1.5 2.5L16 7l-2 2 .5 3L12 10.5 9.5 12l.5-3-2-2 2.5-.5z"/>' },
+  { id: 'dkrit', n: 'Dunkler Krit', d: () => 'Krit-Schaden +100 %', max: 5, cost: wpCost, ico: '<path d="M12 2v6M12 16v6M4 12h4M16 12h4"/><circle cx="12" cy="12" r="3"/>' },
+  { id: 'meister', n: 'Fähigkeiten-Meister', d: () => 'Fähigkeiten laden 8 % schneller', max: 5, cost: wpCost, ico: '<path d="M12 2l3 7 7 .5-5.5 4.5 2 7L12 17l-6.5 4 2-7L2 9.5 9 9z"/><circle cx="12" cy="12" r="2"/>' },
+  { id: 'magnet', n: 'Materie-Magnet', d: () => '+20 % ✦ beim Warp', max: 5, cost: wpCost, ico: '<path d="M6 3v8a6 6 0 0 0 12 0V3M6 7h4M14 7h4"/>' },
+  { id: 'erbe', n: 'Skill-Erbe', d: () => '+1 Stufe pro Skill bleibt beim Warp', max: 5, cost: wpCost, ico: '<path d="M4 20h16M6 16l6-12 6 12M9 11h6"/>' },
   { id: 'auto', n: 'Autopilot', d: () => 'Zündet Fähigkeiten selbst', max: 1, cost: wpCost, ico: '<rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/>' },
 ];
 const keepPct = l => 20 + 10 * (l == null ? WP('keep') : l);
@@ -463,7 +470,7 @@ const $ = id => document.getElementById(id);
 // ================== Speicherstand ==================
 let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
-const VER = 13; // interne Stand-Nummer (höher = einmaliger Reset)
+const VER = 14; // interne Stand-Nummer (höher = einmaliger Reset)
 const VLABEL = '0.7'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
 const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
 const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: (o && o.inv && Object.keys(o.inv).length) ? o.inv : { h_pfeil: 1, r_basis: 1, t_basis: 1 }, /* Start-Teile nur bei neuem Spielstand, sonst kämen eingeschmolzene Teile beim Laden zurück */ eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
@@ -524,7 +531,7 @@ if (!(S.cry >= 0)) S.cry = 0; delete S.coin;
 const SK = id => S.sk[id] || 0;
 const WL = id => S.w[id] || 0;
 // Warp-Fähigkeiten: freigeschaltete starten immer mit Stufe 1 (gilt auch für alte Spielstände)
-const WP = id => wpOpen(id) ? Math.max(1, S.wp[id] || 0) : (S.wp[id] || 0);
+const WP = id => S.wp[id] || 0; // Warp-Fähigkeiten starten bei Stufe 0
 
 // ================== Werte ==================
 const boosting = () => S.boostEnd > Date.now();
@@ -535,7 +542,7 @@ const dmBonus = () => (S.wm || 1) * (1 + WP('kraft'));
 // ✦ beim Warp: ab Planet 3 = 1, jeder weitere Planet +1 (Planet 10 = 8), ab Universum 2 (Planet 11+) +2 pro Planet
 // ✦ beim Warp: ab Planet 3 zählt jeder Planet. Der erste bringt 1, alle 2 Planeten bringt jeder Planet 0,5 mehr (1, 1, 1.5, 1.5, 2, 2 ...)
 const dmPer = j => 1 + .5 * Math.floor((j - 1) / 2);
-const dmGain = () => { let t = 0; for (let j = 1; j <= S.p - 2; j++) t += dmPer(j); return Math.floor(t); };
+const dmGain = () => { let t = 0; for (let j = 1; j <= S.p - 2; j++) t += dmPer(j); return Math.floor(t * (1 + .2 * WP('magnet'))); };
 const mult = () => (1 + .08 * SK('core')) * (1 + HA('dmg')) * (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 2 : 1);
 const crMult = () => (1 + .1 * SK('gold')) * (1 + HA('cr')) * (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('r') * (buf('cr') ? 2 : 1);
 const totalDps = () => WEAP.reduce((a, w) => a + wDps(w), 0);
@@ -577,9 +584,9 @@ const WPTXT = {
   kraft: 'Dunkle Materie verstärkt alles: mehr Schaden und mehr CR, für immer.', slot: 'Mehr Plätze im Waffen-Tab, damit du mehr Waffen gleichzeitig benutzen kannst.',
   start: 'Nach jedem Warp startest du direkt mit CR, um sofort Waffen zu kaufen.', keep: 'Wie viel Prozent deiner ◆ Kristalle du beim Warp behältst.',
   kris: 'Jeder geschaffte Planet bringt zusätzliche ◆ Kristalle.', boost: 'Der Boost (x2 Schaden und CR) hält länger.',
-  skip: 'Nach dem Warp startest du ein paar Planeten weiter.', comet: 'Kometen tauchen öfter auf und bringen mehr CR.', off: 'Wie lange dein Schiff weiter CR sammelt, wenn du nicht im Spiel bist. Bleibt für immer.', auto: 'Zündet deine Fähigkeiten von der Hotbar automatisch, sobald sie bereit sind.'
+  skip: 'Nach dem Warp startest du ein paar Planeten weiter.', comet: 'Kometen tauchen öfter auf und bringen mehr CR.', off: 'Wie lange dein Schiff weiter CR sammelt, wenn du nicht im Spiel bist. Bleibt für immer.', chips: 'Für jeden 5. Planeten gibt es zusätzliche ⬢ Waffen-Chips.', elite: 'Elite-Planeten (doppelt so hart, Kiste garantiert) tauchen öfter auf.', kiste: 'Epische und legendäre Teile kommen in allen Kisten öfter.', dkrit: 'Kritische Treffer machen mehr Schaden: x3 → x4 → x5 …', meister: 'Alle Fähigkeiten auf der Hotbar laden schneller.', magnet: 'Jeder Warp bringt mehr Dunkle Materie ✦.', erbe: 'Beim Warp verlierst du nicht alle Skill-Stufen: pro Stufe bleibt in jedem Skill eine Stufe erhalten.', auto: 'Zündet deine Fähigkeiten von der Hotbar automatisch, sobald sie bereit sind.'
 };
-const wpVal = (id, l) => ({ kraft: '+' + 100 * l + ' % Schaden & CR', slot: (2 + l) + ' Waffenslots', start: fmt(startCr(l)) + ' CR', keep: keepPct(l) + ' % ◆', kris: '+' + 2 * l + ' ◆ pro Planet', boost: (5 + 2 * l) + ' min Boost', skip: 'Start ab Planet ' + (1 + 2 * l), comet: '+' + 50 * l + ' % Kometen', off: offH(l) + ' h offline', auto: l ? 'an' : 'aus' })[id];
+const wpVal = (id, l) => ({ kraft: '+' + 100 * l + ' % Schaden & CR', slot: (2 + l) + ' Waffenslots', start: fmt(startCr(l)) + ' CR', keep: keepPct(l) + ' % ◆', kris: '+' + 2 * l + ' ◆ pro Planet', boost: (5 + 2 * l) + ' min Boost', skip: 'Start ab Planet ' + (1 + 2 * l), comet: '+' + 50 * l + ' % Kometen', off: offH(l) + ' h offline', chips: '+' + l + ' ⬢ alle 5 Planeten', elite: Math.round((.12 + .05 * l) * 100) + ' % Elite', kiste: 'Episch x' + (1 + .25 * l).toFixed(2) + ' · Legendär x' + (1 + .6 * l).toFixed(1), dkrit: 'Krit x' + (3 + l), meister: '-' + 8 * l + ' % Abklingzeit', magnet: '+' + 20 * l + ' % ✦', erbe: l + ' Stufen bleiben', auto: l ? 'an' : 'aus' })[id];
 function wpInfo(id) { const w = WARP.find(x => x.id === id), l = WP(id), mx = l >= w.max, c = w.cost(l);
   infoSheet({ n: w.n, ico: w.ico, col: '#c9a2ff', sub: 'Warp-Fähigkeit · Stufe ' + l + '/' + w.max + ' · bleibt für immer', txt: WPTXT[id], rows: [['Wirkung', wpVal(id, l), mx ? null : wpVal(id, l + 1)], ['Kosten', mx ? 'MAX' : '✦' + c]],
     buy: [mx ? 'MAX' : 'Leveln · ✦' + c, mx || S.dm < c, () => { if (WP(id) >= w.max || S.dm < w.cost(WP(id))) return; S.dm -= w.cost(WP(id)); S.wp[id] = WP(id) + 1; save('now'); render(); wpInfo(id); }] }); }
@@ -650,7 +657,7 @@ function planetType(p, boss) { if (boss || p < 3) return 'n'; const r = mulberry
 const hpCurve = p => { let g = 1; for (let k = 2; k <= p; k++) g *= 2.1 + 1.2 * Math.exp(-(k - 2) / 1.5); return g; };
 function buildPlanet(removed) {
   const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0;
-  const elite = !boss && p >= 4 && mulberry(p * 31337 + (S.seed || 13) * 3)() < .12;
+  const elite = !boss && p >= 4 && mulberry(p * 31337 + (S.seed || 13) * 3)() < .12 + .05 * WP('elite');
   const ty = planetType(p, boss), TT = PTYPE[ty], pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : TT.pal || PAL[(p - 1) % PAL.length];
   // Großer Planet: man sieht nur einen Ausschnitt, die Kamera folgt dem Schiff, die Minimap zeigt alles
   CELL = Math.max(14, 2 * Math.round(Math.min(W, 520) / 52)); // gerade Zahl: keine Nähte zwischen den Blöcken
@@ -699,6 +706,7 @@ let crBuf = 0, crBufT = 0, crBufX = 0, crBufY = 0, earnedSec = 0;
 const parts = [], floats = [], fx = [];
 function hit(i, d) {
   if (i < 0 || !G.alive[i]) return;
+  if (S.buf && S.buf.frz > Date.now()) d *= 2;
   G.hp[i] -= d; if (G.hp[i] <= 0) { kill(i, true); return; }
   const st = Math.min(6, Math.floor((1 - G.hp[i] / G.mx[i]) * 7)); if (st !== G.dst[i]) { G.dst[i] = st; G.dirty.add(i); tDirty = true; }
 }
@@ -715,6 +723,7 @@ function kill(i, reward) {
   if (PK('r', 6) && Math.random() < .008) { S.cry += 1; floats.push({ x, y: y - 16, t: 1.2, s: '+◆1', c: '#ffffff' }); }
   const col = G.ore[i] ? (['', '#ffe36a', '#ff5fd2', '#ffffff', '#c9a2ff'])[G.ore[i]] : G.pal[2], ax = x - G.cx, ay = y - G.cy, al = Math.hypot(ax, ay) || 1;
   if (parts.length < 400) for (let k = 0; k < (G.ore[i] ? 7 : 3); k++) parts.push({ x, y, vx: ax / al * 90 + (Math.random() - .5) * 110, vy: ay / al * 90 + (Math.random() - .5) * 110, t: .5 + Math.random() * .4, c: col });
+  if (S.buf && S.buf.mag > Date.now() && Math.random() < ((S.bufP || {}).mag || .03)) { S.cry += 1; floats.push({ x, y: y - 18, t: 1.1, s: '+◆1', c: '#ffffff' }); }
   if (G.ore[i] === 3) { mis('cry'); S.cry += SPC; floats.push({ x, y: y - 10, t: 1.6, s: '+◆' + SPC, c: '#ffffff' }); }
   else if (G.ore[i] === 4) { mis('dm'); S.dm = (S.dm || 0) + 2; floats.push({ x, y: y - 10, t: 1.8, s: '+✦2', c: '#c9a2ff' }); toast('Dunkle Materie gefunden! +✦2'); }
   else if (G.ore[i]) floats.push({ x, y: y - 10, t: 1.2, s: '+' + fmt(val) + ' CR', c: '#ffe36a' });
@@ -751,7 +760,7 @@ function ray(x, y, a, maxL) {
   for (let l = 0; l < maxL; l += st) { const px = x + dx * l, py = y + dy * l; const i = cellAt(px, py); if (i >= 0 && G.alive[i]) return [i, px, py]; }
   return [-1, x + dx * maxL, y + dy * maxL];
 }
-const critMul = () => Math.random() < critCh() ? 3 : 1;
+const critMul = () => Math.random() < critCh() ? 3 + WP('dkrit') : 1;
 
 function step(dt) {
   if (!isFinite(ship.x) || !isFinite(ship.y)) { ship.x = G.cx; ship.y = G.cy - G.R - 60; ship.vx = ship.vy = 0; }
@@ -771,6 +780,10 @@ function step(dt) {
   const face = ship.ang + Math.PI / 2, fcx = Math.cos(face), fcy = Math.sin(face);
   const front = (dist, r2, spread) => nearest(ship.x + fcx * dist + (spread ? (Math.random() - .5) * spread : 0), ship.y + fcy * dist + (spread ? (Math.random() - .5) * spread : 0), r2);
   hullAtk(dt, face); hentsStep(dt);
+  if (S.buf.dr > Date.now() && (cdDr -= dt) <= 0) { cdDr = .12; const tr = (S.bufP || {}).drT || 0, k = (Math.random() * (5 + tr * 2)) | 0, a = performance.now() / 300 + k * 6.283 / (5 + tr * 2), dx = ship.x + Math.cos(a) * 44, dy = ship.y + Math.sin(a) * 44, i = nearest(dx, dy, 20 * CELL * CELL);
+    if (i >= 0) { hit(i, ((S.bufP || {}).dr || 1) * .12 * critMul()); const [x, y] = cellXY(i); fx.push({ k: 'bolt2', x: dx, y: dy, x2: x, y2: y, t: .14, c: ABCOL.drohne[tr][0] }); } }
+  for (let q = storms.length - 1; q >= 0; q--) { const st = storms[q]; if ((st.t -= dt) > 0) continue; storms.splice(q, 1); const i = randAlive(); if (i < 0) continue; const [x, y] = cellXY(i);
+    boomAt(x, y, 1 + (st.tr >= 2 ? 1 : 0), st.d / 6, ABCOL.blitz[st.tr][1]); fx.push({ k: 'strike', x, y, t: .25, c: ABCOL.blitz[st.tr][0], w: 2 + st.tr }); SND.fx.zap(); }
   // Lava: abgebaute Blöcke wachsen langsam nach (am Ende nicht mehr, damit man fertig wird)
   if (G.type === 'lava' && (G.rg -= dt) <= 0) { G.rg = .7; if (G.left > G.total * .1 && G.dead.length) { const k = (Math.random() * G.dead.length) | 0, i = G.dead[k]; G.dead.splice(k, 1);
     if (!G.alive[i]) { G.alive[i] = 1; G.hp[i] = G.mx[i] * .6; G.dst[i] = 0; G.ore[i] = 0; G.left++; G.dirty.add(i); tDirty = true; const [x, y] = cellXY(i); fx.push({ k: 'sq', x, y, t: .5, c: '#ff8a3a' }); } } }
@@ -1010,6 +1023,8 @@ function draw(now) {
       const ha = -Math.PI / 2 + k * 6.283 * (2 + f.tr * 2); g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(f.x + Math.cos(ha) * rr * .85, f.y + Math.sin(ha) * rr * .85); g.stroke(); }
     else if (f.k === 'nova') { if (f.d == null) f.d = f.t; const k = 1 - f.t / f.d; const _u = (f.r > W * .9 ? 1 : .5); g.strokeStyle = `rgba(${f.c || '190,170,255'},${f.t * 1.6})`; g.lineWidth = f.thick ? 8 : 3; g.beginPath(); g.arc(f.x, f.y, f.r * Math.min(1, k + .1), 0, 7); g.stroke(); if (f.thick) { g.fillStyle = `rgba(190,170,255,${f.t * .5})`; g.fill(); g.lineWidth = 2; g.strokeStyle = `rgba(255,255,255,${f.t * 1.4})`; g.stroke(); } }
     else if (f.k === 'bolt') beam(f.x, f.y, f.x2, f.y2, '#9dff6a', 1.4);
+    else if (f.k === 'bolt2') beam(f.x, f.y, f.x2, f.y2, f.c, 1.6);
+    else if (f.k === 'strike') { let px = f.x + (Math.random() - .5) * 20, py = f.y - H; g.strokeStyle = f.c; g.globalAlpha = Math.min(1, f.t * 5); g.lineWidth = f.w; g.beginPath(); g.moveTo(px, py); for (let q = 1; q <= 8; q++) { px = f.x + (Math.random() - .5) * 30 * (1 - q / 8); py = f.y - H + H * q / 8; g.lineTo(px, py); } g.stroke(); g.globalAlpha = 1; }
     else if (f.k === 'pop') { g.fillStyle = `rgba(255,220,120,${f.t * 3})`; g.beginPath(); g.arc(f.x, f.y, 8 * (1 - f.t * 2), 0, 7); g.fill(); }
   }
   if (comet) { const a = Math.atan2(comet.vy, comet.vx); for (let k = 1; k <= 10; k++) { g.fillStyle = `rgba(255,214,90,${.5 - k * .045})`; const s = 7 - k * .5; g.fillRect(comet.x - Math.cos(a) * k * 7 - s / 2, comet.y - Math.sin(a) * k * 7 - s / 2, s, s); }
@@ -1021,6 +1036,8 @@ function draw(now) {
   for (const w of waves) { const a = Math.max(0, 1 - w.r / (w.rad * 1.15)); g.strokeStyle = `rgba(190,170,255,${a})`; g.lineWidth = 9; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.stroke(); g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = 2; g.stroke(); g.fillStyle = `rgba(160,130,255,${a * .18})`; g.fill(); }
   for (const n of novas) { const x = n.x + (n.tx - n.x) * n.t, y = n.y + (n.ty - n.y) * n.t; g.fillStyle = 'rgba(190,170,255,.35)'; g.beginPath(); g.arc(x, y, 9, 0, 7); g.fill(); g.fillStyle = '#e9e2ff'; g.fillRect(Math.round(x) - 3, Math.round(y) - 3, 6, 6); }
   hentsDraw();
+  if (S.buf && S.buf.frz > Date.now()) { const tr = (S.bufP || {}).frzT || 0, [c, rgb] = ABCOL.frost[tr]; g.fillStyle = `rgba(${rgb},${.1 + .03 * tr + .03 * Math.sin(performance.now() / 200)})`; g.beginPath(); g.arc(G.cx, G.cy, G.R * 1.05, 0, 7); g.fill(); g.strokeStyle = `rgba(${rgb},.6)`; g.lineWidth = 2 + tr; g.stroke(); }
+  if (S.buf && S.buf.dr > Date.now()) { const tr = (S.bufP || {}).drT || 0, n = 5 + tr * 2; for (let k = 0; k < n; k++) { const a = performance.now() / 300 + k * 6.283 / n, x = ship.x + Math.cos(a) * 44, y = ship.y + Math.sin(a) * 44; g.fillStyle = ABCOL.drohne[tr][0]; g.beginPath(); g.moveTo(x, y - 5); g.lineTo(x + 4, y + 3); g.lineTo(x - 4, y + 3); g.fill(); } }
   for (const m of meteors) { const tr = m.tr || 0, [c, rgb] = ABCOL.meteor[tr], r = 6 + tr * 2.5, l = Math.hypot(m.tx - m.x, m.ty - m.y) || 1, ux = (m.tx - m.x) / l, uy = (m.ty - m.y) / l;
     for (let k = 1; k <= 4 + tr * 3; k++) { g.fillStyle = `rgba(${rgb},${.55 - k * .05})`; g.beginPath(); g.arc(m.x - ux * k * (5 + tr), m.y - uy * k * (5 + tr), Math.max(1, r - k * .6), 0, 7); g.fill(); }
     if (tr >= 2) { g.shadowColor = c; g.shadowBlur = 14; } g.fillStyle = c; g.beginPath(); g.arc(m.x, m.y, r, 0, 7); g.fill(); g.shadowBlur = 0; g.fillStyle = '#fff'; g.beginPath(); g.arc(m.x - ux * 2, m.y - uy * 2, r * .4, 0, 7); g.fill();
@@ -1142,7 +1159,7 @@ function render() {
       <div class="savebar"><span id="svtxt">${logged() ? 'Dein Stand wird automatisch auf deinem Konto gespeichert.' : 'Melde dich an, damit dein Stand auf dem Konto landet.'}</span><button id="svnow">${logged() ? 'Jetzt speichern' : 'Anmelden'}</button></div>`;
     $('wgo').onclick = warp;
     if ($('wpunl')) $('wpunl').onclick = () => { const c = wpUnlCost(), left = WARP.filter(w => !wpOpen(w.id)); if (!left.length || S.dm < c) return; S.dm -= c; const w = left[(Math.random() * left.length) | 0]; S.wpu = (S.wpu || []).concat(w.id); save('now');
-      overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${w.ico}</svg></div></div><h2 style="color:#c9a2ff">${w.n}</h2><p>Startet direkt mit <b style="color:var(--txt)">Stufe 1</b>.<br>Weiter leveln mit ✦.</p>`, [['Nice', () => render()]]); };
+      overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${w.ico}</svg></div></div><h2 style="color:#c9a2ff">${w.n}</h2><p>Freigeschaltet! Startet bei Stufe 0.<br>Erste Stufe kostet ✦25.</p>`, [['Nice', () => render()]]); };
     $('svnow').onclick = () => { if (!logged()) return BB.open && BB.open('login'); save('now'); toast('Gespeichert ☁'); };
     L.querySelectorAll('[data-wp]').forEach(b => b.onclick = () => wpInfo(b.dataset.wp));
   } else {
@@ -1190,7 +1207,7 @@ function planetDone() {
   if (G.elite) setTimeout(() => { toast('⚠ Elite-Planet geschafft: Raketen-Kiste!'); giveRw({ crate: 'k1' }); }, 1800);
   mis('planets'); if (G.boss) { mis('boss'); vib([90, 60, 90, 60, 160]); } else vib(30);
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
-  S.pAll = (S.pAll || 0) + 1; let chipT = ''; if (S.pAll % 5 === 0) { S.chip = (S.chip || 0) + 1; chipT = ' · +⬢1 Chip!'; setTimeout(() => toast('⬢ Waffen-Chip bekommen! Im Waffen-Tab bei „Waffen-Mods“ einsetzen.'), 2600); }
+  S.pAll = (S.pAll || 0) + 1; let chipT = ''; if (S.pAll % 5 === 0) { const cg = 1 + WP('chips'); S.chip = (S.chip || 0) + cg; chipT = ' · +⬢' + cg + ' Chip!'; setTimeout(() => toast('⬢ Waffen-Chip bekommen! Im Waffen-Tab bei „Waffen-Mods“ einsetzen.'), 2600); }
   let bgN = 0;
   if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); bgN = (BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut', true)) || 0; if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
   travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
@@ -1204,7 +1221,7 @@ function warp() {
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${fmt(n)} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)<br><br>Du behältst <b style="color:var(--txt)">${keepPct()} % deiner ◆</b> (◆${fmt(S.cry)} → ◆${fmt(Math.floor(S.cry * keepPct() / 100))}).<br>CR, Waffen, Planet und Skills werden zurückgesetzt. Fähigkeiten, Hangar und Warp-Werkstatt bleiben.</p>`,
     [['SPRINGEN', () => {
       S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); vib([40, 30, 40, 30, 300]); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
-      S.cry = Math.floor(S.cry * keepPct() / 100); S.sk = {}; S.abT = {}; S.buf = {}; S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
+      S.cry = Math.floor(S.cry * keepPct() / 100); { const e = WP('erbe'), o = S.sk || {}; S.sk = {}; if (e) for (const k in o) S.sk[k] = Math.min(o[k], e); } S.abT = {}; S.buf = {}; S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
       toast(`Warp geschafft: ✦${fmt(n)} · Multiplikator x${S.wm.toFixed(2)} · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
@@ -1233,11 +1250,16 @@ const ABIL = [
   { id: 'kanone', n: 'Orbitalkanone', d: 'Riesen-Laser durch den Kern', cd: 25, ico: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v4M21 12h-4"/>' },
   { id: 'loch', n: 'Schwarzes Loch', d: 'Frisst ein Stück Planet', cd: 40, ico: '<path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7a5 5 0 1 0 5 5"/><circle cx="12" cy="12" r="1.5"/>' },
   { id: 'erz', n: 'Erzradar', d: 'Verwandelt Blöcke in Erz', cd: 45, ico: '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="11" cy="12" r="3.5"/><path d="M11 6.5v2M11 15.5v2M5.5 12h2M14.5 12h2M18 9v6"/>' },
-  { id: 'zeit', n: 'Zeitsprung', d: 'Sofort 60 s Ertrag', cd: 60, ico: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>' }
+  { id: 'zeit', n: 'Zeitsprung', d: 'Sofort 60 s Ertrag', cd: 60, ico: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>' },
+  { id: 'drohne', n: 'Drohnenschwarm', d: 'Kampfdrohnen für 15 s', cd: 45, ico: '<path d="M12 4l3 5H9zM5 13l3 5H2zM19 13l3 5h-6z"/><circle cx="12" cy="14" r="2"/>' },
+  { id: 'nova', n: 'Supernova', d: 'Riesen-Explosion im Planeten', cd: 55, ico: '<circle cx="12" cy="12" r="3"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5M4 4l3.5 3.5M16.5 16.5L20 20M20 4l-3.5 3.5M7.5 16.5L4 20"/>' },
+  { id: 'frost', n: 'Frostschock', d: 'Planet friert: x2 Schaden für 8 s', cd: 50, ico: '<path d="M12 2v20M4 6l16 12M20 6L4 18"/><path d="M9 4l3 2 3-2M9 20l3-2 3 2"/>' },
+  { id: 'blitz', n: 'Gewitter', d: '24 Blitze schlagen ein', cd: 35, ico: '<path d="M7 14a5 5 0 1 1 1-9.9A6 6 0 0 1 19 7a4 4 0 0 1-1 7.9"/><path d="M13 12l-3 5h4l-2 5"/>' },
+  { id: 'kmag', n: 'Kristallmagnet', d: 'Blöcke geben 20 s lang öfter ◆', cd: 60, ico: '<path d="M6 3v8a6 6 0 0 0 12 0V3M6 7h4M14 7h4"/><path d="M12 19l2 2-2 2-2-2z"/>' }
 ];
 const AL = id => (S.ab && S.ab[id]) || 0;
 const abPow = id => 1 + .25 * (AL(id) - 1);
-const abCd = a => a.cd * (1 - .04 * (AL(a.id) - 1)) * (1 - .04 * itemLv('t')) * (1 - Math.min(.5, HA('cd'))) * (PK('t', 3) ? .9 : 1);
+const abCd = a => a.cd * (1 - .08 * WP('meister')) * (1 - .04 * (AL(a.id) - 1)) * (1 - .04 * itemLv('t')) * (1 - Math.min(.5, HA('cd'))) * (PK('t', 3) ? .9 : 1);
 const ABTXT = {
   over: 'Dein Schiff dreht durch: Alle Waffen und deine Rumpf-Attacke machen für ein paar Sekunden doppelten Schaden. Am besten zusammen mit Boost und anderen Fähigkeiten zünden.',
   gold: 'Für ein paar Sekunden bringt jeder abgebaute Block doppelt so viele CR. Lohnt sich am meisten, wenn gerade viel kaputt geht, z. B. direkt nach dem Meteorschauer.',
@@ -1245,6 +1267,7 @@ const ABTXT = {
   kanone: 'Ein riesiger, 7 Blöcke breiter Laser schießt vom Schiff quer durch den ganzen Planeten bis zum Kern und darüber hinaus.',
   loch: 'Öffnet ein schwarzes Loch an einer zufälligen Stelle. Es zieht 2 Sekunden lang alles im Radius ein und frisst die Blöcke Stück für Stück.',
   erz: 'Scannt den Planeten und verwandelt zufällige Blöcke in Erz. Erz bringt 10-mal so viele CR, manche werden sogar zu wertvollem pinkem Erz (40-mal).',
+  drohne: 'Ein Schwarm Kampfdrohnen umkreist dein Schiff und feuert 15 Sekunden lang Blitze auf nahe Blöcke.', nova: 'Mitten im Planeten zündet eine Supernova. Die Explosion reißt ein riesiges Loch, je höher die Stufe, desto größer.', frost: 'Der ganze Planet friert ein. 8 Sekunden lang machen alle Treffer doppelten Schaden. Perfekt zusammen mit Meteoren oder der Kanone.', blitz: 'Ein Gewitter zieht über den Planeten: 24 Blitze schlagen nacheinander an zufälligen Stellen ein und sprengen je 3×3 Blöcke.', kmag: '20 Sekunden lang bringt jeder zerstörte Block mit etwas Glück einen ◆ Kristall.',
   zeit: 'Spult die Zeit vor: Du bekommst sofort so viele CR, wie du sonst in rund einer Minute verdienen würdest. Ohne dass du warten musst.'
 };
 // Genaue Werte einer Fähigkeit auf Stufe lv (für die Detailansicht)
@@ -1259,6 +1282,11 @@ function abStats(id, lv) {
   else if (id === 'kanone') r.push(['Laser-Schaden', fmt(D * 5 * P)], ['Breite', '7 Blöcke']);
   else if (id === 'loch') r.push(['Radius', (2.6 + lv * .25).toFixed(2) + ' Blöcke'], ['Schaden', fmt(D * 3 * P)], ['Dauer', '2.2 s']);
   else if (id === 'erz') r.push(['Neue Erze', Math.round(14 * P) + ' Blöcke']);
+  else if (id === 'drohne') r.push(['Dauer', (15 * (1 + .1 * (lv - 1))).toFixed(1) + ' s'], ['Schaden/s', fmt(D * .6 * P)]);
+  else if (id === 'nova') r.push(['Radius', (6 + lv * .6).toFixed(1) + ' Blöcke'], ['Schaden', fmt(D * 6 * P)]);
+  else if (id === 'frost') r.push(['Effekt', 'x2 Schaden'], ['Dauer', (8 * (1 + .1 * (lv - 1))).toFixed(1) + ' s']);
+  else if (id === 'blitz') r.push(['Blitze', '24'], ['Schaden je Blitz', fmt(D * .4 * P)]);
+  else if (id === 'kmag') r.push(['Chance je Block', (3 + lv * .5).toFixed(1) + ' %'], ['Dauer', '20 s']);
   else if (id === 'zeit') r.push(['Sofort-Ertrag', fmt(Math.max(S.ema || 0, (G ? G.v0 : 1) * crMult() * 3) * 60 * P) + ' CR']);
   return r;
 }
@@ -1279,6 +1307,11 @@ const ABCOL = {
   over: [['#ff4f7a', '255,79,122'], ['#ff8a3a', '255,138,58'], ['#ff3dd8', '255,61,216'], ['#ffffff', '255,255,255']],
   gold: [['#ffd23f', '255,210,63'], ['#ffe94d', '255,233,77'], ['#fff3b0', '255,243,176'], ['#ffffff', '255,255,255']],
   erz: [['#ffe36a', '255,227,106'], ['#9dff6a', '157,255,106'], ['#5ce8f0', '92,232,240'], ['#ff5fd2', '255,95,210']],
+  drohne: [['#9dff6a', '157,255,106'], ['#5ce8f0', '92,232,240'], ['#ff5fe0', '255,95,224'], ['#ffe94d', '255,233,77']],
+  nova: [['#ffb46a', '255,180,106'], ['#ff4f7a', '255,79,122'], ['#c06bff', '192,107,255'], ['#ffffff', '255,255,255']],
+  frost: [['#9fefff', '159,239,255'], ['#5ce8f0', '92,232,240'], ['#6ab0ff', '106,176,255'], ['#ffffff', '255,255,255']],
+  blitz: [['#a8c8ff', '168,200,255'], ['#ffe94d', '255,233,77'], ['#c06bff', '192,107,255'], ['#ffffff', '255,255,255']],
+  kmag: [['#ffffff', '255,255,255'], ['#9fefff', '159,239,255'], ['#c9a2ff', '201,162,255'], ['#ffe94d', '255,233,77']],
   zeit: [['#9dff6a', '157,255,106'], ['#5ce8f0', '92,232,240'], ['#c9a2ff', '201,162,255'], ['#ffe94d', '255,233,77']]
 };
 const abc = (id, k) => (ABCOL[id] || ABCOL.meteor)[ABT(id)][k || 0];
@@ -1293,6 +1326,12 @@ function cast(id, auto) {
   else if (id === 'kanone') { const a2 = Math.atan2(G.cy - ship.y, G.cx - ship.x); lanceShot(a2, D * 5 * P, 3); }
   else if (id === 'loch') { const i = randAlive(); if (i >= 0) { const [x, y] = cellXY(i); bhole = { x, y, t: 2.2, r: CELL * (2.6 + AL(id) * .25), d: D * 3 * P, tr: ABT('loch') }; } }
   else if (id === 'erz') { let n = Math.round(14 * P); while (n-- > 0) { const i = randAlive(); if (i >= 0 && G.ore[i] < 3) G.ore[i] = Math.random() < .2 ? 2 : 1; } tDirty = true; }
+  else if (id === 'drohne') { S.buf.dr = Date.now() + 15000 * (1 + .1 * (AL(id) - 1)); S.bufP = Object.assign(S.bufP || {}, { dr: D * .6 * P, drT: ABT(id) }); }
+  else if (id === 'nova') { const n = Math.round(6 + AL(id) * .6), tr = ABT(id); let cells = 0; for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) if (a * a + b * b <= n * n) cells++;
+    boomAt(G.cx, G.cy, n, D * 6 * P / cells, abc(id, 1)); for (let q = 0; q <= tr; q++) fx.push({ k: 'nova', x: G.cx, y: G.cy, r: CELL * (n + 2 + q * 3), t: .7 + q * .15, c: abc(id, 1), thick: 1 }); shake = 18 + tr * 4; SND.fx.boom(); }
+  else if (id === 'frost') { S.buf.frz = Date.now() + 8000 * (1 + .1 * (AL(id) - 1)); S.bufP = Object.assign(S.bufP || {}, { frzT: ABT(id) }); }
+  else if (id === 'blitz') { const tr = ABT(id); for (let q = 0; q < 24; q++) storms.push({ t: q * .12, d: D * .4 * P, tr }); }
+  else if (id === 'kmag') { S.buf.mag = Date.now() + 20000; S.bufP = Object.assign(S.bufP || {}, { mag: .03 + AL(id) * .005 }); }
   else if (id === 'zeit') { const v = Math.max(S.ema || 0, G.v0 * crMult() * 3) * 60 * P; S.cr += v; earnedSec += v; floats.push({ x: ship.x, y: ship.y - 30, t: 1.6, s: '+' + fmt(v) + ' CR', c: '#9dff6a' }); }
   fx.push({ k: 'cast', x: ship.x, y: ship.y, t: .5, c: abc(id, 1), tr: ABT(id) });
   if (id === 'erz') fx.push({ k: 'radar', x: G.cx, y: G.cy, r: G.R * 1.2, t: 1.2, c: abc(id, 1), tr: ABT(id) });
@@ -1381,7 +1420,7 @@ const HATK = {
 };
 const hullAK = () => 1 + .1 * (ILV(eqItem('h').id) - 1); // Rumpf-Attacke wächst langsamer als der Rumpf-Bonus
 const hullPow = () => HRF[eqItem('h').r] * hullAK();
-let cdHull = 0, cdOver = 8; const hents = [];
+let cdHull = 0, cdOver = 8, cdDr = 0; const storms = []; const hents = [];
 function boomAt(x, y, n, d, col) { for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) if (a * a + b * b <= n * n + 1) hit(cellAt(x + a * CELL, y + b * CELL), d); fx.push({ k: 'nova', x, y, r: CELL * (n + 1), t: .35, c: col }); }
 function hentsStep(dt) {
   for (let k = hents.length - 1; k >= 0; k--) { const e = hents[k]; e.t -= e.k === 'gren' || e.k === 'bomb' ? 0 : dt; let dead = e.t <= 0;
@@ -1454,7 +1493,8 @@ function openShopCrate(k) {
 }
 // Ein Schiffsteil aus einer Kiste ziehen und in den Hangar legen
 function rollItem(k) {
-  let roll = Math.random() * 100, r = Object.keys(k.w).find(x => k.w[x] > 0) || 'g'; for (const [rr, w] of Object.entries(k.w)) { if ((roll -= w) < 0) { r = rr; break; } }
+  const L = WP('kiste'), ww = { g: k.w.g, s: k.w.s, e: k.w.e * (1 + .25 * L), l: k.w.l * (1 + .6 * L) }, tot = ww.g + ww.s + ww.e + ww.l;
+  let roll = Math.random() * tot, r = Object.keys(ww).find(x => ww[x] > 0) || 'g'; for (const [rr, w] of Object.entries(ww)) { if ((roll -= w) < 0) { r = rr; break; } }
   const pool = ITEMS.filter(x => x.r === r), it = pool[(Math.random() * pool.length) | 0], had = S.inv[it.id] || 0;
   S.dup = S.dup || {}; if (had) S.dup[it.id] = (S.dup[it.id] || 0) + 1; else S.inv[it.id] = 1;
   return { it, r, had };
