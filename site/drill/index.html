@@ -320,6 +320,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .hg-info{font-size:11.5px;line-height:1.45;color:#cfd8da;padding:8px 10px;margin-bottom:8px;background:#070b0d;border-left:3px solid var(--cy2)}.hg-info b{color:var(--cy)}
 .hg-lvb{position:absolute;left:3px;top:3px;font:400 8px Silkscreen,var(--mono);color:var(--rc)}
 .hg-dp{display:block;width:80%;height:3px;background:#1a2226;margin-top:3px}.hg-dp s{display:block;height:100%;background:var(--rc);text-decoration:none}.hg-dt{font-style:normal;font-size:8.5px;color:#9fb3b8}
+.pks{margin:0 0 10px}.pks small{display:block;font-size:10px;color:#8fa3a8;margin-bottom:4px}.pks div{padding:5px 8px;margin-bottom:4px;background:#0a0e10;border:1px solid #1e2a2f;opacity:.55}.pks div.on{opacity:1;border-color:#ffe94d;background:#14130a}.pks b{display:block;font:400 10.5px Silkscreen,var(--mono);color:#ffe94d}.pks span{font-size:11px;color:#cfd8da}
 html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
 /* ===== PC / Desktop: Vollbild – großes Spielfeld links, Menü als Seitenleiste rechts ===== */
 @media (min-width:900px) and (min-height:540px){
@@ -584,8 +585,15 @@ function wpInfo(id) { const w = WARP.find(x => x.id === id), l = WP(id), mx = l 
 function wInfo(id) { const w = WEAP.find(x => x.id === id), l = WL(id), m = MODS[id], ml = ML(id);
   infoSheet({ n: w.n, ico: WICO[id], sub: 'Waffe · Lv. ' + l + (ST(id) ? ' · ★' + ST(id) : '') + ' · nächstes ★ bei Lv. ' + msNext(l), txt: w.d + '.' + (UPTXT[id] ? ' Jedes ★-Upgrade: x2 Schaden und ' + UPTXT[id] + '.' : ''),
     rows: [['Schaden/s', fmt(wDps(w))], ['Mod', ml + '/' + MOD_MAX + (ml ? ' · +' + 50 * ml + ' %' : '')], ['Mod-Special', ml ? m.f(ml) : 'ab Mod 1'], ['Special', m.s]] }); }
-const critCh = () => .04 * SK('crit') + HA('crit');
-const rate = () => (1 + .1 * SK('spd')) * itemBonus('t');
+// Stufen-Boni der Bauteile: jedes ausgerüstete Teil schaltet auf Lv. 3, 6 und 10 Extra-Fähigkeiten frei
+const PERKS = {
+  h: [[3, 'Schnellfeuer', 'Rumpf-Attacke lädt 30 % schneller'], [6, 'Verstärkt', 'Rumpf-Attacke +50 % Schaden'], [10, 'Überladung', 'Alle 8 s eine Schockwelle ums Schiff']],
+  r: [[3, 'Kritischer Kern', '+10 % Krit-Chance'], [6, 'Kristallfunde', 'Blöcke geben manchmal ◆1'], [10, 'Dauerfeuer', 'Boost hält 50 % länger']],
+  t: [[3, 'Kühlung', 'Fähigkeiten laden 10 % schneller'], [6, 'Warp-Gleiter', 'Schiff fliegt 30 % schneller um den Planeten'], [10, 'Turbo-Kern', '+25 % Feuerrate für alle Waffen']]
+};
+const PK = (sl, lv) => !!S && !!S.eq && ILV(eqItem(sl).id) >= lv;
+const critCh = () => .04 * SK('crit') + HA('crit') + (PK('r', 3) ? .1 : 0);
+const rate = () => (1 + .1 * SK('spd')) * itemBonus('t') * (PK('t', 10) ? 1.25 : 1);
 const MS = [10, 25, 50, 100];
 const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100) / 100) : 0);
 const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(200, (Math.floor(l / 100) + 1) * 100); };
@@ -703,6 +711,7 @@ function kill(i, reward) {
   if (G.type === 'eis' && Math.random() < .25) { const c = i % COLS; for (const j of [c > 0 ? i - 1 : -1, c < COLS - 1 ? i + 1 : -1, i - COLS, i + COLS]) if (j >= 0 && j < G.alive.length && G.alive[j]) hit(j, G.mx[j] * .45); if (fx.length < 160) fx.push({ k: 'nova', x, y, r: CELL * 1.6, t: .25, c: '200,240,255' }); }
   const val = (G.crM || 1) * G.v0 * (1 + G.dep[i] * .8) * (G.ore[i] ? (G.ore[i] === 2 ? 40 : G.ore[i] === 1 ? 10 : 5) : 1) * crMult();
   S.cr += val; earnedSec += val; crBuf += val; crBufX = x; crBufY = y;
+  if (PK('r', 6) && Math.random() < .008) { S.cry += 1; floats.push({ x, y: y - 16, t: 1.2, s: '+◆1', c: '#ffffff' }); }
   const col = G.ore[i] ? (['', '#ffe36a', '#ff5fd2', '#ffffff', '#c9a2ff'])[G.ore[i]] : G.pal[2], ax = x - G.cx, ay = y - G.cy, al = Math.hypot(ax, ay) || 1;
   if (parts.length < 400) for (let k = 0; k < (G.ore[i] ? 7 : 3); k++) parts.push({ x, y, vx: ax / al * 90 + (Math.random() - .5) * 110, vy: ay / al * 90 + (Math.random() - .5) * 110, t: .5 + Math.random() * .4, c: col });
   if (G.ore[i] === 3) { mis('cry'); S.cry += SPC; floats.push({ x, y: y - 10, t: 1.6, s: '+◆' + SPC, c: '#ffffff' }); }
@@ -752,7 +761,7 @@ function step(dt) {
   const lr = localR(ship.orb), orbR = lr + CELL * 2.2 + 16;
   // Fokus: solange der aktuelle Block lebt, bleibt das Schiff über ihm und dreht nur langsam weiter
   if (lineTarget >= 0 && G.alive[lineTarget]) { const [fx0, fy0] = cellXY(lineTarget); let da = Math.atan2(fy0 - G.cy, fx0 - G.cx) - ship.orb; da = Math.atan2(Math.sin(da), Math.cos(da)); ship.orb += da * Math.min(1, dt * 1.2) + dt * 4 / Math.max(80, orbR); }
-  else ship.orb += dt * 46 / Math.max(80, orbR) * (boosting() ? 1.6 : 1) * (lr < G.R * .35 ? 5 : 1); // leere Seite schnell überfliegen
+  else ship.orb += dt * 46 / Math.max(80, orbR) * (boosting() ? 1.6 : 1) * (PK('t', 6) ? 1.3 : 1) * (lr < G.R * .35 ? 5 : 1); // leere Seite schnell überfliegen
   const tx = G.cx + Math.cos(ship.orb) * orbR, ty = G.cy + Math.sin(ship.orb) * orbR;
   ship.vx += ((tx - ship.x) * 3 - ship.vx * 2.6) * dt; ship.vy += ((ty - ship.y) * 3 - ship.vy * 2.6) * dt;
   ship.x += ship.vx * dt; ship.y += ship.vy * dt; camStep(dt);
@@ -1145,7 +1154,7 @@ function render() {
 document.querySelectorAll('.nav [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; $('list').scrollTop = 0; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x === b)); render(); });
 function upgradeFx(w) { SND.fx.win(); const n = ST(w.id); fx.push({ k: 'nova', x: ship.x, y: ship.y, r: 90, t: .8, c: '255,233,77' }); for (let k = 0; k < 30; k++) parts.push({ x: ship.x, y: ship.y, vx: (Math.random() - .5) * 300, vy: (Math.random() - .5) * 300, t: .8, c: '#ffe94d' });
   overlay(`<div class="crate" style="--rc:#ffe94d"><div class="cbox" style="font-size:44px;color:#ffe94d">★${n}</div></div><h2 style="color:#ffe94d">${w.n} aufgewertet!</h2><p>x2 Schaden${UPTXT[w.id] ? ' · ' + UPTXT[w.id] : ''}<br>Nächstes Upgrade bei Stufe ${msNext(WL(w.id))}</p>`, [['Stark', null]]); }
-function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3; S.boostCd = S.boostEnd + 3 * 60e3; /* 3 min Abklingzeit nach dem Boost */ toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); }
+function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3 * (PK('r', 10) ? 1.5 : 1); S.boostCd = S.boostEnd + 3 * 60e3; /* 3 min Abklingzeit nach dem Boost */ toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); }
 $('lb').onclick = () => window.BB && BB.open('board', 'drill');
 $('opt').onclick = openSettings;
 let toastT = 0; function toast(s) { const t = $('toast'); if (!t) return; t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
@@ -1227,7 +1236,7 @@ const ABIL = [
 ];
 const AL = id => (S.ab && S.ab[id]) || 0;
 const abPow = id => 1 + .25 * (AL(id) - 1);
-const abCd = a => a.cd * (1 - .04 * (AL(a.id) - 1)) * (1 - .04 * itemLv('t')) * (1 - Math.min(.5, HA('cd')));
+const abCd = a => a.cd * (1 - .04 * (AL(a.id) - 1)) * (1 - .04 * itemLv('t')) * (1 - Math.min(.5, HA('cd'))) * (PK('t', 3) ? .9 : 1);
 const ABTXT = {
   over: 'Dein Schiff dreht durch: Alle Waffen und deine Rumpf-Attacke machen für ein paar Sekunden doppelten Schaden. Am besten zusammen mit Boost und anderen Fähigkeiten zünden.',
   gold: 'Für ein paar Sekunden bringt jeder abgebaute Block doppelt so viele CR. Lohnt sich am meisten, wenn gerade viel kaputt geht, z. B. direkt nach dem Meteorschauer.',
@@ -1371,7 +1380,7 @@ const HATK = {
 };
 const hullAK = () => 1 + .1 * (ILV(eqItem('h').id) - 1); // Rumpf-Attacke wächst langsamer als der Rumpf-Bonus
 const hullPow = () => HRF[eqItem('h').r] * hullAK();
-let cdHull = 0; const hents = [];
+let cdHull = 0, cdOver = 8; const hents = [];
 function boomAt(x, y, n, d, col) { for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) if (a * a + b * b <= n * n + 1) hit(cellAt(x + a * CELL, y + b * CELL), d); fx.push({ k: 'nova', x, y, r: CELL * (n + 1), t: .35, c: col }); }
 function hentsStep(dt) {
   for (let k = hents.length - 1; k >= 0; k--) { const e = hents[k]; e.t -= e.k === 'gren' || e.k === 'bomb' ? 0 : dt; let dead = e.t <= 0;
@@ -1398,8 +1407,9 @@ function hentsDraw() {
 }
 function hullAtk(dt, face) {
   const it = eqItem('h'), A = HATK[it.id]; if (!A) return;
-  if ((cdHull -= dt * rate()) > 0) return; cdHull = A.cd;
-  const bud = Math.max(2, totalDps()) * hullPow() * A.cd * critMul(), col = it.col;
+  if (PK('h', 10) && (cdOver -= dt) <= 0) { cdOver = 8; const n = 5, b0 = Math.max(2, totalDps()) * 3; for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) if (a * a + b * b <= n * n) hit(cellAt(ship.x + a * CELL, ship.y + b * CELL), b0 / 60); fx.push({ k: 'nova', x: ship.x, y: ship.y, r: CELL * (n + 2), t: .5, c: '255,255,255', thick: 1 }); shake = Math.max(shake, 6); SND.fx.boom(); }
+  if ((cdHull -= dt * rate()) > 0) return; cdHull = A.cd * (PK('h', 3) ? .7 : 1);
+  const bud = Math.max(2, totalDps()) * hullPow() * A.cd * critMul() * (PK('h', 6) ? 1.5 : 1), col = it.col;
   const shoot = (a, d, o) => proj.push(Object.assign({ x: ship.x, y: ship.y, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, d, t: 2, c: col, solo: 1 }, o || {}));
   const tgt = (d0, sp) => nearest(ship.x + Math.cos(face) * CELL * d0 + (Math.random() - .5) * (sp || 0), ship.y + Math.sin(face) * CELL * d0 + (Math.random() - .5) * (sp || 0), 30 * CELL * CELL);
   switch (it.id) {
@@ -1609,7 +1619,7 @@ function renderHangar(L) {
     <button class="br unl" id="lvall" style="margin:0 0 8px" ${canLv.length ? '' : 'disabled'}>${canLv.length ? '⬆ ALLE LEVELN · ' + canLv.length + ' TEILE BEREIT' : 'NOCH KEIN TEIL BEREIT ZUM LEVELN'}</button>
     <button class="br unl" id="best" style="margin:0 0 10px">${ITEMS.some(it => S.inv[it.id] && better(it)) ? '⬆ BESTE AUSRÜSTEN · BESSERE TEILE DA' : '✓ BESTE AUSRÜSTEN'}</button>
     <div class="hg-h"><span>Ausgerüstet</span></div>
-    <div class="hg-load">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-it="${it.id}" style="--rc:${RAR[it.r].c}"><span class="hg-slot">${SLOT[s].n} · Lv. ${ILV(it.id)}</span><span class="hg-ic">${itemSvg(it, 40)}</span><b>${it.n}</b><small>+${pct(it)} % ${SLOT[s].st}</small><i class="hg-rar">${RAR[it.r].n}</i></button>`; }).join('')}</div>
+    <div class="hg-load">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-it="${it.id}" style="--rc:${RAR[it.r].c}"><span class="hg-slot">${SLOT[s].n} · Lv. ${ILV(it.id)}</span><span class="hg-ic">${itemSvg(it, 40)}</span><b>${it.n}</b><small>+${pct(it)} % ${SLOT[s].st}</small><i class="hg-rar">${RAR[it.r].n}${PERKS[s].filter(([l]) => ILV(it.id) >= l).length ? ' · ★' + PERKS[s].filter(([l]) => ILV(it.id) >= l).length : ''}</i></button>`; }).join('')}</div>
     ${HATK[eqItem('h').id] ? `<div class="hab2">⚔ Rumpf-Attacke: <b style="color:var(--txt)">${HATK[eqItem('h').id].n}</b> – ${HATK[eqItem('h').id].d} · ${Math.round(hullPow() * 100)} % deiner Waffen-DPS${hab ? `<br>★ Bonus: ${hab.d} · x${hullK().toFixed(1)} durch die Stufe` : ''}</div>` : ''}
     <div class="hg-h"><span>Sammlung</span><b>${ownAll}/${ITEMS.length}</b></div>
     <div class="hg-tot"><i style="width:${ownAll / ITEMS.length * 100}%"></i></div>
@@ -1630,6 +1640,7 @@ function renderHangar(L) {
     <div class="ihd"><div class="ib">${itemSvg(sel, 46)}</div><div><b>${sel.n} · Lv. ${lv}</b><small>${RAR[sel.r].n} · ${SLOT[sel.s].n}${on ? ' · <span style="color:var(--li)">ausgerüstet</span>' : ''}</small></div></div>
     <div class="xpb"><i style="width:${mx ? 100 : Math.min(100, dp / DUPN * 100)}%"></i><span>${mx ? 'MAX · LV. ' + ITEM_MAX : 'DOPPELTE ' + dp + ' / ' + DUPN + ' FÜR LV. ' + (lv + 1)}</span></div>
     <div class="ist2"><div><small>${SLOT[sel.s].st} auf Lv. ${lv}</small><b>+${pct(sel)} %</b>${mx ? '' : `<em>auf Lv. ${lv + 1}: +${Math.round(itemVal(sel, lv + 1) * 100)} %</em>`}</div>${HATK[sel.id] ? `<div class="hab"><small>Rumpf-Attacke · ${RAR[sel.r].n}</small><b>⚔ ${HATK[sel.id].n}</b><span style="display:block;font-size:11px;color:#cfd8da;margin:2px 0">${HATK[sel.id].d}</span><em>${Math.round(HRF[sel.r] * (1 + .1 * (lv - 1)) * 100)} % deiner Waffen-DPS${mx ? '' : ` · auf Lv. ${lv + 1}: ${Math.round(HRF[sel.r] * (1 + .1 * lv) * 100)} %`}</em></div>` : ''}${HULLAB[sel.id] ? `<div class="hab"><small>Rumpf-Bonus</small><b>★ ${HULLAB[sel.id].d}</b><em>x${(1 + .2 * (lv - 1)).toFixed(1)} durch die Stufe${mx ? '' : ` · auf Lv. ${lv + 1}: x${(1 + .2 * lv).toFixed(1)}`}</em></div>` : ''}</div>
+    <div class="pks"><small>Stufen-Boni (wirken, wenn ausgerüstet)</small>${PERKS[sel.s].map(([l, n, d]) => `<div class="${lv >= l ? 'on' : ''}"><b>${lv >= l ? '✓' : '🔒'} Lv. ${l} · ${n}</b><span>${d}</span></div>`).join('')}</div>
     <div class="row2"><button class="br" id="ieq" ${on ? 'disabled' : ''}>${on ? 'Ausgerüstet ✓' : 'Ausrüsten'}</button><button class="br" id="ilv" ${!mx && dp >= DUPN ? '' : 'disabled'}>${mx ? 'MAX' : `Leveln<span class="gn">${DUPN} Doppelte</span>`}</button></div>
     <button class="br" id="imelt" style="width:100%;margin-top:8px" ${canMelt ? '' : 'disabled'}>${canMelt ? `Einschmelzen<span class="gn">+◆${MELTC[sel.r]}</span>` : 'Ausgerüstet – kann nicht eingeschmolzen werden'}</button>
     <p class="hint">${dp ? `Einschmelzen nimmt zuerst ein doppeltes. Doppelte brauchst du aber zum Leveln.` : on ? '' : 'Einschmelzen = das Teil ist weg und du bekommst ◆.'}</p></div>`;
@@ -1637,7 +1648,7 @@ function renderHangar(L) {
   const close = () => { hSel = null; sh.remove(); };
   sh.querySelector('.hsbg').onclick = close; sh.querySelector('.hsx').onclick = close;
   $('ieq').onclick = () => { S.eq[sel.s] = sel.id; save('now'); render(); toast(`${sel.n} ausgerüstet`); };
-  $('ilv').onclick = () => { if (lvUp(sel.id)) { SND.fx.win(); vib(40); toast(`⬆ ${sel.n} ist jetzt Lv. ${ILV(sel.id)}!`); save('now'); render(); } };
+  $('ilv').onclick = () => { if (lvUp(sel.id)) { const l = ILV(sel.id), pk = PERKS[sel.s].find(x => x[0] === l); SND.fx.win(); vib(40); toast(pk ? `★ Neuer Stufen-Bonus: ${pk[1]}! ${pk[2]}` : `⬆ ${sel.n} ist jetzt Lv. ${l}!`); save('now'); render(); } };
   $('imelt').onclick = () => { if (!canMelt) return; sh.remove();
     overlay(`<div class="crate" style="--rc:${RAR[sel.r].c}"><div class="cbox">${itemSvg(sel, 70)}</div></div><h2 style="color:${RAR[sel.r].c}">${sel.n} einschmelzen?</h2><p>${dp ? 'Ein doppeltes Exemplar' : 'Das Teil'} wird zu <b style="color:var(--cy)">+◆${MELTC[sel.r]}</b>.${dp ? '' : '<br>Danach ist es aus deiner Sammlung weg.'}</p>`,
       [['Einschmelzen', () => { melt(sel.id, dp ? 1 : 0); SND.fx.up(); if (!S.inv[sel.id]) hSel = null; save('now'); render(); }], ['Abbrechen', () => render()]]); };
