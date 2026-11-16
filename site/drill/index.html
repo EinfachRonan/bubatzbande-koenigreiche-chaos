@@ -263,6 +263,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font:600 14px var(--
 .hg-grid small{font-size:9px;color:#9fb3b8}
 .hg-grid button.on{border-color:var(--li);box-shadow:0 0 10px rgba(157,255,106,.35)}
 .hg-grid .eqb{position:absolute;right:3px;top:4px;width:14px;height:14px;background:var(--li);color:#041204;font:700 10px/14px var(--mono);text-align:center}
+.hg-up{position:absolute;right:3px;bottom:3px;font:700 11px var(--mono);color:var(--li);text-shadow:0 0 6px var(--li)}
 .hg-dup{position:absolute;left:3px;top:4px;font:400 8px Silkscreen,var(--mono);color:#ffe94d}
 .hg-grid button.no{opacity:.5;border-style:dashed;background:#06090b;cursor:default}.hg-grid button.no::before{opacity:.4}
 .hg-grid .qq{font:400 20px Silkscreen,var(--mono);color:#4c5a5f}.hg-grid button.no b{color:color-mix(in srgb,var(--rc) 70%,#555)}.hg-grid button.no small{font-size:8px}
@@ -1414,7 +1415,9 @@ function itemSvg(it, size) {
   const fc = it.col === 'rainbow' ? '#ff5fe0' : it.col;
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.5"><rect x="3" y="8" width="11" height="8" rx="2"/><path d="M14 9l4-2v10l-4-2M6 8v8M9 8v8"/><path d="M19 10l3-1M19 14l3 1" stroke="${fc}"/></svg>`;
 }
-function bestEquip() { for (const s of ['h', 'r', 't']) { let best = null, bv = -1; for (const it of ITEMS) if (it.s === s && S.inv[it.id]) { const v = itemVal(it, HL()); if (v > bv) { bv = v; best = it; } } if (best) S.eq[s] = best.id; } save('now'); render(); }
+function bestEquip() { const ch = []; for (const sl of ['h', 'r', 't']) { let best = null, bv = -1; for (const it of ITEMS) if (it.s === sl && S.inv[it.id]) { const v = itemVal(it, HL()); if (v > bv) { bv = v; best = it; } } if (best && S.eq[sl] !== best.id) { S.eq[sl] = best.id; ch.push(best.n); } }
+  save('now'); render(); toast(ch.length ? '✓ Ausgerüstet: ' + ch.join(', ') : 'Du hast schon die besten Teile drin 👌'); if (ch.length) SND.fx.up(); }
+const better = it => { const e = eqItem(it.s); return S.eq[it.s] !== it.id && itemVal(it, 1) > itemVal(e, 1); };
 // ================== Hotbar ==================
 let hotSig = '';
 function hotbar(force) {
@@ -1528,7 +1531,8 @@ function renderHangar(L) {
         <small>Gilt für alle Teile · jedes Level macht jedes Teil stärker</small></div></div>
     <div class="hg-melt"><button class="br" id="hmeltall" ${spareXp && !mx ? '' : 'disabled'}>⚙ Alle Doppelten einschmelzen · +${spareXp} XP</button>
       <div class="hg-xpv">${['g', 's', 'e', 'l'].map(r => `<span style="color:${RAR[r].c}">■ ${RAR[r].n} +${XPV[r]}</span>`).join('')}</div></div>
-    <div class="hg-h"><span>Ausgerüstet</span><button class="hg-best" id="best">Beste ausrüsten</button></div>
+    <button class="br unl" id="best" style="margin:0 0 10px">${ITEMS.some(it => S.inv[it.id] && better(it)) ? '⬆ BESTE AUSRÜSTEN · BESSERE TEILE DA' : '✓ BESTE AUSRÜSTEN'}</button>
+    <div class="hg-h"><span>Ausgerüstet</span></div>
     <div class="hg-load">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-it="${it.id}" style="--rc:${RAR[it.r].c}"><span class="hg-slot">${SLOT[s].n}</span><span class="hg-ic">${itemSvg(it, 40)}</span><b>${it.n}</b><small>+${pct(it)} % ${SLOT[s].st}</small><i class="hg-rar">${RAR[it.r].n}</i></button>`; }).join('')}</div>
     ${HATK[eqItem('h').id] ? `<div class="hab2">⚔ Rumpf-Attacke: <b style="color:var(--txt)">${HATK[eqItem('h').id].n}</b> – ${HATK[eqItem('h').id].d} · ${Math.round(hullPow() * 100)} % deiner Waffen-DPS${hab ? `<br>★ Bonus: ${hab.d} · x${hullK().toFixed(1)} durch Hangar-Level` : ''}</div>` : ''}
     <div class="hg-h"><span>Sammlung</span><b>${ownAll}/${ITEMS.length}</b></div>
@@ -1536,7 +1540,7 @@ function renderHangar(L) {
     ${['h', 'r', 't'].map(s => { const list = ITEMS.filter(x => x.s === s).sort((a, b2) => RO[a.r] - RO[b2.r]), own = list.filter(x => S.inv[x.id]).length;
       return `<div class="hg-cat"><div class="hg-ch"><b>${SLOT[s].n}</b><span>${SLOT[s].st}</span><em>${own}/${list.length}</em></div>
       <div class="hg-grid">${list.filter(it => S.inv[it.id]).map(it => { const on = S.eq[it.s] === it.id, d = (S.dup || {})[it.id];
-        return `<button data-it="${it.id}" class="${on ? 'on' : ''}" style="--rc:${RAR[it.r].c}"><span class="hg-ic">${itemSvg(it, 32)}</span><b>${it.n}</b><small>+${pct(it)} %</small>${on ? '<span class="eqb">✓</span>' : ''}${d ? `<span class="hg-dup">+${d}</span>` : ''}</button>`; }).join('')}</div></div>`; }).join('')}
+        return `<button data-it="${it.id}" class="${on ? 'on' : ''}" style="--rc:${RAR[it.r].c}"><span class="hg-ic">${itemSvg(it, 32)}</span><b>${it.n}</b><small>+${pct(it)} %</small>${on ? '<span class="eqb">✓</span>' : ''}${d ? `<span class="hg-dup">+${d}</span>` : ''}${better(it) ? '<span class="hg-up">⬆</span>' : ''}</button>`; }).join('')}</div></div>`; }).join('')}
     <button class="br unl" data-shop="1" style="margin:4px 0 12px">🛒 KISTEN-SHOP</button>`;
   L.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { hSel = b.dataset.it; render(); });
   $('best').onclick = bestEquip;
