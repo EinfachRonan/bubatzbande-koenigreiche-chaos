@@ -351,6 +351,10 @@ html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
   .nav{padding-top:5px}.nav button{height:44px;gap:2px}.nav button svg{width:18px;height:18px}
 }
 @media (max-height:620px){ .panel{height:calc(100% - 260px)} #cv{min-height:140px} }
+.inav{display:flex;align-items:center;justify-content:space-between;margin:-4px 0 10px;font-size:10.5px;color:#8fa3a8;letter-spacing:.4px}
+.inav button{width:40px;height:34px;background:#0b1114;border:1.5px solid var(--ic);color:var(--ic);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.inf.slr{animation:infR .18s ease-out}.inf.sll{animation:infL .18s ease-out}
+@keyframes infR{from{transform:translateX(28px);opacity:.3}to{transform:none;opacity:1}}@keyframes infL{from{transform:translateX(-28px);opacity:.3}to{transform:none;opacity:1}}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -564,12 +568,24 @@ function mulInfo() {
     <p style="font-size:12px;margin-top:10px">Feuerrate x${fmtX(rate())} · Krit-Chance ${Math.round(critCh() * 100)} % (x3)<br>Waffen-Mods und Rumpf-Attacke kommen pro Waffe noch oben drauf.</p>`, [['OK', null]]);
 }
 // Info-Fenster: Beschreibung, Werte jetzt → nächste Stufe, Kaufen-Knopf
+// Info-Fenster: mit Wischen (links/rechts), Pfeilen oder ←/→ zum nächsten Eintrag der gleichen Liste
+let infNav = null;
+const navOf = (attr, id, fn) => { const ids = [...document.querySelectorAll('#list [' + attr + ']')].map(b => b.getAttribute(attr)).filter((x, i, a) => a.indexOf(x) === i), i = ids.indexOf(id);
+  return ids.length > 1 && i >= 0 ? { prev: () => fn(ids[(i - 1 + ids.length) % ids.length], -1), next: () => fn(ids[(i + 1) % ids.length], 1), pos: (i + 1) + ' / ' + ids.length } : null; };
 function infoSheet(o) {
-  overlay(`<div class="inf" style="--ic:${o.col || '#5ce8f0'}"><div class="abh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${o.ico || ''}</svg><div><b>${o.n}</b><small>${o.sub || ''}</small></div></div>
+  const nv = o.nav || null;
+  overlay(`<div class="inf${o.dir ? ' sl' + (o.dir > 0 ? 'r' : 'l') : ''}" style="--ic:${o.col || '#5ce8f0'}">${nv ? `<div class="inav"><button data-in="-1" aria-label="Vorheriger"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M15 5l-7 7 7 7"/></svg></button><span>${nv.pos} · wischen</span><button data-in="1" aria-label="Nächster"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M9 5l7 7-7 7"/></svg></button></div>` : ''}<div class="abh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${o.ico || ''}</svg><div><b>${o.n}</b><small>${o.sub || ''}</small></div></div>
     <p class="abtx">${o.txt || ''}</p><div class="abst">${(o.rows || []).map(([k, v, nx]) => `<div><small>${k}</small><b>${v}</b>${nx != null && nx !== v ? `<em>→ ${nx}</em>` : ''}</div>`).join('')}</div></div>`,
     o.buy ? [[o.buy[0], o.buy[2]], ['Schließen', () => render()]] : [['Schließen', () => render()]]);
   if (o.buy && o.buy[1]) $('ovb').querySelector('[data-k="0"]').disabled = true;
+  infNav = nv; $('ovb').querySelectorAll('[data-in]').forEach(b => b.onclick = e => { e.stopPropagation(); +b.dataset.in > 0 ? nv.next() : nv.prev(); });
 }
+(() => { const ob = $('ovb'); let x0 = null, y0 = 0;
+  ob.addEventListener('touchstart', e => { if (!infNav) return; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  ob.addEventListener('touchend', e => { if (!infNav || x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) dx < 0 ? infNav.next() : infNav.prev(); }, { passive: true });
+  addEventListener('keydown', e => { if (!infNav || $('ov').classList.contains('hide')) return; if (e.key === 'ArrowRight') infNav.next(); else if (e.key === 'ArrowLeft') infNav.prev(); });
+})();
 const SKTXT = {
   gold: 'Dein Bohrer findet mehr: Jeder Block bringt mehr CR.', core: 'Verstärkt den Kern deines Schiffs: alle Waffen machen mehr Schaden.',
   dmg: 'Bündelt die Laser: noch mehr Schaden für alle Waffen.', cr: 'Mehr Gier, mehr Gold: noch mehr CR pro Block.',
@@ -577,8 +593,8 @@ const SKTXT = {
   ore: 'Auf neuen Planeten gibt es mehr Erz-Blöcke (Erz bringt 10x bzw. 40x CR).', off: 'Wie lange dein Schiff weiter CR sammelt, wenn du nicht im Spiel bist.'
 };
 const skVal = (id, l) => ({ gold: '+' + 10 * l + ' % CR', core: '+' + 8 * l + ' % Schaden', dmg: '+' + 15 * l + ' % Schaden', cr: '+' + 15 * l + ' % CR', crit: 4 * l + ' % Krit', spd: '+' + 10 * l + ' % Feuerrate', ore: '+' + (1.5 * l).toFixed(1) + ' % Erze', off: offH(l) + ' h offline' })[id];
-function skInfo(id) { const s = SKILLS.find(x => x.id === id), l = SK(id), mx = l >= s.max, c = skCost(id);
-  infoSheet({ n: s.n, ico: s.ico, col: '#9dff6a', sub: 'Skill · Stufe ' + l + '/' + s.max + ' · gilt bis zum nächsten Warp', txt: SKTXT[id], rows: [['Wirkung', skVal(id, l), mx ? null : skVal(id, l + 1)], ['Kosten', mx ? 'MAX' : '◆' + c]],
+function skInfo(id, dir) { const s = SKILLS.find(x => x.id === id), l = SK(id), mx = l >= s.max, c = skCost(id);
+  infoSheet({ dir, nav: navOf('data-sk', id, skInfo), n: s.n, ico: s.ico, col: '#9dff6a', sub: 'Skill · Stufe ' + l + '/' + s.max + ' · gilt bis zum nächsten Warp', txt: SKTXT[id], rows: [['Wirkung', skVal(id, l), mx ? null : skVal(id, l + 1)], ['Kosten', mx ? 'MAX' : '◆' + c]],
     buy: [mx ? 'MAX' : 'Leveln · ◆' + c, mx || S.cry < c, () => { if (SK(id) >= s.max || S.cry < skCost(id)) return; S.cry -= skCost(id); S.sk[id] = SK(id) + 1; save(true); render(); ui(); skInfo(id); }] }); }
 const WPTXT = {
   kraft: 'Dunkle Materie verstärkt alles: mehr Schaden und mehr CR, für immer.', slot: 'Mehr Plätze im Waffen-Tab, damit du mehr Waffen gleichzeitig benutzen kannst.',
@@ -587,11 +603,11 @@ const WPTXT = {
   skip: 'Nach dem Warp startest du ein paar Planeten weiter.', comet: 'Kometen tauchen öfter auf und bringen mehr CR.', off: 'Wie lange dein Schiff weiter CR sammelt, wenn du nicht im Spiel bist. Bleibt für immer.', chips: 'Für jeden 5. Planeten gibt es zusätzliche ⬢ Waffen-Chips.', elite: 'Elite-Planeten (doppelt so hart, Kiste garantiert) tauchen öfter auf.', kiste: 'Epische und legendäre Teile kommen in allen Kisten öfter.', dkrit: 'Kritische Treffer machen mehr Schaden: x3 → x4 → x5 …', meister: 'Alle Fähigkeiten auf der Hotbar laden schneller.', magnet: 'Jeder Warp bringt mehr Dunkle Materie ✦.', erbe: 'Beim Warp verlierst du nicht alle Skill-Stufen: pro Stufe bleibt in jedem Skill eine Stufe erhalten.', auto: 'Zündet deine Fähigkeiten von der Hotbar automatisch, sobald sie bereit sind.'
 };
 const wpVal = (id, l) => ({ kraft: '+' + 100 * l + ' % Schaden & CR', slot: (2 + l) + ' Waffenslots', start: fmt(startCr(l)) + ' CR', keep: keepPct(l) + ' % ◆', kris: '+' + 2 * l + ' ◆ pro Planet', boost: (5 + 2 * l) + ' min Boost', skip: 'Start ab Planet ' + (1 + 2 * l), comet: '+' + 50 * l + ' % Kometen', off: offH(l) + ' h offline', chips: '+' + l + ' ⬢ alle 5 Planeten', elite: Math.round((.12 + .05 * l) * 100) + ' % Elite', kiste: 'Episch x' + (1 + .25 * l).toFixed(2) + ' · Legendär x' + (1 + .6 * l).toFixed(1), dkrit: 'Krit x' + (3 + l), meister: '-' + 8 * l + ' % Abklingzeit', magnet: '+' + 20 * l + ' % ✦', erbe: l + ' Stufen bleiben', auto: l ? 'an' : 'aus' })[id];
-function wpInfo(id) { const w = WARP.find(x => x.id === id), l = WP(id), mx = l >= w.max, c = w.cost(l);
-  infoSheet({ n: w.n, ico: w.ico, col: '#c9a2ff', sub: 'Warp-Fähigkeit · Stufe ' + l + '/' + w.max + ' · bleibt für immer', txt: WPTXT[id], rows: [['Wirkung', wpVal(id, l), mx ? null : wpVal(id, l + 1)], ['Kosten', mx ? 'MAX' : '✦' + c]],
+function wpInfo(id, dir) { const w = WARP.find(x => x.id === id), l = WP(id), mx = l >= w.max, c = w.cost(l);
+  infoSheet({ dir, nav: navOf('data-wp', id, wpInfo), n: w.n, ico: w.ico, col: '#c9a2ff', sub: 'Warp-Fähigkeit · Stufe ' + l + '/' + w.max + ' · bleibt für immer', txt: WPTXT[id], rows: [['Wirkung', wpVal(id, l), mx ? null : wpVal(id, l + 1)], ['Kosten', mx ? 'MAX' : '✦' + c]],
     buy: [mx ? 'MAX' : 'Leveln · ✦' + c, mx || S.dm < c, () => { if (WP(id) >= w.max || S.dm < w.cost(WP(id))) return; S.dm -= w.cost(WP(id)); S.wp[id] = WP(id) + 1; save('now'); render(); wpInfo(id); }] }); }
-function wInfo(id) { const w = WEAP.find(x => x.id === id), l = WL(id), m = MODS[id], ml = ML(id);
-  infoSheet({ n: w.n, ico: WICO[id], sub: 'Waffe · Lv. ' + l + (ST(id) ? ' · ★' + ST(id) : '') + ' · nächstes ★ bei Lv. ' + msNext(l), txt: w.d + '.' + (UPTXT[id] ? ' Jedes ★-Upgrade: x2 Schaden und ' + UPTXT[id] + '.' : ''),
+function wInfo(id, dir) { const w = WEAP.find(x => x.id === id), l = WL(id), m = MODS[id], ml = ML(id);
+  infoSheet({ dir, nav: navOf('data-wi', id, wInfo), n: w.n, ico: WICO[id], sub: 'Waffe · Lv. ' + l + (ST(id) ? ' · ★' + ST(id) : '') + ' · nächstes ★ bei Lv. ' + msNext(l), txt: w.d + '.' + (UPTXT[id] ? ' Jedes ★-Upgrade: x2 Schaden und ' + UPTXT[id] + '.' : ''),
     rows: [['Schaden/s', fmt(wDps(w))], ['Mod', ml + '/' + MOD_MAX + (ml ? ' · +' + 50 * ml + ' %' : '')], ['Mod-Special', ml ? m.f(ml) : 'ab Mod 1'], ['Special', m.s]] }); }
 // Stufen-Boni der Bauteile: jedes ausgerüstete Teil schaltet auf Lv. 3, 6 und 10 Extra-Fähigkeiten frei
 const PERKS = {
@@ -1177,7 +1193,7 @@ function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boos
 $('lb').onclick = () => window.BB && BB.open('board', 'drill');
 $('opt').onclick = openSettings;
 let toastT = 0; function toast(s) { const t = $('toast'); if (!t) return; t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
-function overlay(html, btns) { $('ovb').innerHTML = html + btns.map((b, k) => `<button class="br" data-k="${k}">${b[0]}</button>`).join(''); $('ov').classList.toggle('bare', /class="(flip|crate)[" ]/.test(html)); $('ov').classList.remove('hide'); $('ovb').style.animation = 'none'; void $('ovb').offsetWidth; $('ovb').style.animation = ''; $('ovb').querySelectorAll('[data-k]').forEach(el => el.onclick = () => { $('ov').classList.add('hide'); btns[+el.dataset.k][1] && btns[+el.dataset.k][1](); }); }
+function overlay(html, btns) { infNav = null; $('ovb').innerHTML = html + btns.map((b, k) => `<button class="br" data-k="${k}">${b[0]}</button>`).join(''); $('ov').classList.toggle('bare', /class="(flip|crate)[" ]/.test(html)); $('ov').classList.remove('hide'); $('ovb').style.animation = 'none'; void $('ovb').offsetWidth; $('ovb').style.animation = ''; $('ovb').querySelectorAll('[data-k]').forEach(el => el.onclick = () => { $('ov').classList.add('hide'); btns[+el.dataset.k][1] && btns[+el.dataset.k][1](); }); }
 
 // Nach dem Abbau: Schiff fliegt raus, Sterne ziehen vorbei, neuer Planet schwebt rein
 let travel = 0, built = true, pOff = 0, travT0 = 2.6;
