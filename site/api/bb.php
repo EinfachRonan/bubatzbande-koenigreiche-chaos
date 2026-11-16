@@ -104,6 +104,18 @@ if (($d0['ep'] ?? 1) < EP && filesize($file) > 0) {
   unset($u0); $d0['ep'] = EP;
   ftruncate($h, 0); rewind($h); fwrite($h, json_encode($d0, JSON_UNESCAPED_UNICODE)); fflush($h);
 }
+// Einmaliger Neustart nur für den Galaxie-Bohrer (für alle Spieler): Spielstand, Bestwert, Bohrer-Erfolge und -Statistiken weg. Mit Sicherung.
+const DEP = 1;
+if (($d0['dep'] ?? 0) < DEP && filesize($file) > 0) {
+  @copy($file, "$dir/backup-drill" . DEP . '-' . date('Ymd-His') . '.json');
+  foreach ($d0['users'] as &$u1) {
+    unset($u1['gs']['drill'], $u1['best']['drill']);
+    foreach (array_keys($u1['ach'] ?? []) as $k) if (strpos($k, 'drill') === 0) unset($u1['ach'][$k]);
+    foreach (array_keys($u1['stats'] ?? []) as $k) if (strpos($k, 'drill') === 0) unset($u1['stats'][$k]);
+  }
+  unset($u1); $d0['dep'] = DEP;
+  ftruncate($h, 0); rewind($h); fwrite($h, json_encode($d0, JSON_UNESCAPED_UNICODE)); fflush($h);
+}
 flock($h, LOCK_UN); unset($d0);
 
 if ($a === 'user') {
@@ -338,6 +350,7 @@ if ($a === 'save') {
   // Alte Seiten (vor dem Neustart) dürfen keine alten Bestwerte/Erfolge zurückschreiben
   $epOk = (int) ($in['ep'] ?? 0) >= EP;
   if (!$epOk) { unset($in['best'], $in['ach'], $in['stats']); }
+  if ((int) ($in['dep'] ?? 0) < DEP) { unset($in['best']['drill']); foreach (['ach', 'stats'] as $kk) if (isset($in[$kk]) && is_array($in[$kk])) foreach (array_keys($in[$kk]) as $k) if (strpos((string) $k, 'drill') === 0) unset($in[$kk][$k]); }
   // Bestwerte: nur bessere übernehmen
   foreach (($in['best'] ?? []) as $g => $b) {
     if (!isset($GAMES[$g]) || !is_array($b)) continue;

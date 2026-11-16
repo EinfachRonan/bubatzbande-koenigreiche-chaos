@@ -379,7 +379,7 @@ html,body{overscroll-behavior:none}button,a{touch-action:manipulation}
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261116b"></script>
+<script src="../bb.js?v=20261116c"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -463,11 +463,12 @@ const $ = id => document.getElementById(id);
 // ================== Speicherstand ==================
 let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
-const VER = 12; // interne Stand-Nummer (höher = einmaliger Reset)
-const VLABEL = '0.6'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
+const VER = 13; // interne Stand-Nummer (höher = einmaliger Reset)
+const VLABEL = '0.7'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
 const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
 const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: (o && o.inv && Object.keys(o.inv).length) ? o.inv : { h_pfeil: 1, r_basis: 1, t_basis: 1 }, /* Start-Teile nur bei neuem Spielstand, sonst kämen eingeschmolzene Teile beim Laden zurück */ eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
+if (S && S.v !== VER) { try { localStorage.removeItem('gb_intro'); } catch (e) {} } // neuer Start: Intro nochmal zeigen
 S = S && typeof S.cr === 'number' && S.v === VER ? norm(S) : fresh();
 const logged = () => !!(window.BB && BB.loggedIn);
 const myId = () => (logged() && BB.profile && BB.profile.id) || '';

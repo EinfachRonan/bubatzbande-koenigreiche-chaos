@@ -81,6 +81,8 @@
   P = Object.assign(fresh(), P);
   // Einmaliger Neustart: Bestwerte, Erfolge und Rahmen auf 0 (passt zur Epoche im Server)
   const EP = 3;
+  const DEP = 1; // Neustart nur für den Galaxie-Bohrer
+  if ((P.dep || 0) < DEP) { delete P.best.drill; for (const k in P.ach) if (k.indexOf('drill') === 0) delete P.ach[k]; for (const k in P.stats) if (k.indexOf('drill') === 0) delete P.stats[k]; P.dep = DEP; try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} }
   if ((P.ep || 1) < EP) { P.best = {}; P.ach = {}; P.stats = {}; P.rh = ''; P.ep = EP; P.dirty = false; try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} };
   const logged = () => !!(P.id && P.token);
@@ -103,7 +105,7 @@
 
   // ---------- Server ----------
   async function post(a, body) {
-    const r = await fetch(API + '?a=' + a, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign(logged() ? { id: P.id, token: P.token } : {}, { ep: EP }, body || {})) });
+    const r = await fetch(API + '?a=' + a, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign(logged() ? { id: P.id, token: P.token } : {}, { ep: EP, dep: DEP }, body || {})) });
     let j = {}; try { j = await r.json(); } catch (e) { throw new Error('net'); }
     if (j.e === 'auth') { logoutLocal(); }
     if (!r.ok || j.e) throw new Error(j.e || 'net');
