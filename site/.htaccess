@@ -4,3 +4,8 @@
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 </IfModule>
+
+# Archivierte Spiele (vorerst raus): Startseite statt Spiel. Bilder in den Ordnern bleiben erreichbar.
+<IfModule mod_alias.c>
+  RedirectMatch 302 ^/(krieg|match|hof|duell|quiz)/?(index\.html)?$ /
+</IfModule>

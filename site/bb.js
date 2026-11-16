@@ -10,17 +10,19 @@
   const fmtTime = s => { s = Math.max(0, s); const m = Math.floor(s / 60), r = s - m * 60; return m + ':' + (r < 10 ? '0' : '') + r.toFixed(1); };
   const fmtN = n => n >= 1e12 ? (n / 1e12).toFixed(1) + 'T' : n >= 1e9 ? (n / 1e9).toFixed(1) + 'B' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(Math.round(n));
   const GAMES = {
-    krieg: { name: 'Bandenkrieg', ico: '⚔️', unit: 'Punkte', what: 'Bester Sieg', url: 'krieg/', meta: m => m && m.d ? `${m.d}${m.t ? ' · ' + fmtTime(m.t).replace(/\.\d$/, '') : ''}` : '' },
-    match: { name: 'Kräuter-Match', ico: '🌿', unit: 'Sterne', what: 'Sterne gesamt', url: 'match/', meta: m => m && m.lv ? `bis Level ${m.lv}` : '' },
-    quiz: { name: 'Bubatz-Quiz', ico: '🎤', unit: 'Punkte', what: 'Solo-Highscore', url: 'quiz/', meta: m => m && m.n ? `${m.r}/${m.n} richtig` : '' },
-    duell: { name: 'Kneipen-Duell', ico: '🍺', unit: 'Kneipenpunkte', what: 'Siege gegen den Wirt', url: 'duell/', meta: m => m && m.w ? `${m.w} Siege` : '' },
+    krieg: { off: 1, name: 'Bandenkrieg', ico: '⚔️', unit: 'Punkte', what: 'Bester Sieg', url: 'krieg/', meta: m => m && m.d ? `${m.d}${m.t ? ' · ' + fmtTime(m.t).replace(/\.\d$/, '') : ''}` : '' },
+    match: { off: 1, name: 'Kräuter-Match', ico: '🌿', unit: 'Sterne', what: 'Sterne gesamt', url: 'match/', meta: m => m && m.lv ? `bis Level ${m.lv}` : '' },
+    quiz: { off: 1, name: 'Bubatz-Quiz', ico: '🎤', unit: 'Punkte', what: 'Solo-Highscore', url: 'quiz/', meta: m => m && m.n ? `${m.r}/${m.n} richtig` : '' },
+    duell: { off: 1, name: 'Kneipen-Duell', ico: '🍺', unit: 'Kneipenpunkte', what: 'Siege gegen den Wirt', url: 'duell/', meta: m => m && m.w ? `${m.w} Siege` : '' },
     runner: { name: 'Kobold-Runner', ico: '🏃', unit: 'Punkte', what: 'Bester Lauf', url: 'runner/', meta: m => m && m.m ? `${m.m.toLocaleString('de-DE')} m · 🪙 ${m.c}` : '' },
-    hof: { name: 'Bandenhof', ico: '🏡', unit: 'Gold', what: 'Gold verdient', url: 'hof/', fmt: n => n >= 1e6 ? (n / (n >= 1e9 ? 1e9 : 1e6)).toLocaleString('de-DE', { maximumFractionDigits: 2 }) + (n >= 1e9 ? ' Mrd' : ' Mio') : Math.round(n).toLocaleString('de-DE'), meta: m => m && m.b != null ? `${m.l ? 'Hof-Stufe ' + m.l + ' · ' : ''}${m.b}/8 Bande` : '' },
+    hof: { off: 1, name: 'Bandenhof', ico: '🏡', unit: 'Gold', what: 'Gold verdient', url: 'hof/', fmt: n => n >= 1e6 ? (n / (n >= 1e9 ? 1e9 : 1e6)).toLocaleString('de-DE', { maximumFractionDigits: 2 }) + (n >= 1e9 ? ' Mrd' : ' Mio') : Math.round(n).toLocaleString('de-DE'), meta: m => m && m.b != null ? `${m.l ? 'Hof-Stufe ' + m.l + ' · ' : ''}${m.b}/8 Bande` : '' },
     drill: { name: 'Galaxie-Bohrer', ico: '🚀', unit: 'Planeten', what: 'Höchster Planet', url: 'drill/', meta: m => m ? [m.pt ? '⏱ ' + (m.pt >= 3600 ? (m.pt / 3600).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' Std.' : Math.floor(m.pt / 60) + ' Min.') : '', m.n, m.w != null ? m.w + ' Warps' : '', m.d ? fmtN(m.d) + ' DPS' : ''].filter(Boolean).join(' · ') : '' },
     ernte: { name: 'Erntezeit', ico: '🧟', unit: 'Punkte', what: 'Bester Lauf', url: 'ernte/', meta: m => m && m.w ? `Welle ${m.w}${m.k ? ' · ' + m.k + ' Kills' : ''}${m.m ? ' · ' + m.m : ''}` : '' },
     schach: { name: 'Schlagabtausch', ico: '♞', unit: '', what: 'Schnellster Sieg gegen Herrn Holz', url: 'schach/', asc: true, fmt: fmtTime, meta: m => m && m.d ? String(m.d) : '' }
   };
-  const ACH = [
+  // Archiv: Spiele mit off: 1 sind vorerst nicht spielbar (Code bleibt, Seite leitet zur Startseite um)
+  const ON = Object.fromEntries(Object.entries(GAMES).filter(([, G]) => !G.off));
+  const ACH_ALL = [
     ['profil', '🪪', 'Teil der Bande', 'Profil angelegt'],
     ['krieg_win', '🏰', 'Burgstürmer', 'Bandenkrieg gewonnen'],
     ['krieg_hart', '💀', 'Spießerschreck', 'Bandenkrieg auf Schwer gewonnen'],
@@ -77,6 +79,9 @@
     ['ernte_kills', '🧟', 'Seuchenbekämpfer', 'Erntezeit: 1.000 Zombies insgesamt'],
     ['allrounder', '🏆', 'Allrounder', 'In allen Spielen auf der Bestenliste']
   ];
+  const OFFP = Object.keys(GAMES).filter(k => GAMES[k].off).map(k => k + '_');
+  const ACH = ACH_ALL.filter(a => !OFFP.some(p => a[0].startsWith(p)));
+
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const hex = n => { const a = new Uint8Array(n); (crypto || window.msCrypto).getRandomValues(a); return Array.from(a, b => b.toString(16).padStart(2, '0')).join(''); };
 
@@ -395,7 +400,7 @@
     P.best[g] = { s: Math.round(s * 10) / 10, m: m || null, t: Date.now() };
     P.dirty = true; save(); soon();
     if (!logged() && !nagged) { nagged = true; setTimeout(() => toast('Neuer Bestwert! <b>Melde dich an</b>, damit er auf die Bestenliste kommt.', '🏆'), 1200); }
-    if (Object.keys(GAMES).every(k => P.best[k])) unlock('allrounder');
+    if (Object.keys(ON).every(k => P.best[k])) unlock('allrounder');
     return !!old;
   }
   function unlock(id) {
@@ -495,7 +500,7 @@
   function profil(body) {
     let av = P.av, img = undefined; // undefined = unverändert, '' = Foto löschen, data:… = neues Foto
     const cur = () => img ? img : img === '' ? IMG(av) : avUrl(Object.assign({}, P, { av }));
-    const bests = Object.entries(GAMES).map(([g, G]) => `<div>${G.ico} ${esc(G.name)}<b>${P.best[g] ? fmt(g, P.best[g].s) + (G.unit ? ' <small style="font-size:11px;color:#b5a07c">' + G.unit + '</small>' : '') : '–'}</b></div>`).join('');
+    const bests = Object.entries(ON).map(([g, G]) => `<div>${G.ico} ${esc(G.name)}<b>${P.best[g] ? fmt(g, P.best[g].s) + (G.unit ? ' <small style="font-size:11px;color:#b5a07c">' + G.unit + '</small>' : '') : '–'}</b></div>`).join('');
     body.innerHTML = `<div class="bb-me"><label class="bb-pic" title="Foto hochladen"><span class="bb-fr f-${P.rh || 'none'}"><img id="bbAv" src="${cur()}" alt=""></span><span>📷</span><input type="file" id="bbFile" accept="image/*" hidden></label>
         <div style="flex:1;min-width:0"><div class="bb-l" style="margin:0 0 4px">Anzeigename <small style="color:#b5a07c">· Login: ${esc(P.user)}</small></div><input class="bb-in" id="bbName" maxlength="16" value="${esc(P.name)}"></div></div>
       <div class="bb-l">Profilbild: tipp aufs Bild für ein eigenes Foto oder nimm eine Figur aus der Bande</div>
@@ -551,7 +556,7 @@
   }
   async function board(body) {
     const ALL = curGame === '_all', GG = ALL ? { what: 'Punkte aus allen Spielen (1. Platz 25, 2. Platz 18, 3. Platz 15 …)', unit: 'Punkte', meta: () => '', name: '' } : GAMES[curGame];
-    body.innerHTML = `<div class="bb-gs"><button data-g="_all" class="${ALL ? 'on' : ''}">🏆 Gesamt</button>${Object.entries(GAMES).map(([g, G]) => `<button data-g="${g}" class="${g === curGame ? 'on' : ''}">${G.ico} ${esc(G.name)}</button>`).join('')}</div>
+    body.innerHTML = `<div class="bb-gs"><button data-g="_all" class="${ALL ? 'on' : ''}">🏆 Gesamt</button>${Object.entries(ON).map(([g, G]) => `<button data-g="${g}" class="${g === curGame ? 'on' : ''}">${G.ico} ${esc(G.name)}</button>`).join('')}</div>
       <div class="bb-seg"><button data-s="all" class="${scope === 'all' ? 'on' : ''}">🌍 Alle</button><button data-s="fr" class="${scope === 'fr' ? 'on' : ''}">👥 Freunde</button></div>
       <div style="text-align:center;font-size:13px;color:#b5a07c;margin-bottom:6px">${esc(GG.what)}</div><div id="bbList"><div class="bb-mut">Lade …</div></div>
       ${ALL ? `<div class="bb-mut">Tipp auf einen Spieler, um sein Profil zu sehen und ihn als Freund zu adden.</div>` : `<a class="bb-go" style="margin-top:14px;text-align:center;text-decoration:none;display:block" href="${ROOT + GAMES[curGame].url}">${GAMES[curGame].ico} ${esc(GAMES[curGame].name)} spielen</a>`}`;
@@ -689,7 +694,7 @@
       body.innerHTML = `<button class="bb-back" id="bbBack">‹ Zurück</button>
         <div class="bb-uhead">${avH(u)}<div><b>${esc(u.name)}</b>${isFr ? '<span class="bb-tag">👥 Freund</span>' : ''}<small>${since ? 'Dabei seit ' + since + ' · ' : ''}${u.nfr} Freunde</small></div></div>
         <div class="bb-sec">Bestwerte</div>
-        <div class="bb-best">${Object.entries(GAMES).map(([g, G]) => {
+        <div class="bb-best">${Object.entries(ON).map(([g, G]) => {
           const mine = P.best[g], his = u.best[g];
           const cmp = mine && his ? (better(g, his.s, mine.s) ? '<em class="up">vor dir</em>' : his.s === mine.s ? '<em>gleich</em>' : '<em class="dn">hinter dir</em>') : '';
           return `<div>${G.ico} ${esc(G.name)}<b>${his ? fmt(g, his.s) + (G.unit ? ' <small style="font-size:11px;color:#b5a07c">' + G.unit + '</small>' : '') : '–'}</b>${cmp}</div>`;

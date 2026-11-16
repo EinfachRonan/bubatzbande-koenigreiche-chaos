@@ -165,7 +165,9 @@ if ($a === 'overall') {
   // Gesamt-Rangliste über alle Spiele: Punkte nach Platzierung (wie Formel 1)
   flock($h, LOCK_SH); $d = load($h); flock($h, LOCK_UN); fclose($h);
   $PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2]; $pts = []; $ng = [];
+  $OFF = ['krieg', 'match', 'quiz', 'duell', 'hof']; // archivierte Spiele zählen nicht mehr
   foreach ($GAMES as $g => $G) {
+    if (in_array($g, $OFF, true)) continue;
     $rows = [];
     foreach ($d['users'] as $id => $u) { $b = $u['best'][$g] ?? null; if ($b) $rows[] = [$id, $b['s'], $b['t'] ?? 0]; }
     usort($rows, fn($x, $y) => $G['asc'] ? ($x[1] <=> $y[1] ?: $x[2] <=> $y[2]) : ($y[1] <=> $x[1] ?: $x[2] <=> $y[2]));

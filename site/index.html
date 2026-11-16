@@ -44,40 +44,33 @@ h2{margin:0;font:700 17px/1.2 var(--hd);letter-spacing:-.1px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 22px;border-radius:999px;background:var(--ac);color:#0e1110;font-weight:600;font-size:15px;border:0}
 .btn:hover{background:var(--ac2)}
 .btn.sm{min-height:38px;padding:0 16px;font-size:14px}
-/* Hero-Karussell */
-.hero{position:relative;margin:0 20px}
-.slides{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:22px;gap:0}
-.slides::-webkit-scrollbar{display:none}
-.slide{position:relative;flex:0 0 100%;height:236px;scroll-snap-align:start;overflow:hidden;background:var(--card)}
-.slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.slide::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,17,16,0) 28%,rgba(14,17,16,.94) 92%)}
-.slide .in{position:absolute;left:18px;right:18px;bottom:16px;z-index:1;display:flex;flex-direction:column;gap:8px}
-.slide .kk{font-size:12px;font-weight:600;color:var(--ac);letter-spacing:.5px;text-transform:uppercase}
-.slide h1,.slide .t{margin:0;font:700 27px/1.05 var(--hd)}
-.slide .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.slide p{margin:0;font-size:13px;color:#c9d0cb;max-width:60%}
-.dots{position:absolute;left:18px;top:16px;z-index:2;display:flex;gap:6px}
-.dots button{width:6px;height:6px;padding:0;border:0;border-radius:99px;background:rgba(238,242,238,.35);transition:width .2s}
-.dots button.on{width:18px;background:var(--tx)}
-/* Weiterspielen */
-.cont{display:flex;gap:10px;padding:0 20px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity}
-.cont::-webkit-scrollbar{display:none}
-.cc{flex:0 0 calc((100% - 20px) / 3);min-width:104px;background:var(--card);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:7px;scroll-snap-align:start}
-.cc img{width:100%;height:66px;object-fit:cover;border-radius:10px;display:block}
-.cc b{font-weight:600;font-size:13px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cc span{font-size:12px;color:var(--mu);margin-top:-4px}
-/* Liste aller Spiele */
-.list{padding:0 20px;display:flex;flex-direction:column}
-.gr{min-width:0;display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
-.gr:last-child{border-bottom:0}
-.gr img{width:52px;height:52px;border-radius:13px;object-fit:cover;flex:none;background:var(--card)}
-.gr .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.gr .tx b{font-weight:600;font-size:15px;display:flex;align-items:center;gap:7px}
-.gr .tx small{font-size:13px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gr .nw{font-size:10px;font-weight:700;color:#0e1110;background:var(--ac);border-radius:99px;padding:2px 7px;letter-spacing:.3px}
-.gr .bs{font-size:12px;color:var(--ac);font-weight:600;white-space:nowrap}
-.gr svg{width:18px;height:18px;color:var(--mu);flex:none}
-.gr:hover b{color:var(--ac2)}
+/* Spiele als große Kacheln (Bento) */
+.intro{margin:4px 20px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.intro h1{margin:0;font:700 30px/1.02 var(--hd);letter-spacing:-.6px}.intro h1 span{color:var(--ac)}
+.intro small{color:var(--mu);font-size:13px;white-space:nowrap;padding-bottom:3px}
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 20px}
+.tile{position:relative;overflow:hidden;border-radius:22px;background:var(--card);min-height:200px;display:flex;flex-direction:column;justify-content:flex-end;isolation:isolate;transition:transform .15s}
+.tile:active{transform:scale(.985)}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .5s}
+.tile:hover img{transform:scale(1.04)}
+.tile::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(14,17,16,0) 30%,rgba(14,17,16,.9) 86%)}
+.tile .in{padding:14px;display:flex;flex-direction:column;gap:6px}
+.tile .kk{display:flex;gap:6px;align-items:center;font-size:11px;font-weight:600;color:var(--ac);letter-spacing:.5px;text-transform:uppercase}
+.tile .kk .nw{color:#0e1110;background:var(--ac);border-radius:99px;padding:2px 7px}
+.tile h3{margin:0;font:700 19px/1.05 var(--hd)}
+.tile p{margin:0;font-size:12.5px;color:#c9d0cb;line-height:1.35}
+.tile .ft{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px}
+.tile .bs{font-size:12px;font-weight:600;color:var(--tx);background:rgba(14,17,16,.6);border:1px solid rgba(238,242,238,.14);border-radius:99px;padding:4px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;backdrop-filter:blur(6px)}
+.tile .go{flex:none;width:40px;height:40px;border-radius:50%;background:var(--ac);color:#0e1110;display:flex;align-items:center;justify-content:center}
+.tile .go svg{width:18px;height:18px}
+.tile.big{grid-column:1/3;min-height:330px}.tile.big h3{font-size:30px}.tile.big p{font-size:14px;max-width:80%}.tile.big .go{width:auto;border-radius:99px;padding:0 20px;font-weight:600;font-size:15px;height:44px}
+.tile.wide{grid-column:1/3;min-height:170px}
+.tile.tall{min-height:250px}
+/* Deine Bestwerte */
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 20px}
+.st{background:var(--card);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.st small{font-size:12px;color:var(--mu)}.st b{font:700 20px var(--hd)}.st em{font-style:normal;font-size:12px;color:var(--mu)}
+.st.no b{color:var(--mu2)}
 /* Rangliste */
 .box{margin:0 20px;background:var(--card);border-radius:20px;padding:6px 14px 12px}
 .rr{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}
@@ -104,19 +97,21 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 .tabs nav>.on{color:var(--ac);font-weight:600}
 .tabs svg{width:22px;height:22px}
 #bbChip{display:none!important}
-/* Tablet & PC: zweispaltig, Rangliste rechts */
+/* Tablet & PC: Kacheln links als Bento, Rangliste rechts */
 @media (min-width:900px){
   body{padding-bottom:40px}
-  .app{padding:28px 32px 0;display:grid;grid-template-columns:minmax(0,1fr) 360px;column-gap:28px;align-items:start}
+  .app{padding:28px 32px 0;display:grid;grid-template-columns:minmax(0,1fr) 340px;column-gap:28px;align-items:start}
   .main,.side{min-width:0}
   .side{position:sticky;top:20px}
   .top{grid-column:1/3;padding:0 0 22px}
-  .hero,.box,.col,.list,.cont{margin-left:0;margin-right:0}
-  .list,.cont{padding-left:0;padding-right:0}
-  .sec{margin-left:0;margin-right:0}
-  .slide{height:340px}.slide h1,.slide .t{font-size:40px}.slide .in{left:28px;right:28px;bottom:24px}.dots{left:28px;top:22px}
-  .list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px}.gr:nth-last-child(2):nth-child(odd){border-bottom:0}
-  .cc{flex-basis:calc((100% - 30px) / 4)}
+  .intro,.bento,.stats,.box,.col,.sec{margin-left:0;margin-right:0}
+  .intro h1{font-size:40px}
+  .bento{grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:190px}
+  .tile,.tile.tall,.tile.wide,.tile.big{min-height:0}
+  .tile.big{grid-column:1/3;grid-row:span 2}.tile.big h3{font-size:38px}
+  .tile.tall{grid-column:3/5;grid-row:span 1}
+  .tile.wide{grid-column:span 1}
+  .stats{grid-template-columns:repeat(4,minmax(0,1fr))}
   .side .sec:first-child{margin-top:0}
   .tabs{display:none}
 }
@@ -126,10 +121,10 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 <div class="app">
   <header class="top" id="top"></header>
   <main class="main">
-    <section class="hero" aria-label="Empfehlungen"><div class="dots" id="dots"></div><div class="slides" id="slides"></div></section>
-    <div id="contWrap" hidden><div class="sec"><h2>Weiterspielen</h2><small id="contN"></small></div><div class="cont" id="cont"></div></div>
-    <div class="sec" id="spiele"><h2>Alle Spiele</h2><small id="nG"></small></div>
-    <div class="list" id="gAll"></div>
+    <div class="intro"><h1>4 Spiele.<br><span>1 Bande.</span></h1><small id="nG">Auswahl der Bande</small></div>
+    <section class="bento" id="games" aria-label="Spiele"></section>
+    <div class="sec"><h2>Deine Bestwerte</h2><small id="bsN"></small></div>
+    <div class="stats" id="stats"></div>
   </main>
   <aside class="side">
     <div class="sec"><h2>Rangliste</h2><small>Gesamt · alle Spiele</small></div>
@@ -148,44 +143,22 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 </nav></div>
 <span id="bbChip" hidden></span>
 <script src="art.js?v=20261111b"></script>
-<script src="bb.js?v=20261116e"></script>
+<script src="bb.js?v=20261117a"></script>
 <script>
 'use strict';
 const IMG = k => 'krieg/img/' + k + '.jpg';
+// Aktive Spiele. Archiv (vorerst raus, Code bleibt): Bandenkrieg, Kräuter-Match, Bandenhof, Kneipen-Duell, Bubatz-Quiz
 const GAMES = [
-  { k: 'ernte', url: 'ernte/', name: 'Erntezeit', who: 'artur', art: 'ernte/key.jpg', text: 'Zombie-Shooter auf Hof und Friedhof.', tag: 'Shooter', neu: 1 },
-  { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', who: 'marwin', art: 'drill/key.jpg', text: 'Idle: Dein Schiff bohrt Pixel-Planeten weg.', tag: 'Idle' },
-  { k: 'runner', url: 'runner/', name: 'Kobold-Runner', who: 'kobold', text: 'Springen, rutschen, Gold sammeln.', tag: 'Endlos' },
-  { k: 'krieg', url: 'krieg/', name: 'Bandenkrieg', who: 'artur', text: 'Kampagne mit 8 Schlachten.', tag: 'Strategie' },
-  { k: 'match', url: 'match/', name: 'Kräuter-Match', who: 'molly', text: 'Drei in eine Reihe, Level ohne Ende.', tag: 'Puzzle' },
-  { k: 'hof', url: 'hof/', name: 'Bandenhof', who: 'lg3', text: 'Bau den Hof aus, läuft auch offline.', tag: 'Aufbau' },
-  { k: 'duell', url: 'duell/', name: 'Kneipen-Duell', who: 'don', text: '1 gegen 1 auf einem Handy.', tag: '1 gegen 1' },
-  { k: 'quiz', url: 'quiz/', name: 'Bubatz-Quiz', who: 'nille', text: 'Party-Quiz mit Freunden am Handy.', tag: 'Party' },
-  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', who: 'koenig', text: '3D-Schach mit Ego-Duellen.', tag: 'Online' }
-];
-// Karussell oben: was gerade neu oder groß ist
-const SLIDES = [
-  { k: 'ernte', kk: 'Neu · Shooter', t: 'Erntezeit', p: 'Zombie-Bauern, Traktor-Boss und eine Hacke in der Scheune.', img: 'ernte/key.jpg', pos: '50% 50%' },
-  { k: 'drill', kk: 'Neu · Idle', t: 'Galaxie-Bohrer', p: 'Dein Schiff bohrt Planeten – auch wenn du offline bist.', img: 'drill/key.jpg', pos: '50% 45%' },
-  { k: 'krieg', kk: 'Kampagne', t: 'Bandenkrieg', p: '8 Schlachten mit der ganzen Bande.', img: 'krieg/img/hero-s.jpg', pos: '55% 40%' },
-  { k: 'match', kk: 'Puzzle', t: 'Kräuter-Match', p: 'Drei in eine Reihe, Level ohne Ende.', img: IMG('molly'), pos: '50% 30%' }
+  { k: 'ernte', url: 'ernte/', name: 'Erntezeit', img: 'ernte/key.jpg', pos: '50% 40%', text: 'Zombie-Bauern, Traktor-Boss und eine Hacke in der Scheune.', tag: 'Shooter', neu: 1, cls: 'big' },
+  { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', img: 'drill/key.jpg', pos: '50% 40%', text: 'Dein Schiff bohrt Planeten, auch offline.', tag: 'Idle', cls: 'tall' },
+  { k: 'runner', url: 'runner/', name: 'Kobold-Runner', img: 'krieg/img/kobold.jpg', pos: '50% 25%', text: 'Springen, rutschen, Gold sammeln.', tag: 'Endlos', cls: '' },
+  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', img: 'krieg/img/koenig.jpg', pos: '50% 25%', text: '3D-Schach mit Ego-Duellen.', tag: 'Online', cls: 'wide' }
 ];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const B = () => window.BB;
 const pic = g => g.art || IMG(g.who);
 const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
-function slides() {
-  const url = k => GAMES.find(g => g.k === k).url;
-  $('slides').innerHTML = SLIDES.map((s, i) => `<div class="slide" data-i="${i}"><img src="${s.img}" alt="" style="object-position:${s.pos}" ${i ? 'loading="lazy"' : ''}><div class="in"><div class="kk">${esc(s.kk)}</div>${i ? `<div class="t">${esc(s.t)}</div>` : `<h1>${esc(s.t)}</h1>`}<div class="row"><p>${esc(s.p)}</p><a class="btn" href="${url(s.k)}">Spielen</a></div></div></div>`).join('');
-  $('dots').innerHTML = SLIDES.map((s, i) => `<button aria-label="${esc(s.t)}" data-d="${i}" class="${i ? '' : 'on'}"></button>`).join('');
-  const sc = $('slides'); let cur = 0, timer;
-  const show = i => sc.scrollTo({ left: i * sc.clientWidth, behavior: 'smooth' });
-  sc.addEventListener('scroll', () => { const i = Math.round(sc.scrollLeft / sc.clientWidth); if (i !== cur) { cur = i; $('dots').querySelectorAll('button').forEach((d, k) => d.classList.toggle('on', k === i)); } }, { passive: true });
-  $('dots').querySelectorAll('button').forEach(d => d.onclick = () => { show(+d.dataset.d); auto(); });
-  const auto = () => { clearInterval(timer); timer = setInterval(() => { if (!document.hidden) show((cur + 1) % SLIDES.length); }, 6000); };
-  sc.addEventListener('touchstart', () => clearInterval(timer), { passive: true }); auto();
-}
 function draw() {
   const b = B(), P = b ? b.profile : null, bg = b && b.meta ? b.meta.bg || 0 : 0;
   // Kopf
@@ -197,14 +170,14 @@ function draw() {
     $('top').innerHTML = `<div class="av"><img src="icon-180.png" alt=""></div><div class="who"><b>Willkommen!</b><div class="rk"><span>Mit Konto: Bestenliste, Freunde & Sammlung</span></div></div><button class="btn sm" data-o="login">Anmelden</button>`;
   }
   $('top').querySelectorAll('[data-o]').forEach(x => x.onclick = () => b && b.open(x.dataset.o));
-  // Weiterspielen: Spiele mit eigenem Bestwert
-  const played = b ? GAMES.filter(g => b.best(g.k)) : [];
-  $('contWrap').hidden = !played.length; $('contN').textContent = played.length + ' gespielt';
-  $('cont').innerHTML = played.map(g => `<a class="cc" href="${g.url}"><img src="${pic(g)}" alt="" loading="lazy"><b>${esc(g.name)}</b><span>Bestwert ${b.fmt(g.k, b.best(g.k).s)}</span></a>`).join('');
-  // Alle Spiele
-  $('nG').textContent = GAMES.length + ' Spiele';
-  $('gAll').innerHTML = GAMES.map(g => { const bs = b && b.best(g.k);
-    return `<a class="gr" href="${g.url}"><img src="${pic(g)}" alt="" loading="lazy"><div class="tx"><b>${esc(g.name)}${g.neu ? '<span class="nw">NEU</span>' : ''}</b><small>${esc(g.text)}</small></div>${bs ? `<span class="bs">${b.fmt(g.k, bs.s)}</span>` : ''}${chev}</a>`; }).join('');
+  // Spiele-Kacheln
+  const go = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
+  $('games').innerHTML = GAMES.map(g => { const bs = b && b.best(g.k);
+    return `<a class="tile ${g.cls}" href="${g.url}"><img src="${g.img}" alt="" style="object-position:${g.pos}"><div class="in"><div class="kk">${g.neu ? '<span class="nw">Neu</span>' : ''}${esc(g.tag)}</div><h3>${esc(g.name)}</h3>${g.cls === 'big' || g.cls === 'tall' ? `<p>${esc(g.text)}</p>` : ''}<div class="ft">${bs ? `<span class="bs">${g.cls === 'big' ? 'Bestwert ' : '🏆 '}${b.fmt(g.k, bs.s)}</span>` : '<span></span>'}<span class="go">${g.cls === 'big' ? 'Spielen' : go}</span></div></div></a>`; }).join('');
+  // Deine Bestwerte
+  const nb = b ? GAMES.filter(g => b.best(g.k)).length : 0; $('bsN').textContent = nb + ' von ' + GAMES.length;
+  $('stats').innerHTML = GAMES.map(g => { const bs = b && b.best(g.k), G = b && b.GAMES ? b.GAMES[g.k] : null;
+    return `<a class="st ${bs ? '' : 'no'}" href="${g.url}"><small>${esc(g.name)}</small><b>${bs ? b.fmt(g.k, bs.s) : '–'}</b><em>${bs ? esc((G && G.unit) || 'Bestwert') : 'noch nicht gespielt'}</em></a>`; }).join('');
   $('cCards').textContent = (b && b.meta ? Object.keys(b.meta.cards).length : 0) + '/30 Karten';
 }
 async function rank() {
@@ -230,8 +203,8 @@ document.querySelectorAll('.tabs [data-tab]').forEach(x => x.onclick = () => {
   else if (b && t === 'rank') b.open('board', '_all');
   else if (b && t === 'friends') b.open(b.loggedIn ? 'friends' : 'login');
 });
-if (location.hash === '#spiele') setTimeout(() => $('spiele').scrollIntoView({ behavior: 'smooth' }), 300);
-slides(); draw(); rank();
+if (location.hash === '#spiele') setTimeout(() => $('games').scrollIntoView({ behavior: 'smooth' }), 300);
+draw(); rank();
 if (window.BB) {
   BB.chip($('bbChip'));
   let last = '';
