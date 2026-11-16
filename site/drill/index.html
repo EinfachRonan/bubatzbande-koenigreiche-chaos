@@ -458,7 +458,7 @@ const WARP = [
 const keepPct = l => 20 + 10 * (l == null ? WP('keep') : l);
 const startCr = l => l ? 300 * Math.pow(8, l - 1) : 0;
 const wpOpen = id => id === 'kraft' || (S.wpu || []).includes(id);
-const wpUnlCost = () => 15; /* neue Warp-Fähigkeit freischalten: immer 15 ✦ */
+const wpUnlCost = () => 10; /* neue Warp-Fähigkeit freischalten: immer 10 ✦ */
 const maxWeapons = () => 2 + WP('slot');
 const NAMES = ['Kräuterhöhle', 'Rostrot', 'Violettia', 'Moosmond', 'Spießerstern', 'Frostkugel', 'Goldader'];
 // Große Zahlen abkürzen: 1.2K, 3.4M, 5.6B … danach aa, ab, ac … (wie in Idle-Spielen)
@@ -536,12 +536,12 @@ const WP = id => S.wp[id] || 0; // Warp-Fähigkeiten starten bei Stufe 0
 // ================== Werte ==================
 const boosting = () => S.boostEnd > Date.now();
 // Warp-Multiplikator: startet bei x1.00, +0.02 pro Warp, +0.02 extra für jedes geschaffte Universum (alle 10 Planeten) in dem Lauf
-// Warp-Multiplikator: +0.02 pro ✦, das der Warp bringt (mindestens +0.02)
-const wmGain = () => Math.round(Math.max(.02, .02 * dmGain()) * 100) / 100;
+// Warp-Multiplikator: +0.01 pro ✦, das der Warp bringt (mindestens +0.02)
+const wmGain = () => Math.round(Math.max(.02, .01 * dmGain()) * 100) / 100;
 const dmBonus = () => (S.wm || 1) * (1 + WP('kraft'));
 // ✦ beim Warp: ab Planet 3 = 1, jeder weitere Planet +1 (Planet 10 = 8), ab Universum 2 (Planet 11+) +2 pro Planet
-// ✦ beim Warp: ab Planet 3 zählt jeder Planet. Der erste bringt 1, alle 2 Planeten bringt jeder Planet 0,5 mehr (1, 1, 1.5, 1.5, 2, 2 ...)
-const dmPer = j => 1 + .5 * Math.floor((j - 1) / 2);
+// ✦ beim Warp: ab Planet 3 zählt jeder Planet. Erst 2 pro Planet, alle 2 Planeten 1 mehr (2, 2, 3, 3, 4, 4 …)
+const dmPer = j => 2 + Math.floor((j - 1) / 2); // 2, 2, 3, 3, 4, 4 … ✦ pro Planet
 const dmGain = () => { let t = 0; for (let j = 1; j <= S.p - 2; j++) t += dmPer(j); return Math.floor(t * (1 + .2 * WP('magnet'))); };
 const mult = () => (1 + .08 * SK('core')) * (1 + HA('dmg')) * (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 2 : 1);
 const crMult = () => (1 + .1 * SK('gold')) * (1 + HA('cr')) * (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('r') * (buf('cr') ? 2 : 1);
@@ -664,7 +664,7 @@ function buildPlanet(removed) {
   if (innerWidth >= 900 && H >= 420) CELL = Math.max(12, Math.min(18, 2 * Math.round(H / 140))); // PC: Planet passt fast ganz ins Bild
   const Rc = boss ? 27 : (p <= 2 ? 11 + rnd() * 4 : 16 + rnd() * 10) + Math.min(4, p * .15); // die ersten Planeten kleiner, damit der Start (auch nach dem Warp) flott geht
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = 12 * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (boss ? 3 : 1), v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = 12 * (p === 1 ? .4 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (boss ? 3 : 1), v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
@@ -1149,7 +1149,7 @@ function render() {
   else if (tab === 'p') {
     const g0 = dmGain();
     L.innerHTML = `<div class="wh wbox"><div class="wrow"><div><small>Warp bringt</small><b id="wgain">✦${fmt(g0)}</b></div><div><small>Multiplikator</small><b class="wm">x${(S.wm || 1).toFixed(2)} → <span id="wmto">x${((S.wm || 1) + wmGain()).toFixed(2)}</span></b></div></div>
-      <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR, Waffen und Skills sind weg, von deinen ◆ behältst du ${keepPct()} % (mehr mit „Kristallspeicher“). Fähigkeiten, Hangar und Werkstatt bleiben. ✦: ab Planet 3 bringt jeder Planet ✦, und alle 2 Planeten gibt's +0,5 mehr pro Planet (gerade +${String(dmPer(Math.max(1, S.p - 1))).replace('.', ',')} pro Planet). Multiplikator: +0.02 pro ✦, das der Warp bringt. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'} · Spielzeit ${(S.play || 0) >= 3600 ? ((S.play || 0) / 3600).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' Std.' : Math.floor((S.play || 0) / 60) + ' Min.'}.</p>
+      <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR, Waffen und Skills sind weg, von deinen ◆ behältst du ${keepPct()} % (mehr mit „Kristallspeicher“). Fähigkeiten, Hangar und Werkstatt bleiben. ✦: ab Planet 3 bringt jeder Planet ✦, und alle 2 Planeten gibt's 1 mehr pro Planet (gerade +${String(dmPer(Math.max(1, S.p - 1))).replace('.', ',')} pro Planet). Multiplikator: +0.01 pro ✦, das der Warp bringt. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'} · Spielzeit ${(S.play || 0) >= 3600 ? ((S.play || 0) / 3600).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' Std.' : Math.floor((S.play || 0) / 60) + ' Min.'}.</p>
       <button class="br" id="wgo" ${g0 ? '' : 'disabled'}>${g0 ? 'WARP-SPRUNG' : 'Ab Planet 3 (noch ' + Math.max(0, 3 - S.p) + ')'}</button></div>
       <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${fmt(S.dm || 0)}</b></div>
       <div class="sk wp6">${WARP.map(w => { const l = WP(w.id), mx = l >= w.max;
@@ -1221,7 +1221,7 @@ function warp() {
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${fmt(n)} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)<br><br>Du behältst <b style="color:var(--txt)">${keepPct()} % deiner ◆</b> (◆${fmt(S.cry)} → ◆${fmt(Math.floor(S.cry * keepPct() / 100))}).<br>CR, Waffen, Planet und Skills werden zurückgesetzt. Fähigkeiten, Hangar und Warp-Werkstatt bleiben.</p>`,
     [['SPRINGEN', () => {
       S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); vib([40, 30, 40, 30, 300]); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
-      S.cry = Math.floor(S.cry * keepPct() / 100); { const e = WP('erbe'), o = S.sk || {}; S.sk = {}; if (e) for (const k in o) S.sk[k] = Math.min(o[k], e); } S.abT = {}; S.buf = {}; S.cr = startCr(WP('start')); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
+      S.cry = Math.floor(S.cry * keepPct() / 100); { const e = WP('erbe'), o = S.sk || {}; S.sk = {}; if (e) for (const k in o) S.sk[k] = Math.min(o[k], e); } S.abT = {}; S.buf = {}; S.cr = Math.max(150, startCr(WP('start'))); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
       toast(`Warp geschafft: ✦${fmt(n)} · Multiplikator x${S.wm.toFixed(2)} · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
