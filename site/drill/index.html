@@ -407,7 +407,6 @@ const tier = id => Math.max(0, S.wo.indexOf(id));
 const owned = () => S.wo.filter(id => WL(id));
 const nextUnl = () => T_UNL[owned().length];
 const RR_MAX = 3;
-function rrState() { const now = Date.now(); if (!S.rr || now - S.rr.t >= 3600e3) S.rr = { n: RR_MAX, t: now }; return S.rr; }
 function offers() {
   const left = WEAP.filter(w => !WL(w.id)).map(w => w.id);
   if (!left.length) return [];
@@ -465,12 +464,31 @@ const myId = () => (logged() && BB.profile && BB.profile.id) || '';
 // Fortschritt als Zahl, damit beim Abgleich nie der weitere Stand verloren geht
 const score = o => (o.pc || 0) * 1e7 + (o.dmAll || 0) * 1e5 + (o.p || 1) * 2000 + Math.min(1999, o.done || 0);
 let pulled = !logged(), lastCloud = 0;
+// Spielstand-Schutz: jedes Gerät hat eine eigene Kennung, jeder Cloud-Stand eine laufende Nummer.
+// Hat ein anderes Gerät inzwischen gespeichert, wird gefragt statt überschrieben.
+const DEV = (() => { try { let d = localStorage.getItem('gb_dev'); if (!d) { d = Math.random().toString(36).slice(2, 10); localStorage.setItem('gb_dev', d); } return d; } catch (e) { return 'x' + Math.random(); } })();
+let lastSn = 0, chkT = 0, conflict = false;
 function save(cloud) {
   S.t = Date.now(); S.last = Date.now(); S.done = G && built ? G.total - G.left : 0; if (myId()) S.own = myId();
   try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
-  if (cloud && logged() && pulled && BB.cloud) { BB.cloud.put('drill', S, cloud === 'now'); lastCloud = Date.now(); }
+  if (cloud && logged() && pulled && BB.cloud && !conflict) cloudSave(cloud === 'now');
   svState();
 }
+async function cloudSave(now) {
+  if (Date.now() - chkT > 15000) { chkT = Date.now();
+    try { const c = await BB.cloud.get('drill'); if (c && c.v === VER && c.dev && c.dev !== DEV && (c.sn || 0) !== lastSn) { showConflict(c); return; } } catch (e) {} }
+  if (conflict) return;
+  S.dev = DEV; S.sn = lastSn + 1; lastSn = S.sn; BB.cloud.put('drill', S, now); lastCloud = Date.now();
+}
+function showConflict(c) {
+  conflict = true; const ago = m => { const d = Math.max(0, Math.round((Date.now() - (m || 0)) / 60000)); return d < 1 ? 'gerade eben' : d < 60 ? 'vor ' + d + ' Min.' : 'vor ' + Math.round(d / 60) + ' Std.'; };
+  const row = (n, o) => `<tr><td>${n}</td><td>Planet ${o.best || 1}</td><td>✦${o.dmAll || 0}</td><td>${o.pc || 0} Warps</td><td>${ago(o.t)}</td></tr>`;
+  overlay(`<h2>Anderes Gerät erkannt</h2><p>Auf einem anderen Gerät wurde mit deinem Konto weitergespielt. Welchen Spielstand willst du behalten?</p>
+    <table class="mtab" style="font-size:11px">${row('Anderes Gerät', c)}${row('Dieses Gerät', S)}</table><p style="font-size:11px;margin-top:8px;color:#ffb86b">Der andere Stand wird dabei überschrieben.</p>`,
+    [['Anderen Stand laden', () => { S = norm(c); cleanSave(); lastSn = c.sn || 0; conflict = false; try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {} buildPlanet(S.done || 0); render(); toast('Stand vom anderen Gerät geladen'); }],
+     ['Diesen Stand behalten', () => { lastSn = c.sn || 0; conflict = false; chkT = Date.now(); save('now'); toast('Dein Stand ist jetzt auf dem Konto'); }]]);
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { chkT = 0; if (pulled && logged()) save(true); } });
 function svState() {
   const el = $('sv'); if (!el) return;
   if (!logged()) { el.className = 'sv'; el.textContent = '💾 nur auf diesem Gerät · Version ' + VLABEL; return; }
@@ -481,9 +499,10 @@ async function pull() {
   if (!logged() || !BB.cloud) { pulled = true; svState(); return; }
   try {
     let c = await BB.cloud.get('drill'); if (c && c.v !== VER) c = null; // alter Stand vom Konto: weg damit
+    if (c) lastSn = c.sn || 0; chkT = Date.now();
     const foreign = S.own && S.own !== myId();
     if (c && typeof c.cr === 'number' && (foreign || score(c) > score(S) || (score(c) === score(S) && (c.t || 0) > (S.t || 0)))) {
-      S = norm(c); try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
+      S = norm(c); cleanSave(); try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
       if (W) buildPlanet(S.done || 0); render(); toast('Spielstand vom Konto geladen');
     } else if (!c && foreign) { S = fresh(); if (W) buildPlanet(0); render(); }
     pulled = true; save('now');
@@ -1066,7 +1085,7 @@ function render() {
       const w = WEAP.find(x => x.id === id), l = WL(id);
       h += `<div class="wp"><div class="wic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${WICO[w.id] || ""}</svg></div><div class="nm" data-wi="${w.id}" style="cursor:pointer"><b>${w.n} <span style="color:var(--cy);font-size:10px">ⓘ</span></b><div class="lv">Lv. ${l}${ST(id) ? ' <span class="stars">★' + ST(id) + '</span>' : ''} · ★ bei ${msNext(l)}</div><div class="dps" data-dps="${w.id}"></div></div><button class="br" data-up="${w.id}"></button><div class="pr"><i style="width:${(l - msPrev(l)) / (msNext(l) - msPrev(l)) * 100}%"></i></div></div>`;
     }
-    const of = offers(), rr = rrState(), full = owned().length >= maxWeapons();
+    const of = offers(), full = owned().length >= maxWeapons();
     if (of.length && full) h += `<div class="wh" style="margin-top:12px"><p>🔒 Alle ${maxWeapons()} Waffenslots belegt.<br>Mehr Slots gibt's in der <b style="display:inline;font-size:12px;color:#c9a2ff">Warp-Werkstatt</b> (Warp-Fähigkeit „Waffenslots“).</p></div>`;
     if (of.length && !full) {
       h += `<div class="skh" style="margin-top:12px"><span>Nächste Waffe · ${fmt(nextUnl())} CR</span><b style="font-size:13px">Slots ${owned().length}/${maxWeapons()}</b></div><div class="offer">${of.map(id => { const w = WEAP.find(x => x.id === id); return `<button class="br" data-unl="${id}"><b>${w.n}</b><small>${w.d}</small><span>${fmt(nextUnl())} CR</span></button>`; }).join('')}</div>
@@ -1725,6 +1744,19 @@ let hiddenAt = 0;
 document.addEventListener('visibilitychange', () => { if (document.hidden) { hiddenAt = Date.now(); save(true); window.BB && BB.cloud && BB.cloud.flush(); } else if (hiddenAt) { const t = hiddenAt; hiddenAt = 0; offline(t); } });
 window.addEventListener('pagehide', () => save(true));
 
+// Alte Spielstände aufräumen: Felder von früheren Versionen entfernen, kaputte Verweise reparieren
+function cleanSave() {
+  HL(); delete S.xp; delete S.rr; delete S.coin; if (S.sk) delete S.sk.off;
+  S.dup = S.dup || {}; for (const k in S.dup) if (!S.dup[k] || !IT(k)) delete S.dup[k];
+  for (const k in S.inv) if (!IT(k)) delete S.inv[k];
+  for (const sl of ['h', 'r', 't']) if (!S.inv[S.eq[sl]]) { const it = ITEMS.find(x => x.s === sl && S.inv[x.id]); if (it) S.eq[sl] = it.id; else { const b0 = { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }[sl]; S.inv[b0] = 1; S.eq[sl] = b0; } }
+  for (const k in (S.ab || {})) if (!ABIL.find(a => a.id === k)) delete S.ab[k];
+  S.hot = (S.hot || []).slice(0, 5).map(x => x && S.ab && S.ab[x] ? x : null);
+  for (const k in (S.wp || {})) if (!WARP.find(w => w.id === k)) delete S.wp[k];
+  S.wo = (S.wo || ['line']).filter(id => WEAP.find(w => w.id === id)); if (!S.wo.length) S.wo = ['line'];
+  for (const k in (S.mod || {})) if (!MODS[k]) delete S.mod[k];
+}
+cleanSave();
 $('mul').onclick = mulInfo; resize(); hotbar(true); render(); requestAnimationFrame(loop); svState();
 
 // Erster Start: kurzes Titelbild mit den wichtigsten Infos (einmal pro Gerät)
