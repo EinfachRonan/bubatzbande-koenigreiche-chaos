@@ -17,6 +17,7 @@
     runner: { name: 'Kobold-Runner', ico: '🏃', unit: 'Punkte', what: 'Bester Lauf', url: 'runner/', meta: m => m && m.m ? `${m.m.toLocaleString('de-DE')} m · 🪙 ${m.c}` : '' },
     hof: { name: 'Bandenhof', ico: '🏡', unit: 'Gold', what: 'Gold verdient', url: 'hof/', fmt: n => n >= 1e6 ? (n / (n >= 1e9 ? 1e9 : 1e6)).toLocaleString('de-DE', { maximumFractionDigits: 2 }) + (n >= 1e9 ? ' Mrd' : ' Mio') : Math.round(n).toLocaleString('de-DE'), meta: m => m && m.b != null ? `${m.l ? 'Hof-Stufe ' + m.l + ' · ' : ''}${m.b}/8 Bande` : '' },
     drill: { name: 'Galaxie-Bohrer', ico: '🚀', unit: 'Planeten', what: 'Höchster Planet', url: 'drill/', meta: m => m ? [m.pt ? '⏱ ' + (m.pt >= 3600 ? (m.pt / 3600).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' Std.' : Math.floor(m.pt / 60) + ' Min.') : '', m.n, m.w != null ? m.w + ' Warps' : '', m.d ? fmtN(m.d) + ' DPS' : ''].filter(Boolean).join(' · ') : '' },
+    ernte: { name: 'Erntezeit', ico: '🧟', unit: 'Punkte', what: 'Bester Lauf', url: 'ernte/', meta: m => m && m.w ? `Welle ${m.w}${m.k ? ' · ' + m.k + ' Kills' : ''}${m.m ? ' · ' + m.m : ''}` : '' },
     schach: { name: 'Schlagabtausch', ico: '♞', unit: '', what: 'Schnellster Sieg gegen Herrn Holz', url: 'schach/', asc: true, fmt: fmtTime, meta: m => m && m.d ? String(m.d) : '' }
   };
   const ACH = [
@@ -66,6 +67,14 @@
     ['drill_100', '⚡', 'Überladen', 'Eine Waffe im Galaxie-Bohrer auf Stufe 100'],
     ['drill_warp', '🌀', 'Warp-Pilot', 'Im Galaxie-Bohrer den ersten Warp-Sprung gemacht'],
     ['drill_legende', '🛸', 'Legendärer Hangar', 'Im Galaxie-Bohrer ein legendäres Schiffsteil gezogen'],
+    ['ernte_w5', '🌾', 'Erntehelfer', 'Erntezeit: Welle 5 überlebt'],
+    ['ernte_w10', '🌙', 'Nachtschicht', 'Erntezeit: Welle 10 überlebt'],
+    ['ernte_w20', '🌅', 'Bis zum Morgengrauen', 'Erntezeit: Welle 20 überlebt'],
+    ['ernte_toni', '🚜', 'Traktor gestoppt', 'Erntezeit: Traktor-Toni besiegt'],
+    ['ernte_friedhof', '⚰️', 'Totengräber', 'Erntezeit: Welle 10 auf dem Friedhof überlebt'],
+    ['ernte_head', '🎯', 'Kopfjäger', 'Erntezeit: 100 Kopfschüsse insgesamt'],
+    ['ernte_hacke', '⛏️', 'Gartenarbeit', 'Erntezeit: 50 Zombies im Nahkampf erledigt'],
+    ['ernte_kills', '🧟', 'Seuchenbekämpfer', 'Erntezeit: 1.000 Zombies insgesamt'],
     ['allrounder', '🏆', 'Allrounder', 'In allen Spielen auf der Bestenliste']
   ];
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
