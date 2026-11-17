@@ -1009,6 +1009,32 @@ const SC = document.createElement('canvas'), scg = SC.getContext('2d'); SC.width
 // Schiff-Sprites (Higgsfield-Pixel-Art), falls vorhanden: ships/<id>.png, Nase zeigt nach oben
 const SPR = {};
 function shipSpr(id) { if (!(id in SPR)) { const im = new Image(); im.onload = () => im.ok = true; im.onerror = () => {}; im.src = 'ships/' + id + '.png'; SPR[id] = im; } return SPR[id].ok ? SPR[id] : null; }
+// Rumpf als echte Pixel-Art: Umriss wird auf ein Pixelraster gerechnet, mit Kontur, Licht von rechts oben,
+// Flügel in der Rumpffarbe, Cockpitglas und Düsen – Nase zeigt im Bild nach oben
+const HPX = {};
+function hullPix(hull) {
+  if (HPX[hull.id]) return HPX[hull.id];
+  const N = 36, cv2 = document.createElement('canvas'); cv2.width = cv2.height = N; const q = cv2.getContext('2d'), sc = 1.05;
+  const pts = hull.poly.map(([x, y]) => [x * sc, -y * sc]); // y spiegeln: Nase nach oben
+  const inside = (x, y) => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, yi] = pts[i], [xj, yj] = pts[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+  const hc = hull.col.length === 7 ? hull.col : '#ffffff', A = [mixH(hc, '#ffffff', .35), hc, mixH(hc, '#000000', .35), mixH(hc, '#000000', .6)];
+  const M = []; for (let py = 0; py < N; py++) { M[py] = []; for (let px = 0; px < N; px++) M[py][px] = inside(px - N / 2 + .5, py - N / 2 + .5); }
+  const ys = pts.map(p => p[1]), top = Math.min(...ys), bot = Math.max(...ys), xs = pts.map(p => Math.abs(p[0])), half = Math.max(...xs);
+  for (let py = 0; py < N; py++) for (let px = 0; px < N; px++) { if (!M[py][px]) continue;
+    const x = px - N / 2 + .5, y = py - N / 2 + .5, edge = !(M[py - 1] && M[py - 1][px]) || !(M[py + 1] && M[py + 1][px]) || !M[py][px - 1] || !M[py][px + 1];
+    let col;
+    if (edge) col = '#0a1420';
+    else { const ny = (y - top) / (bot - top || 1), wing = Math.abs(x) > half * .42, light = x * .08 - ny * .9 + 1; // hell oben/rechts, dunkler unten/links
+      const t = light > .75 ? 0 : light > .35 ? 1 : light > 0 ? 2 : 3;
+      if (wing) col = A[Math.min(3, t)];
+      else col = ['#ffffff', '#dfe8ee', '#9fb0bd', '#5a6a7a'][t];
+      if (Math.abs(x) < 2.2 && ny > .16 && ny < .42) col = ny < .22 ? '#e8ffff' : Math.abs(x) < 1 ? '#5ce8f0' : '#2b8fa0'; // Cockpit
+      if (Math.abs(x) < .8 && ny <= .16) col = '#ffffff'; // Nasenkante
+      if (wing && Math.abs(Math.abs(x) - half * .62) < .6 && ny > .45) col = '#5ce8f0'; // Leuchtstreifen auf den Flügeln
+      if (ny > .9 && Math.abs(x) < half * .5) col = '#26303a'; } // Düsenbereich
+    q.fillStyle = col; q.fillRect(px, py, 1, 1); }
+  return HPX[hull.id] = cv2;
+}
 function drawShip() {
   const hull = eqItem('h'), reac = eqItem('r'), eng = eqItem('t'), nf = eng.f || 1;
   scg.clearRect(0, 0, 44, 44); scg.save(); scg.translate(22, 22); scg.rotate(ship.ang); scg.scale(1, 1);
@@ -1017,16 +1043,10 @@ function drawShip() {
     scg.fillStyle = '#fff'; scg.fillRect(ox - 1, -10, 2, 2); }
   const spr = shipSpr(hull.id);
   if (spr) { scg.save(); scg.rotate(Math.PI); scg.imageSmoothingEnabled = false; scg.drawImage(spr, -17, -17, 34, 34); scg.restore(); }
-  else { // Pixel-Art-Rumpf wie im Titelbild: heller Rumpf, dunkle Kontur, eine Seite schattiert, Cockpit-Glas
-    const hc = hull.col.length === 7 ? hull.col : '#ffffff', path = () => { scg.beginPath(); hull.poly.forEach(([x, y], k) => k ? scg.lineTo(x, y) : scg.moveTo(x, y)); scg.closePath(); };
-    scg.lineJoin = 'miter'; path(); scg.fillStyle = mixH(hc, '#ffffff', .55); scg.fill();
-    scg.save(); path(); scg.clip(); scg.fillStyle = mixH(hc, '#1a2a3a', .45); scg.fillRect(-20, -20, 20, 40); scg.fillStyle = 'rgba(255,255,255,.55)'; scg.fillRect(-1, -14, 2, 26); scg.restore();
-    scg.strokeStyle = '#0a1420'; scg.lineWidth = 1.6; path(); scg.stroke(); scg.strokeStyle = hc; scg.lineWidth = .8; scg.globalAlpha = .9; path(); scg.stroke(); scg.globalAlpha = 1;
-    scg.fillStyle = '#0a1420'; scg.beginPath(); scg.moveTo(0, 11); scg.lineTo(-3.5, 3); scg.lineTo(3.5, 3); scg.fill();
-    scg.fillStyle = '#5ce8f0'; scg.beginPath(); scg.moveTo(0, 9.5); scg.lineTo(-2.2, 4); scg.lineTo(2.2, 4); scg.fill(); scg.fillStyle = '#e8ffff'; scg.fillRect(-1, 5, 1, 2); }
+  else { scg.save(); scg.rotate(Math.PI); scg.imageSmoothingEnabled = false; scg.drawImage(hullPix(hull), -18, -18, 36, 36); scg.restore(); }
   scg.fillStyle = reac.col; scg.fillRect(-2, -3, 4, 4); scg.fillStyle = '#fff'; scg.fillRect(-1, -2, 2, 2);
   scg.restore();
-  const z = 1, sz = 44 * z; g.imageSmoothingEnabled = false;
+  const z = 1.1, sz = 44 * z; g.imageSmoothingEnabled = false;
   g.globalCompositeOperation = 'lighter'; g.globalAlpha = .35; g.drawImage(SC, ship.x - sz / 2 - 1, ship.y - sz / 2 - 1, sz + 2, sz + 2); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   g.drawImage(SC, ship.x - sz / 2, ship.y - sz / 2, sz, sz); g.imageSmoothingEnabled = true;
 }
