@@ -345,6 +345,27 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 /* Menü zugeklappt: nur Hotbar + Leiste, Rest ist Spielfeld */
 #app.fold .list{display:none}
 #app.fold .panel{height:auto!important;max-height:none}
+/* ===== 8-Bit-Menüs im Stil alter Handheld-RPGs: Pixelschrift, dicke Doppelrahmen, abgeschnittene Pixel-Ecken ===== */
+@font-face{font-family:VT323;src:url(../fonts/vt323.woff2) format("woff2");font-display:swap}
+:root{--mono:VT323,ui-monospace,monospace;--px:polygon(0 4px,4px 4px,4px 0,calc(100% - 4px) 0,calc(100% - 4px) 4px,100% 4px,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px))}
+.panel,.ov,.hud{font-size-adjust:.56}
+.panel *,.ov *{letter-spacing:.02em}
+/* Fenster = Textbox: dunkelblau, weißer Doppelrahmen */
+.ov .bx{background:#141c33!important;border:4px solid #f4f4ec!important;border-radius:10px;box-shadow:0 0 0 3px #141c33,0 0 0 6px #5a6a9a,inset 0 0 0 2px #2a3a66!important;image-rendering:pixelated}
+.ov h2{font-family:Silkscreen,var(--mono);font-weight:400;letter-spacing:.06em;color:#ffe94d;text-shadow:2px 2px 0 #000}
+.ov p{color:#e8ecf8}
+/* Knöpfe & Karten: harte Kanten, Pixel-Ecken, Schlagschatten wie gedrückte Tasten */
+.br,.sk button,.hs,.nav button,.crates .br,.offer .br,.inv2 button,.hslots button,.cbox,.wrow,.su{clip-path:var(--px)}
+.br{border-width:3px!important;box-shadow:inset 0 -4px 0 rgba(0,0,0,.45),inset 0 3px 0 rgba(255,255,255,.08)!important}
+.br:active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 -1px 0 rgba(0,0,0,.45)!important}
+.sk button,.hs{border-width:3px!important}
+.nav button{border:3px solid #2a3240!important}
+.nav button.on{border-color:#ffe94d!important;color:#ffe94d!important;background:#1a1a0c!important}
+.nav button.on::before{content:"▶";position:absolute;left:5px;top:50%;transform:translateY(-50%);font-size:10px;color:#ffe94d;animation:blinkC 1s steps(2) infinite}
+@keyframes blinkC{50%{opacity:0}}
+.sk button small,.inv2 small,.hslots small,.offer small{font-size:13px!important;line-height:1.15}
+.skh{border-bottom:2px dashed #2a3240;padding-bottom:4px}
+.skh span,.skh b{font-family:Silkscreen,var(--mono);font-weight:400}
 /* Kleine Handys (z. B. iPhone SE): Spielfeld etwas kleiner, unten mehr Platz zum Bedienen */
 @media (max-height:760px){
   .panel{height:calc(100% - 300px);max-height:none}
