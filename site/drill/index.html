@@ -1643,7 +1643,7 @@ function openMulti(k, n) {
   const flip = el => { if (el.classList.contains('on')) return; el.classList.add('on'); const r = el.dataset.r; SND.fx.up();
     setTimeout(() => { el.classList.add('r-' + r); if (r === 'l' || r === 'e') { const P = el.querySelector('.fx-p'), m = r === 'l' ? 30 : 12; for (let q = 0; q < m; q++) { const sp = document.createElement('i'), an = Math.random() * 6.283, d = 40 + Math.random() * (r === 'l' ? 80 : 40); sp.style.cssText = `--dx:${Math.cos(an) * d}px;--dy:${Math.sin(an) * d}px;--dl:${Math.random() * .2}s;--sz:${2 + Math.random() * 4}px`; P.appendChild(sp); } SND.fx.win(); }
       if (r === 'l') { vib([80, 50, 80, 50, 220]); shake = 14; toast('★ LEGENDÄR! ★'); if (window.BB) BB.unlock('drill_legende'); } else if (r === 'e') vib(40);
-      if (![...ovb.querySelectorAll('.flip.mini')].some(x => !x.classList.contains('on'))) { $('msum').classList.add('on'); all.style.display = 'none'; nx.style.visibility = ''; } }, 450); };
+      if (!$('msum')) return; if (![...ovb.querySelectorAll('.flip.mini')].some(x => !x.classList.contains('on'))) { $('msum').classList.add('on'); all.style.display = 'none'; nx.style.visibility = ''; } }, 450); };
   ovb.querySelectorAll('.flip.mini').forEach(el => el.onclick = () => flip(el));
   all.onclick = e => { e.stopPropagation(); [...ovb.querySelectorAll('.flip.mini:not(.on)')].forEach((el, q) => setTimeout(() => flip(el), q * 140)); };
 }
