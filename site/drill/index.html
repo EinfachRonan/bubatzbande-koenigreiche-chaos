@@ -1137,11 +1137,13 @@ function megaBeam(x1, y1, x2, y2, lv, col, w, alpha) {
   g.globalAlpha = A; g.strokeStyle = T >= 1 ? '#ffffff' : c; g.lineWidth = Math.max(1, W0 * (T >= 1 ? .75 : 1) * (T >= 1 ? .8 + Math.random() * .4 : 1)); line();
   if (T >= 2) { // Energie-Spiralen, die sich um den Strahl winden
     const n = T >= 4 ? 3 : 2, amp = W0 * (1.6 + T * .7), seg = Math.max(10, Math.min(40, L / 8 | 0)), sc = T >= 3 ? '#c8f0ff' : c;
-    g.strokeStyle = sc; g.lineWidth = 1.2 + T * .45; g.globalAlpha = .9 * A;
-    for (let j = 0; j < n; j++) { g.beginPath();
-      for (let k = 0; k <= seg; k++) { const f = k / seg, sd = f * L, env = Math.min(1, sd / 26) * (1 - f * .25), o = Math.sin(sd * .085 - tt * 16 + j * 6.283 / n) * amp * env;
-        const px = x1 + dx * f + nx * o, py = y1 + dy * f + ny * o; k ? g.lineTo(px, py) : g.moveTo(px, py); }
-      g.stroke(); }
+    // 8-Bit: Spiralen aus kleinen Pixeln, vorne heller, hinten dunkler (wirkt wie eine Schraube um den Strahl)
+    const ps = T >= 4 ? 3 : 2, step = ps + 1, nn = Math.min(160, L / step | 0);
+    for (let j = 0; j < n; j++) for (let k = 0; k <= nn; k++) { const sd = k * step, f = sd / L, env = Math.min(1, sd / 26) * (1 - f * .25), ph = sd * .085 - tt * 16 + j * 6.283 / n, o = Math.sin(ph) * amp * env, front = Math.cos(ph) > 0;
+      g.fillStyle = front ? (T >= 3 ? '#ffffff' : sc) : c; g.globalAlpha = (front ? .95 : .4) * A;
+      g.fillRect(Math.round(x1 + dx * f + nx * o - ps / 2), Math.round(y1 + dy * f + ny * o - ps / 2), ps, ps); }
+    // Funken, die am Strahl entlang nach vorne schießen
+    g.fillStyle = T >= 3 ? '#e6f8ff' : sc; for (let k = 0; k < 4 + T * 2; k++) { const f = ((tt * (1.4 + k * .17) + k * .37) % 1), o = Math.sin(k * 7.1 + tt * 9) * W0 * 1.5; g.globalAlpha = (1 - f) * .9 * A; g.fillRect(Math.round(x1 + dx * f + nx * o) - 1, Math.round(y1 + dy * f + ny * o) - 1, 2, 2); }
     // Energiekugel am Schiff + Aufprall
     const pr = W0 * (1.6 + .35 * T) * (1 + .18 * Math.sin(tt * 22)); g.fillStyle = c; g.globalAlpha = .35 * A; g.beginPath(); g.arc(x1, y1, pr * 1.8, 0, 7); g.fill();
     g.fillStyle = '#ffffff'; g.globalAlpha = .9 * A; g.beginPath(); g.arc(x1, y1, pr * .7, 0, 7); g.fill();
@@ -1477,15 +1479,11 @@ const HULLAB = {
 const hullK = () => 1 + .2 * (ILV(eqItem('h').id) - 1);
 // Jeder Rumpf feuert eine eigene Basisattacke in Blickrichtung. Je seltener, desto stärker. Stärke wächst mit dem Hangar-Level.
 const HRF = { g: .15, s: .3, e: .6, l: 1.2 };
+// Eigene Attacken haben nur die legendären Rümpfe – als große Spezial-Attacke mit Abklingzeit (statt Dauerfeuer).
+// Alle anderen Rümpfe geben ihren passiven Bonus (HULLAB).
 const HATK = {
-  h_pfeil: { n: 'Pfeilhagel', d: 'Weiße Pfeile, fliegen durch 2 Blöcke', cd: 1.2 },
-  h_kobold: { n: 'Kobold-Granaten', d: 'Granaten im Bogen, explodieren 3×3', cd: 1.6 },
-  h_blatt: { n: 'Kräuter-Shuriken', d: '3 drehende Wurfsterne, schneiden durch 4 Blöcke', cd: 1.4 },
-  h_molly: { n: 'Krabbler', d: 'Kleine Viecher krabbeln zu Blöcken und explodieren', cd: 1.6 },
-  h_geist: { n: 'Geisterseelen', d: 'Seelen suchen sich selbst Erze und Blöcke', cd: 1.3 },
-  h_don: { n: 'Goldbomber', d: 'Dicke Goldbomben fallen, explodieren 5×5', cd: 2 },
-  h_koenig: { n: 'Königsbann', d: 'Breiter Laser + Schockwelle ums Schiff', cd: 2.4 },
-  h_drache: { n: 'Drachenfeuer', d: 'Dauerhafter Flammenkegel', cd: .2 }
+  h_koenig: { n: 'Kronen-Shuriken', d: 'Riesiger goldener Wurfstern schneidet durch den Planeten und kommt wie ein Bumerang zurück', cd: 6 },
+  h_drache: { n: 'Nullraum-Schlund', d: 'Öffnet ein Schwarzes Loch, das 3 s lang alle Blöcke drumrum zermalmt', cd: 8 }
 };
 const hullAK = () => 1 + .1 * (ILV(eqItem('h').id) - 1); // Rumpf-Attacke wächst langsamer als der Rumpf-Bonus
 const hullPow = () => HRF[eqItem('h').r] * hullAK();
@@ -1501,10 +1499,23 @@ function hentsStep(dt) {
     else if (e.k === 'wisp') { if (e.tg < 0 || !G.alive[e.tg]) { let best = -1, bd = 1e18; for (let i = 0; i < G.alive.length; i += 1) if (G.alive[i] && G.ore[i]) { const [x, y] = cellXY(i), d = (x - e.x) ** 2 + (y - e.y) ** 2; if (d < bd) { bd = d; best = i; } } e.tg = best >= 0 && bd < (CELL * 22) ** 2 ? best : nearest(e.x, e.y); }
       if (e.tg >= 0) { const [tx, ty] = cellXY(e.tg), dx = tx - e.x, dy = ty - e.y, dl = Math.hypot(dx, dy) || 1; e.vx += (dx / dl * 420 - e.vx) * dt * 3; e.vy += (dy / dl * 420 - e.vy) * dt * 3; }
       e.x += e.vx * dt; e.y += e.vy * dt; e.tr = (e.tr || []); e.tr.push([e.x, e.y]); if (e.tr.length > 8) e.tr.shift(); const i = cellAt(e.x, e.y); if (i >= 0 && G.alive[i]) { boomAt(e.x, e.y, 1, e.d / 4, '223,230,255'); dead = true; } }
+    else if (e.k === 'kshu') { e.rot += dt * 18; if (e.t < 3.2 - e.out) { const dx = ship.x - e.x, dy = ship.y - e.y, dl = Math.hypot(dx, dy) || 1; if (!e.back) { e.back = 1; e.seen.clear(); } e.vx += (dx / dl * 520 - e.vx) * dt * 4; e.vy += (dy / dl * 520 - e.vy) * dt * 4; if (dl < 14) dead = true; }
+      e.x += e.vx * dt; e.y += e.vy * dt; e.tr = e.tr || []; e.tr.push([e.x, e.y]); if (e.tr.length > 10) e.tr.shift();
+      for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) { const i = cellAt(e.x + a * CELL, e.y + b * CELL); if (i >= 0 && G.alive[i] && !e.seen.has(i)) { e.seen.add(i); hit(i, e.d); if (Math.random() < .3) fx.push({ k: 'pop', x: e.x + a * CELL, y: e.y + b * CELL, t: .2 }); } } }
+    else if (e.k === 'hole') { if ((e.tick -= dt) <= 0) { e.tick = .15; const n = 4; let c = 0; for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) if (a * a + b * b <= n * n) { const i = cellAt(e.x + a * CELL, e.y + b * CELL); if (i >= 0 && G.alive[i]) { hit(i, e.d / 6); c++; } } }
+      if (e.t <= dt) { boomAt(e.x, e.y, 3, e.d * 2, '255,79,216'); shake = Math.max(shake, 6); SND.fx.boom && SND.fx.boom(); } }
     if (dead) hents.splice(k, 1); }
 }
 function hentsDraw() {
   for (const e of hents) {
+    if (e.k === 'kshu') { const tq = performance.now() / 1000; (e.tr || []).forEach((p, k) => { g.globalAlpha = k / 22; g.fillStyle = '#ffb43a'; g.beginPath(); g.arc(p[0], p[1], 6 + k, 0, 7); g.fill(); }); g.globalAlpha = 1;
+      g.save(); g.translate(e.x, e.y); g.rotate(e.rot); g.shadowColor = '#ffd23f'; g.shadowBlur = 18; g.fillStyle = '#ffd23f'; g.beginPath(); for (let k = 0; k < 8; k++) { const r = k % 2 ? 7 : 24, a = k * Math.PI / 4; g.lineTo(Math.cos(a) * r, Math.sin(a) * r); } g.closePath(); g.fill(); g.shadowBlur = 0;
+      g.fillStyle = '#fff3b0'; g.beginPath(); for (let k = 0; k < 8; k++) { const r = k % 2 ? 3 : 11, a = k * Math.PI / 4; g.lineTo(Math.cos(a) * r, Math.sin(a) * r); } g.closePath(); g.fill(); g.fillStyle = '#6e3a0c'; g.beginPath(); g.arc(0, 0, 3.5, 0, 7); g.fill(); g.restore(); continue; }
+    if (e.k === 'hole') { const gco0 = g.globalCompositeOperation, tq = performance.now() / 1000, life = e.t / e.t0, grow = Math.min(1, (1 - life) * 6), R0 = CELL * 4.5 * grow;
+      g.globalCompositeOperation = 'source-over'; const gr = g.createRadialGradient(e.x, e.y, R0 * .2, e.x, e.y, R0 * 1.4); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(.45, 'rgba(10,0,20,.95)'); gr.addColorStop(1, 'rgba(60,0,80,0)'); g.fillStyle = gr; g.beginPath(); g.arc(e.x, e.y, R0 * 1.4, 0, 7); g.fill();
+      g.globalCompositeOperation = 'lighter'; g.lineWidth = 3; for (let j = 0; j < 3; j++) { g.strokeStyle = j % 2 ? '#ff4fd8' : '#ff4f7a'; g.globalAlpha = .7; g.beginPath(); g.ellipse(e.x, e.y, R0 * (.65 + j * .12), R0 * (.25 + j * .05), tq * (2 + j) , 0, 7); g.stroke(); }
+      g.fillStyle = '#ffb0f0'; for (let k = 0; k < 18; k++) { const a = tq * 5 + k * 2.4, rr = R0 * (1.3 - ((tq * .9 + k * .13) % 1)); g.globalAlpha = .8; g.fillRect(e.x + Math.cos(a) * rr - 1.5, e.y + Math.sin(a) * rr - 1.5, 3, 3); }
+      g.globalAlpha = 1; g.fillStyle = '#000'; g.globalCompositeOperation = 'source-over'; g.beginPath(); g.arc(e.x, e.y, R0 * .32, 0, 7); g.fill(); g.globalCompositeOperation = gco0; continue; }
     if (e.k === 'arrow') { const l = Math.hypot(e.vx, e.vy), ux = e.vx / l, uy = e.vy / l; g.strokeStyle = '#f4fbff'; g.lineWidth = 3; g.beginPath(); g.moveTo(e.x - ux * 22, e.y - uy * 22); g.lineTo(e.x, e.y); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(e.x + ux * 5, e.y + uy * 5); g.lineTo(e.x - uy * 3, e.y + ux * 3); g.lineTo(e.x + uy * 3, e.y - ux * 3); g.fill(); }
     else if (e.k === 'shu') { g.save(); g.translate(e.x, e.y); g.rotate(e.rot); g.fillStyle = '#5fe36b'; g.beginPath(); for (let k = 0; k < 8; k++) { const r = k % 2 ? 3.5 : 12, a = k * Math.PI / 4; g.lineTo(Math.cos(a) * r, Math.sin(a) * r); } g.closePath(); g.fill(); g.fillStyle = '#0b2a0e'; g.fillRect(-1.5, -1.5, 3, 3); g.restore(); }
     else if (e.k === 'gren') { const t = Math.min(1, e.t), x = e.x0 + (e.tx - e.x0) * t, y = e.y0 + (e.ty - e.y0) * t, dx = e.tx - e.x0, dy = e.ty - e.y0, dl = Math.hypot(dx, dy) || 1, h = Math.sin(t * Math.PI) * dl * .35 * e.sd;
@@ -1528,9 +1539,11 @@ function hullAtk(dt, face) {
     case 'h_molly': if (hents.filter(e => e.k === 'crit').length < 10) for (let k = 0; k < 2; k++) hents.push({ k: 'crit', x: ship.x, y: ship.y, d: bud / 2, t: 6, ph: Math.random() * 6, tg: -1, sp: 90 + Math.random() * 40 }); break;
     case 'h_geist': for (let k = 0; k < 2; k++) { const a = face + (k ? .9 : -.9); hents.push({ k: 'wisp', x: ship.x, y: ship.y, vx: Math.cos(a) * 160, vy: Math.sin(a) * 160, d: bud / 2, t: 4, tg: -1 }); } break;
     case 'h_don': { const i = tgt(6, 120); if (i >= 0) { const [tx, ty] = cellXY(i); hents.push({ k: 'bomb', x0: ship.x, y0: ship.y, tx, ty, t: 0, d: bud }); } break; }
-    case 'h_koenig': { lanceShot(face, bud * 1.5, 2); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ship.x + Math.cos(face) * G.R * 2, y2: ship.y + Math.sin(face) * G.R * 2, t: .35, w: 5, c: '#ffb43a' });
+    case 'h_koenig': hents.push({ k: 'kshu', x: ship.x, y: ship.y, vx: Math.cos(face) * 380, vy: Math.sin(face) * 380, d: bud / 18, t: 3.2, out: .85, rot: 0, seen: new Set() }); SND.fx.boom && SND.fx.boom(); break;
+    case 'h_drache': { const i = tgt(6, 40); const [hx, hy] = i >= 0 ? cellXY(i) : [ship.x + Math.cos(face) * CELL * 6, ship.y + Math.sin(face) * CELL * 6]; hents.push({ k: 'hole', x: hx, y: hy, t: 3, t0: 3, tick: 0, d: bud / 20 }); shake = Math.max(shake, 3); break; }
+    case 'h_koenig_alt': { lanceShot(face, bud * 1.5, 2); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ship.x + Math.cos(face) * G.R * 2, y2: ship.y + Math.sin(face) * G.R * 2, t: .35, w: 5, c: '#ffb43a' });
       const n = 4, c0 = cellAt(ship.x, ship.y); for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) if (a * a + b * b <= n * n) hit(cellAt(ship.x + a * CELL, ship.y + b * CELL), bud * .08); fx.push({ k: 'nova', x: ship.x, y: ship.y, r: CELL * (n + 1), t: .4, c: '255,180,58' }); break; }
-    case 'h_drache': for (let k = 0; k < 4; k++) { const a = face + (Math.random() - .5) * .6; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 360, vy: Math.sin(a) * 360, d: bud / 4 / .6, t: .35 + Math.random() * .15, c: Math.random() < .5 ? '#ff4f7a' : '#ffb43a' }); } break;
+    case 'h_drache_alt': for (let k = 0; k < 4; k++) { const a = face + (Math.random() - .5) * .6; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 360, vy: Math.sin(a) * 360, d: bud / 4 / .6, t: .35 + Math.random() * .15, c: Math.random() < .5 ? '#ff4f7a' : '#ffb43a' }); } break;
   }
 }
 const HA = k => { const a = HULLAB[eqItem('h').id] || {}; return (a[k] || 0) * hullK(); };
