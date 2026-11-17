@@ -1072,7 +1072,10 @@ function draw(now) {
       for (let q = 0; q < 12; q++) { const a = q * Math.PI / 6; g.beginPath(); g.moveTo(f.x + Math.cos(a) * rr * .8, f.y + Math.sin(a) * rr * .8); g.lineTo(f.x + Math.cos(a) * rr, f.y + Math.sin(a) * rr); g.stroke(); }
       const ha = -Math.PI / 2 + k * 6.283 * (2 + f.tr * 2); g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(f.x + Math.cos(ha) * rr * .85, f.y + Math.sin(ha) * rr * .85); g.stroke(); }
     else if (f.k === 'nova') { if (f.d == null) f.d = f.t; const k = 1 - f.t / f.d; const _u = (f.r > W * .9 ? 1 : .5); g.strokeStyle = `rgba(${f.c || '190,170,255'},${f.t * 1.6})`; g.lineWidth = f.thick ? 8 : 3; g.beginPath(); g.arc(f.x, f.y, f.r * Math.min(1, k + .1), 0, 7); g.stroke(); if (f.thick) { g.fillStyle = `rgba(190,170,255,${f.t * .5})`; g.fill(); g.lineWidth = 2; g.strokeStyle = `rgba(255,255,255,${f.t * 1.4})`; g.stroke(); } }
-    else if (f.k === 'bolt') { if (f.lv >= 10) megaBeam(f.x, f.y, f.x2, f.y2, Math.min(f.lv, 49), lvTier(f.lv) >= 3 ? '#ffd23f' : '#9dff6a', 1 + lvTier(f.lv) * .3, Math.min(1, f.t / .1)); else beam(f.x, f.y, f.x2, f.y2, '#9dff6a', 1.4); }
+    else if (f.k === 'bolt') { const T = lvTier(f.lv || 0), c = T >= 3 ? '#ffd23f' : '#9dff6a', p = 1 - f.t / .15, z = 3 + T;
+      for (let q = 0; q < 3 + T; q++) { const k = Math.max(0, p - q * .08); g.globalAlpha = 1 - q * .22; g.fillStyle = q ? c : '#ffffff'; g.fillRect(Math.round(f.x + (f.x2 - f.x) * k - z / 2), Math.round(f.y + (f.y2 - f.y) * k - z / 2), z, z); }
+      if (p > .75) { g.globalAlpha = 1; g.fillStyle = c; const s2 = z * 1.5; g.fillRect(f.x2 - s2, f.y2 - 1, s2 * 2, 2); g.fillRect(f.x2 - 1, f.y2 - s2, 2, s2 * 2); }
+      if (p < .3) { g.globalAlpha = 1; g.fillStyle = '#fff3b0'; g.fillRect(f.x - 2, f.y - 2, 4, 4); } g.globalAlpha = 1; }
     else if (f.k === 'bolt2') beam(f.x, f.y, f.x2, f.y2, f.c, 1.6);
     else if (f.k === 'strike') { let px = f.x + (Math.random() - .5) * 20, py = f.y - H; g.strokeStyle = f.c; g.globalAlpha = Math.min(1, f.t * 5); g.lineWidth = f.w; g.beginPath(); g.moveTo(px, py); for (let q = 1; q <= 8; q++) { px = f.x + (Math.random() - .5) * 30 * (1 - q / 8); py = f.y - H + H * q / 8; g.lineTo(px, py); } g.stroke(); g.globalAlpha = 1; }
     else if (f.k === 'pop') { g.fillStyle = `rgba(255,220,120,${f.t * 3})`; g.beginPath(); g.arc(f.x, f.y, 8 * (1 - f.t * 2), 0, 7); g.fill(); }
@@ -1151,14 +1154,18 @@ function draw(now) {
     const r = 2 + k * (7 + T * 2) * (1 + .1 * Math.sin(tq * 30)); g.globalAlpha = .35 * k; g.beginPath(); g.arc(nx2, ny2, r * 2, 0, 7); g.fill(); g.globalAlpha = k; g.fillStyle = '#ffffff'; g.beginPath(); g.arc(nx2, ny2, r * .6, 0, 7); g.fill();
     g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
   // Drohnen
-  if (WD('drones')) { const T = lvTier(WL('drones')), c = T >= 3 ? '#ffd23f' : '#9dff6a', z = 4 + T * 1.2;
+  if (WD('drones')) { const T = lvTier(WL('drones')), c = T >= 3 ? '#ffd23f' : '#9dff6a', dk = T >= 3 ? '#6e550c' : '#1f4a14', tq = performance.now() / 1000, fa = ship.ang + Math.PI / 2;
+    // Pixel-Quadrokopter: 4 Rotoren, Kanone zeigt nach vorne, Blinklicht; ab 25 Nachleuchten, ab 50 golden, ab 100 Schild
     for (const d of drones.slice(0, Math.min(6, 3 + Math.floor(ST('drones') / 2)))) {
-      if (T >= 2) for (let q = 1; q <= 4; q++) { const a = d.a - q * .12; g.fillStyle = c; g.globalAlpha = .3 - q * .06; g.fillRect(ship.x + Math.cos(a) * 30 - 2, ship.y + Math.sin(a) * 30 - 2, 4, 4); }
-      g.globalAlpha = 1; g.save(); g.translate(d.x, d.y); g.rotate(d.a + Math.PI); g.strokeStyle = c; g.fillStyle = T >= 1 ? c + '55' : 'transparent'; g.lineWidth = 1.5;
-      g.beginPath(); g.moveTo(0, -z); g.lineTo(z, z * .75); g.lineTo(0, z * .35); g.lineTo(-z, z * .75); g.closePath(); g.fill(); g.stroke();
-      if (T >= 1) { g.fillStyle = '#ffffff'; g.fillRect(-1, -1, 2, 2); }
-      if (T >= 4) { g.strokeStyle = 'rgba(255,210,63,.5)'; g.beginPath(); g.arc(0, 0, z * 1.7, 0, 7); g.stroke(); }
-      g.restore(); } }
+      if (T >= 2) for (let q = 1; q <= 3; q++) { const a = d.a - q * .1; g.fillStyle = c; g.globalAlpha = .18 - q * .04; g.fillRect(Math.round(ship.x + Math.cos(a) * 30) - 3, Math.round(ship.y + Math.sin(a) * 30) - 3, 6, 6); }
+      g.globalAlpha = 1; const x = Math.round(d.x), y = Math.round(d.y), u = T >= 4 ? 2.5 : 2, P = (px, py, w, h) => g.fillRect(x + px * u, y + py * u, w * u, h * u);
+      g.fillStyle = dk; P(-3, -1, 6, 2); P(-1, -3, 2, 6); // Arme
+      const spin = Math.sin(tq * 8 + d.a * 3) > 0; g.fillStyle = 'rgba(220,255,220,.75)'; // Rotoren (2 Frames)
+      for (const [rx, ry] of [[-4, -4], [3, -4], [-4, 3], [3, 3]]) spin ? P(rx - 1, ry, 3, 1) : P(rx, ry - 1, 1, 3);
+      g.fillStyle = c; P(-2, -2, 4, 4); g.fillStyle = '#ffffff'; P(-1, -1, 1, 1);
+      g.fillStyle = (Math.sin(tq * 3 + d.a) > .3) ? '#ff2e2e' : '#3a0a0a'; P(1, 1, 1, 1); // Blinklicht
+      g.strokeStyle = c; g.lineWidth = u; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(fa) * 6 * u, y + Math.sin(fa) * 6 * u); g.stroke(); // Kanone
+      if (T >= 4) { g.strokeStyle = 'rgba(255,210,63,.45)'; g.lineWidth = 1; g.beginPath(); g.arc(x, y, 9 * u, 0, 7); g.stroke(); } } }
   // Schiff
   const tx = lineTarget >= 0 ? cellXY(lineTarget) : [ship.x, ship.y + 50];
   const a = Math.atan2(tx[1] - ship.y, tx[0] - ship.x) - Math.PI / 2; { let d = a - ship.ang; d = Math.atan2(Math.sin(d), Math.cos(d)); ship.ang += d * .15; }
