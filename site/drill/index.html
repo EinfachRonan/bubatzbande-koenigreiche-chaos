@@ -923,6 +923,7 @@ function planetCols() {
   // Ein Grundton pro Planet (dunkel), Treffer hellen ihn in 7 Stufen auf, z. B. Dunkelblau -> Hellblau
   const base = G.boss ? '#3a3f4c' : mixH(G.pal[2], '#000000', .6), light = G.boss ? '#c3cad8' : mixH(G.pal[2], '#ffffff', .12);
   G.cols = Array.from({ length: 7 }, (_, k) => mixH(base, light, k / 6 * .9));
+  G.colsL = G.cols.map(c => mixH(c, '#ffffff', .22)); G.colsD = G.cols.map(c => mixH(c, '#000000', .35));
   G.line = G.boss ? '#ff9ab0' : G.elite ? '#ff2a4a' : mixH(G.pal[2], '#ffffff', .55);
 }
 function drawCell(i) {
@@ -932,6 +933,11 @@ function drawCell(i) {
   if (!G.alive[i]) return;
   const st = G.dst[i], A = G.alive;
   tg.fillStyle = G.cols[st]; tg.fillRect(x, y, CELL, CELL);
+  { // 8-Bit-Kachel wie in alten Handheld-Spielen: Lichtkante oben/links, Schatten unten/rechts, ein paar Krümel
+    const u = 2, h = (i * 2654435761) >>> 0; tg.fillStyle = G.colsD[st]; tg.fillRect(x, y + CELL - u, CELL, u); tg.fillRect(x + CELL - u, y, u, CELL);
+    tg.fillStyle = G.colsL[st]; tg.fillRect(x, y, CELL - u, u); tg.fillRect(x, y, u, CELL - u);
+    tg.fillStyle = G.colsD[st]; const n = CELL / u | 0; for (let q = 0; q < 2; q++) { const hx = ((h >> (q * 8)) % (n - 3)) + 1, hy = ((h >> (q * 8 + 4)) % (n - 3)) + 1; tg.fillRect(x + hx * u, y + hy * u, u, u); }
+    if (h % 5 === 0) { tg.fillStyle = G.colsL[st]; tg.fillRect(x + ((h >> 20) % (n - 3) + 1) * u, y + ((h >> 24) % (n - 3) + 1) * u, u, u); } }
   if (G.ore[i] >= 3) { const sp = G.ore[i] === 3, cx0 = x + CELL / 2, cy0 = y + CELL / 2, rr = CELL / 2 - 1; tg.fillStyle = sp ? '#3d6d78' : '#3b2466'; tg.fillRect(x, y, CELL, CELL);
     tg.fillStyle = sp ? '#ffffff' : '#b07cff'; tg.beginPath(); tg.moveTo(cx0, cy0 - rr); tg.lineTo(cx0 + rr * .8, cy0); tg.lineTo(cx0, cy0 + rr); tg.lineTo(cx0 - rr * .8, cy0); tg.closePath(); tg.fill();
     tg.fillStyle = sp ? '#9fefff' : '#ecd9ff'; tg.fillRect(cx0 - rr * .35, cy0 - rr * .45, Math.max(2, rr * .35), Math.max(2, rr * .35)); }
@@ -1691,7 +1697,7 @@ function openCrate(k) {
   const ovb = $('ovb'), btns = ovb.querySelectorAll('[data-k]'); btns.forEach(x => x.style.visibility = 'hidden');
   const fl = $('flip'); let done = false;
   const reveal = () => { if (done) return; done = true; fl.classList.add('on'); SND.fx.up();
-    setTimeout(() => { fl.classList.add('r-' + r); $('frev').classList.add('on'); btns.forEach(x => x.style.visibility = '');
+    setTimeout(() => { if (!$('frev')) return; fl.classList.add('r-' + r); $('frev').classList.add('on'); btns.forEach(x => x.style.visibility = '');
       if (r === 'l' || r === 'e') { SND.fx.win(); const P = $('fxp'), n = r === 'l' ? 46 : 18; for (let q = 0; q < n; q++) { const sp = document.createElement('i'), an = Math.random() * 6.283, d = 70 + Math.random() * (r === 'l' ? 120 : 60);
         sp.style.cssText = `--dx:${Math.cos(an) * d}px;--dy:${Math.sin(an) * d}px;--dl:${Math.random() * .25}s;--sz:${2 + Math.random() * 5}px`; P.appendChild(sp); } }
       if (r === 'e') vib(60); if (r === 'l') { vib([80, 50, 80, 50, 220]); shake = 14; toast('★ LEGENDÄR! ★'); if (window.BB) BB.unlock('drill_legende'); } }, 520); };
