@@ -127,7 +127,40 @@ canvas{display:block}
 #tAim{right:140px;bottom:200px}#tRel{right:140px;bottom:120px}#tJump{right:40px;bottom:40px}#tSw{right:120px;bottom:40px}
 #tUse{right:200px;bottom:40px}#tSpr{left:200px;bottom:40px}#tBuild{right:30px;top:120px;width:52px;height:52px}#tTrap{right:90px;top:120px;width:52px;height:52px}
 #tShop{right:150px;top:120px;width:52px;height:52px}#tPause{right:30px;top:60px;width:44px;height:44px}
-@media (max-width:800px),(max-height:520px){.title{font-size:54px;letter-spacing:6px}#banner .t{font-size:42px}.cls,.map{width:46vw;padding:10px}.ctrl{display:none}#health{left:14px;bottom:200px}#ammo{right:14px;bottom:auto;top:180px}.bar,#stam{width:150px}#mag{font-size:34px}#hpnum{font-size:30px}}
+
+.screen{align-items:flex-start}.card{margin:auto}
+body:not(.playing) .hud,body:not(.playing) #touch,body:not(.playing) #shop,body:not(.playing) #slot{display:none!important}
+@media (max-width:800px),(max-height:520px){
+ .card{padding:10px 12px}.title{font-size:44px;letter-spacing:6px}.tag{font-size:11px;letter-spacing:3px;margin:4px 0 8px}.sec{margin:2px 0 4px;font-size:11px}
+ .row2{gap:8px;margin-bottom:8px;flex-wrap:nowrap}.map{width:44vw;padding:8px 10px}.cls{width:30vw;padding:8px 10px}
+ .cls h3,.map h3{font-size:16px;letter-spacing:1px}.cls p,.map p{font-size:11px;min-height:0;margin:2px 0 4px}.cls .row{font-size:10.5px;padding:1px 0}.cls .row b{font-size:10.5px}
+ .ctrl{display:none}.btn{font-size:16px;padding:10px 34px}#note{font-size:11px;margin-top:6px}
+ .stats{gap:16px;margin:8px 0 12px}.stats b{font-size:24px}.big{font-size:40px}
+ #banner .t{font-size:40px}#banner .s{font-size:14px}
+}
+body.touch #wavebox{left:14px;top:8px}body.touch #wave{font-size:20px}body.touch #left{font-size:12px}
+body.touch #scorebox{left:50%;right:auto;top:8px;transform:translateX(-50%);text-align:center;display:flex;gap:14px;align-items:baseline;white-space:nowrap}
+body.touch #scorelbl{display:none}body.touch #score{font-size:20px}body.touch #money{font-size:16px;margin:0}
+body.touch #health{left:14px;top:60px;bottom:auto}body.touch #hpnum{font-size:24px;gap:6px}body.touch #hpnum span.cr{transform:scale(.7)}
+body.touch .bar,body.touch #stam{width:120px}body.touch #health .bar{margin-top:4px}body.touch #inv{font-size:12px;gap:8px;margin-top:5px}body.touch #inv .k{display:none}
+body.touch #ammo{right:14px;top:58px;bottom:auto}body.touch #wname{font-size:11px;letter-spacing:1px}body.touch #watt{display:none}
+body.touch #mag{font-size:28px}body.touch #mag small{font-size:14px}body.touch #slots{display:none}
+body.touch #boss{top:36px;width:300px}body.touch #boss .n{font-size:12px}
+body.touch #prompt{top:auto;bottom:24px;font-size:13px;padding:4px 10px}body.touch #reload{top:58%}
+body.touch #scopehint{display:none}
+body.touch #shop{right:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,94vw);max-height:90vh;z-index:9;padding:8px 12px}
+body.touch #shop h2{font-size:18px}body.touch #shop .it{padding:4px 6px;margin-top:3px}body.touch #shop .it .tx{font-size:11px}body.touch #shop .it .tx b{font-size:13px}body.touch #shop .ft{display:none}
+body.touch #slot{top:44px;width:min(400px,58vw);z-index:9;padding:5px 8px 6px}body.touch #slot .st{font-size:12px;margin-bottom:3px}
+body.touch #slot .win{height:78px}body.touch #slot .sc img{height:44px}body.touch #slot .sc .ic{font-size:30px;line-height:44px}body.touch #slot .sc b{font-size:10px}body.touch #slot .res{font-size:14px;min-height:18px;margin-top:3px}
+body.touch .tb{width:56px;height:56px;font-size:10px}
+body.touch #joy{left:26px;bottom:24px;width:130px;height:130px}body.touch #knob{left:40px;top:40px;width:50px;height:50px}
+body.touch #tSpr{left:170px;bottom:28px}
+body.touch #tJump{right:24px;bottom:16px}body.touch #tSw{right:90px;bottom:16px}body.touch #tUse{right:156px;bottom:16px}
+body.touch #tFire{right:22px;bottom:86px;width:84px;height:84px;font-size:13px}body.touch #tAim{right:118px;bottom:118px}body.touch #tRel{right:184px;bottom:84px}
+body.touch #tPause{right:14px;top:8px;width:40px;height:40px;bottom:auto}body.touch #tShop{right:62px;top:8px;width:40px;height:40px}
+body.touch #tTrap{right:110px;top:8px;width:40px;height:40px}body.touch #tBuild{right:158px;top:8px;width:40px;height:40px}
+body.touch #ammo{top:56px}
+
 </style>
 </head>
 <body>
@@ -145,7 +178,7 @@ canvas{display:block}
 <div id="wavebox" class="hud"><div id="wave">WELLE 1</div><div id="left"></div></div>
 <div id="scorebox" class="hud"><div id="scorelbl">PUNKTE</div><div id="score">0</div><div id="money">🪙 0</div></div>
 <div id="health" class="hud"><div id="hpnum"><span class="cr"></span><span id="hpt">100</span></div><div class="bar"><div id="hpb" style="width:100%"></div></div><div class="bar" id="stam"><div id="stb" style="width:100%"></div></div>
-  <div id="inv"><span>🪵 <b id="iP">2</b> [G]</span><span>🪤 <b id="iT">1</b> [T]</span><span id="iFw" style="display:none">⛽ <b id="iF">100</b>%</span></div></div>
+  <div id="inv"><span>🪵 <b id="iP">2</b> <i class="k">[G]</i></span><span>🪤 <b id="iT">1</b> <i class="k">[T]</i></span><span id="iFw" style="display:none">⛽ <b id="iF">100</b>%</span></div></div>
 <div id="ammo" class="hud"><div id="wname">Pistole</div><div id="watt"></div><div id="mag">12 <small>/ 48</small></div><div id="slots"><span id="s1">1 PRIMÄR</span><span id="s2">2 PISTOLE</span><span id="s3">3 NAHKAMPF</span></div></div>
 <div id="shop"></div>
 <div id="slot"><div class="st" id="slott">WAFFEN-AUTOMAT</div><div class="win" id="slotwin"><div class="reel" id="reel"></div><div class="mk"></div></div><div class="res" id="slotres"></div></div>
@@ -153,7 +186,7 @@ canvas{display:block}
 <div id="touch">
   <div id="joy"><div id="knob"></div></div>
   <div class="tb" id="tFire" data-b="fire">FEUER</div><div class="tb" id="tAim" data-b="aim">ZIELEN</div><div class="tb" id="tRel" data-b="reload">LADEN</div>
-  <div class="tb" id="tJump" data-b="jump">SPRUNG</div><div class="tb" id="tSw" data-b="switch">WAFFE</div><div class="tb" id="tUse" data-b="use">BENUTZEN</div>
+  <div class="tb" id="tJump" data-b="jump">SPRUNG</div><div class="tb" id="tSw" data-b="switch">WAFFE</div><div class="tb" id="tUse" data-b="use">NUTZEN</div>
   <div class="tb" id="tSpr" data-b="sprint">SPRINT</div><div class="tb" id="tBuild" data-b="build">🪵</div><div class="tb" id="tTrap" data-b="trap">🪤</div>
   <div class="tb" id="tShop" data-b="shop">🪙</div><div class="tb" id="tPause" data-b="pause">II</div>
 </div>
@@ -789,7 +822,7 @@ function lock(){if(!useLock)return;try{const r=renderer.domElement.requestPointe
 
 // ---- touch ----
 const T={jx:0,jy:0,joyId:null,lookId:null,lx:0,ly:0,sprint:false};
-if(IS_TOUCH){$('touch').classList.add('on');
+if(IS_TOUCH){$('touch').classList.add('on');document.body.classList.add('touch');
   const joy=$('joy'),knob=$('knob');
   const btn=(b,down)=>{if(state!=='play')return;const el=document.querySelector(`[data-b="${b}"]`);
     if(b==='fire'){mouseL=down;if(down&&!shopOpen)attack(true);el.classList.toggle('on',down);return;}
@@ -799,7 +832,7 @@ if(IS_TOUCH){$('touch').classList.add('on');
   const tz=$('touch');
   tz.addEventListener('touchstart',e=>{e.preventDefault();for(const t of e.changedTouches){const b=t.target.closest&&t.target.closest('[data-b]');
     if(b){b.dataset.tid=t.identifier;btn(b.dataset.b,true);continue;}
-    if(t.clientX<innerWidth*.4&&T.joyId===null){T.joyId=t.identifier;const r=joy.getBoundingClientRect();T.jcx=r.left+70;T.jcy=r.top+70;}
+    if(t.clientX<innerWidth*.4&&T.joyId===null){T.joyId=t.identifier;const r=joy.getBoundingClientRect();T.jcx=r.left+r.width/2;T.jcy=r.top+r.height/2;}
     else if(T.lookId===null){T.lookId=t.identifier;T.lx=t.clientX;T.ly=t.clientY;}}},{passive:false});
   tz.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches){
     if(t.identifier===T.joyId){let dx=t.clientX-T.jcx,dy=t.clientY-T.jcy;const l=Math.hypot(dx,dy),m=60;if(l>m){dx*=m/l;dy*=m/l;}T.jx=dx/m;T.jy=dy/m;knob.style.transform=`translate(${dx}px,${dy}px)`;}
@@ -1336,7 +1369,7 @@ function update(dt){
       else if(d.type==='ammo'){for(const id2 of Object.keys(P.ammo))if(P.slots[WD[id2].slot]===id2)P.ammo[id2].res=Math.min(Math.round(WD[id2].reserve*1.5),P.ammo[id2].res+magOf(id2));if(P.slots[3]==='chainsaw')P.fuel=Math.min(100,P.fuel+25);popup('+ MUNITION');SND.pick();take=true;}}
     d.m.visible=d.life>5||Math.floor(d.life*5)%2===0;if(take||d.life<=0){scene.remove(d.m);drops.splice(i,1);}}
   inter.forEach(it=>{if(it.cd>0)it.cd-=dt;});
-  const it=nearInter();const pr=$('prompt');const E=IS_TOUCH?'[BENUTZEN]':'[E]';
+  const it=nearInter();const pr=$('prompt');const E=IS_TOUCH?'[NUTZEN]':'[E]';
   if(it){pr.style.opacity=1;pr.innerHTML=it.type==='weapon'?`<b>${E}</b> ${WD[it.id].name} aufheben`+(P.slots[WD[it.id].slot]&&P.slots[WD[it.id].slot]!=='fists'?` <span style="opacity:.6">(tauscht ${WD[P.slots[WD[it.id].slot]].name})</span>`:'')
     :it.type==='att'?`<b>${E}</b> ${ATT[it.id].name} montieren`:it.type==='barricade'?`<b>${E}</b> Barrikade reparieren (${Math.ceil(it.b.hp/it.b.max*100)}%)`:it.cd>0?`Munitionskiste leer – ${Math.ceil(it.cd)} s`:`<b>${E}</b> Munition auffüllen`;}else pr.style.opacity=0;
   if(bannerT>0){bannerT-=dt;if(bannerT<=0)$('banner').style.opacity=0;}
@@ -1433,7 +1466,8 @@ function hud(){
 // ================= LOOP =================
 const clock=new THREE.Clock();
 renderMenu();loadMap(mapId);
-function loop(){requestAnimationFrame(loop);const dt=Math.min(.05,clock.getDelta());
+let lastPlaying=null;
+function loop(){requestAnimationFrame(loop);const dt=Math.min(.05,clock.getDelta());const pl=state==='play';if(pl!==lastPlaying){lastPlaying=pl;document.body.classList.toggle('playing',pl);}
   if(state==='play')update(dt);
   else if(state==='menu'){time+=dt;const a=time*.05;camera.position.set(Math.cos(a)*30,6,Math.sin(a)*30+5);camera.lookAt(0,3,-20);Object.values(VM).forEach(g=>g.visible=false);$('scope').style.opacity=0;}
   if(state!=='pause'){updParticles(dt);updMist(dt);updRain(dt);updCrows(dt);}
