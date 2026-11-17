@@ -1674,7 +1674,9 @@ function hullAtk(dt, face) {
 const HA = k => { const a = HULLAB[eqItem('h').id] || {}; return (a[k] || 0) * hullK(); };
 const HAw = id => { const a = HULLAB[eqItem('h').id] || {}; return ((a.w && a.w[id]) || 0) * hullK(); };
 // Hangar-Level: ein Level für den ganzen Hangar. Jedes eingeschmolzene Teil gibt feste XP, jedes Level braucht eine feste Menge.
-const MELTC = { g: 1, s: 3, e: 10, l: 40 }; // Einschmelzen gibt ◆ Kristalle
+// Einschmelzen gibt keine ◆ mehr, sondern ✦ Dunkle Materie (lila) – Legendäre geben ⬢ Chips (gold)
+const MELTC = { g: ['dm', 2], s: ['dm', 3], e: ['dm', 5], l: ['chip', 5] };
+const meltTxt = r => (MELTC[r][0] === 'dm' ? '<span style="color:#c9a2ff">+✦' : '<span style="color:#ffb43a">+⬢') + MELTC[r][1] + '</span>';
 function lvUp(id) { const d = (S.dup || {})[id] || 0, l = ILV(id); if (l >= ITEM_MAX || d < DUPN) return false; S.dup[id] = d - DUPN; if (!S.dup[id]) delete S.dup[id]; S.lv = S.lv || {}; S.lv[id] = l + 1; return true; }
 const itemBonus = s => { const it = eqItem(s); return 1 + itemVal(it, ILV(it.id)); };
 const itemLv = s => { const it = eqItem(s); return ({ g: 0, s: 1, e: 2, l: 4 })[it.r] + (ILV(it.id) - 1) * .3; };
@@ -1856,7 +1858,7 @@ function melt(id, spare) {
   const m = IT(id); S.dup = S.dup || {};
   if (spare) { if (!S.dup[id]) return 0; S.dup[id]--; if (!S.dup[id]) delete S.dup[id]; }
   else { if (S.eq[m.s] === id || !S.inv[id]) return 0; delete S.inv[id]; }
-  mis('melt'); S.cry += MELTC[m.r]; return MELTC[m.r];
+  mis('melt'); const [cur, n] = MELTC[m.r]; S[cur] = (S[cur] || 0) + n; return n;
 }
 function renderHangar(L) {
   document.querySelectorAll('.hsheet').forEach(x => x.remove());
@@ -1866,7 +1868,7 @@ function renderHangar(L) {
   const ownAll = ITEMS.filter(x => S.inv[x.id]).length, RO = { l: 0, e: 1, s: 2, g: 3 };
   const hab = HULLAB[eqItem('h').id];
   L.innerHTML = `
-    <div class="hg-info">⬆ Jedes Teil levelt einzeln: <b>${DUPN} Doppelte = +1 Stufe</b> (max. ${ITEM_MAX}). Einschmelzen gibt ◆.</div>
+    <div class="hg-info">⬆ Jedes Teil levelt einzeln: <b>${DUPN} Doppelte = +1 Stufe</b> (max. ${ITEM_MAX}). Einschmelzen gibt ✦ (Legendär: ⬢).</div>
     <button class="br unl" id="lvall" style="margin:0 0 8px" ${canLv.length ? '' : 'disabled'}>${canLv.length ? '⬆ ALLE LEVELN · ' + canLv.length + ' TEILE BEREIT' : 'NOCH KEIN TEIL BEREIT ZUM LEVELN'}</button>
     <button class="br unl" id="best" style="margin:0 0 10px">${ITEMS.some(it => S.inv[it.id] && better(it)) ? '⬆ BESTE AUSRÜSTEN · BESSERE TEILE DA' : '✓ BESTE AUSRÜSTEN'}</button>
     <div class="hg-h"><span>Ausgerüstet</span></div>
@@ -1893,15 +1895,15 @@ function renderHangar(L) {
     <div class="ist2"><div><small>${SLOT[sel.s].st} auf Lv. ${lv}</small><b>+${pct(sel)} %</b>${mx ? '' : `<em>auf Lv. ${lv + 1}: +${Math.round(itemVal(sel, lv + 1) * 100)} %</em>`}</div>${HATK[sel.id] ? `<div class="hab"><small>Rumpf-Attacke · ${RAR[sel.r].n}</small><b>⚔ ${HATK[sel.id].n}</b><span style="display:block;font-size:11px;color:#cfd8da;margin:2px 0">${HATK[sel.id].d}</span><em>${Math.round(HRF[sel.r] * (1 + .1 * (lv - 1)) * 100)} % deiner Waffen-DPS${mx ? '' : ` · auf Lv. ${lv + 1}: ${Math.round(HRF[sel.r] * (1 + .1 * lv) * 100)} %`}</em></div>` : ''}${HULLAB[sel.id] ? `<div class="hab"><small>Rumpf-Bonus</small><b>★ ${HULLAB[sel.id].d}</b><em>x${(1 + .2 * (lv - 1)).toFixed(1)} durch die Stufe${mx ? '' : ` · auf Lv. ${lv + 1}: x${(1 + .2 * lv).toFixed(1)}`}</em></div>` : ''}</div>
     <div class="pks"><small>Stufen-Boni (wirken, wenn ausgerüstet)</small>${PERKS[sel.s].map(([l, n, d]) => `<div class="${lv >= l ? 'on' : ''}"><b>${lv >= l ? '✓' : '🔒'} Lv. ${l} · ${n}</b><span>${d}</span></div>`).join('')}</div>
     <div class="row2"><button class="br" id="ieq" ${on ? 'disabled' : ''}>${on ? 'Ausgerüstet ✓' : 'Ausrüsten'}</button><button class="br" id="ilv" ${!mx && dp >= DUPN ? '' : 'disabled'}>${mx ? 'MAX' : `Leveln<span class="gn">${DUPN} Doppelte</span>`}</button></div>
-    <button class="br" id="imelt" style="width:100%;margin-top:8px" ${canMelt ? '' : 'disabled'}>${canMelt ? `Einschmelzen<span class="gn">+◆${MELTC[sel.r]}</span>` : 'Ausgerüstet – kann nicht eingeschmolzen werden'}</button>
-    <p class="hint">${dp ? `Einschmelzen nimmt zuerst ein doppeltes. Doppelte brauchst du aber zum Leveln.` : on ? '' : 'Einschmelzen = das Teil ist weg und du bekommst ◆.'}</p></div>`;
+    <button class="br" id="imelt" style="width:100%;margin-top:8px" ${canMelt ? '' : 'disabled'}>${canMelt ? `Einschmelzen<span class="gn">${meltTxt(sel.r)}</span>` : 'Ausgerüstet – kann nicht eingeschmolzen werden'}</button>
+    <p class="hint">${dp ? `Einschmelzen nimmt zuerst ein doppeltes. Doppelte brauchst du aber zum Leveln.` : on ? '' : 'Einschmelzen = das Teil ist weg und du bekommst ✦ (Legendär: ⬢).'}</p></div>`;
   $('app').appendChild(sh);
   const close = () => { hSel = null; sh.remove(); };
   sh.querySelector('.hsbg').onclick = close; sh.querySelector('.hsx').onclick = close;
   $('ieq').onclick = () => { S.eq[sel.s] = sel.id; save('now'); render(); toast(`${sel.n} ausgerüstet`); };
   $('ilv').onclick = () => { if (lvUp(sel.id)) { const l = ILV(sel.id), pk = PERKS[sel.s].find(x => x[0] === l); SND.fx.win(); vib(40); toast(pk ? `★ Neuer Stufen-Bonus: ${pk[1]}! ${pk[2]}` : `⬆ ${sel.n} ist jetzt Lv. ${l}!`); save('now'); render(); } };
   $('imelt').onclick = () => { if (!canMelt) return; sh.remove();
-    overlay(`<div class="crate" style="--rc:${RAR[sel.r].c}"><div class="cbox">${itemSvg(sel, 70)}</div></div><h2 style="color:${RAR[sel.r].c}">${sel.n} einschmelzen?</h2><p>${dp ? 'Ein doppeltes Exemplar' : 'Das Teil'} wird zu <b style="color:var(--cy)">+◆${MELTC[sel.r]}</b>.${dp ? '' : '<br>Danach ist es aus deiner Sammlung weg.'}</p>`,
+    overlay(`<div class="crate" style="--rc:${RAR[sel.r].c}"><div class="cbox">${itemSvg(sel, 70)}</div></div><h2 style="color:${RAR[sel.r].c}">${sel.n} einschmelzen?</h2><p>${dp ? 'Ein doppeltes Exemplar' : 'Das Teil'} wird zu <b>${meltTxt(sel.r)}</b>.${dp ? '' : '<br>Danach ist es aus deiner Sammlung weg.'}</p>`,
       [['Einschmelzen', () => { melt(sel.id, dp ? 1 : 0); SND.fx.up(); if (!S.inv[sel.id]) hSel = null; save('now'); render(); }], ['Abbrechen', () => render()]]); };
 }
 
