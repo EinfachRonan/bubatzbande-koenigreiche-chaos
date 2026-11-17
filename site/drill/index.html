@@ -762,7 +762,7 @@ const novas = [], waves = [];
 const sawPat = () => { const n = ML('saw') >= 3 ? 2 : ML('saw') ? 1.5 : 1, o = []; for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) if (Math.hypot(a, b) <= n) o.push([a * CELL, b * CELL]); return o; };
 let sawB = 0; const SAWR = 78; // Sägen kreisen ums Schiff und reichen bis in die Blöcke
 let cdBlast = 0, cdChain = 0, sawA = 0, cdMine = 0, cdSnip = 0; const saws = [], mines = [];
-let drillMax = 4, starA = 0, cdDrill = 0, cdNova = 0, cdScatter = 0, lineTarget = -1, surfR = 0, surfT = 0;
+const bats = [], fogs = []; let drillMax = 4, starA = 0, cdDrill = 0, cdNova = 0, cdScatter = 0, lineTarget = -1, surfR = 0, surfT = 0;
 function nearest(x, y, jitter) {
   let best = -1, bd = 1e18; const A = G.alive, ox = G.ox + CELL / 2, oy = G.oy + CELL / 2;
   for (let i = 0, N = A.length; i < N; i++) { if (!A[i]) continue; const dx = ox + (i % COLS) * CELL - x, dy = oy + (i / COLS | 0) * CELL - y, d = dx * dx + dy * dy + (jitter ? Math.random() * jitter : 0); if (d < bd) { bd = d; best = i; } }
@@ -840,7 +840,12 @@ function step(dt) {
   for (let k = novas.length - 1; k >= 0; k--) { const n = novas[k]; n.t += dt * 2.6; if (n.t < 1) continue; novas.splice(k, 1);
     const c0 = Math.floor((n.tx - G.ox - n.rad) / CELL), c1 = Math.ceil((n.tx - G.ox + n.rad) / CELL), r0 = Math.floor((n.ty - G.oy - n.rad) / CELL), r1 = Math.ceil((n.ty - G.oy + n.rad) / CELL), cells = [];
     for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) for (let c = Math.max(0, c0); c <= Math.min(COLS - 1, c1); c++) { const i = r * COLS + c; if (!G.alive[i]) continue; const [x, y] = cellXY(i), d = Math.hypot(x - n.tx, y - n.ty); if (d <= n.rad) cells.push([d, i]); }
-    SND.fx.boom(); cells.sort((a2, b2) => a2[0] - b2[0]); waves.push({ x: n.tx, y: n.ty, rad: n.rad, r: 0, cells, j: 0, d: n.d }); shake = Math.max(shake, 3); }
+    SND.fx.boom(); cells.sort((a2, b2) => a2[0] - b2[0]); waves.push({ x: n.tx, y: n.ty, rad: n.rad, r: 0, cells, j: 0, d: n.d }); shake = Math.max(shake, 3);
+    { const T = lvTier(WL('nova')); for (let q = 0; q < 3 + T * 2; q++) { const an = Math.random() * 6.283, sp = 50 + Math.random() * 70; bats.push({ x: n.tx, y: n.ty, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp - 20, t: 1.4 + Math.random() * .6, ph: Math.random() * 6 }); }
+      for (let q = 0; q < 6 + T * 3; q++) { const an = Math.random() * 6.283, d = Math.random() * n.rad * .7; fogs.push({ x: n.tx + Math.cos(an) * d, y: n.ty + Math.sin(an) * d, vx: Math.cos(an) * 12, vy: Math.sin(an) * 12 - 6, t: 1.8 + Math.random(), t0: 2.6, z: 10 + Math.random() * (10 + T * 4) }); } } }
+  for (let k = bats.length - 1; k >= 0; k--) { const b = bats[k]; b.ph += dt * 9; b.vx += Math.sin(b.ph * .7) * 40 * dt; b.x += b.vx * dt; b.y += b.vy * dt + Math.sin(b.ph) * 18 * dt; if ((b.t -= dt) <= 0) bats.splice(k, 1); }
+  for (let k = fogs.length - 1; k >= 0; k--) { const f = fogs[k]; f.x += f.vx * dt; f.y += f.vy * dt; f.z += dt * 6; if ((f.t -= dt) <= 0) fogs.splice(k, 1); }
+  if (bats.length > 80) bats.splice(0, bats.length - 80); if (fogs.length > 120) fogs.splice(0, fogs.length - 120);
   // Welle breitet sich aus und trifft die Blöcke nach und nach
   for (let k = waves.length - 1; k >= 0; k--) { const w = waves[k]; w.r += dt * w.rad * 1.6; while (w.j < w.cells.length && w.cells[w.j][0] <= w.r) hit(w.cells[w.j++][1], w.d); if (w.r >= w.rad * 1.15) waves.splice(k, 1); }
   // 5) Streufeuer
@@ -869,8 +874,8 @@ function step(dt) {
     SND.fx.zap(); pts.forEach(p => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .2, lv: WL('chain') })); }
   // 8) Kräutersäge
   const dW = WD('saw') * Rd;
-  if (dW) { const sv = dt * Rv * sp75('saw'); sawA += sv * 1.3; sawB += sv * 1.5; const nsw = Math.min(4, 2 + Math.floor(ST('saw') / 2)); saws.length = nsw; // runde Säbel kreisen und fliegen wie ein Bumerang raus und zurück
-    for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, rk = SAWR * (.4 + .75 * (.5 - .5 * Math.cos(sawB + k * Math.PI))), x = ship.x + Math.cos(a) * rk, y = ship.y + Math.sin(a) * rk; saws[k] = [x, y, rk, a];
+  if (dW) { const sv = dt * Rv * sp75('saw'); sawA += sv * 1.2; const nsw = Math.min(8, 2 + ST('saw')); saws.length = nsw; // kleine Sägeblätter kreisen ums Schiff, mit jeder Meilenstein-Stufe kommt eins dazu
+    for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, rk = SAWR, x = ship.x + Math.cos(a) * rk, y = ship.y + Math.sin(a) * rk; saws[k] = [x, y, rk, a];
     for (const [ox, oy] of sawPat()) hit(cellAt(x + ox, y + oy), dW / nsw / 2.5 * dt * 2 * (1 + 2 * critCh())); } }
   // 9) Minenwerfer
   const dM = WD('mine') * Rd;
@@ -1075,23 +1080,32 @@ function draw(now) {
   if (comet) { const a = Math.atan2(comet.vy, comet.vx); for (let k = 1; k <= 10; k++) { g.fillStyle = `rgba(255,214,90,${.5 - k * .045})`; const s = 7 - k * .5; g.fillRect(comet.x - Math.cos(a) * k * 7 - s / 2, comet.y - Math.sin(a) * k * 7 - s / 2, s, s); }
     g.save(); g.translate(comet.x, comet.y); g.rotate(performance.now() / 300); g.fillStyle = '#fff3b0'; g.shadowColor = '#ffd23f'; g.shadowBlur = 18; g.fillRect(-7, -7, 14, 14); g.restore(); }
   for (const f of fx) if (f.k === 'tap') { g.strokeStyle = `rgba(92,232,240,${f.t * 3})`; g.lineWidth = 2; g.strokeRect(f.x - (1.3 - f.t * 3) * 14, f.y - (1.3 - f.t * 3) * 14, (1.3 - f.t * 3) * 28, (1.3 - f.t * 3) * 28); }
-  if (WD('saw')) { const T = lvTier(WL('saw')), c = ['#9dff6a', '#9dff6a', '#5fe3a0', '#ffd23f', '#ffd23f'][T], c2 = T >= 3 ? '#fff3b0' : '#e8ffd8', rs = 13 + T * 2.5;
-    // Runde Säbel (Sichelklingen) mit Nachbild-Schweif, ab 25 Funken, ab 50 golden, ab 100 doppelte Klinge
-    for (const [x, y, rk, a] of saws) { if (rk == null) continue; const spin = sawA * 2.2;
-      for (let q = 1; q <= 2 + T; q++) { const a2 = a - q * .09, x2 = ship.x + Math.cos(a2) * rk, y2 = ship.y + Math.sin(a2) * rk; g.globalAlpha = .28 - q * .045; g.fillStyle = c; g.beginPath(); g.arc(x2, y2, rs * .5, 0, 7); g.fill(); }
-      g.globalAlpha = 1; g.save(); g.translate(x, y);
-      for (let pass = 0; pass < (T >= 4 ? 2 : 1); pass++) { g.save(); g.rotate(spin + pass * Math.PI);
-        g.fillStyle = c; g.beginPath(); g.arc(0, 0, rs, -.2, Math.PI + .2); g.arc(0, rs * .38, rs * .82, Math.PI + .35, -.35, true); g.closePath(); g.fill();
-        g.strokeStyle = c2; g.lineWidth = 1.5; g.beginPath(); g.arc(0, 0, rs - 1, .05, Math.PI - .05); g.stroke(); g.restore(); }
-      g.fillStyle = '#ffffff'; g.fillRect(-2, -2, 4, 4);
-      if (T >= 2) { g.fillStyle = c2; for (let q = 0; q < T; q++) { const an = Math.random() * 6.28, d = rs + Math.random() * 6; g.globalAlpha = .8; g.fillRect(Math.cos(an) * d - 1, Math.sin(an) * d - 1, 2, 2); } g.globalAlpha = 1; }
-      g.restore(); } }
+  if (WD('saw')) { const T = lvTier(WL('saw')), c = ['#9dff6a', '#9dff6a', '#5fe3a0', '#ffd23f', '#ffd23f'][T], dk = ['#2f6a1e', '#2f6a1e', '#1f5a3e', '#7a5a0c', '#7a5a0c'][T], rs = 12 + T, teeth = 8 + T;
+    // feine Bahn + kleine Sägeblätter (Pixel-Look), dreht sich gemütlich
+    g.strokeStyle = c; g.globalAlpha = .1 + T * .04; g.lineWidth = 2; g.beginPath(); g.arc(ship.x, ship.y, SAWR, 0, 7); g.stroke(); g.globalAlpha = 1;
+    for (const [x, y, rk, a] of saws) { if (rk == null) continue;
+      if (T >= 1) for (let q = 1; q <= 1 + T; q++) { const a2 = a - q * .07; g.globalAlpha = .14 - q * .02; g.fillStyle = c; g.beginPath(); g.arc(ship.x + Math.cos(a2) * rk, ship.y + Math.sin(a2) * rk, rs * .8, 0, 7); g.fill(); }
+      g.globalAlpha = 1; g.save(); g.translate(x, y); g.rotate(sawA * 3.5);
+      g.fillStyle = c; g.beginPath(); for (let k = 0; k < teeth; k++) { const an = k * Math.PI * 2 / teeth; g.lineTo(Math.cos(an) * rs, Math.sin(an) * rs); g.lineTo(Math.cos(an + Math.PI / teeth) * rs * .72, Math.sin(an + Math.PI / teeth) * rs * .72); } g.closePath(); g.fill();
+      g.fillStyle = dk; g.beginPath(); g.arc(0, 0, rs * .5, 0, 7); g.fill(); g.fillStyle = '#ffffff'; g.fillRect(-1.5, -1.5, 3, 3);
+      if (T >= 4) { g.strokeStyle = '#fff3b0'; g.lineWidth = 1; g.beginPath(); g.arc(0, 0, rs + 2, 0, 7); g.stroke(); }
+      g.restore();
+      if (T >= 2 && Math.random() < .25) parts.push({ x, y, vx: (Math.random() - .5) * 60, vy: (Math.random() - .5) * 60, t: .3, c }); } }
   { const T = lvTier(WL('mine')), c = T >= 3 ? '#ff4fd8' : '#ff8a5a', blink = Math.sin(performance.now() / 180) > 0;
     for (const m of mines) { const pos = t => [m.x + (m.tx - m.x) * t, m.y + (m.ty - m.y) * t - Math.sin(t * Math.PI) * (30 + T * 8)], [x, y] = pos(m.t), z = 6 + T * 1.5;
       if (T >= 1) for (let q = 1; q <= 2 + T; q++) { const [tx2, ty2] = pos(Math.max(0, m.t - q * .04)); g.globalAlpha = .4 - q * .06; g.fillStyle = T >= 2 ? '#8a8a9a' : c; g.fillRect(tx2 - z / 3, ty2 - z / 3, z / 1.5, z / 1.5); }
       g.globalAlpha = 1; g.fillStyle = c; g.fillRect(Math.round(x - z / 2), Math.round(y - z / 2), z, z);
       if (T >= 1) { g.fillStyle = blink ? '#ffffff' : '#ff2e2e'; g.fillRect(Math.round(x) - 1, Math.round(y - z / 2) - 2, 2, 2); }
       if (T >= 2) { g.globalAlpha = .3; g.fillStyle = c; g.beginPath(); g.arc(x, y, z * 1.4, 0, 7); g.fill(); g.globalAlpha = 1; } } }
+  // Gruselnebel (grobe Pixelwolken) und kleine 8-Bit-Fledermäuse
+  const gcoB = g.globalCompositeOperation; g.globalCompositeOperation = 'source-over';
+  for (const f of fogs) { const a = Math.min(1, f.t / f.t0 * 1.6) * .22, z = Math.round(f.z / 2) * 2; g.fillStyle = `rgba(150,120,200,${a})`; g.fillRect(Math.round(f.x - z / 2), Math.round(f.y - z / 2), z, z); g.fillStyle = `rgba(200,180,255,${a * .6})`; g.fillRect(Math.round(f.x - z / 4), Math.round(f.y - z / 2), z / 2, 2); }
+  for (const b of bats) { const up = Math.sin(b.ph) > 0, al = Math.min(1, b.t * 2), x = Math.round(b.x), y = Math.round(b.y), P = (px, py, w, h) => g.fillRect(x + px * 2, y + py * 2, w * 2, h * 2);
+    g.globalAlpha = al * .35; g.fillStyle = '#b48cff'; g.fillRect(x - 9, y - 7, 18, 12); // leichter Schein, damit man sie sieht
+    g.globalAlpha = al; g.fillStyle = '#140a1f'; P(-1, -1, 3, 3); P(-1, -2, 1, 1); P(1, -2, 1, 1); // Körper + Ohren
+    if (up) { P(-4, -3, 3, 2); P(2, -3, 3, 2); P(-6, -5, 2, 2); P(5, -5, 2, 2); } else { P(-4, 0, 3, 2); P(2, 0, 3, 2); P(-6, 1, 2, 2); P(5, 1, 2, 2); }
+    g.fillStyle = '#ff4f7a'; P(-1, -1, 1, 1); P(1, -1, 1, 1); g.globalAlpha = 1; }
+  g.globalCompositeOperation = gcoB;
   { const T = lvTier(WL('nova')), nc = T >= 3 ? '120,235,255' : '190,170,255', tq = performance.now() / 1000;
   for (const w of waves) { const a = Math.max(0, 1 - w.r / (w.rad * 1.15)); g.strokeStyle = `rgba(${nc},${a})`; g.lineWidth = 9 + T * 3; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.stroke(); g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = 2 + T * .5; g.stroke(); g.fillStyle = `rgba(${nc},${a * .18})`; g.fill();
     if (T >= 2) { g.strokeStyle = `rgba(${nc},${a * .7})`; g.lineWidth = 3; g.beginPath(); g.arc(w.x, w.y, w.r * .72, 0, 7); g.stroke();
@@ -1099,9 +1113,9 @@ function draw(now) {
     if (T >= 4) { g.strokeStyle = `rgba(255,255,255,${a * .6})`; g.lineWidth = 2; g.beginPath(); g.arc(w.x, w.y, w.r * .45, 0, 7); g.stroke(); } } }
   { const T = lvTier(WL('nova')), nc = T >= 3 ? '120,235,255' : '190,170,255', tq = performance.now() / 1000;
   for (const n of novas) { const pos = t => [n.x + (n.tx - n.x) * t, n.y + (n.ty - n.y) * t], [x, y] = pos(n.t), r = 9 + T * 3;
-    if (T >= 1) for (let q = 1; q <= 3 + T; q++) { const [px, py] = pos(Math.max(0, n.t - q * .05)); g.fillStyle = `rgba(${nc},${.35 - q * .05})`; const z = (r - q) * .9; g.fillRect(px - z / 2, py - z / 2, z, z); }
+    for (let q = 1; q <= 3 + T; q++) { const [px, py] = pos(Math.max(0, n.t - q * .05)); g.fillStyle = `rgba(${nc},${.35 - q * .05})`; const z = (r - q) * .9; g.fillRect(px - z / 2, py - z / 2, z, z); }
     g.fillStyle = `rgba(${nc},.35)`; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); const z0 = 6 + T * 1.5; g.fillStyle = T >= 3 ? '#e8fbff' : '#e9e2ff'; g.fillRect(Math.round(x - z0 / 2), Math.round(y - z0 / 2), z0, z0);
-    if (T >= 1) { g.fillStyle = '#1a1030'; g.fillRect(Math.round(x) - 2, Math.round(y) - 1, 1.5, 1.5); g.fillRect(Math.round(x) + 1, Math.round(y) - 1, 1.5, 1.5); } // Geistergesicht
+    { g.fillStyle = '#1a1030'; g.fillRect(Math.round(x) - 3, Math.round(y) - 2, 2, 2); g.fillRect(Math.round(x) + 1, Math.round(y) - 2, 2, 2); g.fillRect(Math.round(x) - 1, Math.round(y) + 1, 2, 1); g.fillRect(Math.round(x) + 1, Math.round(y) - 1, 1.5, 1.5); } // Geistergesicht
     if (T >= 2) { g.fillStyle = '#ffffff'; for (let q = 0; q < T * 2; q++) { const an = tq * 3 + q * 6.283 / (T * 2); g.fillRect(Math.round(x + Math.cos(an) * r * 1.4) - 1, Math.round(y + Math.sin(an) * r * 1.4) - 1, 3, 3); } } } }
   hentsDraw();
   if (S.buf && S.buf.frz > Date.now()) { const tr = (S.bufP || {}).frzT || 0, [c, rgb] = ABCOL.frost[tr]; g.fillStyle = `rgba(${rgb},${.1 + .03 * tr + .03 * Math.sin(performance.now() / 200)})`; g.beginPath(); g.arc(G.cx, G.cy, G.R * 1.05, 0, 7); g.fill(); g.strokeStyle = `rgba(${rgb},.6)`; g.lineWidth = 2 + tr; g.stroke(); }
