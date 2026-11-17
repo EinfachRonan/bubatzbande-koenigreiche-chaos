@@ -682,7 +682,7 @@ function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Ma
 // 8-Bit-Look (Standard): alles wird in halber Auflösung gezeichnet und grob hochskaliert – wie auf dem Gameboy
 let RETRO = true; try { RETRO = localStorage.getItem('gb_retro') !== '0'; } catch (e) {}
 function resize() {
-  const r = cv.getBoundingClientRect(); DPR = RETRO ? .5 : (devicePixelRatio || 1) > 1.5 ? 1.5 : 1; // Pixel-Look braucht keine volle Auflösung, spart auf Handys viel Leistung
+  const r = cv.getBoundingClientRect(); DPR = RETRO ? 1 : (devicePixelRatio || 1) > 1.5 ? 1.5 : 1; // Pixel-Art-Look wie das Titelbild: feine, scharfe Pixel // Pixel-Look braucht keine volle Auflösung, spart auf Handys viel Leistung
   scanPat = null; W = r.width; H = r.height; cv.width = W * DPR; cv.height = H * DPR;
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
   if (travel > 0 && !built) { built = true; buildPlanet(0); intro = 2.4; introName = G.name; }
@@ -994,11 +994,10 @@ const UNI = [
 const uniOf = p => Math.floor((p - 1) / 10) + 1, pInU = p => (p - 1) % 10 + 1;
 const uniT = u => UNI[(u - 1) % UNI.length], uniName = u => uniT(u).n + (u > UNI.length ? ' ' + (Math.floor((u - 1) / UNI.length) + 1) : '');
 // Universums-Hintergründe (mit Higgsfield gemalt). Fehlt ein Bild, wird der Nebel wie bisher berechnet.
-const UBG = {};
+const UBG = {}; let nbPx = 5;
 function uniBg(u) { const k = ((u - 1) % 8) + 1; if (!UBG[k]) { const im = new Image(); im.onload = () => { im.ok = true; nebKey = ''; }; im.src = 'bg/u' + k + '.jpg'; UBG[k] = im; } return UBG[k].ok ? UBG[k] : null; }
 function buildNebula() {
-  const u = uniOf(S.p), T = uniT(u), px = 5, w = Math.ceil(W / px), h = Math.ceil(H / px); NB.width = w; NB.height = h; const rnd = mulberry(u * 977 + 3);
-  const bi = uniBg(u);
+  const u = uniOf(S.p), T = uniT(u), bi = uniBg(u), px = bi ? 2 : 5, w = Math.ceil(W / px), h = Math.ceil(H / px); NB.width = w; NB.height = h; nbPx = px; const rnd = mulberry(u * 977 + 3);
   if (bi) { // Bild auf grobe Pixel runterrechnen, damit es zum Pixel-Look passt
     const sc = Math.max(w / bi.width, h / bi.height), dw = bi.width * sc, dh = bi.height * sc;
     nbg.imageSmoothingEnabled = true; nbg.fillStyle = T.bg; nbg.fillRect(0, 0, w, h); nbg.globalAlpha = .9; nbg.drawImage(bi, (w - dw) / 2, (h - dh) / 2, dw, dh); nbg.globalAlpha = 1;
@@ -1030,18 +1029,27 @@ function overlays() {
 }
 // ---------- Pixel-Schiff ----------
 const SC = document.createElement('canvas'), scg = SC.getContext('2d'); SC.width = SC.height = 44;
+// Schiff-Sprites (Higgsfield-Pixel-Art), falls vorhanden: ships/<id>.png, Nase zeigt nach oben
+const SPR = {};
+function shipSpr(id) { if (!(id in SPR)) { const im = new Image(); im.onload = () => im.ok = true; im.onerror = () => {}; im.src = 'ships/' + id + '.png'; SPR[id] = im; } return SPR[id].ok ? SPR[id] : null; }
 function drawShip() {
   const hull = eqItem('h'), reac = eqItem('r'), eng = eqItem('t'), nf = eng.f || 1;
   scg.clearRect(0, 0, 44, 44); scg.save(); scg.translate(22, 22); scg.rotate(ship.ang); scg.scale(1, 1);
   for (let k = 0; k < nf; k++) { const ox = nf === 1 ? 0 : (k - (nf - 1) / 2) * 6, col = eng.col === 'rainbow' ? `hsl(${(performance.now() / 6 + k * 120) % 360},100%,65%)` : (boosting() ? '#9dff6a' : eng.col);
     scg.fillStyle = col; scg.beginPath(); scg.moveTo(ox - 3, -8); scg.lineTo(ox, -14 - Math.random() * (eng.tr ? 8 : 4)); scg.lineTo(ox + 3, -8); scg.fill();
     scg.fillStyle = '#fff'; scg.fillRect(ox - 1, -10, 2, 2); }
-  scg.fillStyle = '#0a0d10'; scg.strokeStyle = hull.col; scg.lineWidth = 1.6; scg.lineJoin = 'miter';
-  scg.beginPath(); hull.poly.forEach(([x, y], k) => k ? scg.lineTo(x, y) : scg.moveTo(x, y)); scg.closePath(); scg.fill(); scg.stroke();
-  scg.fillStyle = mixH(hull.col.length === 7 ? hull.col : '#ffffff', '#000000', .55); scg.beginPath(); scg.moveTo(0, 10); scg.lineTo(-3, 2); scg.lineTo(3, 2); scg.fill();
-  scg.fillStyle = reac.col; scg.fillRect(-2, -2, 4, 4); scg.fillStyle = '#fff'; scg.fillRect(-1, -1, 2, 2);
+  const spr = shipSpr(hull.id);
+  if (spr) { scg.save(); scg.rotate(Math.PI); scg.imageSmoothingEnabled = false; scg.drawImage(spr, -17, -17, 34, 34); scg.restore(); }
+  else { // Pixel-Art-Rumpf wie im Titelbild: heller Rumpf, dunkle Kontur, eine Seite schattiert, Cockpit-Glas
+    const hc = hull.col.length === 7 ? hull.col : '#ffffff', path = () => { scg.beginPath(); hull.poly.forEach(([x, y], k) => k ? scg.lineTo(x, y) : scg.moveTo(x, y)); scg.closePath(); };
+    scg.lineJoin = 'miter'; path(); scg.fillStyle = mixH(hc, '#ffffff', .55); scg.fill();
+    scg.save(); path(); scg.clip(); scg.fillStyle = mixH(hc, '#1a2a3a', .45); scg.fillRect(-20, -20, 20, 40); scg.fillStyle = 'rgba(255,255,255,.55)'; scg.fillRect(-1, -14, 2, 26); scg.restore();
+    scg.strokeStyle = '#0a1420'; scg.lineWidth = 1.6; path(); scg.stroke(); scg.strokeStyle = hc; scg.lineWidth = .8; scg.globalAlpha = .9; path(); scg.stroke(); scg.globalAlpha = 1;
+    scg.fillStyle = '#0a1420'; scg.beginPath(); scg.moveTo(0, 11); scg.lineTo(-3.5, 3); scg.lineTo(3.5, 3); scg.fill();
+    scg.fillStyle = '#5ce8f0'; scg.beginPath(); scg.moveTo(0, 9.5); scg.lineTo(-2.2, 4); scg.lineTo(2.2, 4); scg.fill(); scg.fillStyle = '#e8ffff'; scg.fillRect(-1, 5, 1, 2); }
+  scg.fillStyle = reac.col; scg.fillRect(-2, -3, 4, 4); scg.fillStyle = '#fff'; scg.fillRect(-1, -2, 2, 2);
   scg.restore();
-  const z = .82, sz = 44 * z; g.imageSmoothingEnabled = false;
+  const z = 1, sz = 44 * z; g.imageSmoothingEnabled = false;
   g.globalCompositeOperation = 'lighter'; g.globalAlpha = .35; g.drawImage(SC, ship.x - sz / 2 - 1, ship.y - sz / 2 - 1, sz + 2, sz + 2); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   g.drawImage(SC, ship.x - sz / 2, ship.y - sz / 2, sz, sz); g.imageSmoothingEnabled = true;
 }
@@ -1060,7 +1068,7 @@ function draw(now) {
   g.setTransform(DPR, 0, 0, DPR, sx * DPR, sy * DPR);
   g.fillStyle = uniT(uniOf(S.p)).bg; g.fillRect(-10, -10, W + 20, H + 20);
   if (nebKey !== uniOf(S.p) + ':' + W + 'x' + H) buildNebula();
-  g.imageSmoothingEnabled = false; g.drawImage(NB, 0, 0, NB.width * 5, NB.height * 5); g.imageSmoothingEnabled = true;
+  g.imageSmoothingEnabled = false; g.drawImage(NB, 0, 0, NB.width * nbPx, NB.height * nbPx); g.imageSmoothingEnabled = true;
   const tt = now / 1000;
   STARS.forEach((L, l) => { const sp = [3, 7, 14][l], sz = [1, 2, 2][l]; for (const st of L) { const x = Math.floor(st.x * W), y = Math.floor((st.y * H + tt * sp) % H), tw = .45 + .55 * Math.abs(Math.sin(tt * (1 + l) + st.ph));
     g.globalAlpha = tw * (l ? .9 : .5); g.fillStyle = st.c; g.fillRect(x, y, sz, sz); if (l === 2 && tw > .85) { g.fillRect(x - 2, y, 1, 1); g.fillRect(x + 3, y, 1, 1); g.fillRect(x, y - 2, 1, 1); g.fillRect(x, y + 3, 1, 1); } } });
@@ -1110,17 +1118,17 @@ function draw(now) {
   if (comet) { const a = Math.atan2(comet.vy, comet.vx); for (let k = 1; k <= 10; k++) { g.fillStyle = `rgba(255,214,90,${.5 - k * .045})`; const s = 7 - k * .5; g.fillRect(comet.x - Math.cos(a) * k * 7 - s / 2, comet.y - Math.sin(a) * k * 7 - s / 2, s, s); }
     g.save(); g.translate(comet.x, comet.y); g.rotate(performance.now() / 300); g.fillStyle = '#fff3b0'; g.shadowColor = '#ffd23f'; g.shadowBlur = 18; g.fillRect(-7, -7, 14, 14); g.restore(); }
   for (const f of fx) if (f.k === 'tap') { g.strokeStyle = `rgba(92,232,240,${f.t * 3})`; g.lineWidth = 2; g.strokeRect(f.x - (1.3 - f.t * 3) * 14, f.y - (1.3 - f.t * 3) * 14, (1.3 - f.t * 3) * 28, (1.3 - f.t * 3) * 28); }
-  if (WD('saw')) { const T = lvTier(WL('saw')), c = ['#9dff6a', '#9dff6a', '#5fe3a0', '#ffd23f', '#ffd23f'][T], dk = ['#2f6a1e', '#2f6a1e', '#1f5a3e', '#7a5a0c', '#7a5a0c'][T], rs = 12 + T, teeth = 8 + T;
+  if (WD('saw')) { const gcoS = g.globalCompositeOperation; g.globalCompositeOperation = 'source-over'; const T = lvTier(WL('saw')), c = '#e8eef2', acc = ['#9dff6a', '#9dff6a', '#5ce8f0', '#ffd23f', '#ffd23f'][T], dk = '#3a4a5a', rs = 12 + T, teeth = 8 + T;
     // feine Bahn + kleine Sägeblätter (Pixel-Look), dreht sich gemütlich
     g.strokeStyle = c; g.globalAlpha = .1 + T * .04; g.lineWidth = 2; g.beginPath(); g.arc(ship.x, ship.y, SAWR, 0, 7); g.stroke(); g.globalAlpha = 1;
     for (const [x, y, rk, a] of saws) { if (rk == null) continue;
       if (T >= 1) for (let q = 1; q <= 1 + T; q++) { const a2 = a - q * .07; g.globalAlpha = .14 - q * .02; g.fillStyle = c; g.beginPath(); g.arc(ship.x + Math.cos(a2) * rk, ship.y + Math.sin(a2) * rk, rs * .8, 0, 7); g.fill(); }
       g.globalAlpha = 1; g.save(); g.translate(x, y); g.rotate(sawA * 3.5);
       g.fillStyle = c; g.beginPath(); for (let k = 0; k < teeth; k++) { const an = k * Math.PI * 2 / teeth; g.lineTo(Math.cos(an) * rs, Math.sin(an) * rs); g.lineTo(Math.cos(an + Math.PI / teeth) * rs * .72, Math.sin(an + Math.PI / teeth) * rs * .72); } g.closePath(); g.fill();
-      g.fillStyle = dk; g.beginPath(); g.arc(0, 0, rs * .5, 0, 7); g.fill(); g.fillStyle = '#ffffff'; g.fillRect(-1.5, -1.5, 3, 3);
+      g.strokeStyle = '#0a1420'; g.lineWidth = 1; g.stroke(); g.fillStyle = dk; g.beginPath(); g.arc(0, 0, rs * .55, 0, 7); g.fill(); g.fillStyle = acc; g.beginPath(); g.arc(0, 0, rs * .38, 0, 7); g.fill(); g.fillStyle = '#ffffff'; g.fillRect(-1.5, -1.5, 3, 3);
       if (T >= 4) { g.strokeStyle = '#fff3b0'; g.lineWidth = 1; g.beginPath(); g.arc(0, 0, rs + 2, 0, 7); g.stroke(); }
       g.restore();
-      if (T >= 2 && Math.random() < .25) parts.push({ x, y, vx: (Math.random() - .5) * 60, vy: (Math.random() - .5) * 60, t: .3, c }); } }
+      if (T >= 2 && Math.random() < .25) parts.push({ x, y, vx: (Math.random() - .5) * 60, vy: (Math.random() - .5) * 60, t: .3, c: acc }); } g.globalCompositeOperation = gcoS; }
   { const T = lvTier(WL('mine')), c = T >= 3 ? '#ff4fd8' : '#ff8a5a', blink = Math.sin(performance.now() / 180) > 0;
     for (const m of mines) { const pos = t => [m.x + (m.tx - m.x) * t, m.y + (m.ty - m.y) * t - Math.sin(t * Math.PI) * (30 + T * 8)], [x, y] = pos(m.t), z = 6 + T * 1.5;
       if (T >= 1) for (let q = 1; q <= 2 + T; q++) { const [tx2, ty2] = pos(Math.max(0, m.t - q * .04)); g.globalAlpha = .4 - q * .06; g.fillStyle = T >= 2 ? '#8a8a9a' : c; g.fillRect(tx2 - z / 3, ty2 - z / 3, z / 1.5, z / 1.5); }
@@ -1161,7 +1169,7 @@ function draw(now) {
   const tq = performance.now() / 1000;
   for (const q of proj) { g.fillStyle = q.c || '#ffe36a'; if (q.solo && q.lv >= 1) { // Blaster-Kugel mit Stufen-Look
       const T = lvTier(q.lv), c = T >= 3 ? '#9dff6a' : q.c, sp = Math.hypot(q.vx, q.vy) || 1, ux = q.vx / sp, uy = q.vy / sp, r = 4 + T * 1.4;
-      for (let k = 1; k <= 3 + T * 2; k++) { g.globalAlpha = .5 - k * (.4 / (3 + T * 2)); g.fillStyle = c; const z = r * 2 * (1 - k * .08); g.fillRect(q.x - ux * k * (3 + T) - z / 2, q.y - uy * k * (3 + T) - z / 2, z, z); }
+      { const L = 18 + T * 8, gr = g.createLinearGradient(q.x - ux * L, q.y - uy * L, q.x, q.y); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(.6, c); gr.addColorStop(1, '#ffffff'); g.strokeStyle = gr; g.lineCap = 'round'; g.globalAlpha = .9; g.lineWidth = r * 1.4; g.beginPath(); g.moveTo(q.x - ux * L, q.y - uy * L); g.lineTo(q.x, q.y); g.stroke(); g.lineWidth = r * .5; g.strokeStyle = '#ffffff'; g.beginPath(); g.moveTo(q.x - ux * L * .4, q.y - uy * L * .4); g.lineTo(q.x, q.y); g.stroke(); g.lineCap = 'butt'; }
       g.globalAlpha = .3; g.beginPath(); g.arc(q.x, q.y, r * 2.2, 0, 7); g.fill();
       g.globalAlpha = 1; g.fillRect(q.x - r, q.y - r, r * 2, r * 2); g.fillStyle = '#fff'; g.fillRect(q.x - r / 2, q.y - r / 2, r, r);
       if (T >= 2) { g.fillStyle = T >= 3 ? '#c8f0ff' : c; for (let j = 0; j < T; j++) { const a = tq * 6 + j * 6.283 / T, rr = r * 2.4; g.fillRect(q.x + Math.cos(a) * rr - 1.5, q.y + Math.sin(a) * rr - 1.5, 3, 3); } }
@@ -1203,7 +1211,7 @@ function draw(now) {
     if (tr >= 2 && Math.random() < .5 && parts.length < 400) parts.push({ x: ship.x + (Math.random() - .5) * 30, y: ship.y + (Math.random() - .5) * 30, vx: (Math.random() - .5) * 40, vy: -40 - Math.random() * 40, t: .5, c }); }
   drawShip();
   // Texte
-  g.font = (RETRO ? '16px' : '10px') + ' Silkscreen,ui-monospace,monospace'; g.textAlign = 'center';
+  g.font = '10px' + ' Silkscreen,ui-monospace,monospace'; g.textAlign = 'center';
   for (const q of floats) { g.globalAlpha = Math.min(1, q.t * 1.5); g.fillStyle = '#000'; g.fillText(q.s, q.x + 1, q.y + 1); g.fillStyle = q.c; g.fillText(q.s, q.x, q.y); }
   g.globalAlpha = 1;
   g.restore();
@@ -1211,8 +1219,8 @@ function draw(now) {
   // Planeten-Banner
   if (intro > 0) { const k = Math.min(1, (2.4 - intro) * 4, intro * 2), y = H * .16; g.globalAlpha = k;
     g.fillStyle = 'rgba(5,6,10,.75)'; g.fillRect(0, y - 26, W, 50); g.fillStyle = G.boss ? '#ff4f7a' : G.pal[2]; g.fillRect(0, y - 26, W, 2); g.fillRect(0, y + 22, W, 2);
-    g.textAlign = 'center'; g.font = (RETRO ? '32px' : '22px') + ' Silkscreen,"Pixelify Sans",monospace'; g.fillStyle = '#fff'; const nu = pInU(S.p) === 1; g.fillText(nu ? 'UNIVERSUM ' + uniOf(S.p) : (G.boss ? 'BOSS' : 'PLANET ' + pInU(S.p)), W / 2 + (1 - k) * 40, y + 2);
-    g.font = (RETRO ? '16px' : '10px') + ' Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(nu ? uniName(uniOf(S.p)) + ' · Planet 1' : introName + ' · U' + uniOf(S.p), W / 2 - (1 - k) * 40, y + 17); if (G.type && G.type !== 'n') { g.fillStyle = '#ffe94d'; g.fillText(PTYPE[G.type].ico + ' ' + PTYPE[G.type].d, W / 2 - (1 - k) * 40, y + 32); } if (G.elite) { g.fillStyle = '#ff2a4a'; g.fillText('⚠ ELITE: doppelt so hart · Kiste garantiert', W / 2 - (1 - k) * 40, y + (G.type && G.type !== 'n' ? 46 : 32)); } g.globalAlpha = 1; }
+    g.textAlign = 'center'; g.font = '22px' + ' Silkscreen,"Pixelify Sans",monospace'; g.fillStyle = '#fff'; const nu = pInU(S.p) === 1; g.fillText(nu ? 'UNIVERSUM ' + uniOf(S.p) : (G.boss ? 'BOSS' : 'PLANET ' + pInU(S.p)), W / 2 + (1 - k) * 40, y + 2);
+    g.font = '10px' + ' Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(nu ? uniName(uniOf(S.p)) + ' · Planet 1' : introName + ' · U' + uniOf(S.p), W / 2 - (1 - k) * 40, y + 17); if (G.type && G.type !== 'n') { g.fillStyle = '#ffe94d'; g.fillText(PTYPE[G.type].ico + ' ' + PTYPE[G.type].d, W / 2 - (1 - k) * 40, y + 32); } if (G.elite) { g.fillStyle = '#ff2a4a'; g.fillText('⚠ ELITE: doppelt so hart · Kiste garantiert', W / 2 - (1 - k) * 40, y + (G.type && G.type !== 'n' ? 46 : 32)); } g.globalAlpha = 1; }
   // Röhrenbildschirm
   if (!scanPat) overlays(); if (!RETRO) { g.fillStyle = scanPat; g.fillRect(0, 0, W, H); } g.fillStyle = vign; g.fillRect(0, 0, W, H);
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -1963,7 +1971,7 @@ function openSettings() {
     <div class="vrow"><span>🎵 Musik</span><input type="range" min="0" max="100" value="${Math.round(v.m * 100)}" id="vm"><b id="vmv">${Math.round(v.m * 100)}</b></div>
     <div class="vrow"><span>💥 Effekte</span><input type="range" min="0" max="100" value="${Math.round(v.s * 100)}" id="vs"><b id="vsv">${Math.round(v.s * 100)}</b></div>
     <label class="vrow" style="cursor:pointer"><span>📳 Vibration</span><input type="checkbox" id="vvib" ${vibOn ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">${navigator.vibrate ? '' : 'geht auf diesem Gerät nicht'}</b></label>
-    <label class="vrow" style="cursor:pointer"><span>👾 8-Bit-Grafik</span><input type="checkbox" id="vretro" ${RETRO ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">grobe Retro-Pixel wie früher</b></label>
+    <label class="vrow" style="cursor:pointer"><span>👾 Pixel-Art-Grafik</span><input type="checkbox" id="vretro" ${RETRO ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">scharfe Pixel wie im Titelbild (aus = weicher, höhere Auflösung)</b></label>
     <p style="margin-top:8px">${logged() ? '☁ Dein Stand wird auf deinem Konto gespeichert.' : '💾 Ohne Konto wird nur auf diesem Gerät gespeichert.'} · Version ${VLABEL}</p>`, [['Fertig', null]]);
   const bind = (id, k) => { const el = $(id); el.oninput = () => { SND.set(k, el.value / 100); $(id + 'v').textContent = el.value; if (k === 's') SND.fx.up(); }; };
   bind('vm', 'm'); bind('vs', 's');
