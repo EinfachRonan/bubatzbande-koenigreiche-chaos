@@ -342,6 +342,9 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 @media (min-width:1400px){ .sk{grid-template-columns:repeat(4,minmax(0,1fr))!important} .inv2{grid-template-columns:repeat(4,minmax(0,1fr))} }
 .keys{display:none;position:absolute;left:14px;bottom:12px;z-index:3;font-size:11px;color:#6f8287;pointer-events:none;letter-spacing:.3px}
 .keys b{display:inline-block;min-width:18px;padding:1px 5px;margin-right:3px;border:1px solid #2a363b;background:#070b0d;color:#bfe;text-align:center;font-weight:400}
+/* Menü zugeklappt: nur Hotbar + Leiste, Rest ist Spielfeld */
+#app.fold .list{display:none}
+#app.fold .panel{height:auto!important;max-height:none}
 /* Kleine Handys (z. B. iPhone SE): Spielfeld etwas kleiner, unten mehr Platz zum Bedienen */
 @media (max-height:760px){
   .panel{height:calc(100% - 300px);max-height:none}
@@ -811,7 +814,7 @@ function step(dt) {
   if (lineTarget < 0 || !G.alive[lineTarget]) lineTarget = nearest(ship.x + Math.cos(ship.orb + 1.57) * 30, ship.y + Math.sin(ship.orb + 1.57) * 30); // nächster Block in Flugrichtung
   if (dL) {
     if ((cdBlast -= dt * R) <= 0 && lineTarget >= 0) { cdBlast = .25; const nb = 1 + Math.min(2, Math.floor(ST('line') / 2)), a0 = face;
-      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; SND.fx.shoot(); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * .25 / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1, pierce: ML('line') ? (ML('line') >= 3 ? 2 : 1) : 0 }); } } }
+      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; SND.fx.shoot(); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * .25 / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1, lv: WL('line'), pierce: ML('line') ? (ML('line') >= 3 ? 2 : 1) : 0 }); } } }
   // 2) Kristallstern: 4 rotierende Strahlen
   const dS = WD('star');
   if (dS) { starA += dt * 1.6 * R; G.star = []; const ns = Math.min(8, 4 + ST('star')); for (let k = 0; k < ns; k++) { const a = starA + k * Math.PI * 2 / ns, [i, ex, ey] = ray(ship.x, ship.y, a, 170 * (1 + .15 * ML('star'))); G.star.push([ex, ey]); if (i >= 0) hit(i, dS / ns * dt * 1.6 * (1 + 2 * critCh())); } } else G.star = null;
@@ -820,7 +823,7 @@ function step(dt) {
   if (dD && (cdDrill -= dt * R) <= 0) {
     const cdD = 2.2 * Math.max(.5, 1 - .08 * ST('drill')); cdDrill = cdD; let b = dD * cdD * critMul(); const lw = ST('drill') >= 3 ? 2 : 1; const dx = fcx, dy = fcy; let ex = ship.x, ey = ship.y, seen = new Set();
     for (let l = 0; l < G.R * 2.6 && b > 0; l += CELL * .5) { const px = ship.x + dx * l, py = ship.y + dy * l; ex = px; ey = py; for (const [ox, oy] of (lw > 1 ? [[0, 0], [-dy * CELL * .6, dx * CELL * .6], [dy * CELL * .6, -dx * CELL * .6]] : [[0, 0], [-dy * CELL * .6, dx * CELL * .6]])) { const i = cellAt(px + ox, py + oy); if (i < 0 || !G.alive[i] || seen.has(i)) continue; seen.add(i); const d = Math.min(b, G.hp[i]); b -= d; hit(i, d + .0001); } }
-    fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ex, y2: ey, t: .35 });
+    fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ex, y2: ey, t: .35, lv: WL('drill') });
     if (ML('drill')) { const n = ML('drill') >= 3 ? 3 : 2; for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) if (a * a + b2 * b2 <= n * n) hit(cellAt(ex + a * CELL, ey + b2 * CELL), dD * cdD * critMul() * .25); fx.push({ k: 'nova', x: ex, y: ey, r: CELL * (n + 1), t: .4, c: '120,230,255' }); SND.fx.boom(); }
   }
   // 4) Geister-Nova: Geisterkugel fliegt in den Planeten und explodiert dort mit Radius (wächst mit der Stufe)
@@ -870,8 +873,8 @@ function step(dt) {
   // 10) Königsschuss
   const dP = WD('sniper');
   if (dP && (cdSnip -= dt * R) <= 0) { cdSnip = 4 * Math.max(.4, 1 - .1 * ST('sniper')); let best = -1; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i] && (best < 0 || G.ore[i] > G.ore[best])) { const [x0, y0] = cellXY(i); let da = Math.atan2(y0 - ship.y, x0 - ship.x) - face; da = Math.atan2(Math.sin(da), Math.cos(da)); if (Math.abs(da) < .6) best = i; } if (best < 0) best = front(CELL * 3);
-    const extra = ML('sniper') ? (ML('sniper') >= 3 ? 2 : 1) : 0; if (best >= 0 && extra) { const used = new Set([best]); for (let e = 0; e < extra; e++) { let b2 = -1; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i] && !used.has(i) && (b2 < 0 || G.ore[i] > G.ore[b2])) { const [x0, y0] = cellXY(i); let da = Math.atan2(y0 - ship.y, x0 - ship.x) - face; da = Math.atan2(Math.sin(da), Math.cos(da)); if (Math.abs(da) < .9) b2 = i; } if (b2 < 0) b2 = front(CELL * (4 + e * 3), 40 * CELL * CELL); if (b2 < 0 || used.has(b2)) break; used.add(b2); const [x3, y3] = cellXY(b2); hit(b2, dP * cdSnip * 3 * critMul()); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: x3, y2: y3, t: .3, w: 2, c: '#ffd23f' }); } }
-    if (best >= 0) { const [x, y] = cellXY(best); hit(best, dP * cdSnip * 3 * critMul()); const c = best % COLS, r = best / COLS | 0; for (const [a, b2] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (c + a >= 0 && c + a < COLS && r + b2 >= 0 && r + b2 < ROWS) hit((r + b2) * COLS + c + a, dP); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: x, y2: y, t: .3, w: 2, c: '#ffd23f' }); } }
+    const extra = ML('sniper') ? (ML('sniper') >= 3 ? 2 : 1) : 0; if (best >= 0 && extra) { const used = new Set([best]); for (let e = 0; e < extra; e++) { let b2 = -1; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i] && !used.has(i) && (b2 < 0 || G.ore[i] > G.ore[b2])) { const [x0, y0] = cellXY(i); let da = Math.atan2(y0 - ship.y, x0 - ship.x) - face; da = Math.atan2(Math.sin(da), Math.cos(da)); if (Math.abs(da) < .9) b2 = i; } if (b2 < 0) b2 = front(CELL * (4 + e * 3), 40 * CELL * CELL); if (b2 < 0 || used.has(b2)) break; used.add(b2); const [x3, y3] = cellXY(b2); hit(b2, dP * cdSnip * 3 * critMul()); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: x3, y2: y3, t: .3, w: 2, c: '#ffd23f', lv: WL('sniper') }); } }
+    if (best >= 0) { const [x, y] = cellXY(best); hit(best, dP * cdSnip * 3 * critMul()); const c = best % COLS, r = best / COLS | 0; for (const [a, b2] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (c + a >= 0 && c + a < COLS && r + b2 >= 0 && r + b2 < ROWS) hit((r + b2) * COLS + c + a, dP); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: x, y2: y, t: .3, w: 2, c: '#ffd23f', lv: WL('sniper') }); } }
   abStep(dt);
   shake = Math.max(0, shake - dt * 30); if (intro > 0) intro -= dt;
   { const e = eqItem('t'); if (Math.random() < dt * (e.smoke ? 30 : e.tr ? 18 : 10) && parts.length < 420) { const a = ship.ang - Math.PI / 2; parts.push({ x: ship.x + Math.cos(a) * 14, y: ship.y + Math.sin(a) * 14, vx: Math.cos(a) * 30 + (Math.random() - .5) * 20, vy: Math.sin(a) * 30 + (Math.random() - .5) * 20, t: e.smoke ? 1.1 : .5, c: e.smoke ? '#7fbf6a' : (e.col === 'rainbow' ? `hsl(${Math.random() * 360},100%,65%)` : e.col) }); } }
@@ -1038,9 +1041,9 @@ function draw(now) {
   g.restore();
   g.globalCompositeOperation = 'lighter';
   // Strahlen
-  if (G.star) for (const [x, y] of G.star) beam(ship.x, ship.y, x, y, '#ff4f7a', 1.6);
+  if (G.star) for (const [x, y] of G.star) megaBeam(ship.x, ship.y, x, y, WL('star'), '#ff4f7a', 1.6);
   for (const f of fx) {
-    if (f.k === 'lance') beam(f.x, f.y, f.x2, f.y2, f.c || '#f4fbff', (f.w || 4) * f.t / .35 + 1);
+    if (f.k === 'lance') { if (f.lv) megaBeam(f.x, f.y, f.x2, f.y2, f.lv, f.c || '#f4fbff', (f.w || 4) * .6 + 1, Math.min(1, f.t / .2)); else beam(f.x, f.y, f.x2, f.y2, f.c || '#f4fbff', (f.w || 4) * f.t / .35 + 1); }
     else if (f.k === 'sq') { const z = CELL * (1 + (.28 - f.t) * 4); g.globalAlpha = f.t * 3.2; g.strokeStyle = f.c; g.lineWidth = 2; g.strokeRect(f.x - z / 2, f.y - z / 2, z, z); g.globalAlpha = 1; }
     else if (f.k === 'zap') { const mx = (f.x + f.x2) / 2 + (Math.random() - .5) * 10, my = (f.y + f.y2) / 2 + (Math.random() - .5) * 10; g.strokeStyle = '#a8c8ff'; g.lineWidth = 2; g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(mx, my); g.lineTo(f.x2, f.y2); g.stroke(); }
     else if (f.k === 'cast') { for (let q = 0; q <= (f.tr || 0); q++) { g.strokeStyle = `rgba(${f.c || '201,162,255'},${Math.max(0, f.t * 2 - q * .2)})`; g.lineWidth = 3 + (f.tr || 0); g.beginPath(); g.arc(f.x, f.y, (50 + q * 22) * (1 - f.t * 2) + 10, 0, 7); g.stroke(); } }
@@ -1074,7 +1077,15 @@ function draw(now) {
     for (let q = 0; q <= bt; q++) { g.strokeStyle = bc; g.globalAlpha = 1 - q * .2; g.lineWidth = 2 + (bt >= 3 && !q ? 2 : 0); g.beginPath(); g.arc(bhole.x, bhole.y, r * (.6 + q * .22 + .08 * Math.sin(tn / 80 + q)), 0, 7); g.stroke(); } g.globalAlpha = 1;
     if (bt >= 1) for (let q = 0; q < 8 + bt * 8; q++) { const a = tn / (420 - bt * 60) + q * 6.283 / (8 + bt * 8), rr = r * (.9 + .5 * ((q * 37) % 10) / 10); g.fillStyle = q % 3 ? bc : '#fff'; g.fillRect(bhole.x + Math.cos(a) * rr - 1.5, bhole.y + Math.sin(a) * rr * .55 - 1.5, 3, 3); }
     g.fillStyle = '#000'; g.beginPath(); g.arc(bhole.x, bhole.y, r * .45, 0, 7); g.fill(); g.globalCompositeOperation = 'lighter'; }
-  for (const q of proj) { g.fillStyle = q.c || '#ffe36a'; if (q.solo) { g.globalAlpha = .45; g.fillRect(Math.round(q.x - q.vx * .02) - 2, Math.round(q.y - q.vy * .02) - 2, 4, 4); g.globalAlpha = 1; g.fillRect(Math.round(q.x) - 3, Math.round(q.y) - 3, 6, 6); g.fillStyle = '#fff'; g.fillRect(Math.round(q.x) - 1, Math.round(q.y) - 1, 2, 2); } else g.fillRect(q.x - 2, q.y - 2, 4, 4); }
+  const tq = performance.now() / 1000;
+  for (const q of proj) { g.fillStyle = q.c || '#ffe36a'; if (q.solo && q.lv >= 10) { // Blaster-Kugel mit Stufen-Look
+      const T = lvTier(q.lv), c = T >= 3 ? '#4fc3ff' : q.c, sp = Math.hypot(q.vx, q.vy) || 1, ux = q.vx / sp, uy = q.vy / sp, r = 3 + T * 1.4;
+      for (let k = 1; k <= 3 + T * 2; k++) { g.globalAlpha = .5 - k * (.4 / (3 + T * 2)); g.fillStyle = c; const z = r * 2 * (1 - k * .08); g.fillRect(q.x - ux * k * (3 + T) - z / 2, q.y - uy * k * (3 + T) - z / 2, z, z); }
+      g.globalAlpha = .3; g.beginPath(); g.arc(q.x, q.y, r * 2.2, 0, 7); g.fill();
+      g.globalAlpha = 1; g.fillRect(q.x - r, q.y - r, r * 2, r * 2); g.fillStyle = '#fff'; g.fillRect(q.x - r / 2, q.y - r / 2, r, r);
+      if (T >= 2) { g.fillStyle = T >= 3 ? '#c8f0ff' : c; for (let j = 0; j < T; j++) { const a = tq * 14 + j * 6.283 / T, rr = r * 2.4; g.fillRect(q.x + Math.cos(a) * rr - 1.5, q.y + Math.sin(a) * rr - 1.5, 3, 3); } }
+      continue; }
+    if (q.solo) { g.globalAlpha = .45; g.fillRect(Math.round(q.x - q.vx * .02) - 2, Math.round(q.y - q.vy * .02) - 2, 4, 4); g.globalAlpha = 1; g.fillRect(Math.round(q.x) - 3, Math.round(q.y) - 3, 6, 6); g.fillStyle = '#fff'; g.fillRect(Math.round(q.x) - 1, Math.round(q.y) - 1, 2, 2); } else g.fillRect(q.x - 2, q.y - 2, 4, 4); }
   for (const q of parts) { g.fillStyle = q.c; g.globalAlpha = Math.min(1, q.t * 2); const z = q.t > .4 ? 4 : 2; g.fillRect(Math.round(q.x - z / 2), Math.round(q.y - z / 2), z, z); }
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   // Drohnen
@@ -1113,6 +1124,30 @@ function drawMini(now) {
   for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i]) { m.fillStyle = G.ore[i] === 3 ? '#ffffff' : G.ore[i] === 4 ? '#c9a2ff' : '#ffd23f'; const c = i % COLS, r = i / COLS | 0; m.fillRect(c * sc, r * sc, Math.ceil(sc), Math.ceil(sc)); }
   const k = sc / CELL; m.strokeStyle = 'rgba(255,255,255,.7)'; m.lineWidth = 1; m.strokeRect((cam.x - W / 2) * k, (cam.y - H / 2) * k, W * k, H * k);
   m.fillStyle = '#5ce8f0'; m.fillRect(ship.x * k - 2, ship.y * k - 2, 4, 4);
+}
+// Laser mit Stufen-Look: Stufe 10 dicker + Flackern, 25 Energie-Spiralen drumrum (Kamehameha), 50 wird er blau-weiß, 100 riesig mit 3 Spiralen + Funken
+const lvTier = lv => lv >= 100 ? 4 : lv >= 50 ? 3 : lv >= 25 ? 2 : lv >= 10 ? 1 : 0;
+function megaBeam(x1, y1, x2, y2, lv, col, w, alpha) {
+  const T = lvTier(lv), A = alpha == null ? 1 : alpha, c = T >= 3 ? '#4fc3ff' : col, W0 = w * (1 + .45 * T), tt = performance.now() / 1000;
+  const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+  const line = () => { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); };
+  g.lineCap = 'round'; g.strokeStyle = c;
+  g.globalAlpha = (.12 + .03 * T) * A; g.lineWidth = W0 * (3 + T); line();
+  g.globalAlpha = .45 * A; g.lineWidth = W0 * 2; line();
+  g.globalAlpha = A; g.strokeStyle = T >= 1 ? '#ffffff' : c; g.lineWidth = Math.max(1, W0 * (T >= 1 ? .75 : 1) * (T >= 1 ? .8 + Math.random() * .4 : 1)); line();
+  if (T >= 2) { // Energie-Spiralen, die sich um den Strahl winden
+    const n = T >= 4 ? 3 : 2, amp = W0 * (1.6 + T * .7), seg = Math.max(10, Math.min(40, L / 8 | 0)), sc = T >= 3 ? '#c8f0ff' : c;
+    g.strokeStyle = sc; g.lineWidth = 1.2 + T * .45; g.globalAlpha = .9 * A;
+    for (let j = 0; j < n; j++) { g.beginPath();
+      for (let k = 0; k <= seg; k++) { const f = k / seg, sd = f * L, env = Math.min(1, sd / 26) * (1 - f * .25), o = Math.sin(sd * .085 - tt * 16 + j * 6.283 / n) * amp * env;
+        const px = x1 + dx * f + nx * o, py = y1 + dy * f + ny * o; k ? g.lineTo(px, py) : g.moveTo(px, py); }
+      g.stroke(); }
+    // Energiekugel am Schiff + Aufprall
+    const pr = W0 * (1.6 + .35 * T) * (1 + .18 * Math.sin(tt * 22)); g.fillStyle = c; g.globalAlpha = .35 * A; g.beginPath(); g.arc(x1, y1, pr * 1.8, 0, 7); g.fill();
+    g.fillStyle = '#ffffff'; g.globalAlpha = .9 * A; g.beginPath(); g.arc(x1, y1, pr * .7, 0, 7); g.fill();
+    g.fillStyle = c; g.globalAlpha = .5 * A; g.beginPath(); g.arc(x2, y2, pr * (1.2 + Math.random() * .5), 0, 7); g.fill(); }
+  if (T >= 4) { g.fillStyle = '#ffffff'; for (let k = 0; k < 6; k++) { const f = Math.random(), o = (Math.random() - .5) * W0 * 6; g.globalAlpha = Math.random() * A; g.fillRect(x1 + dx * f + nx * o - 1, y1 + dy * f + ny * o - 1, 2, 2); } }
+  g.globalAlpha = 1; g.lineCap = 'butt';
 }
 function beam(x1, y1, x2, y2, col, w) { g.strokeStyle = col; g.globalAlpha = .35; g.lineWidth = w * 3; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); g.globalAlpha = 1; g.lineWidth = w; g.stroke(); }
 
@@ -1198,7 +1233,12 @@ function render() {
   }
   ui();
 }
-document.querySelectorAll('.nav [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; $('list').scrollTop = 0; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x === b)); render(); });
+// Gleichen Reiter nochmal antippen = Menü zuklappen (großes Spielfeld zum Zuschauen), nochmal = wieder auf
+const setFold = on => { const a = $('app'); if (a.classList.contains('fold') === on) return; a.classList.toggle('fold', on); if (on) document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.remove('on')); requestAnimationFrame(() => { resize(); }); };
+document.querySelectorAll('.nav [data-t]').forEach(b => b.onclick = () => {
+  const fold = $('app').classList.contains('fold');
+  if (!fold && tab === b.dataset.t) { setFold(true); return; }
+  tab = b.dataset.t; $('list').scrollTop = 0; setFold(false); document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x === b)); render(); });
 function upgradeFx(w) { SND.fx.win(); const n = ST(w.id); fx.push({ k: 'nova', x: ship.x, y: ship.y, r: 90, t: .8, c: '255,233,77' }); for (let k = 0; k < 30; k++) parts.push({ x: ship.x, y: ship.y, vx: (Math.random() - .5) * 300, vy: (Math.random() - .5) * 300, t: .8, c: '#ffe94d' });
   overlay(`<div class="crate" style="--rc:#ffe94d"><div class="cbox" style="font-size:44px;color:#ffe94d">★${n}</div></div><h2 style="color:#ffe94d">${w.n} aufgewertet!</h2><p>x2 Schaden${UPTXT[w.id] ? ' · ' + UPTXT[w.id] : ''}<br>Nächstes Upgrade bei Stufe ${msNext(WL(w.id))}</p>`, [['Stark', null]]); }
 function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3 * (PK('r', 10) ? 1.5 : 1); S.boostCd = S.boostEnd + 3 * 60e3; /* 3 min Abklingzeit nach dem Boost */ toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); }
@@ -1598,7 +1638,7 @@ function hotbar(force) {
     b.querySelector('.ct').textContent = left > 0 ? Math.ceil(left / 1000) : ''; b.classList.toggle('rdy', left <= 0);
     b.classList.toggle('act', (a.id === 'over' && buf('dmg')) || (a.id === 'gold' && buf('cr'))); });
 }
-function goTab(t) { tab = t; $('list').scrollTop = 0; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === t)); render(); }
+function goTab(t) { setFold(false); tab = t; $('list').scrollTop = 0; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === t)); render(); }
 let hTab = 'h', abSel = null;
 function renderAb(L) {
   const own = ABIL.filter(a => AL(a.id)), dc = drawCost(), allOwned = own.length === ABIL.length;
