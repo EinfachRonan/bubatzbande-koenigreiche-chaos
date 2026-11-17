@@ -445,6 +445,7 @@ const PAL = [
 const wpCost = l => 25 * (l + 1); // Stufe 1 = 25, Stufe 2 = 50, Stufe 3 = 75 …
 const WARP = [
   { id: 'kraft', n: 'Dunkle Kraft', d: () => '+100 % Schaden und CR', max: 20, cost: wpCost, ico: '<path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/><circle cx="12" cy="12" r="2"/>' },
+  { id: 'tempo', n: 'Schusstempo', d: () => '+8 % Schussgeschwindigkeit aller Waffen', max: 10, cost: wpCost, ico: '<path d="M3 12h10M9 7l5 5-5 5"/><path d="M15 7l5 5-5 5"/>' },
   { id: 'slot', n: 'Waffenslots', d: () => '+1 Platz für eine Waffe', max: 8, cost: wpCost, ico: '<rect x="3" y="6" width="7" height="12"/><rect x="14" y="6" width="7" height="12"/><path d="M17.5 10v4M15.5 12h4"/>' },
   { id: 'start', n: 'Startkapital', d: l => 'Start mit ' + fmt(startCr(l + 1)) + ' CR', max: 10, cost: wpCost, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
   { id: 'keep', n: 'Kristallspeicher', d: l => 'Warp behält ' + keepPct(l) + ' % → ' + keepPct(l + 1) + ' % ◆', max: 6, cost: wpCost, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M8 12h8M12 8v8"/>' },
@@ -464,7 +465,7 @@ const WARP = [
 ];
 const keepPct = l => 20 + 10 * (l == null ? WP('keep') : l);
 const startCr = l => l ? 300 * Math.pow(8, l - 1) : 0;
-const wpOpen = id => id === 'kraft' || (S.wpu || []).includes(id);
+const wpOpen = id => id === 'kraft' || id === 'tempo' || (S.wpu || []).includes(id);
 const wpUnlCost = () => 10; /* neue Warp-Fähigkeit freischalten: immer 10 ✦ */
 const maxWeapons = () => 2 + WP('slot');
 const NAMES = ['Kräuterhöhle', 'Rostrot', 'Violettia', 'Moosmond', 'Spießerstern', 'Frostkugel', 'Goldader'];
@@ -623,7 +624,7 @@ const PERKS = {
 };
 const PK = (sl, lv) => !!S && !!S.eq && ILV(eqItem(sl).id) >= lv;
 const critCh = () => .04 * SK('crit') + HA('crit') + (PK('r', 3) ? .1 : 0);
-const rate = () => (1 + .1 * SK('spd')) * itemBonus('t') * (PK('t', 10) ? 1.25 : 1);
+const rate = () => (1 + .1 * SK('spd')) * itemBonus('t') * (PK('t', 10) ? 1.25 : 1) * (1 + .08 * WP('tempo'));
 const MS = [10, 25, 50, 100];
 const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100) / 100) : 0);
 const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(200, (Math.floor(l / 100) + 1) * 100); };
@@ -791,7 +792,7 @@ function step(dt) {
   if (travel > 0) return travelStep(dt);
   const R = rate();
   // Animationen nicht zu hektisch: Feuerrate über x1,3 wird zu mehr Schaden pro Treffer statt mehr Schüssen. Ab Waffenstufe 75: +10 % Tempo.
-  const Rv = Math.min(R, 1.3), Rd = R / Rv, sp75 = id => WL(id) >= 75 ? 1.1 : 1;
+  const Rv = Math.min(R, 1.3 * (1 + .04 * WP('tempo'))), Rd = R / Rv, sp75 = id => WL(id) >= 75 ? 1.1 : 1;
   // Schiff kreist um den Planeten
   if ((surfT -= dt) <= 0) { surfaceBins(); surfT = .4; }
   const lr = localR(ship.orb), orbR = lr + CELL * 2.2 + 16;
@@ -1141,17 +1142,33 @@ function draw(now) {
     if (up) { P(-4, -3, 3, 2); P(2, -3, 3, 2); P(-6, -5, 2, 2); P(5, -5, 2, 2); } else { P(-4, 0, 3, 2); P(2, 0, 3, 2); P(-6, 1, 2, 2); P(5, 1, 2, 2); }
     g.fillStyle = '#ff4f7a'; P(-1, -1, 1, 1); P(1, -1, 1, 1); g.globalAlpha = 1; }
   g.globalCompositeOperation = gcoB;
-  { const T = lvTier(WL('nova')), nc = T >= 3 ? '120,235,255' : '190,170,255', tq = performance.now() / 1000;
-  for (const w of waves) { const a = Math.max(0, 1 - w.r / (w.rad * 1.15)); g.strokeStyle = `rgba(${nc},${a})`; g.lineWidth = 9 + T * 3; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.stroke(); g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = 2 + T * .5; g.stroke(); g.fillStyle = `rgba(${nc},${a * .18})`; g.fill();
-    if (T >= 2) { g.strokeStyle = `rgba(${nc},${a * .7})`; g.lineWidth = 3; g.beginPath(); g.arc(w.x, w.y, w.r * .72, 0, 7); g.stroke();
-      g.fillStyle = `rgba(255,255,255,${a})`; const n = 10 + T * 4; for (let q = 0; q < n; q++) { const an = q * 6.283 / n + tq * (q % 2 ? 1.5 : -1.5); g.fillRect(Math.round(w.x + Math.cos(an) * w.r) - 2, Math.round(w.y + Math.sin(an) * w.r) - 2, 4, 4); } }
-    if (T >= 4) { g.strokeStyle = `rgba(255,255,255,${a * .6})`; g.lineWidth = 2; g.beginPath(); g.arc(w.x, w.y, w.r * .45, 0, 7); g.stroke(); } } }
-  { const T = lvTier(WL('nova')), nc = T >= 3 ? '120,235,255' : '190,170,255', tq = performance.now() / 1000;
-  for (const n of novas) { const pos = t => [n.x + (n.tx - n.x) * t, n.y + (n.ty - n.y) * t], [x, y] = pos(n.t), r = 9 + T * 3;
-    for (let q = 1; q <= 3 + T; q++) { const [px, py] = pos(Math.max(0, n.t - q * .05)); g.fillStyle = `rgba(${nc},${.35 - q * .05})`; const z = (r - q) * .9; g.fillRect(px - z / 2, py - z / 2, z, z); }
-    g.fillStyle = `rgba(${nc},.35)`; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); const z0 = 6 + T * 1.5; g.fillStyle = T >= 3 ? '#e8fbff' : '#e9e2ff'; g.fillRect(Math.round(x - z0 / 2), Math.round(y - z0 / 2), z0, z0);
-    { g.fillStyle = '#1a1030'; g.fillRect(Math.round(x) - 3, Math.round(y) - 2, 2, 2); g.fillRect(Math.round(x) + 1, Math.round(y) - 2, 2, 2); g.fillRect(Math.round(x) - 1, Math.round(y) + 1, 2, 1); g.fillRect(Math.round(x) + 1, Math.round(y) - 1, 1.5, 1.5); } // Geistergesicht
-    if (T >= 2) { g.fillStyle = '#ffffff'; for (let q = 0; q < T * 2; q++) { const an = tq * 3 + q * 6.283 / (T * 2); g.fillRect(Math.round(x + Math.cos(an) * r * 1.4) - 1, Math.round(y + Math.sin(an) * r * 1.4) - 1, 3, 3); } } } }
+  // ===== Geister-Nova: ein Geist fliegt hin, kreischt und explodiert in einen Wirbel aus Seelen =====
+  { const gcoN = g.globalCompositeOperation; g.globalCompositeOperation = 'source-over'; const T = lvTier(WL('nova')), GC = T >= 3 ? ['#e6c8ff', '#b46cff', '138,80,255'] : ['#d8fff0', '#5fffc0', '60,255,180'], tq = performance.now() / 1000;
+  const ghost = (x, y, sz, a, look) => { // Pixel-Geist: runder Kopf, wabernder Fransen-Saum, leuchtende Augen
+    const u = Math.max(2, Math.round(sz / 7)); g.save(); g.translate(Math.round(x), Math.round(y)); g.globalAlpha = a;
+    g.fillStyle = `rgba(${GC[2]},.25)`; g.beginPath(); g.arc(0, 0, u * 6, 0, 7); g.fill();
+    const rows = [[-2, 2], [-3, 3], [-3, 3], [-3, 3], [-3, 3], [-3, 3]]; g.fillStyle = GC[0];
+    rows.forEach(([l, r], k) => g.fillRect(l * u, (k - 3) * u, (r - l + 1) * u, u));
+    g.fillRect(-1 * u, -4 * u, 3 * u, u);
+    for (let k = -3; k <= 3; k++) if ((k + Math.floor(tq * 8)) % 2 === 0) g.fillRect(k * u, 3 * u, u, u); // wabernder Saum
+    g.fillStyle = '#10061e'; g.fillRect(-2 * u, -2 * u, u, look ? 2 * u : u); g.fillRect(1 * u, -2 * u, u, look ? 2 * u : u); g.fillRect(-1 * u, 1 * u, 2 * u, u); // Augen + Mund
+    g.fillStyle = GC[1]; g.fillRect(-2 * u, -2 * u, u / 2, u / 2); g.fillRect(1 * u, -2 * u, u / 2, u / 2);
+    g.restore(); g.globalAlpha = 1; };
+  for (const w of waves) { const k = Math.min(1, w.r / w.rad), a = Math.max(0, 1 - w.r / (w.rad * 1.15));
+    // Aufschrei-Blitz in der Mitte
+    if (k < .3) { g.fillStyle = `rgba(255,255,255,${(.3 - k) * 2.5})`; g.beginPath(); g.arc(w.x, w.y, w.rad * (.25 + k), 0, 7); g.fill(); ghost(w.x, w.y, 20 + T * 6, (.3 - k) * 3, true); }
+    // zackiger Geister-Ring, der wabert
+    g.strokeStyle = `rgba(${GC[2]},${a})`; g.lineWidth = 4 + T * 2; g.beginPath();
+    for (let q = 0; q <= 48; q++) { const an = q / 48 * 6.283, rr = w.r * (1 + .06 * Math.sin(an * 9 + tq * 6) + .03 * Math.sin(an * 23 - tq * 9)); const px = w.x + Math.cos(an) * rr, py = w.y + Math.sin(an) * rr; q ? g.lineTo(px, py) : g.moveTo(px, py); }
+    g.stroke(); g.strokeStyle = `rgba(255,255,255,${a * .9})`; g.lineWidth = 1.5; g.stroke(); g.fillStyle = `rgba(${GC[2]},${a * .12})`; g.fill();
+    // Seelen fliegen spiralförmig mit der Welle nach außen
+    const ns = 6 + T * 3; for (let q = 0; q < ns; q++) { const an = q / ns * 6.283 + k * (2.4 + T * .4), rr = w.r * (.55 + .4 * ((q * .37) % 1)); ghost(w.x + Math.cos(an) * rr, w.y + Math.sin(an) * rr, 7 + T, a, false); }
+    // Ektoplasma-Spritzer
+    if (T >= 2) { g.fillStyle = GC[1]; for (let q = 0; q < 10 + T * 4; q++) { const an = q * 2.399 + w.x, rr = w.r * (1 + ((q * .53) % .2)); g.globalAlpha = a; g.fillRect(Math.round(w.x + Math.cos(an) * rr) - 1, Math.round(w.y + Math.sin(an) * rr) - 1, 3, 3); } g.globalAlpha = 1; } }
+  // Geist im Flug, mit Schweif aus kleinen Seelen
+  for (const n of novas) { const pos = t => [n.x + (n.tx - n.x) * t, n.y + (n.ty - n.y) * t], [x, y] = pos(n.t), bob = Math.sin(tq * 10) * 3;
+    for (let q = 1; q <= 4 + T; q++) { const [px, py] = pos(Math.max(0, n.t - q * .045)); g.fillStyle = `rgba(${GC[2]},${.4 - q * .06})`; const z = 8 - q; g.fillRect(Math.round(px - z / 2 + Math.sin(tq * 12 + q) * 3), Math.round(py - z / 2), z, z); }
+    ghost(x, y + bob, 16 + T * 4, 1, n.t > .7); } g.globalCompositeOperation = gcoN; }
   hentsDraw();
   if (S.buf && S.buf.frz > Date.now()) { const tr = (S.bufP || {}).frzT || 0, [c, rgb] = ABCOL.frost[tr]; g.fillStyle = `rgba(${rgb},${.1 + .03 * tr + .03 * Math.sin(performance.now() / 200)})`; g.beginPath(); g.arc(G.cx, G.cy, G.R * 1.05, 0, 7); g.fill(); g.strokeStyle = `rgba(${rgb},.6)`; g.lineWidth = 2 + tr; g.stroke(); }
   if (S.buf && S.buf.dr > Date.now()) { const tr = (S.bufP || {}).drT || 0, n = 5 + tr * 2; for (let k = 0; k < n; k++) { const a = performance.now() / 300 + k * 6.283 / n, x = ship.x + Math.cos(a) * 44, y = ship.y + Math.sin(a) * 44; g.fillStyle = ABCOL.drohne[tr][0]; g.beginPath(); g.moveTo(x, y - 5); g.lineTo(x + 4, y + 3); g.lineTo(x - 4, y + 3); g.fill(); } }
