@@ -1729,9 +1729,12 @@ function openCrate(k) {
       if (r === 'e') vib(60); if (r === 'l') { vib([80, 50, 80, 50, 220]); shake = 14; toast('★ LEGENDÄR! ★'); if (window.BB) BB.unlock('drill_legende'); } }, 520); };
   fl.onclick = reveal;
 }
+const HURL = {};
 function itemSvg(it, size) {
   const c = RAR[it.r].c;
-  if (it.s === 'h') return `<svg width="${size}" height="${size}" viewBox="-18 -18 36 36"><polygon points="${it.poly.map(([x, y]) => x + ',' + (-y)).join(' ')}" fill="none" stroke="${it.col}" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+  if (it.s === 'h') { // gleiches Bild wie im Spiel: gemaltes Sprite, sonst die Pixel-Art des Rumpfs
+    const sp = shipSpr(it.id), src = sp ? sp.src : (HURL[it.id] || (HURL[it.id] = hullPix(it).toDataURL()));
+    return `<img src="${src}" width="${size}" height="${size}" alt="" style="image-rendering:pixelated;display:block">`; }
   if (it.s === 'r') return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3" fill="${it.col}" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>`;
   const fc = it.col === 'rainbow' ? '#ff5fe0' : it.col;
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.5"><rect x="3" y="8" width="11" height="8" rx="2"/><path d="M14 9l4-2v10l-4-2M6 8v8M9 8v8"/><path d="M19 10l3-1M19 14l3 1" stroke="${fc}"/></svg>`;
@@ -1806,7 +1809,7 @@ function mis(id, n) { if (!S) return; const D = dly(); for (const m of D.ms) { c
 const dlyOpen = () => { const D = dly(); return D.ms.some(m => !m.c && m.p >= MPOOL.find(x => x.id === m.id).n) || (D.ms.every(m => m.c) && !D.bonus); };
 function loginCheck() {
   const D = dly(), td = dayKey(); if (D.last === td) return;
-  if (!$('ov').classList.contains('hide')) { setTimeout(loginCheck, 1500); return; }
+  if (!$('ov')) return; if (!$('ov').classList.contains('hide')) { setTimeout(loginCheck, 1500); return; }
   const st = D.last === dayKey(Date.now() - 864e5) ? D.streak % 7 + 1 : 1, rw = LOGIN[st - 1];
   overlay(`<h2>Tägliche Belohnung</h2><div class="lgd">${LOGIN.map((r, k) => `<div class="${k + 1 < st ? 'ok' : k + 1 === st ? 'on' : ''}"><small>Tag ${k + 1}</small><b>${rwTxt(r).replace(' + ', '<br>')}</b></div>`).join('')}</div>
     <p>${st > 1 ? `🔥 ${st} Tage in Folge!` : 'Komm jeden Tag wieder, Tag 7 bringt eine Ultimative Kiste.'}<br>Heute: <b style="color:var(--cy)">${rwTxt(rw)}</b></p>`,
