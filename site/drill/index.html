@@ -658,8 +658,10 @@ const cv = $('cv'), g = cv.getContext('2d');
 const TC = document.createElement('canvas'), tg = TC.getContext('2d');
 let W = 0, H = 0, DPR = 1, CELL = 10, COLS = 0, ROWS = 0, G = null, tDirty = true;
 function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+// 8-Bit-Look (Standard): alles wird in halber Auflösung gezeichnet und grob hochskaliert – wie auf dem Gameboy
+let RETRO = true; try { RETRO = localStorage.getItem('gb_retro') !== '0'; } catch (e) {}
 function resize() {
-  const r = cv.getBoundingClientRect(); DPR = (devicePixelRatio || 1) > 1.5 ? 1.5 : 1; // Pixel-Look braucht keine volle Auflösung, spart auf Handys viel Leistung
+  const r = cv.getBoundingClientRect(); DPR = RETRO ? .5 : (devicePixelRatio || 1) > 1.5 ? 1.5 : 1; // Pixel-Look braucht keine volle Auflösung, spart auf Handys viel Leistung
   scanPat = null; W = r.width; H = r.height; cv.width = W * DPR; cv.height = H * DPR;
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
   if (travel > 0 && !built) { built = true; buildPlanet(0); intro = 2.4; introName = G.name; }
@@ -1153,7 +1155,7 @@ function draw(now) {
     if (tr >= 2 && Math.random() < .5 && parts.length < 400) parts.push({ x: ship.x + (Math.random() - .5) * 30, y: ship.y + (Math.random() - .5) * 30, vx: (Math.random() - .5) * 40, vy: -40 - Math.random() * 40, t: .5, c }); }
   drawShip();
   // Texte
-  g.font = '10px Silkscreen,ui-monospace,monospace'; g.textAlign = 'center';
+  g.font = (RETRO ? '16px' : '10px') + ' Silkscreen,ui-monospace,monospace'; g.textAlign = 'center';
   for (const q of floats) { g.globalAlpha = Math.min(1, q.t * 1.5); g.fillStyle = '#000'; g.fillText(q.s, q.x + 1, q.y + 1); g.fillStyle = q.c; g.fillText(q.s, q.x, q.y); }
   g.globalAlpha = 1;
   g.restore();
@@ -1161,10 +1163,10 @@ function draw(now) {
   // Planeten-Banner
   if (intro > 0) { const k = Math.min(1, (2.4 - intro) * 4, intro * 2), y = H * .16; g.globalAlpha = k;
     g.fillStyle = 'rgba(5,6,10,.75)'; g.fillRect(0, y - 26, W, 50); g.fillStyle = G.boss ? '#ff4f7a' : G.pal[2]; g.fillRect(0, y - 26, W, 2); g.fillRect(0, y + 22, W, 2);
-    g.textAlign = 'center'; g.font = '22px Silkscreen,"Pixelify Sans",monospace'; g.fillStyle = '#fff'; const nu = pInU(S.p) === 1; g.fillText(nu ? 'UNIVERSUM ' + uniOf(S.p) : (G.boss ? 'BOSS' : 'PLANET ' + pInU(S.p)), W / 2 + (1 - k) * 40, y + 2);
-    g.font = '10px Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(nu ? uniName(uniOf(S.p)) + ' · Planet 1' : introName + ' · U' + uniOf(S.p), W / 2 - (1 - k) * 40, y + 17); if (G.type && G.type !== 'n') { g.fillStyle = '#ffe94d'; g.fillText(PTYPE[G.type].ico + ' ' + PTYPE[G.type].d, W / 2 - (1 - k) * 40, y + 32); } if (G.elite) { g.fillStyle = '#ff2a4a'; g.fillText('⚠ ELITE: doppelt so hart · Kiste garantiert', W / 2 - (1 - k) * 40, y + (G.type && G.type !== 'n' ? 46 : 32)); } g.globalAlpha = 1; }
+    g.textAlign = 'center'; g.font = (RETRO ? '32px' : '22px') + ' Silkscreen,"Pixelify Sans",monospace'; g.fillStyle = '#fff'; const nu = pInU(S.p) === 1; g.fillText(nu ? 'UNIVERSUM ' + uniOf(S.p) : (G.boss ? 'BOSS' : 'PLANET ' + pInU(S.p)), W / 2 + (1 - k) * 40, y + 2);
+    g.font = (RETRO ? '16px' : '10px') + ' Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(nu ? uniName(uniOf(S.p)) + ' · Planet 1' : introName + ' · U' + uniOf(S.p), W / 2 - (1 - k) * 40, y + 17); if (G.type && G.type !== 'n') { g.fillStyle = '#ffe94d'; g.fillText(PTYPE[G.type].ico + ' ' + PTYPE[G.type].d, W / 2 - (1 - k) * 40, y + 32); } if (G.elite) { g.fillStyle = '#ff2a4a'; g.fillText('⚠ ELITE: doppelt so hart · Kiste garantiert', W / 2 - (1 - k) * 40, y + (G.type && G.type !== 'n' ? 46 : 32)); } g.globalAlpha = 1; }
   // Röhrenbildschirm
-  if (!scanPat) overlays(); g.fillStyle = scanPat; g.fillRect(0, 0, W, H); g.fillStyle = vign; g.fillRect(0, 0, W, H);
+  if (!scanPat) overlays(); if (!RETRO) { g.fillStyle = scanPat; g.fillRect(0, 0, W, H); } g.fillStyle = vign; g.fillRect(0, 0, W, H);
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
 }
 let miniT = 0; const MM = document.createElement('canvas'), mmg = MM.getContext('2d');
@@ -1913,9 +1915,11 @@ function openSettings() {
     <div class="vrow"><span>🎵 Musik</span><input type="range" min="0" max="100" value="${Math.round(v.m * 100)}" id="vm"><b id="vmv">${Math.round(v.m * 100)}</b></div>
     <div class="vrow"><span>💥 Effekte</span><input type="range" min="0" max="100" value="${Math.round(v.s * 100)}" id="vs"><b id="vsv">${Math.round(v.s * 100)}</b></div>
     <label class="vrow" style="cursor:pointer"><span>📳 Vibration</span><input type="checkbox" id="vvib" ${vibOn ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">${navigator.vibrate ? '' : 'geht auf diesem Gerät nicht'}</b></label>
+    <label class="vrow" style="cursor:pointer"><span>👾 8-Bit-Grafik</span><input type="checkbox" id="vretro" ${RETRO ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">grobe Retro-Pixel wie früher</b></label>
     <p style="margin-top:8px">${logged() ? '☁ Dein Stand wird auf deinem Konto gespeichert.' : '💾 Ohne Konto wird nur auf diesem Gerät gespeichert.'} · Version ${VLABEL}</p>`, [['Fertig', null]]);
   const bind = (id, k) => { const el = $(id); el.oninput = () => { SND.set(k, el.value / 100); $(id + 'v').textContent = el.value; if (k === 's') SND.fx.up(); }; };
   bind('vm', 'm'); bind('vs', 's');
+  $('vretro').onchange = e => { RETRO = e.target.checked; try { localStorage.setItem('gb_retro', RETRO ? '1' : '0'); } catch (x) {} resize(); };
   $('vvib').onchange = e => { vibOn = e.target.checked; try { localStorage.setItem('gb_vib', vibOn ? '1' : '0'); } catch (x) {} if (vibOn) vib(60); };
 }
 
