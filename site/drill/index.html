@@ -840,7 +840,7 @@ function step(dt) {
   for (let k = waves.length - 1; k >= 0; k--) { const w = waves[k]; w.r += dt * w.rad * 1.6; while (w.j < w.cells.length && w.cells[w.j][0] <= w.r) hit(w.cells[w.j++][1], w.d); if (w.r >= w.rad * 1.15) waves.splice(k, 1); }
   // 5) Streufeuer
   const dC = WD('scatter');
-  if (dC && (cdScatter -= dt * R) <= 0) { cdScatter = 1; const np = Math.min(15, 7 + 2 * ST('scatter')); for (let k = 0; k < np; k++) { const a = face + (k - (np - 1) / 2) * (.9 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC / np * critMul(), t: 2, boom: ML('scatter') ? (ML('scatter') >= 3 ? 2 : 1) : 0 }); } }
+  if (dC && (cdScatter -= dt * R) <= 0) { cdScatter = 1; const np = Math.min(15, 7 + 2 * ST('scatter')); for (let k = 0; k < np; k++) { const a = face + (k - (np - 1) / 2) * (.9 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC / np * critMul(), t: 2, sc: WL('scatter'), boom: ML('scatter') ? (ML('scatter') >= 3 ? 2 : 1) : 0 }); } }
   for (let k = proj.length - 1; k >= 0; k--) {
     const q = proj[k]; q.x += q.vx * dt; q.y += q.vy * dt; q.t -= dt; const i = cellAt(q.x, q.y);
     if (i >= 0 && G.alive[i] && i !== q.last) { hit(i, q.d * .6); if (!q.solo) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) hit(cellAt(q.x + dx * CELL, q.y + dy * CELL), q.d * .1);
@@ -854,14 +854,14 @@ function step(dt) {
   for (const d of drones.slice(0, ndr)) {
     d.a += dt * 1.8; d.x = ship.x + Math.cos(d.a) * 30; d.y = ship.y + Math.sin(d.a) * 30;
     if (!dR) continue;
-    if ((d.cd -= dt * R) <= 0) { d.cd = .4 / (1 + .25 * ML('drones')); const i = nearest(d.x, d.y, 40 * CELL * CELL); if (i >= 0) { hit(i, dR * .4 / ndr * critMul()); const [x, y] = cellXY(i); fx.push({ k: 'bolt', x: d.x, y: d.y, x2: x, y2: y, t: .15 }); } }
+    if ((d.cd -= dt * R) <= 0) { d.cd = .4 / (1 + .25 * ML('drones')); const i = nearest(d.x, d.y, 40 * CELL * CELL); if (i >= 0) { hit(i, dR * .4 / ndr * critMul()); const [x, y] = cellXY(i); fx.push({ k: 'bolt', x: d.x, y: d.y, x2: x, y2: y, t: .15, lv: WL('drones') }); } }
   }
   // 7) Kettenblitz
   const dK = WD('chain');
   if (dK && (cdChain -= dt * R) <= 0) { cdChain = 1.5; let i = front(CELL * 3), px = ship.x, py = ship.y; const pts = []; const used = new Set();
     const nj = Math.min(24, 6 + 2 * ST('chain') + 2 * ML('chain')); for (let k = 0; k < nj && i >= 0; k++) { used.add(i); const [x, y] = cellXY(i); pts.push([px, py, x, y]); hit(i, dK * 1.5 / nj * critMul()); px = x; py = y;
       let nb = -1, bd = 1e9; const c = i % COLS, r = i / COLS | 0; for (let a = -3; a <= 3; a++) for (let b2 = -3; b2 <= 3; b2++) { const cc = c + a, rr = r + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS) continue; const j = rr * COLS + cc; if (!G.alive[j] || used.has(j)) continue; const d = a * a + b2 * b2 + Math.random() * 3; if (d < bd) { bd = d; nb = j; } } i = nb; }
-    SND.fx.zap(); pts.forEach(p => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .2 })); }
+    SND.fx.zap(); pts.forEach(p => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .2, lv: WL('chain') })); }
   // 8) Kräutersäge
   const dW = WD('saw');
   if (dW) { sawA += dt * 3.2 * R; const nsw = Math.min(4, 2 + Math.floor(ST('saw') / 2)); saws.length = nsw; for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, x = ship.x + Math.cos(a) * SAWR, y = ship.y + Math.sin(a) * SAWR; saws[k] = [x, y];
@@ -869,7 +869,7 @@ function step(dt) {
   // 9) Minenwerfer
   const dM = WD('mine');
   if (dM && (cdMine -= dt * R) <= 0) { cdMine = 2; const nm = Math.min(8, 3 + ST('mine')); for (let k = 0; k < nm; k++) { const i = front(70, 30 * CELL * CELL, 110); if (i < 0) break; const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, t: 0, d: dM * 2 / nm * critMul() }); } }
-  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 6); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35, c: '255,120,80' }); mines.splice(k, 1); } }
+  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 6); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35 + lvTier(WL('mine')) * .05, c: lvTier(WL('mine')) >= 3 ? '255,79,216' : '255,120,80', thick: lvTier(WL('mine')) >= 2 }); if (lvTier(WL('mine')) >= 2) for (let q = 0; q < 6 + lvTier(WL('mine')) * 3; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, t: .5, c: lvTier(WL('mine')) >= 3 ? '#ffb0f0' : '#ffd23f' }); mines.splice(k, 1); } }
   // 10) Königsschuss
   const dP = WD('sniper');
   if (dP && (cdSnip -= dt * R) <= 0) { cdSnip = 4 * Math.max(.4, 1 - .1 * ST('sniper')); let best = -1; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i] && (best < 0 || G.ore[i] > G.ore[best])) { const [x0, y0] = cellXY(i); let da = Math.atan2(y0 - ship.y, x0 - ship.x) - face; da = Math.atan2(Math.sin(da), Math.cos(da)); if (Math.abs(da) < .6) best = i; } if (best < 0) best = front(CELL * 3);
@@ -1045,7 +1045,15 @@ function draw(now) {
   for (const f of fx) {
     if (f.k === 'lance') { if (f.lv) megaBeam(f.x, f.y, f.x2, f.y2, f.lv, f.c || '#f4fbff', (f.w || 4) * .6 + 1, Math.min(1, f.t / .2)); else beam(f.x, f.y, f.x2, f.y2, f.c || '#f4fbff', (f.w || 4) * f.t / .35 + 1); }
     else if (f.k === 'sq') { const z = CELL * (1 + (.28 - f.t) * 4); g.globalAlpha = f.t * 3.2; g.strokeStyle = f.c; g.lineWidth = 2; g.strokeRect(f.x - z / 2, f.y - z / 2, z, z); g.globalAlpha = 1; }
-    else if (f.k === 'zap') { const mx = (f.x + f.x2) / 2 + (Math.random() - .5) * 10, my = (f.y + f.y2) / 2 + (Math.random() - .5) * 10; g.strokeStyle = '#a8c8ff'; g.lineWidth = 2; g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(mx, my); g.lineTo(f.x2, f.y2); g.stroke(); }
+    else if (f.k === 'zap') { const T = lvTier(f.lv || 0), c = T >= 3 ? '#e2c6ff' : '#a8c8ff', nseg = 2 + T, jit = 10 + T * 4;
+      const path = [[f.x, f.y]]; for (let q = 1; q < nseg; q++) { const k = q / nseg; path.push([f.x + (f.x2 - f.x) * k + (Math.random() - .5) * jit, f.y + (f.y2 - f.y) * k + (Math.random() - .5) * jit]); } path.push([f.x2, f.y2]);
+      const strokeP = (pp, w, col, al) => { g.strokeStyle = col; g.globalAlpha = al; g.lineWidth = w; g.beginPath(); pp.forEach(([x, y], q) => q ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke(); };
+      if (T >= 1) strokeP(path, 6 + T * 3, T >= 3 ? '#9a5cff' : '#4f7cff', .25);
+      strokeP(path, 2 + T * .5, c, 1); if (T >= 1) strokeP(path, 1, '#ffffff', .9);
+      if (T >= 2) for (let q = 1; q < path.length - 1; q++) if (Math.random() < .6) { const [x, y] = path[q], a = Math.random() * 6.28, l = 8 + T * 4; strokeP([[x, y], [x + Math.cos(a) * l * .5 + (Math.random() - .5) * 6, y + Math.sin(a) * l * .5], [x + Math.cos(a) * l, y + Math.sin(a) * l]], 1.2, c, .8); }
+      if (T >= 2) { g.fillStyle = '#ffffff'; g.globalAlpha = .9; const z = 2 + T; g.fillRect(f.x2 - z / 2, f.y2 - z / 2, z, z); }
+      if (T >= 4) { g.fillStyle = c; for (let q = 0; q < 5; q++) { g.globalAlpha = Math.random(); g.fillRect(f.x2 + (Math.random() - .5) * 26, f.y2 + (Math.random() - .5) * 26, 2, 2); } }
+      g.globalAlpha = 1; }
     else if (f.k === 'cast') { for (let q = 0; q <= (f.tr || 0); q++) { g.strokeStyle = `rgba(${f.c || '201,162,255'},${Math.max(0, f.t * 2 - q * .2)})`; g.lineWidth = 3 + (f.tr || 0); g.beginPath(); g.arc(f.x, f.y, (50 + q * 22) * (1 - f.t * 2) + 10, 0, 7); g.stroke(); } }
     else if (f.k === 'radar') { const k = 1 - f.t / 1.2, a = k * 6.283 * (1 + f.tr * .5); g.strokeStyle = `rgba(${f.c},${f.t * .8})`; g.lineWidth = 2 + f.tr; g.beginPath(); g.arc(f.x, f.y, f.r * k, 0, 7); g.stroke();
       g.fillStyle = `rgba(${f.c},${f.t * .25})`; g.beginPath(); g.moveTo(f.x, f.y); g.arc(f.x, f.y, f.r * k, a, a + .5 + f.tr * .2); g.closePath(); g.fill(); }
@@ -1053,7 +1061,7 @@ function draw(now) {
       for (let q = 0; q < 12; q++) { const a = q * Math.PI / 6; g.beginPath(); g.moveTo(f.x + Math.cos(a) * rr * .8, f.y + Math.sin(a) * rr * .8); g.lineTo(f.x + Math.cos(a) * rr, f.y + Math.sin(a) * rr); g.stroke(); }
       const ha = -Math.PI / 2 + k * 6.283 * (2 + f.tr * 2); g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(f.x + Math.cos(ha) * rr * .85, f.y + Math.sin(ha) * rr * .85); g.stroke(); }
     else if (f.k === 'nova') { if (f.d == null) f.d = f.t; const k = 1 - f.t / f.d; const _u = (f.r > W * .9 ? 1 : .5); g.strokeStyle = `rgba(${f.c || '190,170,255'},${f.t * 1.6})`; g.lineWidth = f.thick ? 8 : 3; g.beginPath(); g.arc(f.x, f.y, f.r * Math.min(1, k + .1), 0, 7); g.stroke(); if (f.thick) { g.fillStyle = `rgba(190,170,255,${f.t * .5})`; g.fill(); g.lineWidth = 2; g.strokeStyle = `rgba(255,255,255,${f.t * 1.4})`; g.stroke(); } }
-    else if (f.k === 'bolt') beam(f.x, f.y, f.x2, f.y2, '#9dff6a', 1.4);
+    else if (f.k === 'bolt') { if (f.lv >= 10) megaBeam(f.x, f.y, f.x2, f.y2, Math.min(f.lv, 49), lvTier(f.lv) >= 3 ? '#ffd23f' : '#9dff6a', 1 + lvTier(f.lv) * .3, Math.min(1, f.t / .1)); else beam(f.x, f.y, f.x2, f.y2, '#9dff6a', 1.4); }
     else if (f.k === 'bolt2') beam(f.x, f.y, f.x2, f.y2, f.c, 1.6);
     else if (f.k === 'strike') { let px = f.x + (Math.random() - .5) * 20, py = f.y - H; g.strokeStyle = f.c; g.globalAlpha = Math.min(1, f.t * 5); g.lineWidth = f.w; g.beginPath(); g.moveTo(px, py); for (let q = 1; q <= 8; q++) { px = f.x + (Math.random() - .5) * 30 * (1 - q / 8); py = f.y - H + H * q / 8; g.lineTo(px, py); } g.stroke(); g.globalAlpha = 1; }
     else if (f.k === 'pop') { g.fillStyle = `rgba(255,220,120,${f.t * 3})`; g.beginPath(); g.arc(f.x, f.y, 8 * (1 - f.t * 2), 0, 7); g.fill(); }
@@ -1061,11 +1069,37 @@ function draw(now) {
   if (comet) { const a = Math.atan2(comet.vy, comet.vx); for (let k = 1; k <= 10; k++) { g.fillStyle = `rgba(255,214,90,${.5 - k * .045})`; const s = 7 - k * .5; g.fillRect(comet.x - Math.cos(a) * k * 7 - s / 2, comet.y - Math.sin(a) * k * 7 - s / 2, s, s); }
     g.save(); g.translate(comet.x, comet.y); g.rotate(performance.now() / 300); g.fillStyle = '#fff3b0'; g.shadowColor = '#ffd23f'; g.shadowBlur = 18; g.fillRect(-7, -7, 14, 14); g.restore(); }
   for (const f of fx) if (f.k === 'tap') { g.strokeStyle = `rgba(92,232,240,${f.t * 3})`; g.lineWidth = 2; g.strokeRect(f.x - (1.3 - f.t * 3) * 14, f.y - (1.3 - f.t * 3) * 14, (1.3 - f.t * 3) * 28, (1.3 - f.t * 3) * 28); }
-  if (WD('saw')) for (const [x, y] of saws) { g.save(); g.translate(x, y); g.rotate(sawA * 3); g.strokeStyle = '#9dff6a'; g.fillStyle = 'rgba(157,255,106,.18)'; g.lineWidth = 2.5; g.beginPath(); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; g.lineTo(Math.cos(a) * 16, Math.sin(a) * 16); g.lineTo(Math.cos(a + .4) * 8, Math.sin(a + .4) * 8); } g.closePath(); g.fill(); g.stroke(); g.fillStyle = '#9dff6a'; g.fillRect(-2, -2, 4, 4); g.restore(); }
+  if (WD('saw') && WL('saw') >= 10) { const T = lvTier(WL('saw')), c = T >= 3 ? '#7fd8ff' : '#9dff6a', cr = T >= 3 ? '127,216,255' : '157,255,106', rs = 16 + T * 3;
+    // Nachleuchten der Bahn (Energiering), Funken an den Klingen
+    g.strokeStyle = `rgba(${cr},${.08 + T * .05})`; g.lineWidth = rs * .9; g.beginPath(); g.arc(ship.x, ship.y, SAWR, 0, 7); g.stroke();
+    for (const [x, y] of saws) { for (let q = 1; q <= 3 + T; q++) { const a = Math.atan2(y - ship.y, x - ship.x) - q * .07; g.globalAlpha = .35 - q * .05; g.fillStyle = c; g.beginPath(); g.arc(ship.x + Math.cos(a) * SAWR, ship.y + Math.sin(a) * SAWR, rs * .55, 0, 7); g.fill(); }
+      g.globalAlpha = 1; g.save(); g.translate(x, y);
+      for (let pass = 0; pass < (T >= 4 ? 2 : 1); pass++) { g.save(); g.rotate((pass ? -1 : 1) * sawA * (3 + T * .6)); const teeth = 8 + T * 2, r1 = pass ? rs * .65 : rs;
+        g.fillStyle = `rgba(${cr},.22)`; g.strokeStyle = pass ? '#ffffff' : c; g.lineWidth = 2.5; g.beginPath();
+        for (let k = 0; k < teeth; k++) { const a = k * Math.PI * 2 / teeth; g.lineTo(Math.cos(a) * r1, Math.sin(a) * r1); g.lineTo(Math.cos(a + Math.PI / teeth) * r1 * .55, Math.sin(a + Math.PI / teeth) * r1 * .55); }
+        g.closePath(); g.fill(); g.stroke(); g.restore(); }
+      g.fillStyle = '#ffffff'; g.fillRect(-2.5, -2.5, 5, 5);
+      if (T >= 2) { g.fillStyle = c; for (let q = 0; q < T * 2; q++) { const a = Math.random() * 6.28, d = rs + Math.random() * 8; g.fillRect(Math.cos(a) * d - 1, Math.sin(a) * d - 1, 2, 2); } }
+      g.restore(); } }
+  else if (WD('saw')) for (const [x, y] of saws) { g.save(); g.translate(x, y); g.rotate(sawA * 3); g.strokeStyle = '#9dff6a'; g.fillStyle = 'rgba(157,255,106,.18)'; g.lineWidth = 2.5; g.beginPath(); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; g.lineTo(Math.cos(a) * 16, Math.sin(a) * 16); g.lineTo(Math.cos(a + .4) * 8, Math.sin(a + .4) * 8); } g.closePath(); g.fill(); g.stroke(); g.fillStyle = '#9dff6a'; g.fillRect(-2, -2, 4, 4); g.restore(); }
   if (WD('saw')) { g.strokeStyle = 'rgba(157,255,106,.12)'; g.lineWidth = 1; g.beginPath(); g.arc(ship.x, ship.y, SAWR, 0, 7); g.stroke(); }
-  g.fillStyle = '#ff8a5a'; for (const m of mines) { const x = m.x + (m.tx - m.x) * m.t, y = m.y + (m.ty - m.y) * m.t - Math.sin(m.t * Math.PI) * 30; g.fillRect(x - 3, y - 3, 6, 6); }
-  for (const w of waves) { const a = Math.max(0, 1 - w.r / (w.rad * 1.15)); g.strokeStyle = `rgba(190,170,255,${a})`; g.lineWidth = 9; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.stroke(); g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = 2; g.stroke(); g.fillStyle = `rgba(160,130,255,${a * .18})`; g.fill(); }
-  for (const n of novas) { const x = n.x + (n.tx - n.x) * n.t, y = n.y + (n.ty - n.y) * n.t; g.fillStyle = 'rgba(190,170,255,.35)'; g.beginPath(); g.arc(x, y, 9, 0, 7); g.fill(); g.fillStyle = '#e9e2ff'; g.fillRect(Math.round(x) - 3, Math.round(y) - 3, 6, 6); }
+  { const T = lvTier(WL('mine')), c = T >= 3 ? '#ff4fd8' : '#ff8a5a', blink = Math.sin(performance.now() / 70) > 0;
+    for (const m of mines) { const pos = t => [m.x + (m.tx - m.x) * t, m.y + (m.ty - m.y) * t - Math.sin(t * Math.PI) * (30 + T * 8)], [x, y] = pos(m.t), z = 6 + T * 1.5;
+      if (T >= 1) for (let q = 1; q <= 2 + T; q++) { const [tx2, ty2] = pos(Math.max(0, m.t - q * .04)); g.globalAlpha = .4 - q * .06; g.fillStyle = T >= 2 ? '#8a8a9a' : c; g.fillRect(tx2 - z / 3, ty2 - z / 3, z / 1.5, z / 1.5); }
+      g.globalAlpha = 1; g.fillStyle = c; g.fillRect(Math.round(x - z / 2), Math.round(y - z / 2), z, z);
+      if (T >= 1) { g.fillStyle = blink ? '#ffffff' : '#ff2e2e'; g.fillRect(Math.round(x) - 1, Math.round(y - z / 2) - 2, 2, 2); }
+      if (T >= 2) { g.globalAlpha = .3; g.fillStyle = c; g.beginPath(); g.arc(x, y, z * 1.4, 0, 7); g.fill(); g.globalAlpha = 1; } } }
+  { const T = lvTier(WL('nova')), nc = T >= 3 ? '120,235,255' : '190,170,255', tq = performance.now() / 1000;
+  for (const w of waves) { const a = Math.max(0, 1 - w.r / (w.rad * 1.15)); g.strokeStyle = `rgba(${nc},${a})`; g.lineWidth = 9 + T * 3; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.stroke(); g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = 2 + T * .5; g.stroke(); g.fillStyle = `rgba(${nc},${a * .18})`; g.fill();
+    if (T >= 2) { g.strokeStyle = `rgba(${nc},${a * .7})`; g.lineWidth = 3; g.beginPath(); g.arc(w.x, w.y, w.r * .72, 0, 7); g.stroke();
+      g.fillStyle = `rgba(255,255,255,${a})`; const n = 10 + T * 4; for (let q = 0; q < n; q++) { const an = q * 6.283 / n + tq * (q % 2 ? 1.5 : -1.5); g.fillRect(Math.round(w.x + Math.cos(an) * w.r) - 2, Math.round(w.y + Math.sin(an) * w.r) - 2, 4, 4); } }
+    if (T >= 4) { g.strokeStyle = `rgba(255,255,255,${a * .6})`; g.lineWidth = 2; g.beginPath(); g.arc(w.x, w.y, w.r * .45, 0, 7); g.stroke(); } } }
+  { const T = lvTier(WL('nova')), nc = T >= 3 ? '120,235,255' : '190,170,255', tq = performance.now() / 1000;
+  for (const n of novas) { const pos = t => [n.x + (n.tx - n.x) * t, n.y + (n.ty - n.y) * t], [x, y] = pos(n.t), r = 9 + T * 3;
+    if (T >= 1) for (let q = 1; q <= 3 + T; q++) { const [px, py] = pos(Math.max(0, n.t - q * .05)); g.fillStyle = `rgba(${nc},${.35 - q * .05})`; const z = (r - q) * .9; g.fillRect(px - z / 2, py - z / 2, z, z); }
+    g.fillStyle = `rgba(${nc},.35)`; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); const z0 = 6 + T * 1.5; g.fillStyle = T >= 3 ? '#e8fbff' : '#e9e2ff'; g.fillRect(Math.round(x - z0 / 2), Math.round(y - z0 / 2), z0, z0);
+    if (T >= 1) { g.fillStyle = '#1a1030'; g.fillRect(Math.round(x) - 2, Math.round(y) - 1, 1.5, 1.5); g.fillRect(Math.round(x) + 1, Math.round(y) - 1, 1.5, 1.5); } // Geistergesicht
+    if (T >= 2) { g.fillStyle = '#ffffff'; for (let q = 0; q < T * 2; q++) { const an = tq * 6 + q * 6.283 / (T * 2); g.fillRect(Math.round(x + Math.cos(an) * r * 1.4) - 1, Math.round(y + Math.sin(an) * r * 1.4) - 1, 3, 3); } } } }
   hentsDraw();
   if (S.buf && S.buf.frz > Date.now()) { const tr = (S.bufP || {}).frzT || 0, [c, rgb] = ABCOL.frost[tr]; g.fillStyle = `rgba(${rgb},${.1 + .03 * tr + .03 * Math.sin(performance.now() / 200)})`; g.beginPath(); g.arc(G.cx, G.cy, G.R * 1.05, 0, 7); g.fill(); g.strokeStyle = `rgba(${rgb},.6)`; g.lineWidth = 2 + tr; g.stroke(); }
   if (S.buf && S.buf.dr > Date.now()) { const tr = (S.bufP || {}).drT || 0, n = 5 + tr * 2; for (let k = 0; k < n; k++) { const a = performance.now() / 300 + k * 6.283 / n, x = ship.x + Math.cos(a) * 44, y = ship.y + Math.sin(a) * 44; g.fillStyle = ABCOL.drohne[tr][0]; g.beginPath(); g.moveTo(x, y - 5); g.lineTo(x + 4, y + 3); g.lineTo(x - 4, y + 3); g.fill(); } }
@@ -1085,11 +1119,23 @@ function draw(now) {
       g.globalAlpha = 1; g.fillRect(q.x - r, q.y - r, r * 2, r * 2); g.fillStyle = '#fff'; g.fillRect(q.x - r / 2, q.y - r / 2, r, r);
       if (T >= 2) { g.fillStyle = T >= 3 ? '#c8f0ff' : c; for (let j = 0; j < T; j++) { const a = tq * 14 + j * 6.283 / T, rr = r * 2.4; g.fillRect(q.x + Math.cos(a) * rr - 1.5, q.y + Math.sin(a) * rr - 1.5, 3, 3); } }
       continue; }
+    if (!q.solo && q.sc >= 10) { const T = lvTier(q.sc), sp = Math.hypot(q.vx, q.vy) || 1, ux = q.vx / sp, uy = q.vy / sp, z = 4 + T, hot = T >= 3;
+      const cols = hot ? ['#ffffff', '#9fe8ff', '#4fc3ff', '#2b6cff'] : ['#fff3b0', '#ffd23f', '#ff8a3a', '#ff4f3a'];
+      for (let k = 0; k < 2 + T; k++) { g.fillStyle = cols[Math.min(3, k)]; g.globalAlpha = (1 - k / (3 + T)) * (.7 + Math.random() * .3); const zz = z * (1 - k * .14); g.fillRect(Math.round(q.x - ux * k * (2 + T) - zz / 2 + (Math.random() - .5) * T), Math.round(q.y - uy * k * (2 + T) - zz / 2 + (Math.random() - .5) * T), zz, zz); }
+      if (T >= 4) { g.fillStyle = '#ffffff'; g.globalAlpha = .9; g.fillRect(q.x - 1, q.y - 1, 2, 2); }
+      g.globalAlpha = 1; continue; }
     if (q.solo) { g.globalAlpha = .45; g.fillRect(Math.round(q.x - q.vx * .02) - 2, Math.round(q.y - q.vy * .02) - 2, 4, 4); g.globalAlpha = 1; g.fillRect(Math.round(q.x) - 3, Math.round(q.y) - 3, 6, 6); g.fillStyle = '#fff'; g.fillRect(Math.round(q.x) - 1, Math.round(q.y) - 1, 2, 2); } else g.fillRect(q.x - 2, q.y - 2, 4, 4); }
   for (const q of parts) { g.fillStyle = q.c; g.globalAlpha = Math.min(1, q.t * 2); const z = q.t > .4 ? 4 : 2; g.fillRect(Math.round(q.x - z / 2), Math.round(q.y - z / 2), z, z); }
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   // Drohnen
-  if (WD('drones')) for (const d of drones.slice(0, Math.min(6, 3 + Math.floor(ST('drones') / 2)))) { g.strokeStyle = '#9dff6a'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(d.x, d.y - 4); g.lineTo(d.x + 4, d.y + 3); g.lineTo(d.x - 4, d.y + 3); g.closePath(); g.stroke(); }
+  if (WD('drones')) { const T = lvTier(WL('drones')), c = T >= 3 ? '#ffd23f' : '#9dff6a', z = 4 + T * 1.2;
+    for (const d of drones.slice(0, Math.min(6, 3 + Math.floor(ST('drones') / 2)))) {
+      if (T >= 2) for (let q = 1; q <= 4; q++) { const a = d.a - q * .12; g.fillStyle = c; g.globalAlpha = .3 - q * .06; g.fillRect(ship.x + Math.cos(a) * 30 - 2, ship.y + Math.sin(a) * 30 - 2, 4, 4); }
+      g.globalAlpha = 1; g.save(); g.translate(d.x, d.y); g.rotate(d.a + Math.PI); g.strokeStyle = c; g.fillStyle = T >= 1 ? c + '55' : 'transparent'; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(0, -z); g.lineTo(z, z * .75); g.lineTo(0, z * .35); g.lineTo(-z, z * .75); g.closePath(); g.fill(); g.stroke();
+      if (T >= 1) { g.fillStyle = '#ffffff'; g.fillRect(-1, -1, 2, 2); }
+      if (T >= 4) { g.strokeStyle = 'rgba(255,210,63,.5)'; g.beginPath(); g.arc(0, 0, z * 1.7, 0, 7); g.stroke(); }
+      g.restore(); } }
   // Schiff
   const tx = lineTarget >= 0 ? cellXY(lineTarget) : [ship.x, ship.y + 50];
   const a = Math.atan2(tx[1] - ship.y, tx[0] - ship.x) - Math.PI / 2; { let d = a - ship.ang; d = Math.atan2(Math.sin(d), Math.cos(d)); ship.ang += d * .15; }
