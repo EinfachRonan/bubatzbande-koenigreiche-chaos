@@ -949,8 +949,17 @@ const UNI = [
 ];
 const uniOf = p => Math.floor((p - 1) / 10) + 1, pInU = p => (p - 1) % 10 + 1;
 const uniT = u => UNI[(u - 1) % UNI.length], uniName = u => uniT(u).n + (u > UNI.length ? ' ' + (Math.floor((u - 1) / UNI.length) + 1) : '');
+// Universums-Hintergründe (mit Higgsfield gemalt). Fehlt ein Bild, wird der Nebel wie bisher berechnet.
+const UBG = {};
+function uniBg(u) { const k = ((u - 1) % 8) + 1; if (!UBG[k]) { const im = new Image(); im.onload = () => { im.ok = true; nebKey = ''; }; im.src = 'bg/u' + k + '.jpg'; UBG[k] = im; } return UBG[k].ok ? UBG[k] : null; }
 function buildNebula() {
   const u = uniOf(S.p), T = uniT(u), px = 5, w = Math.ceil(W / px), h = Math.ceil(H / px); NB.width = w; NB.height = h; const rnd = mulberry(u * 977 + 3);
+  const bi = uniBg(u);
+  if (bi) { // Bild auf grobe Pixel runterrechnen, damit es zum Pixel-Look passt
+    const sc = Math.max(w / bi.width, h / bi.height), dw = bi.width * sc, dh = bi.height * sc;
+    nbg.imageSmoothingEnabled = true; nbg.fillStyle = T.bg; nbg.fillRect(0, 0, w, h); nbg.globalAlpha = .9; nbg.drawImage(bi, (w - dw) / 2, (h - dh) / 2, dw, dh); nbg.globalAlpha = 1;
+    nebKey = u + ':' + W + 'x' + H; return;
+  }
   const img = nbg.createImageData(w, h), blobs = Array.from({ length: 7 }, () => [rnd() * w, rnd() * h, (.15 + rnd() * .3) * w, rnd() < .55 ? 0 : 1]);
   const A = hex(T.a), B = hex(T.b), BG = hex(T.bg), q = v => Math.floor(Math.max(0, Math.min(1, v)) * 4) / 4;
   const sx = w * (.7 + rnd() * .2), sy = h * (.15 + rnd() * .15), sr = Math.min(w, h) * .32, sp = rnd() * 6.28;
