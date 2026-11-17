@@ -813,8 +813,8 @@ function step(dt) {
   const dL = WD('line');
   if (lineTarget < 0 || !G.alive[lineTarget]) lineTarget = nearest(ship.x + Math.cos(ship.orb + 1.57) * 30, ship.y + Math.sin(ship.orb + 1.57) * 30); // nächster Block in Flugrichtung
   if (dL) {
-    if ((cdBlast -= dt * R) <= 0 && lineTarget >= 0) { cdBlast = .25; const nb = 1 + Math.min(2, Math.floor(ST('line') / 2)), a0 = face;
-      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; SND.fx.shoot(); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * .25 / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1, lv: WL('line'), pierce: ML('line') ? (ML('line') >= 3 ? 2 : 1) : 0 }); } } }
+    if ((cdBlast -= dt * R) <= 0 && lineTarget >= 0) { const lvL = WL('line'); cdBlast = lvL >= 100 ? .3 : lvL >= 50 ? .45 : .65; const nb = lvL >= 100 ? 3 : lvL >= 50 ? 2 : 1, a0 = face; // erst wenige dicke Kugeln, ab 50/100 schneller und mehr (Schaden pro Sekunde bleibt gleich)
+      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; SND.fx.shoot(); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * cdBlast / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1, lv: WL('line'), pierce: ML('line') ? (ML('line') >= 3 ? 2 : 1) : 0 }); } } }
   // 2) Kristallstern: 4 rotierende Strahlen
   const dS = WD('star');
   if (dS) { starA += dt * 1.6 * R; G.star = []; const ns = Math.min(8, 4 + ST('star')); for (let k = 0; k < ns; k++) { const a = starA + k * Math.PI * 2 / ns, [i, ex, ey] = ray(ship.x, ship.y, a, 170 * (1 + .15 * ML('star'))); G.star.push([ex, ey]); if (i >= 0) hit(i, dS / ns * dt * 1.6 * (1 + 2 * critCh())); } } else G.star = null;
@@ -1112,8 +1112,8 @@ function draw(now) {
     if (bt >= 1) for (let q = 0; q < 8 + bt * 8; q++) { const a = tn / (420 - bt * 60) + q * 6.283 / (8 + bt * 8), rr = r * (.9 + .5 * ((q * 37) % 10) / 10); g.fillStyle = q % 3 ? bc : '#fff'; g.fillRect(bhole.x + Math.cos(a) * rr - 1.5, bhole.y + Math.sin(a) * rr * .55 - 1.5, 3, 3); }
     g.fillStyle = '#000'; g.beginPath(); g.arc(bhole.x, bhole.y, r * .45, 0, 7); g.fill(); g.globalCompositeOperation = 'lighter'; }
   const tq = performance.now() / 1000;
-  for (const q of proj) { g.fillStyle = q.c || '#ffe36a'; if (q.solo && q.lv >= 10) { // Blaster-Kugel mit Stufen-Look
-      const T = lvTier(q.lv), c = T >= 3 ? '#4fc3ff' : q.c, sp = Math.hypot(q.vx, q.vy) || 1, ux = q.vx / sp, uy = q.vy / sp, r = 3 + T * 1.4;
+  for (const q of proj) { g.fillStyle = q.c || '#ffe36a'; if (q.solo && q.lv >= 1) { // Blaster-Kugel mit Stufen-Look
+      const T = lvTier(q.lv), c = T >= 3 ? '#4fc3ff' : q.c, sp = Math.hypot(q.vx, q.vy) || 1, ux = q.vx / sp, uy = q.vy / sp, r = 4 + T * 1.4;
       for (let k = 1; k <= 3 + T * 2; k++) { g.globalAlpha = .5 - k * (.4 / (3 + T * 2)); g.fillStyle = c; const z = r * 2 * (1 - k * .08); g.fillRect(q.x - ux * k * (3 + T) - z / 2, q.y - uy * k * (3 + T) - z / 2, z, z); }
       g.globalAlpha = .3; g.beginPath(); g.arc(q.x, q.y, r * 2.2, 0, 7); g.fill();
       g.globalAlpha = 1; g.fillRect(q.x - r, q.y - r, r * 2, r * 2); g.fillStyle = '#fff'; g.fillRect(q.x - r / 2, q.y - r / 2, r, r);
