@@ -461,6 +461,31 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 @keyframes swl{from{transform:translateX(30px);opacity:.3}to{transform:none;opacity:1}}@keyframes swr{from{transform:translateX(-30px);opacity:.3}to{transform:none;opacity:1}}
 .abimg{display:block;image-rendering:auto;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
 .hs .abimg{width:84%;height:84%}.hbe .abimg{width:86%;height:86%}.sk button .abimg{width:44px;height:44px}.abh .abimg{width:46px;height:46px;flex:none}
+
+/* ===== Higgsfield-UI-Kit im Schiff-Stil: Metallrahmen als skalierbare 9-Slice-Rahmen ===== */
+.wp,.ov .bx,.hg-hero,.eqrow,.stg div,.sbox,.hg-cat,.wh{border-style:solid;border-image:url(ui/panel.png) 36 54 36 54 fill / 11px 15px 11px 15px stretch;background:none!important;box-shadow:none!important;border-radius:0}
+.ov .bx{border-image-width:22px 30px;padding:24px 22px}
+.wp::before{left:12px;top:12px;bottom:12px}
+.br:not(:disabled){border-style:solid;border-image:url(ui/btn.png) 22 24 fill / 9px 10px stretch;background:none;box-shadow:none;border-radius:0}
+.br:not(:disabled)::after{display:none}
+.br.again:not(:disabled),.br.unl:not(:disabled),#wgo:not(:disabled){border-image-source:url(ui/btn_on.png);color:#03222b;text-shadow:0 1px 0 rgba(255,255,255,.35);font-weight:800}
+.br.again:not(:disabled) .gn,.br.unl:not(:disabled) .gn{color:#06404c}
+.mode button.on{border:solid;border-image:url(ui/btn_on.png) 22 24 fill / 8px 9px stretch;background:none;color:#03222b;box-shadow:none}
+.nav{border-style:solid;border-width:0;border-top:2px solid #26343f}
+.nav button{border-style:solid;border-image:url(ui/tab.png) 14 fill / 8px stretch;background:none;box-shadow:none;border-radius:0}
+.nav button.on{border-image-source:url(ui/tab_on.png);background:none;box-shadow:0 0 14px rgba(92,232,240,.35)}
+.hs,.hbe button{border-style:solid;border-image:url(ui/slot_g.png) 24 fill / 9px stretch;background:none;border-radius:0}
+.hs.empty,.hbe button.emp{opacity:.55}
+.hs.rdy{border-image-source:url(ui/slot_s.png);box-shadow:0 0 10px rgba(157,255,106,.25)}
+.hs.shp{border-image-source:url(ui/slot_l.png)}
+.hbe button.sel{border-image-source:url(ui/slot_l.png)}
+.hg-grid button,.hg-load button{border-style:solid;border-image:url(ui/slot_g.png) 24 fill / 9px stretch;background:none!important;border-radius:0}
+.hg-grid button[data-r="s"],.hg-load button[data-r="s"]{border-image-source:url(ui/slot_s.png)}
+.hg-grid button[data-r="l"],.hg-load button[data-r="l"]{border-image-source:url(ui/slot_l.png)}
+.hg-grid button[data-r="e"],.hg-load button[data-r="e"]{border-image-source:url(ui/slot_g.png);box-shadow:inset 0 0 14px rgba(255,95,224,.35)!important}
+.sk button{border-style:solid;border-image:url(ui/slot_g.png) 24 fill / 9px stretch;background:none!important;border-radius:0}
+.sk.ab button.on{border-image-source:url(ui/slot_s.png)}
+.sk.wp6 button{box-shadow:inset 0 0 18px rgba(201,162,255,.25)!important}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -2223,14 +2248,14 @@ function renderHangar(L) {
     <button class="br unl" id="lvall" style="margin:0 0 8px" ${canLv.length ? '' : 'disabled'}>${canLv.length ? '⬆ ALLE LEVELN · ' + canLv.length + ' TEILE BEREIT' : 'NOCH KEIN TEIL BEREIT ZUM LEVELN'}</button>
     <button class="br unl" id="best" style="margin:0 0 10px">${ITEMS.some(it => S.inv[it.id] && better(it)) ? '⬆ BESTE AUSRÜSTEN · BESSERE TEILE DA' : '✓ BESTE AUSRÜSTEN'}</button>
     <div class="hg-h"><span>Ausgerüstet</span></div>
-    <div class="hg-load">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-it="${it.id}" style="--rc:${RAR[it.r].c}"><span class="hg-slot">${SLOT[s].n} · Lv. ${ILV(it.id)}</span><span class="hg-ic">${itemSvg(it, 40)}</span><b>${it.n}</b><small>+${pct(it)} % ${SLOT[s].st}</small><i class="hg-rar">${RAR[it.r].n}${PERKS[s].filter(([l]) => ILV(it.id) >= l).length ? ' · ★' + PERKS[s].filter(([l]) => ILV(it.id) >= l).length : ''}</i></button>`; }).join('')}</div>
+    <div class="hg-load">${['h', 'r', 't'].map(s => { const it = eqItem(s); return `<button data-it="${it.id}" data-r="${it.r}" style="--rc:${RAR[it.r].c}"><span class="hg-slot">${SLOT[s].n} · Lv. ${ILV(it.id)}</span><span class="hg-ic">${itemSvg(it, 40)}</span><b>${it.n}</b><small>+${pct(it)} % ${SLOT[s].st}</small><i class="hg-rar">${RAR[it.r].n}${PERKS[s].filter(([l]) => ILV(it.id) >= l).length ? ' · ★' + PERKS[s].filter(([l]) => ILV(it.id) >= l).length : ''}</i></button>`; }).join('')}</div>
     ${HATK[eqItem('h').id] ? `<div class="hab2">⚔ Rumpf-Attacke: <b style="color:var(--txt)">${HATK[eqItem('h').id].n}</b> – ${HATK[eqItem('h').id].d} · ${Math.round(hullPow() * 100)} % deiner Waffen-DPS${hab ? `<br>★ Bonus: ${hab.d} · x${hullK().toFixed(1)} durch die Stufe` : ''}</div>` : ''}
     <div class="hg-h"><span>Sammlung</span><b>${ownAll}/${ITEMS.length}</b></div>
     <div class="hg-tot"><i style="width:${ownAll / ITEMS.length * 100}%"></i></div>
     ${['h', 'r', 't'].map(s => { const list = ITEMS.filter(x => x.s === s).sort((a, b2) => RO[a.r] - RO[b2.r]), own = list.filter(x => S.inv[x.id]).length;
       return `<div class="hg-cat"><div class="hg-ch"><b>${SLOT[s].n}</b><span>${SLOT[s].st}</span><em>${own}/${list.length}</em></div>
       <div class="hg-grid">${list.filter(it => S.inv[it.id]).map(it => { const on = S.eq[it.s] === it.id, d = (S.dup || {})[it.id] || 0, l = ILV(it.id), mx = l >= ITEM_MAX;
-        return `<button data-it="${it.id}" class="${on ? 'on' : ''}" style="--rc:${RAR[it.r].c}"><span class="hg-lvb">Lv.${l}</span><span class="hg-ic">${itemSvg(it, 32)}</span><b>${it.n}</b><small>+${pct(it)} %</small><i class="hg-dp"><s style="width:${mx ? 100 : Math.min(100, d / DUPN * 100)}%"></s></i><em class="hg-dt">${mx ? 'MAX' : d + '/' + DUPN}</em>${on ? '<span class="eqb">✓</span>' : ''}${better(it) ? '<span class="hg-up">⬆</span>' : ''}</button>`; }).join('')}</div></div>`; }).join('')}
+        return `<button data-it="${it.id}" data-r="${it.r}" class="${on ? 'on' : ''}" style="--rc:${RAR[it.r].c}"><span class="hg-lvb">Lv.${l}</span><span class="hg-ic">${itemSvg(it, 32)}</span><b>${it.n}</b><small>+${pct(it)} %</small><i class="hg-dp"><s style="width:${mx ? 100 : Math.min(100, d / DUPN * 100)}%"></s></i><em class="hg-dt">${mx ? 'MAX' : d + '/' + DUPN}</em>${on ? '<span class="eqb">✓</span>' : ''}${better(it) ? '<span class="hg-up">⬆</span>' : ''}</button>`; }).join('')}</div></div>`; }).join('')}
     <button class="br unl" data-shop="1" style="margin:4px 0 12px">🛒 KISTEN-SHOP</button>`;
   L.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { hSel = b.dataset.it; render(); });
   $('best').onclick = bestEquip;
