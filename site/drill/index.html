@@ -494,6 +494,9 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 .trd-o span{flex:1;min-width:0}.trd-o b{display:block;font-size:14px;color:#fff}.trd-o small{font-size:11px;color:#b9c8d0}
 .trd-o em{font-style:normal;font:700 15px var(--mono);color:#ffe94d;white-space:nowrap}
 .trd-o:disabled{opacity:.45;cursor:default}.trd-w{font-size:11px;color:var(--mut);text-align:center;margin-top:4px}
+.wreq{position:relative;margin:8px 0 8px;padding:8px 10px 10px;border-radius:6px;background:#070b10;box-shadow:inset 0 0 0 1px #2a3a48;overflow:hidden}
+.wreq span{display:block;font-size:13px;color:#eaffff}.wreq b{color:#c9a2ff}.wreq small{display:block;font-size:10.5px;color:var(--mut);margin-top:2px}
+.wreq i{position:absolute;left:0;bottom:0;height:3px;background:linear-gradient(90deg,#7a4ad8,#c9a2ff);box-shadow:0 0 6px #c9a2ff}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -698,6 +701,9 @@ const WP = id => S.wp[id] || 0; // Warp-Fähigkeiten starten bei Stufe 0
 const boosting = () => S.boostEnd > Date.now();
 // Warp-Multiplikator: startet bei x1.00, +0.02 pro Warp, +0.02 extra für jedes geschaffte Universum (alle 10 Planeten) in dem Lauf
 // Warp-Multiplikator: +0.01 pro ✦, das der Warp bringt (mindestens +0.02)
+// Warp-Hürde: der nächste Warp geht erst 10 Planeten weiter als der letzte, ab Universum 4 erst 2 Universen (20 Planeten) weiter
+const reqStep = at => uniOf(at + 10) >= 4 ? 20 : 10;
+const wReq = () => S.wReq || 10, canWarp = () => S.p >= wReq() && dmGain() > 0;
 const wmGain = () => Math.round(Math.max(.02, .01 * dmGain()) * 100) / 100;
 const dmBonus = () => (S.wm || 1) * (1 + WP('kraft'));
 // ✦ beim Warp: ab Planet 3 = 1, jeder weitere Planet +1 (Planet 10 = 8), ab Universum 2 (Planet 11+) +2 pro Planet
@@ -1757,8 +1763,8 @@ function ui() {
   $('abdot').hidden = !(ABIL.some(a => AL(a.id) && !S.hot.includes(a.id)) && S.hot.filter(Boolean).length < 5);
   // Roter Punkt im Hangar nur, wenn ein Teil leveln kann (5 Doppelte) oder ein besseres Teil nicht ausgerüstet ist
   $('hgdot').hidden = !ITEMS.some(it => S.inv[it.id] && ((ILV(it.id) < ITEM_MAX && ((S.dup || {})[it.id] || 0) >= DUPN) || better(it)));
-  $('wpdot').hidden = !(dmGain() > 0 || WARP.some(w => WP(w.id) < w.max && S.dm >= w.cost(WP(w.id))));
-  if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + fmt(dmGain()); $('wmto').textContent = 'x' + ((S.wm || 1) + wmGain()).toFixed(2); $('wgo').disabled = !dmGain(); }
+  $('wpdot').hidden = !(canWarp() || WARP.some(w => WP(w.id) < w.max && S.dm >= w.cost(WP(w.id))));
+  if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + fmt(dmGain()); $('wmto').textContent = 'x' + ((S.wm || 1) + wmGain()).toFixed(2); $('wgo').disabled = !canWarp(); }
   if ($('shdot')) $('shdot').hidden = !dlyOpen();
   $('skdot').hidden = !SKILLS.some(s => SK(s.id) < s.max && S.cry >= skCost(s.id));
   // Knöpfe aktualisieren, ohne die Liste neu zu bauen
@@ -1810,8 +1816,10 @@ function render() {
   else if (tab === 'p') {
     const g0 = dmGain();
     L.innerHTML = `<button class="br unl" id="stopen" style="margin:0 0 9px">📊 STATISTIK · WELCHE WAFFE MACHT WIE VIEL</button><div class="wh wbox"><div class="wrow"><div><small>Warp bringt</small><b id="wgain">✦${fmt(g0)}</b></div><div><small>Multiplikator</small><b class="wm">x${(S.wm || 1).toFixed(2)} → <span id="wmto">x${((S.wm || 1) + wmGain()).toFixed(2)}</span></b></div></div>
+      <div class="wreq"><span>Nächster Warp ab <b>Planet ${wReq()}</b>${S.p >= wReq() ? ' ✔' : ` · noch ${wReq() - S.p}`}</span><small>danach ab Planet ${Math.max(S.p, wReq()) + reqStep(Math.max(S.p, wReq()))}${uniOf(Math.max(S.p, wReq()) + 10) >= 4 ? ' (ab Universum 4: +2 Universen)' : ' (+10 Planeten)'}</small><i style="width:${Math.min(100, S.p / wReq() * 100)}%"></i></div>
       <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR, Waffen und Skills sind weg, von deinen ◆ behältst du ${keepPct()} % (mehr mit „Kristallspeicher“). Fähigkeiten, Hangar und Werkstatt bleiben. ✦: ab Planet 3 bringt jeder Planet ✦, und alle 2 Planeten gibt's 1 mehr pro Planet (gerade +${String(dmPer(Math.max(1, S.p - 1))).replace('.', ',')} pro Planet). Multiplikator: +0.01 pro ✦, das der Warp bringt. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'} · Spielzeit ${(S.play || 0) >= 3600 ? ((S.play || 0) / 3600).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' Std.' : Math.floor((S.play || 0) / 60) + ' Min.'}.</p>
-      <button class="br" id="wgo" ${g0 ? '' : 'disabled'}>${g0 ? 'WARP-SPRUNG' : 'Ab Planet 3 (noch ' + Math.max(0, 3 - S.p) + ')'}</button></div>
+      
+      <button class="br" id="wgo" ${canWarp() ? '' : 'disabled'}>${canWarp() ? 'WARP-SPRUNG' : 'Warp ab Planet ' + wReq() + ' (noch ' + Math.max(0, wReq() - S.p) + ')'}</button></div>
       <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${fmt(S.dm || 0)}</b></div>
       <div class="sk wp6">${WARP.map(w => { const l = WP(w.id), mx = l >= w.max;
         if (!wpOpen(w.id)) return `<button disabled class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>???</button>`;
@@ -1888,17 +1896,17 @@ function planetDone() {
   if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); bgN = (BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut', true)) || 0; if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
   travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
   toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${fmt(gain)} · Sprung nach ${uniName(uniOf(S.p))} · Warp bringt jetzt ✦${fmt(dmGain())}` : `Planet abgebaut! +◆${fmt(gain)}${chipT}${bgN ? ` · +${bgN} Bandengold` : ''} · Warp bringt jetzt ✦${fmt(dmGain())}`);
-  if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);
+  if (S.p === wReq()) setTimeout(() => toast('Warp-Sprung bereit! Hol dir ✦ im Warp-Tab.'), 2800);
   if (!document.hidden) { if (pInU(S.p) === 1) cele('UNIVERSUM ' + (uniOf(S.p) - 1) + '!', 'Sprung nach ' + uniName(uniOf(S.p)) + ' · +◆' + fmt(gain), 1); else cele(G.boss ? 'BOSS BESIEGT!' : 'PLANET ' + (S.p - 1) + '!', '+◆' + fmt(gain) + (chipT ? ' · +⬢' : '')); }
   render();
 }
 
 function warp() {
   if (BON) exitBonus(null, 1);
-  const n = dmGain(); if (!n) return;
+  const n = dmGain(); if (!n || !canWarp()) return;
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${fmt(n)} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)<br><br>Du behältst <b style="color:var(--txt)">${keepPct()} % deiner ◆</b> (◆${fmt(S.cry)} → ◆${fmt(Math.floor(S.cry * keepPct() / 100))}).<br>CR, Waffen, Planet und Skills werden zurückgesetzt. Fähigkeiten, Hangar und Warp-Werkstatt bleiben.</p>`,
     [['SPRINGEN', () => {
-      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); vib([40, 30, 40, 30, 300]); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1; S.dmgRun = {};
+      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); vib([40, 30, 40, 30, 300]); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.wReq = S.p + reqStep(S.p); S.pc = (S.pc || 0) + 1; S.dmgRun = {};
       S.cry = Math.floor(S.cry * keepPct() / 100); { const e = WP('erbe'), o = S.sk || {}; S.sk = {}; if (e) for (const k in o) S.sk[k] = Math.min(o[k], e); } S.abT = {}; S.buf = {}; S.cr = Math.max(150, startCr(WP('start'))); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
@@ -2567,6 +2575,7 @@ function cleanSave() {
   if (S.w && S.w.turret) { S.w.tornado = Math.max(S.w.tornado || 0, S.w.turret); delete S.w.turret; S.wo = (S.wo || []).map(x => x === 'turret' ? 'tornado' : x); if (S.mod && S.mod.turret) { S.mod.tornado = S.mod.turret; delete S.mod.turret; } }
   if (S.offer) S.offer = S.offer.filter(x => x !== 'turret');
   if (S.dmgRun) { delete S.dmgRun.pulse; delete S.dmgRun.turret; } if (S.offer) S.offer = S.offer.filter(x => x !== 'pulse');
+  if (S.wReq == null) S.wReq = S.pc ? Math.max(10, Math.ceil((S.p + 1) / 10) * 10) : 10;
   S.wo = (S.wo || ['line']).filter(id => WEAP.find(w => w.id === id)); if (!S.wo.length) S.wo = ['line'];
   for (const k in (S.mod || {})) if (!MODS[k]) delete S.mod[k];
 }
