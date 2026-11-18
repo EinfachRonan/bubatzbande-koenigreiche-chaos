@@ -12,6 +12,10 @@ bubatzbande.de zeigt eine Spielauswahl mit sieben Spielen:
 - **Erntezeit** (`site/ernte/`, Testphase, noch nicht auf der Startseite): Zombie-Shooter auf dem Bauernhof und Friedhof, Klassenwahl, Nahkampfwaffen, Shop zwischen den Wellen, Traktor-Boss. Three.js über CDN.
 - **Kneipen-Duell** (`site/duell/`): 1 gegen 1 an einem Handy oder gegen den Wirt: Bier zapfen, Krug schieben, Prost-Duell, Armdrücken.
 
+- **Die Legenden der Kräuterhöhle** (`site/kraeuterhoehle/`, Geheim-Testphase v0.5, von Mario): Höhlenverteidigung mit Paketen, Bande-Helden und Skilltree. Nur spielbar nach „Code eingeben“ in den Einstellungen der Startseite. Mit Konto liegt die Freischaltung im Profil (nur bei diesem Konto), ohne Konto nur auf dem Gerät. Codes stehen als Hash in `site/api/bb.php` (`$SECRET`).
+
+**Einstellungen (Zahnrad auf der Startseite):** Sound- und Musik-Lautstärke für alle Spiele (`BB.vol()` / `BB.setVol()`, gespeichert in `bb_vol`, Event `bb-vol`), dazu „Code eingeben“.
+
 **Konten & Bestenliste:** `site/bb.js` (Anmeldung, Profil mit Name und Profilbild, Erfolge, Bestenlisten) und `site/api/bb.php`. Konten liegen auf dem Server in `site/api/data/` (nicht im Repo, wird beim Deploy nicht gelöscht).
 
 Die Titelbilder aller Spiele kommen aus `site/art.js` (Startseite und Spielmenüs).

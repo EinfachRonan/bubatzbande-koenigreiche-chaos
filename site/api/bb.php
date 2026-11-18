@@ -76,7 +76,7 @@ function mergeM($s, $c, $own) {
 function avOk($a) { return in_array($a, $GLOBALS['AV'], true) ? $a : 'artur'; }
 function lite($u, $id) { return ['id' => $id, 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 'nach' => count($u['ach'] ?? []), 'best' => (object) ($u['best'] ?? [])]; }
 function full($u, $id) { return lite($u, $id) + ['ach' => (object) ($u['ach'] ?? []), 'since' => $u['t'] ?? 0, 'nfr' => count($u['fr'] ?? [])]; }
-function pub($u, $id) { return ['meta' => metaOf($u), 'fr' => $u['fr'] ?? [], 'req' => $u['req'] ?? [], 'sent' => $u['sent'] ?? [], 'id' => $id, 'user' => $u['user'], 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 'best' => (object) ($u['best'] ?? []), 'ach' => (object) ($u['ach'] ?? []), 'stats' => (object) ($u['stats'] ?? [])]; }
+function pub($u, $id) { return ['meta' => metaOf($u), 'fr' => $u['fr'] ?? [], 'req' => $u['req'] ?? [], 'sent' => $u['sent'] ?? [], 'id' => $id, 'user' => $u['user'], 'name' => $u['name'], 'av' => avOk($u['av']), 'img' => $u['img'] ?? 0, 'rh' => rh($u), 'best' => (object) ($u['best'] ?? []), 'ach' => (object) ($u['ach'] ?? []), 'stats' => (object) ($u['stats'] ?? []), 'unl' => (object) ($u['unl'] ?? [])]; }
 function nameTaken($d, $name, $except) {
   $l = mb_strtolower($name);
   foreach ($d['users'] as $id => $u) if ($id !== $except && (mb_strtolower($u['name']) === $l || $u['ul'] === $l)) return true;
@@ -236,6 +236,26 @@ if ($a === 'login') {
   if (!$id || !password_verify((string) ($in['pass'] ?? ''), $d['users'][$id]['ph'])) { $rl[] = ['ip' => $ip, 't' => time()]; $finish(['e' => 'wrong']); }
   $tok = newToken($d['users'][$id]);
   $finish(['token' => $tok, 'me' => pub($d['users'][$id], $id)]);
+}
+
+// Geheim-Codes: schalten Test-Spiele frei. Mit Konto wird die Freischaltung im Profil gespeichert (nur für dieses Konto).
+// Der Code selbst steht nur als Hash hier drin.
+$SECRET = [
+  hash('sha256', 'bbcode:420') => ['g' => 'kh', 'name' => 'Die Legenden der Kräuterhöhle', 'v' => '0.5', 'url' => 'kraeuterhoehle/'],
+];
+if ($a === 'code') {
+  $n = 0; foreach ($rl as $x) if ($x['ip'] === $ip) $n++;
+  if ($n >= 15) $stop('slow', 429);
+  $c = preg_replace('/\s+/', '', (string) ($in['code'] ?? ''));
+  $G = $SECRET[hash('sha256', 'bbcode:' . $c)] ?? null;
+  if (!$G) { $rl[] = ['ip' => $ip, 't' => time()]; $finish(['e' => 'wrong']); }
+  $cid = (string) ($in['id'] ?? ''); $ctok = (string) ($in['token'] ?? '');
+  $cu = $d['users'][$cid] ?? null;
+  if ($cu && in_array(hash('sha256', $ctok), $cu['tok'] ?? [], true)) {
+    if (!isset($d['users'][$cid]['unl'][$G['g']])) $d['users'][$cid]['unl'][$G['g']] = time();
+    $finish(['game' => $G, 'me' => pub($d['users'][$cid], $cid)]);
+  }
+  $finish(['game' => $G]);
 }
 
 // Ab hier: angemeldet

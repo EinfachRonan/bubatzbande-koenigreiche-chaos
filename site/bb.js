@@ -88,7 +88,7 @@
   // ---------- Speicher ----------
   // P: Konto (id, token) + Profil-Cache + Fortschritt. Ohne Konto wird der Fortschritt lokal gesammelt und beim Anmelden übernommen.
   const KEY = 'bb_acc';
-  const fresh = () => ({ id: null, token: null, user: '', name: '', av: 'artur', img: 0, rh: '', best: {}, ach: {}, stats: {}, fr: [], req: [], sent: [], dirty: false, ep: 3 });
+  const fresh = () => ({ id: null, token: null, user: '', name: '', av: 'artur', img: 0, rh: '', best: {}, ach: {}, stats: {}, fr: [], req: [], sent: [], unl: {}, dirty: false, ep: 3 });
   let P;
   try { P = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { P = null; }
   if (!P || typeof P !== 'object') P = fresh();
@@ -127,7 +127,7 @@
   }
   function applyMe(me) {
     P.id = me.id; P.user = me.user; P.name = me.name; P.av = me.av; P.img = me.img || 0; P.rh = me.rh || '';
-    P.fr = me.fr || []; P.req = me.req || []; P.sent = me.sent || [];
+    P.fr = me.fr || []; P.req = me.req || []; P.sent = me.sent || []; P.unl = me.unl && typeof me.unl === 'object' ? me.unl : {};
     for (const g in me.best) { if (!P.best[g] || !better(g, P.best[g].s, me.best[g].s)) P.best[g] = me.best[g]; else P.dirty = true; }
     for (const k in me.ach) P.ach[k] = P.ach[k] || me.ach[k];
     for (const k in me.stats) P.stats[k] = Math.max(P.stats[k] || 0, me.stats[k]);
@@ -953,8 +953,31 @@
   }
   setTimeout(mpull, 800);
 
+  // ---------- Geheim-Spiele (Code eingeben) ----------
+  // Mit Konto: Freischaltung liegt im Profil (nur bei diesem Konto). Ohne Konto: nur auf diesem Gerät.
+  const ULKEY = 'bb_unl';
+  const ulLocal = () => { try { return JSON.parse(localStorage.getItem(ULKEY) || '{}') || {}; } catch (e) { return {}; } };
+  const secret = k => logged() ? !!(P.unl && P.unl[k]) : !!ulLocal()[k];
+  async function redeem(code) {
+    const j = await post('code', { code: String(code || '') });
+    if (j.me) applyMe(j.me);
+    else if (!logged() && j.game) { const L = ulLocal(); L[j.game.g] = Date.now(); try { localStorage.setItem(ULKEY, JSON.stringify(L)); } catch (e) {} }
+    return j.game;
+  }
+  // ---------- Lautstärke für alle Spiele ----------
+  // m = Musik, s = Soundeffekte, jeweils 0..1 (0,5 = Standard)
+  const VKEY = 'bb_vol';
+  function volGet() {
+    let v = null; try { v = JSON.parse(localStorage.getItem(VKEY) || 'null'); } catch (e) {}
+    if (!v) { try { v = JSON.parse(localStorage.getItem('gb_vol') || 'null'); } catch (e) {} } // alter Wert aus dem Galaxie-Bohrer
+    const c = x => typeof x === 'number' && isFinite(x) ? Math.max(0, Math.min(1, x)) : .5;
+    return { m: c(v && v.m), s: c(v && v.s) };
+  }
+  function volSet(k, x) { const v = volGet(); v[k] = Math.max(0, Math.min(1, +x || 0)); try { localStorage.setItem(VKEY, JSON.stringify(v)); } catch (e) {} try { window.dispatchEvent(new CustomEvent('bb-vol', { detail: v })); } catch (e) {} return v; }
+
   try { addCss(); } catch (e) {}
   window.BB = {
+    secret, redeem, vol: volGet, setVol: volSet,
     cloud, CARDS, RAR, PACKS, NEED, UPCOST, get meta() { return M; }, lvl, cardVal, bgBonus, earn, spend, openPack, canUp, upCard, onMeta: f => mlisteners.push(f),
     get profile() { return P; }, get loggedIn() { return logged(); }, GAMES, ACH, CHAR, AV,
     FRAMES, avH, home: () => { addCss(); return `<a class="bb-home" href="${ROOT}">🏠 Zur Startseite</a>`; }, record, unlock, stat, open, close, chip, showUser: id => { open('board'); showUser(id); }, invite, roomReady, gate, toast, fmt, avatar: () => avUrl(P), onChange: f => listeners.push(f),

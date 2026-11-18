@@ -386,7 +386,7 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261117a"></script>
+<script src="../bb.js?v=20261118a"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -2011,7 +2011,8 @@ function renderHangar(L) {
 // ================== Sound: ruhiger Idle-Soundtrack + Effekte (alles live erzeugt, keine Dateien) ==================
 const SND = (() => {
   let ctx = null, master, mus, sfx, verb, dly, started = false, nextT = 0, step = 0, timer = 0, hyS = 0;
-  let vol = { m: .5, s: .5 }; try { const v = JSON.parse(localStorage.getItem('gb_vol')); if (v && typeof v.m === 'number') vol = v; } catch (e) {}
+  let vol = { m: .5, s: .5 }; try { const v = window.BB && BB.vol ? BB.vol() : JSON.parse(localStorage.getItem('gb_vol')); if (v && typeof v.m === 'number') vol = v; } catch (e) {} // gemeinsame Lautstärke aller Spiele (Einstellungen auf der Startseite)
+  window.addEventListener('bb-vol', e => { if (e.detail) { vol = { m: e.detail.m, s: e.detail.s }; apply(); } });
   const curve = v => v * v; // gehörrichtig
   function ir(sec) { const n = ctx.sampleRate * sec, b = ctx.createBuffer(2, n, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.6); } return b; }
   function init() {
@@ -2080,7 +2081,7 @@ const SND = (() => {
   };
   ['pointerdown', 'keydown', 'touchstart'].forEach(ev => window.addEventListener(ev, start, { passive: true }));
   document.addEventListener('visibilitychange', () => { if (!ctx) return; if (document.hidden) ctx.suspend(); else if (started) ctx.resume(); });
-  return { fx, get vol() { return vol; }, set(k, v) { vol[k] = Math.max(0, Math.min(1, v)); try { localStorage.setItem('gb_vol', JSON.stringify(vol)); } catch (e) {} apply(); }, start };
+  return { fx, get vol() { return vol; }, set(k, v) { vol[k] = Math.max(0, Math.min(1, v)); try { if (window.BB && BB.setVol) BB.setVol(k, vol[k]); else localStorage.setItem('gb_vol', JSON.stringify(vol)); } catch (e) {} apply(); }, start };
 })();
 // Vibration am Handy (geht auf Android; iPhones unterstützen das im Browser nicht)
 let vibOn = true; try { vibOn = localStorage.getItem('gb_vib') !== '0'; } catch (e) {}

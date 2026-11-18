@@ -97,6 +97,32 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 .tabs nav>.on{color:var(--ac);font-weight:600}
 .tabs svg{width:22px;height:22px}
 #bbChip{display:none!important}
+/* Geheim-Kachel (nur nach Code) */
+.tile.xl{grid-column:1/-1;min-height:170px}
+.tile .kk .sc{color:#0e1110;background:var(--gold);border-radius:99px;padding:2px 7px}
+/* Einstellungen */
+.set{position:fixed;inset:0;z-index:9000;background:rgba(5,7,6,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
+.set.on{display:flex}
+.sheet{width:100%;max-width:440px;background:var(--card);border-radius:24px 24px 0 0;padding:18px 20px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px rgba(0,0,0,.5)}
+.sheet .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sheet .hd h2{font-size:20px}
+.vr{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.vr span{width:118px;flex:none;font-weight:600;font-size:14px}
+.vr b{width:38px;text-align:right;font:700 14px var(--hd);color:var(--mu)}
+.vr input{flex:1;accent-color:var(--ac);height:28px}
+.sheet .nt{color:var(--mu);font-size:12.5px;margin:10px 0 16px}
+.sheet .wide{width:100%}
+.btn.ghost{background:var(--card2);color:var(--tx);border:1px solid var(--line)}.btn.ghost:hover{background:#232925}
+.code{display:none;gap:8px;margin-top:10px}.code.on{display:flex}
+.code input{flex:1;min-width:0;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--tx);padding:0 14px;font:700 18px var(--hd);letter-spacing:3px}
+.code input:focus{outline:2px solid var(--ac);outline-offset:0}
+.cmsg{min-height:18px;margin-top:8px;font-size:13px;color:#ff9a7a}
+.won{display:none;margin-top:12px;border-radius:18px;padding:16px;background:linear-gradient(135deg,rgba(182,243,106,.16),rgba(242,201,76,.12));border:1px solid rgba(182,243,106,.45);text-align:center}
+.won.on{display:block;animation:pop .35s ease}
+.won .ic{font-size:30px}.won b{display:block;font:700 18px/1.25 var(--hd);margin:4px 0}.won p{margin:0 0 12px;color:#c9d0cb;font-size:13.5px}
+.won .v{display:inline-block;margin-top:2px;font:700 12px var(--hd);color:#0e1110;background:var(--gold);border-radius:99px;padding:2px 9px}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+@media (min-width:900px){.set{align-items:center}.sheet{border-radius:24px}}
 /* Tablet & PC: Kacheln links als Bento, Rangliste rechts */
 @media (min-width:900px){
   body{padding-bottom:40px}
@@ -142,8 +168,18 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
   <button data-tab="friends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5M16 4.5a3.5 3.5 0 0 1 0 7M18 15c2 .6 3.2 2.2 3.5 5"/></svg>Freunde</button>
 </nav></div>
 <span id="bbChip" hidden></span>
+<div class="set" id="set" role="dialog" aria-modal="true" aria-label="Einstellungen"><div class="sheet">
+  <div class="hd"><h2>Einstellungen</h2><button class="ib" id="setX" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <label class="vr"><span>🔊 Sound</span><input type="range" min="0" max="100" id="vS"><b id="vSv"></b></label>
+  <label class="vr"><span>🎵 Musik</span><input type="range" min="0" max="100" id="vM"><b id="vMv"></b></label>
+  <div class="nt">Gilt für alle Spiele und bleibt auf diesem Gerät gespeichert.</div>
+  <button class="btn ghost wide" id="codeGo">🔑 Code eingeben</button>
+  <form class="code" id="codeF" autocomplete="off"><input id="codeIn" inputmode="numeric" maxlength="12" placeholder="Code" aria-label="Code" autocomplete="off"><button class="btn" type="submit">Einlösen</button></form>
+  <div class="cmsg" id="codeMsg"></div>
+  <div class="won" id="won"></div>
+</div></div>
 <script src="art.js?v=20261111b"></script>
-<script src="bb.js?v=20261117a"></script>
+<script src="bb.js?v=20261118a"></script>
 <script>
 'use strict';
 const IMG = k => 'krieg/img/' + k + '.jpg';
@@ -153,6 +189,10 @@ const GAMES = [
   { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', img: 'drill/key.jpg', pos: '50% 40%', text: 'Dein Schiff bohrt Planeten, auch offline.', tag: 'Idle', cls: 'tall' },
   { k: 'runner', url: 'runner/', name: 'Kobold-Runner', img: 'krieg/img/kobold.jpg', pos: '50% 25%', text: 'Springen, rutschen, Gold sammeln.', tag: 'Endlos', cls: '' },
   { k: 'schach', url: 'schach/', name: 'Schlagabtausch', img: 'krieg/img/koenig.jpg', pos: '50% 25%', text: '3D-Schach mit Ego-Duellen.', tag: 'Online', cls: 'wide' }
+];
+// Geheim-Spiele: erscheinen nur, wenn per „Code eingeben“ freigeschaltet (mit Konto im Profil, sonst auf diesem Gerät)
+const SECRET = [
+  { k: 'kh', url: 'kraeuterhoehle/', name: 'Die Legenden der Kräuterhöhle', img: 'krieg/img/hoehle.jpg', pos: '50% 55%', text: 'Pakete knacken, Bande sammeln, die Höhle verteidigen.', tag: 'Testphase · v0.5', sec: 1, cls: 'xl' }
 ];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -165,15 +205,17 @@ function draw() {
   if (b && b.loggedIn) {
     const na = Object.keys(P.ach).length, lvl = 1 + Math.floor(na / 3), pr0 = (na % 3) / 3;
     $('top').innerHTML = `<button class="av" data-o="profil" aria-label="Dein Profil">${b.avH ? b.avH(P) : ''}</button><div class="who"><b>Hi ${esc(P.name)}</b><div class="rk"><span>Bandenrang ${lvl}</span><span class="bar"><i style="width:${Math.max(6, pr0 * 100)}%"></i></span></div></div>
-      <a class="pill" href="bande/" aria-label="Bandengold"><svg viewBox="0 0 24 24" fill="none" stroke="#f2c94c" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>${bg.toLocaleString('de-DE')}</a>`;
+      <a class="pill" href="bande/" aria-label="Bandengold"><svg viewBox="0 0 24 24" fill="none" stroke="#f2c94c" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>${bg.toLocaleString('de-DE')}</a><button class="ib" data-set aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>`;
   } else {
-    $('top').innerHTML = `<div class="av"><img src="icon-180.png" alt=""></div><div class="who"><b>Willkommen!</b><div class="rk"><span>Mit Konto: Bestenliste, Freunde & Sammlung</span></div></div><button class="btn sm" data-o="login">Anmelden</button>`;
+    $('top').innerHTML = `<div class="av"><img src="icon-180.png" alt=""></div><div class="who"><b>Willkommen!</b><div class="rk"><span>Mit Konto: Bestenliste, Freunde & Sammlung</span></div></div><button class="ib" data-set aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="btn sm" data-o="login">Anmelden</button>`;
   }
   $('top').querySelectorAll('[data-o]').forEach(x => x.onclick = () => b && b.open(x.dataset.o));
+  $('top').querySelectorAll('[data-set]').forEach(x => x.onclick = openSet);
   // Spiele-Kacheln
   const go = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
-  $('games').innerHTML = GAMES.map(g => { const bs = b && b.best(g.k);
-    return `<a class="tile ${g.cls}" href="${g.url}"><img src="${g.img}" alt="" style="object-position:${g.pos}"><div class="in"><div class="kk">${g.neu ? '<span class="nw">Neu</span>' : ''}${esc(g.tag)}</div><h3>${esc(g.name)}</h3>${g.cls === 'big' || g.cls === 'tall' ? `<p>${esc(g.text)}</p>` : ''}<div class="ft">${bs ? `<span class="bs">${g.cls === 'big' ? 'Bestwert ' : '🏆 '}${b.fmt(g.k, bs.s)}</span>` : '<span></span>'}<span class="go">${g.cls === 'big' ? 'Spielen' : go}</span></div></div></a>`; }).join('');
+  const sec = SECRET.filter(g => b && b.secret && b.secret(g.k));
+  $('games').innerHTML = GAMES.concat(sec).map(g => { const bs = b && b.best(g.k);
+    return `<a class="tile ${g.cls}" href="${g.url}"><img src="${g.img}" alt="" style="object-position:${g.pos}"><div class="in"><div class="kk">${g.neu ? '<span class="nw">Neu</span>' : ''}${g.sec ? '<span class="sc">Geheim</span>' : ''}${esc(g.tag)}</div><h3>${esc(g.name)}</h3>${g.cls === 'big' || g.cls === 'tall' || g.cls === 'xl' ? `<p>${esc(g.text)}</p>` : ''}<div class="ft">${bs ? `<span class="bs">${g.cls === 'big' ? 'Bestwert ' : '🏆 '}${b.fmt(g.k, bs.s)}</span>` : '<span></span>'}<span class="go">${g.cls === 'big' ? 'Spielen' : go}</span></div></div></a>`; }).join('');
   // Deine Bestwerte
   const nb = b ? GAMES.filter(g => b.best(g.k)).length : 0; $('bsN').textContent = nb + ' von ' + GAMES.length;
   $('stats').innerHTML = GAMES.map(g => { const bs = b && b.best(g.k), G = b && b.GAMES ? b.GAMES[g.k] : null;
@@ -196,6 +238,36 @@ async function rank() {
     $('rMore').onclick = () => b.open('board', '_all');
   } catch (e) { el.innerHTML = `<div class="empty">Gerade nicht erreichbar.</div><button class="lnk" onclick="BB.open('board')">Bestenliste öffnen ›</button>`; }
 }
+// ---------- Einstellungen: Lautstärke + Code eingeben ----------
+function openSet() {
+  const b = B(), v = b && b.vol ? b.vol() : { m: .5, s: .5 };
+  [['vS', 's'], ['vM', 'm']].forEach(([id, k]) => { const el = $(id); el.value = Math.round(v[k] * 100); $(id + 'v').textContent = el.value; });
+  $('codeF').classList.remove('on'); $('codeGo').style.display = ''; $('codeMsg').textContent = ''; $('won').classList.remove('on'); $('codeIn').value = '';
+  $('set').classList.add('on');
+}
+function closeSet() { $('set').classList.remove('on'); }
+[['vS', 's'], ['vM', 'm']].forEach(([id, k]) => $(id).oninput = e => { $(id + 'v').textContent = e.target.value; const b = B(); if (b && b.setVol) b.setVol(k, e.target.value / 100); });
+$('setX').onclick = closeSet;
+$('set').onclick = e => { if (e.target === $('set')) closeSet(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSet(); });
+$('codeGo').onclick = () => { $('codeGo').style.display = 'none'; $('codeF').classList.add('on'); $('codeIn').focus(); };
+$('codeF').onsubmit = async e => {
+  e.preventDefault();
+  const b = B(), c = $('codeIn').value.trim(), msg = $('codeMsg');
+  if (!c || !b || !b.redeem) return;
+  msg.style.color = 'var(--mu)'; msg.textContent = 'Prüfe …';
+  try {
+    const G = await b.redeem(c);
+    msg.textContent = ''; $('codeF').classList.remove('on');
+    $('won').innerHTML = `<div class="ic">🎉</div><b>Du hast „${esc(G.name)}“ freigeschaltet!</b><span class="v">Version ${esc(G.v)}</span><p style="margin-top:10px">${b.loggedIn ? 'Liegt jetzt in deinem Profil. Den Code brauchst du nicht nochmal.' : 'Gilt erstmal nur auf diesem Gerät. Melde dich an und gib den Code nochmal ein, dann liegt es in deinem Profil.'}</p><a class="btn wide" href="${esc(G.url)}">Jetzt spielen</a>`;
+    $('won').classList.add('on');
+    draw();
+  } catch (x) {
+    msg.style.color = '#ff9a7a';
+    msg.textContent = x && x.message === 'slow' ? 'Zu viele Versuche. Warte ein paar Minuten.' : x && x.message === 'wrong' ? 'Falscher Code.' : 'Gerade keine Verbindung. Versuch es gleich nochmal.';
+    $('codeIn').select();
+  }
+};
 function avOf(x) { return x.img && x.id ? `api/bb.php?a=img&u=${x.id}&v=${x.img}` : IMG(x.av || 'artur'); }
 document.querySelectorAll('.tabs [data-tab]').forEach(x => x.onclick = () => {
   const b = B(), t = x.dataset.tab;
