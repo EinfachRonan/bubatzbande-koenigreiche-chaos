@@ -1297,32 +1297,63 @@ function grabComet() {
 
 // ================== Zeichnen ==================
 function planetCols() {
-  // Ein Grundton pro Planet (dunkel), Treffer hellen ihn in 7 Stufen auf, z. B. Dunkelblau -> Hellblau
-  const base = G.boss ? '#3a3f4c' : mixH(G.pal[2], '#000000', .6), light = G.boss ? '#c3cad8' : mixH(G.pal[2], '#ffffff', .12);
-  G.cols = Array.from({ length: 7 }, (_, k) => mixH(base, light, k / 6 * .9));
-  G.colsL = G.cols.map(c => mixH(c, '#ffffff', .22)); G.colsD = G.cols.map(c => mixH(c, '#000000', .35));
-  G.line = G.boss ? '#ff9ab0' : G.elite ? '#ff2a4a' : mixH(G.pal[2], '#ffffff', .55);
+  // Farbrampe pro Planet: 9 Helligkeitsstufen vom Kern (dunkel) zur Sonnenseite (hell), dazu Kruste, Risse, Kanten
+  const ty = G.boss ? 'boss' : G.bonus ? (G.bonus === 'gold' ? 'gold' : 'kris') : G.type || 'n', p2 = G.boss ? '#8a93a6' : G.pal[2], p0 = G.boss ? '#5d6470' : G.pal[0];
+  const dark = mixH(mixH(p0, p2, .3), '#05060c', .84), mid = mixH(mixH(p0, p2, .4), '#05060c', .42), hi = mixH(mixH(p0, p2, .6), '#ffffff', .12);
+  G.ramp = Array.from({ length: 9 }, (_, k) => k < 5 ? mixH(dark, mid, k / 4) : mixH(mid, hi, (k - 4) / 4 * .8));
+  G.hiE = mixH(hi, '#ffffff', .25); G.loE = mixH(dark, '#000000', .45);
+  G.ty = ty;
+  G.crust = { n: mixH(p2, '#9dff6a', .35), lava: '#ff7a1a', eis: '#f2fbff', gold: '#fff1a0', kris: '#e6d2ff', boss: '#ff9ab0' }[ty] || mixH(p2, '#ffffff', .5);
+  G.tex = { n: mixH(dark, '#000000', .25), lava: '#ffb347', eis: 'rgba(255,255,255,.55)', gold: '#fff3b0', kris: mixH(p2, '#ffffff', .55), boss: '#c3cad8' }[ty];
+  G.line = G.boss ? '#ff9ab0' : G.elite ? '#ff2a4a' : G.crust;
+  G.cols = G.ramp; // Kompatibilität (Minimap usw.)
+  G.colsL = G.ramp.map(c => mixH(c, '#ffffff', .22)); G.colsD = G.ramp.map(c => mixH(c, '#000000', .35));
 }
+// Blöcke im Schiff-Stil: Farbe nach Tiefe + Licht, gemeißelte Kante (oben hell, unten dunkel), Struktur je Planet-Typ, Risse bei Schaden
 function drawCell(i) {
   if (i < 0 || i >= G.alive.length) return;
   const c = i % COLS, r = i / COLS | 0, x = c * CELL, y = r * CELL;
   tg.clearRect(x, y, CELL, CELL);
   if (!G.alive[i]) return;
-  const st = G.dst[i], A = G.alive;
-  tg.fillStyle = G.cols[st]; tg.fillRect(x, y, CELL, CELL);
-  { // Pixel-Art-Block wie im Titelbild: leichte Farbvariation je Block, feiner Lichtpunkt, keine harten Rahmen
-    const h = (i * 2654435761) >>> 0, v = h % 3; if (v) { tg.fillStyle = v === 1 ? G.colsL[st] : G.colsD[st]; tg.globalAlpha = .35; tg.fillRect(x, y, CELL, CELL); tg.globalAlpha = 1; }
-    if (h % 7 === 0) { tg.fillStyle = G.colsL[st]; const q = Math.max(2, CELL / 5 | 0); tg.fillRect(x + q, y + q, q, q); } }
-  if (G.ore[i] >= 3) { const sp = G.ore[i] === 3, cx0 = x + CELL / 2, cy0 = y + CELL / 2, rr = CELL / 2 - 1; tg.fillStyle = sp ? '#3d6d78' : '#3b2466'; tg.fillRect(x, y, CELL, CELL);
-    tg.fillStyle = sp ? '#ffffff' : '#b07cff'; tg.beginPath(); tg.moveTo(cx0, cy0 - rr); tg.lineTo(cx0 + rr * .8, cy0); tg.lineTo(cx0, cy0 + rr); tg.lineTo(cx0 - rr * .8, cy0); tg.closePath(); tg.fill();
-    tg.fillStyle = sp ? '#9fefff' : '#ecd9ff'; tg.fillRect(cx0 - rr * .35, cy0 - rr * .45, Math.max(2, rr * .35), Math.max(2, rr * .35)); }
-  else if (G.ore[i]) { const o2 = G.ore[i] === 2, q = Math.max(3, CELL / 3.5 | 0); tg.fillStyle = o2 ? '#ff5fd2' : '#ffd23f'; tg.fillRect(x + q, y + q, CELL - 2 * q, CELL - 2 * q); tg.fillStyle = '#fff6c8'; tg.fillRect(x + q, y + q, Math.max(2, q / 2 | 0), Math.max(2, q / 2 | 0)); }
-  // helle Kontur nur dort, wo der Nachbar fehlt
-  const b = 2; tg.fillStyle = G.line;
-  if (r === 0 || !A[i - COLS]) tg.fillRect(x, y, CELL, b);
-  if (r === ROWS - 1 || !A[i + COLS]) tg.fillRect(x, y + CELL - b, CELL, b);
-  if (c === 0 || !A[i - 1]) tg.fillRect(x, y, b, CELL);
-  if (c === COLS - 1 || !A[i + 1]) tg.fillRect(x + CELL - b, y, b, CELL);
+  const A = G.alive, h = (i * 2654435761) >>> 0, st = G.dst[i], ty = G.ty;
+  const up = r > 0 && A[i - COLS], dn = r < ROWS - 1 && A[i + COLS], lf = c > 0 && A[i - 1], rt = c < COLS - 1 && A[i + 1];
+  const lv = Math.max(0, Math.min(8, Math.round(3.2 + G.lit[i] * 3.6 - G.dep[i] * 3.4 + ((h >>> 3) % 3 - 1) * .55)));
+  tg.fillStyle = G.ramp[lv]; tg.fillRect(x, y, CELL, CELL);
+  const b = Math.max(1, CELL / 7 | 0);
+  // gemeißelte Kante: oben/links Licht, unten/rechts Schatten (leicht, damit es nach Blöcken aussieht, nicht nach Gitter)
+  tg.globalAlpha = .2; tg.fillStyle = G.ramp[Math.min(8, lv + 2)]; tg.fillRect(x, y, CELL, b); tg.globalAlpha = .1; tg.fillRect(x, y, b, CELL);
+  tg.globalAlpha = .18; tg.fillStyle = G.loE; tg.fillRect(x, y + CELL - b, CELL, b); tg.globalAlpha = .08; tg.fillRect(x + CELL - b, y, b, CELL); tg.globalAlpha = 1;
+  // Struktur je Typ
+  const q = Math.max(2, CELL / 6 | 0);
+  if (ty === 'lava') { if (h % 5 < 2) { tg.strokeStyle = G.tex; tg.globalAlpha = .45 + .45 * G.dep[i]; tg.lineWidth = Math.max(1, CELL / 9); tg.beginPath(); const a0 = (h >>> 4) % 4; const p1 = [[x, y + CELL * .3], [x + CELL * .4, y], [x + CELL, y + CELL * .6], [x + CELL * .7, y + CELL]][a0], p2 = [[x + CELL, y + CELL * .7], [x + CELL * .6, y + CELL], [x, y + CELL * .35], [x + CELL * .25, y]][a0];
+      tg.moveTo(p1[0], p1[1]); tg.lineTo(x + CELL * (.35 + ((h >>> 7) % 3) * .15), y + CELL * (.35 + ((h >>> 9) % 3) * .15)); tg.lineTo(p2[0], p2[1]); tg.stroke(); tg.globalAlpha = 1; } }
+  else if (ty === 'eis') { if (h % 4 === 0) { tg.fillStyle = G.tex; const L = CELL * (.3 + ((h >>> 6) % 3) * .15); for (let k = 0; k < L; k += 1) tg.fillRect(x + q + k, y + CELL - q - k - 1, 1, 1); } }
+  else if (ty === 'gold') { tg.fillStyle = G.tex; tg.globalAlpha = .8; if (h % 2) tg.fillRect(x + (h >>> 4) % (CELL - q), y + (h >>> 8) % (CELL - q), q / 2 + 1 | 0, q / 2 + 1 | 0); if (h % 5 === 0) tg.fillRect(x + (h >>> 12) % (CELL - q), y + (h >>> 16) % (CELL - q), 1, 1); tg.globalAlpha = 1; }
+  else if (ty === 'kris') { if (h % 5 === 0) { tg.fillStyle = G.tex; tg.globalAlpha = .4; const w = CELL * (.25 + ((h >>> 5) % 3) * .12), ox = x + (h >>> 8) % Math.max(1, CELL - w); tg.beginPath(); tg.moveTo(ox, y + CELL - q); tg.lineTo(ox + w / 2, y + CELL - q - w * 1.4); tg.lineTo(ox + w, y + CELL - q); tg.closePath(); tg.fill(); tg.globalAlpha = 1; } }
+  else if (ty === 'boss') { tg.fillStyle = G.loE; tg.fillRect(x, y + CELL / 2, CELL, 1); tg.fillStyle = G.tex; tg.globalAlpha = .7; tg.fillRect(x + q, y + q, 1.5, 1.5); tg.fillRect(x + CELL - q - 1.5, y + q, 1.5, 1.5); tg.globalAlpha = 1; }
+  else { if (h % 4 === 0) { tg.fillStyle = G.tex; tg.fillRect(x + (h >>> 4) % (CELL - q), y + (h >>> 9) % (CELL - q), q, q); tg.fillStyle = G.ramp[Math.min(8, lv + 1)]; tg.fillRect(x + (h >>> 4) % (CELL - q), y + (h >>> 9) % (CELL - q), q, 1); } }
+  // Risse bei Schaden: je Stufe mehr Linien, ab Stufe 5 leicht aufgehellt
+  if (st > 0) { tg.strokeStyle = G.loE; tg.globalAlpha = .75; tg.lineWidth = Math.max(1, CELL / 12); tg.beginPath(); const cx = x + CELL / 2, cy = y + CELL / 2;
+    for (let k = 0; k < Math.min(4, st); k++) { const a = ((h >>> (k * 3)) % 8) * .785 + k, L = CELL * (.25 + .07 * st); tg.moveTo(cx, cy); tg.lineTo(cx + Math.cos(a) * L * .55 + ((h >>> k) % 3 - 1), cy + Math.sin(a) * L * .55); tg.lineTo(cx + Math.cos(a + .4) * L, cy + Math.sin(a + .4) * L); }
+    tg.stroke(); tg.globalAlpha = 1; if (st >= 5) { tg.fillStyle = '#ffffff'; tg.globalAlpha = .08 * (st - 4); tg.fillRect(x, y, CELL, CELL); tg.globalAlpha = 1; } }
+  // Erze mit dunkler Kontur wie bei den Schiffen
+  if (G.ore[i] >= 3) { const sp = G.ore[i] === 3, cx0 = x + CELL / 2, cy0 = y + CELL / 2, rr = CELL / 2 - 1;
+    const dia = (k, col) => { tg.fillStyle = col; tg.beginPath(); tg.moveTo(cx0, cy0 - rr * k); tg.lineTo(cx0 + rr * .8 * k, cy0); tg.lineTo(cx0, cy0 + rr * k); tg.lineTo(cx0 - rr * .8 * k, cy0); tg.closePath(); tg.fill(); };
+    dia(1.08, '#050912'); dia(.92, sp ? '#5ce8f0' : '#9a5cff'); tg.fillStyle = sp ? '#ffffff' : '#ecd9ff'; tg.beginPath(); tg.moveTo(cx0, cy0 - rr * .9); tg.lineTo(cx0 + rr * .35, cy0 - rr * .1); tg.lineTo(cx0 - rr * .2, cy0 - rr * .1); tg.closePath(); tg.fill();
+    tg.fillStyle = sp ? '#1d6a78' : '#4a1d8a'; tg.beginPath(); tg.moveTo(cx0, cy0 + rr * .85); tg.lineTo(cx0 + rr * .7, cy0); tg.lineTo(cx0, cy0 + rr * .15); tg.closePath(); tg.fill(); }
+  else if (G.ore[i]) { const o2 = G.ore[i] === 2, s2 = Math.max(3, CELL / 3.2 | 0), ox2 = x + (CELL - s2) / 2, oy2 = y + (CELL - s2) / 2;
+    tg.fillStyle = '#050912'; tg.fillRect(ox2 - 1, oy2 - 1, s2 + 2, s2 + 2); tg.fillRect(ox2 + s2 * .6, oy2 - s2 * .45 - 1, s2 * .6 + 2, s2 * .6 + 2);
+    tg.fillStyle = o2 ? '#ff5fd2' : '#ffd23f'; tg.fillRect(ox2, oy2, s2, s2); tg.fillRect(ox2 + s2 * .6 + 1, oy2 - s2 * .45, s2 * .6, s2 * .6);
+    tg.fillStyle = o2 ? '#ffd0f4' : '#fff6c8'; tg.fillRect(ox2, oy2, Math.max(1, s2 / 3 | 0), Math.max(1, s2 / 3 | 0)); tg.fillStyle = o2 ? '#8a1a6a' : '#8a5a00'; tg.fillRect(ox2 + s2 - Math.max(1, s2 / 3 | 0), oy2 + s2 - Math.max(1, s2 / 3 | 0), Math.max(1, s2 / 3 | 0), Math.max(1, s2 / 3 | 0)); }
+  // Oberfläche: Kruste an freien Kanten (Gras/Schnee/Glut/Goldglanz) + dunkle Kontur
+  const kb = Math.max(2, CELL / 5 | 0);
+  tg.fillStyle = '#050912'; tg.globalAlpha = .55;
+  if (!up) tg.fillRect(x, y, CELL, 1); if (!dn) tg.fillRect(x, y + CELL - 1, CELL, 1); if (!lf) tg.fillRect(x, y, 1, CELL); if (!rt) tg.fillRect(x + CELL - 1, y, 1, CELL); tg.globalAlpha = 1;
+  tg.fillStyle = G.line;
+  if (!up) { tg.fillRect(x, y + 1, CELL, kb); if (ty === 'eis' || ty === 'n') { tg.fillRect(x + (h % 3) * 2, y + 1 + kb, 2, 2); } }
+  if (!dn) tg.fillRect(x, y + CELL - 1 - Math.max(1, kb / 2 | 0), CELL, Math.max(1, kb / 2 | 0));
+  if (!lf) tg.fillRect(x + 1, y, Math.max(1, kb / 2 | 0), CELL); if (!rt) tg.fillRect(x + CELL - 1 - Math.max(1, kb / 2 | 0), y, Math.max(1, kb / 2 | 0), CELL);
+  if (ty === 'lava' && (!up || !lf || !rt || !dn)) { tg.fillStyle = '#ffe08a'; tg.globalAlpha = .6; tg.fillRect(x + (h % (CELL - 2)), y + 1, 2, 1); tg.globalAlpha = 1; }
 }
 function drawTerrain() {
   if (!G.cols) planetCols();
@@ -1450,8 +1481,9 @@ function draw(now) {
   if (warpT > 0) { const k = Math.min(1, warpT); g.strokeStyle = `rgba(201,162,255,${k * .8})`; g.lineWidth = 2; g.beginPath(); for (const [x, y, s] of stars) { const px = x * W, py = y * H, dx = px - W / 2, dy = py - H / 2; g.moveTo(px, py); g.lineTo(px + dx * (1.6 - k) * .6, py + dy * (1.6 - k) * .6); } g.stroke(); }
   g.save(); g.translate(Math.round((W / 2 - cam.x) * DPR) / DPR, Math.round((H / 2 - cam.y) * DPR) / DPR);
   g.save(); g.translate(0, pOff);
-  // Atmosphäre
-  { const gr = g.createRadialGradient(G.cx, G.cy, G.R * .95, G.cx, G.cy, G.R * 1.2); gr.addColorStop(0, G.pal[2] + '33'); gr.addColorStop(1, G.pal[2] + '00'); g.fillStyle = gr; g.beginPath(); g.arc(G.cx, G.cy, G.R * 1.2, 0, 7); g.fill(); }
+  // Atmosphäre: heller Rand direkt am Planeten + weicher Schein nach außen
+  { const ac = G.boss ? '#ff6f91' : G.pal[2]; let gr = g.createRadialGradient(G.cx, G.cy, G.R * .9, G.cx, G.cy, G.R * 1.08); gr.addColorStop(0, ac + '00'); gr.addColorStop(.75, ac + '40'); gr.addColorStop(1, ac + '00'); g.fillStyle = gr; g.beginPath(); g.arc(G.cx, G.cy, G.R * 1.08, 0, 7); g.fill();
+    gr = g.createRadialGradient(G.cx, G.cy, G.R, G.cx, G.cy, G.R * 1.4); gr.addColorStop(0, ac + '30'); gr.addColorStop(1, ac + '00'); g.fillStyle = gr; g.beginPath(); g.arc(G.cx, G.cy, G.R * 1.4, 0, 7); g.fill(); }
   if (tDirty && now - terrT > 70) { drawTerrain(); terrT = now; }
   g.imageSmoothingEnabled = false; g.drawImage(TC, 0, 0, COLS * CELL, ROWS * CELL); g.imageSmoothingEnabled = true;
   // Erz funkelt
