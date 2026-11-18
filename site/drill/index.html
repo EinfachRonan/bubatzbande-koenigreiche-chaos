@@ -951,22 +951,27 @@ function evStep(dt) {
 }
 function evTap(px, py) {
   if (BON) return false;
-  if (trader && !trader.open && Math.hypot(px - trader.x, py - trader.y) < 46) { openTrader(); return true; }
+  if (trader && !trader.open && !trader.done && Math.hypot(px - trader.x, py - trader.y) < 46) { openTrader(); return true; }
   if (worm && Math.hypot(px - worm.x, py - worm.y) < 48) { const k = worm.kind; worm = null; wormT = 480 + Math.random() * 360; enterBonus(k); return true; }
   return false;
 }
+function traderLeave() { if (trader) { trader.open = 0; trader.done = 1; trader.t = Math.max(trader.t, trader.life * .85); } }
 function openTrader(msg) {
   if (!trader) return; trader.open = 1;
-  const can = o => (S[o.cur] || 0) >= o.c;
-  overlay(`<div class="trd"><div class="trd-h"><canvas id="trdc" width="96" height="72"></canvas><div><b>${trader.name}</b><small>Weltraum-Händler · nur kurz da!</small></div></div>
+  const can = o => !trader.done && (S[o.cur] || 0) >= o.c;
+  overlay(`<div class="trd"><div class="trd-h"><canvas id="trdc" width="96" height="72"></canvas><div><b>${trader.name}</b><small>${trader.done ? 'Danke fürs Geschäft – ich bin weg!' : 'Weltraum-Händler · ein Deal pro Besuch!'}</small></div></div>
     ${msg ? `<div class="trd-msg">${msg}</div>` : ''}
     ${trader.offers.map((o, k) => `<button class="trd-o" data-of="${k}" ${o.sold || !can(o) ? 'disabled' : ''}><span><b>${o.n}</b><small>${o.d}</small></span><em>${o.sold ? 'VERKAUFT' : CURS[o.cur] + o.c}</em></button>`).join('')}
-    <div class="trd-w">Du hast ◆${fmt(S.cry)} · ✦${fmt(S.dm || 0)} · ⬢${fmt(S.chip || 0)}</div></div>`, [['Tschüss!', () => { if (trader) { trader.open = 0; trader.t = Math.max(trader.t, trader.life * .85); } }]]);
+    <div class="trd-w">Du hast ◆${fmt(S.cry)} · ✦${fmt(S.dm || 0)} · ⬢${fmt(S.chip || 0)}</div></div>`, [[trader.done ? 'Tschüss! 👋' : 'Nein danke', () => traderLeave()]]);
   { const c = $('trdc'), x = c.getContext('2d'); x.translate(48, 40); x.scale(1.6, 1.6); drawTraderShip(x, 0, 0, performance.now() / 1000, 1); }
   $('ovb').querySelectorAll('[data-of]').forEach(b => b.onclick = () => { const o = trader.offers[+b.dataset.of]; if (o.sold || !can(o)) return; S[o.cur] -= o.c; o.sold = 1; SND.fx.up(); vib(30);
-    const r = o.go(); save('now'); ui(); if (o.id === 'myst') { trader.open = 1; return; } openTrader(o.id === 'gamble' ? (r.startsWith('GEW') ? '🪙 ' + r : '🪙 ' + r) : '✔ ' + r); });
+    trader.done = 1; const r = o.go(); save('now'); ui(); if (o.id === 'myst') { traderLeave(); return; } openTrader(o.id === 'gamble' ? (r.startsWith('GEW') ? '🪙 ' + r : '🪙 ' + r) : '✔ Erhalten: ' + r); });
 }
-function drawTraderShip(x, cx, cy, tt, big) {
+// Gemalte Sprites (ev/trader.png Seitenansicht nach rechts, ev/worm.png) – sonst selbst gezeichnet
+const EVI = {}; ['trader', 'worm'].forEach(n => { const im = new Image(); im.onload = () => EVI[n] = im; im.src = 'ev/' + n + '.png'; });
+function drawTraderShip(x, cx, cy, tt, big, dir) {
+  if (EVI.trader) { const im = EVI.trader, w = 58, h = w * im.height / im.width, bob = Math.sin(tt * 3) * 1.5; x.save(); x.translate(cx, cy + bob); if (dir < 0) x.scale(-1, 1); x.drawImage(im, -w / 2, -h / 2, w, h);
+    x.globalCompositeOperation = 'lighter'; x.fillStyle = '#ffb04a'; x.globalAlpha = .8; x.beginPath(); x.moveTo(-w / 2 + 2, -3); x.lineTo(-w / 2 - 6 - Math.random() * 5, 0); x.lineTo(-w / 2 + 2, 3); x.fill(); x.restore(); return; }
   const bob = Math.sin(tt * 3) * 1.5; x.save(); x.translate(cx, cy + bob);
   const INKC = '#050912';
   // Triebwerksflammen
@@ -988,7 +993,12 @@ function drawTraderShip(x, cx, cy, tt, big) {
   x.restore();
 }
 function drawWorm(x, w, tt) {
-  const k = Math.min(1, w.t / .6) * Math.min(1, (w.life - w.t) / .6), R = 30 * k, c1 = w.kind === 'gold' ? '#ffd23f' : '#5ce8f0', c2 = '#b98cff';
+  const k = Math.min(1, w.t / .6) * Math.min(1, (w.life - w.t) / .6), R = 30 * k;
+  if (EVI.worm) { const c1 = w.kind === 'gold' ? '#ffd23f' : '#5ce8f0'; x.save(); x.translate(w.x, w.y); x.globalCompositeOperation = 'lighter'; x.globalAlpha = .3; x.fillStyle = c1; x.beginPath(); x.arc(0, 0, R * 1.5, 0, 7); x.fill(); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+    x.save(); x.rotate(-tt * 1.6); x.drawImage(EVI.worm, -R * 1.2, -R * 1.2, R * 2.4, R * 2.4); x.restore();
+    x.strokeStyle = c1; x.lineWidth = 2; x.beginPath(); x.arc(0, 0, R * 1.25, -Math.PI / 2, -Math.PI / 2 + 6.283 * (1 - w.t / w.life)); x.stroke();
+    x.font = '10px Silkscreen,monospace'; x.textAlign = 'center'; x.fillStyle = '#050912'; x.fillText('WURMLOCH!', 1, -R * 1.25 - 7); x.fillStyle = Math.sin(tt * 6) > 0 ? '#ffffff' : c1; x.fillText('WURMLOCH!', 0, -R * 1.25 - 8); x.restore(); return; }
+  const c1 = w.kind === 'gold' ? '#ffd23f' : '#5ce8f0', c2 = '#b98cff';
   x.save(); x.translate(w.x, w.y);
   x.globalCompositeOperation = 'lighter';
   x.globalAlpha = .25; x.fillStyle = c2; x.beginPath(); x.arc(0, 0, R * 1.6, 0, 7); x.fill();
@@ -999,8 +1009,8 @@ function drawWorm(x, w, tt) {
   x.restore();
 }
 function drawEvents(tt) {
-  if (trader) { const t = trader; g.save(); g.translate(t.x, t.y); g.scale(1.35, 1.35); drawTraderShip(g, 0, 0, tt); g.restore(); const a = Math.min(1, t.t / .5);
-    if (!t.open) { g.globalAlpha = a; g.font = '10px Silkscreen,monospace'; g.textAlign = 'center'; const txt = t.t < 6 ? 'Psst! Deals!' : 'Antippen!', w = g.measureText(txt).width + 12, by = t.y - 36 + Math.sin(tt * 4) * 2;
+  if (trader) { const t = trader; g.save(); g.translate(t.x, t.y); g.scale(1.35, 1.35); drawTraderShip(g, 0, 0, tt, 0, t.dir); g.restore(); const a = Math.min(1, t.t / .5);
+    if (!t.open) { g.globalAlpha = a; g.font = '10px Silkscreen,monospace'; g.textAlign = 'center'; const txt = t.done ? 'Bis bald!' : t.t < 6 ? 'Psst! Deals!' : 'Antippen!', w = g.measureText(txt).width + 12, by = t.y - 36 + Math.sin(tt * 4) * 2;
       g.fillStyle = '#050912'; g.fillRect(t.x - w / 2 - 1, by - 11, w + 2, 18); g.fillStyle = '#fff3b0'; g.fillRect(t.x - w / 2, by - 10, w, 16); g.beginPath(); g.moveTo(t.x - 4, by + 6); g.lineTo(t.x, by + 11); g.lineTo(t.x + 4, by + 6); g.fill();
       g.fillStyle = '#3a2000'; g.fillText(txt, t.x, by + 2); g.globalAlpha = 1; } }
   if (worm) drawWorm(g, worm, tt);
@@ -2215,7 +2225,7 @@ function openCrate(k) {
   overlay(`<div class="flip" id="flip" style="--rc:${RAR[r].c};--kc:${k.c}"><div class="fc"><div class="ff"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.4"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/></svg><span>${k.n}</span><small>Tippen zum Aufdecken</small></div>
       <div class="fb">${itemSvg(it, 84)}<span>${RAR[r].n.toUpperCase()}</span></div></div><div class="fx-p" id="fxp"></div></div>
     <div id="frev" class="frev">${r2 ? `<div class="ultab">${abIco(r2.a, ` width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.8"`)}<span><b>${r2.a.n}</b><br>${r2.txt}</span></div>` : ''}<h2 style="color:${RAR[r].c}">${it.n}</h2><p>[${RAR[r].n}] · ${SLOT[it.s].n}<br>${had ? '' : 'Neu im Hangar!'}${extra}<br><b style="color:var(--txt)">+${Math.round(itemVal(it, ILV(it.id)) * 100)} % ${SLOT[it.s].st}</b>${HATK[it.id] ? '<br><span style="color:var(--li)">⚔ ' + HATK[it.id].n + ': ' + HATK[it.id].d + '</span>' : ''}</p></div>`,
-    [k.noAgain ? ['Super!', () => { render(); if (trader) openTrader(); }] : ['Nochmal ziehen ◆' + k.cost, () => { render(); openCrate(k); }], ['Ausrüsten', () => { S.eq[it.s] = it.id; save('now'); render(); }], ['Weiter', () => render()]]);
+    [k.noAgain ? ['Super!', () => render()] : ['Nochmal ziehen ◆' + k.cost, () => { render(); openCrate(k); }], ['Ausrüsten', () => { S.eq[it.s] = it.id; save('now'); render(); }], ['Weiter', () => render()]]);
   const ovb = $('ovb'), btns = ovb.querySelectorAll('[data-k]'); btns.forEach(x => x.style.visibility = 'hidden');
   if (!k.noAgain) { if (S.cry < k.cost) btns[0].disabled = true; btns[0].classList.add('again'); }
   const fl = $('flip'); let done = false;
