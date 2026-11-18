@@ -621,7 +621,7 @@
   { id: 'saw', n: 'LG3s Kräutersäge', d: '2 große Sägeblätter kreisen ums Schiff' },
   { id: 'mine', n: 'Allans Minenwerfer', d: 'Minen explodieren auf der Oberfläche' },
   { id: 'sniper', n: 'Königsschuss', d: 'Ein Riesenschuss auf das wertvollste Erz' },
-  { id: 'meteor', n: 'Meteorregen' }, { id: 'pulse', n: 'Schockwellen-Pulser' }, { id: 'boomer', n: 'Sichelbumerang' }, { id: 'frost', n: 'Frostkanone' }
+  { id: 'meteor', n: 'Meteorregen' }, { id: 'whip', n: 'Plasmapeitsche' }, { id: 'rockets', n: 'Raketenschwarm' }, { id: 'grav', n: 'Gravitonbombe' }, { id: 'turret', n: 'Geschützturm' }, { id: 'boomer', n: 'Sichelbumerang' }, { id: 'frost', n: 'Frostkanone' }
 ]; const R = { g: { n: 'Gewöhnlich', c: '#c9d1d3', b: .1 }, s: { n: 'Selten', c: '#8dff5a', b: .25 }, e: { n: 'Episch', c: '#ff5fe0', b: .6 }, l: { n: 'Legendär', c: '#ffe94d', b: 1.5 } }; const A = {"over": "Hyperschub", "gold": "Goldrausch", "meteor": "Meteorschauer", "kanone": "Orbitalkanone", "loch": "Schwarzes Loch", "erz": "Erzradar", "zeit": "Zeitsprung"}; return { I, W, R, A }; })();
   function shipCard(s) {
     if (!s || !s.eq) return '';

@@ -401,6 +401,64 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 .hslots button{border-radius:8px;background:var(--plate);box-shadow:var(--bev)}
 .hslots .hi{border-radius:7px}
 .offer .br{border-color:#4f6b80}
+
+/* ===== Vollbild-Seiten (Shop, Hangar, Fähigkeiten, Statistik) ===== */
+#app.full .panel{position:absolute;left:0;right:0;top:var(--hudh,96px);bottom:0;height:auto!important;max-height:none;z-index:6;animation:fullIn .22s ease-out}
+#app.full .hot{display:none}
+@keyframes fullIn{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+.fhd{position:sticky;top:-8px;z-index:4;display:flex;align-items:center;gap:10px;margin:-8px -8px 12px;padding:12px 10px 11px 14px;background:linear-gradient(180deg,#16212c,#0d141b);border-bottom:2px solid #2c3d4b;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 16px rgba(0,0,0,.45)}
+.fhd b{flex:1;font:400 17px Silkscreen,var(--mono);color:#eaffff;text-shadow:0 0 10px rgba(92,232,240,.55)}
+.fhd .fcur{font:600 13px var(--mono);color:#cfe6ea;white-space:nowrap}
+.fhd button{flex:none;height:34px;padding:0 12px;border-radius:7px;background:var(--plate);border:1.5px solid #4f6b80;color:var(--txt);font:600 12px var(--mono);box-shadow:var(--bev);cursor:pointer}
+.oddsbar{display:flex;height:7px;border-radius:4px;overflow:hidden;margin-top:6px;box-shadow:0 0 0 1px #050912}
+.oddsbar i{display:block;min-width:4px}
+#app.full .sbox{padding:14px 12px}
+#app.full .sbox>svg{width:64px;height:64px;filter:drop-shadow(0 0 10px var(--rc))}
+.hg-hero{position:relative;display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:12px;border-radius:10px;background:radial-gradient(circle at 25% 50%,#17303a,#0a1117 65%);border:1.5px solid #34485a;box-shadow:var(--bev);overflow:hidden}
+.hg-hero::before{content:"";position:absolute;left:-30px;top:50%;width:200px;height:200px;margin-top:-100px;background:radial-gradient(circle,var(--rc) 0,transparent 60%);opacity:.18}
+.hg-ship{position:relative;flex:none;width:118px;height:118px;display:flex;align-items:center;justify-content:center;animation:hover 3s ease-in-out infinite}
+.hg-ship img{filter:drop-shadow(0 0 14px var(--rc)) drop-shadow(0 6px 6px rgba(0,0,0,.6))}
+@keyframes hover{50%{transform:translateY(-5px)}}
+.hg-sum{position:relative;flex:1;min-width:0}
+.hg-sum b{display:block;font:400 14px Silkscreen,var(--mono);color:#eaffff;margin-bottom:6px}
+.hg-sum div{display:flex;justify-content:space-between;gap:6px;font-size:12px;color:#cfd8da;padding:3px 0;border-bottom:1px solid #1d2a33}
+.hg-sum div span:last-child{color:var(--li);font-weight:700}
+.cmp{margin-top:8px;padding:8px 10px;border-radius:7px;background:#070b10;font-size:12px;color:#cfd8da;box-shadow:inset 0 0 0 1px #22303c}
+.cmp b.up{color:var(--li)}.cmp b.dn{color:#ff7a96}
+.hbe{display:flex;gap:7px;margin:0 0 6px}
+.hbe button{position:relative;flex:1;aspect-ratio:1;max-height:64px;border-radius:10px;background:radial-gradient(circle at 50% 35%,#1a2836,#0a1017 70%);border:2px solid #36506a;color:#cfe6ea;font:700 20px var(--mono);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 4px rgba(0,0,0,.6),0 0 0 1.5px var(--ink)}
+.hbe button svg{width:58%;height:58%}
+.hbe button.emp{border-style:dashed;border-color:#2c3a46;color:#56636a}
+.hbe button.sel{border-color:#ffe94d;box-shadow:0 0 0 1.5px var(--ink),0 0 14px rgba(255,233,77,.45);animation:hbsel 1s ease-in-out infinite}
+.hbe button small{position:absolute;left:4px;top:2px;font:400 9px Silkscreen,var(--mono);color:#7f9196}
+@keyframes hbsel{50%{transform:scale(1.05)}}
+.hbe-h{font-size:11px;color:var(--mut);margin:0 2px 10px;text-align:center}
+.hbe-h b{color:#ffe94d}
+.stw{margin-bottom:12px}
+.stw div{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;margin-bottom:7px}
+.stw .wic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;border:1.5px solid;background:#05080c}
+.stw .wic svg{width:17px;height:17px}
+.stw .bar{position:relative;height:22px;border-radius:5px;background:#070b10;box-shadow:inset 0 0 0 1px #1d2a33;overflow:hidden}
+.stw .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;opacity:.85}
+.stw .bar span{position:relative;display:block;padding:0 8px;line-height:22px;font-size:11.5px;color:#fff;text-shadow:0 1px 2px #000;white-space:nowrap}
+.stw em{font-style:normal;font:700 12px var(--mono);color:#eaffff;min-width:42px;text-align:right}
+.stg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.stg div{padding:10px;border-radius:8px;background:var(--plate);box-shadow:var(--bev);border:1.5px solid #2e3e4c}
+.stg small{display:block;font-size:10.5px;color:var(--mut);margin-bottom:3px}
+.stg b{font:400 16px Silkscreen,var(--mono);color:#eaffff}
+.cele{position:absolute;left:0;right:0;top:18%;z-index:30;display:flex;flex-direction:column;align-items:center;pointer-events:none;animation:celeIn 2.1s ease-out forwards}
+.cele .cs{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center}
+.cele .cs::before{content:"";position:absolute;inset:-40px;background:repeating-conic-gradient(from 0deg,rgba(255,233,77,.28) 0 6deg,transparent 6deg 18deg);border-radius:50%;animation:spin 3s linear infinite;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+.cele img{position:relative;filter:drop-shadow(0 0 16px #ffe94d)}
+.cele b{margin-top:8px;font:400 22px Silkscreen,var(--mono);color:#ffe94d;text-shadow:0 0 14px rgba(255,233,77,.7),2px 2px 0 #3a2a00}
+.cele span{margin-top:4px;font:600 13px var(--mono);color:#eaffff;text-shadow:0 1px 3px #000;background:rgba(5,9,18,.7);padding:4px 10px;border-radius:6px}
+.cele.uni b{color:#c9a2ff;text-shadow:0 0 14px rgba(201,162,255,.8),2px 2px 0 #2a1450}
+@keyframes celeIn{0%{opacity:0;transform:scale(.6)}12%{opacity:1;transform:scale(1.08)}22%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-20px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lflash{position:fixed;inset:0;z-index:40;pointer-events:none;background:radial-gradient(circle,rgba(255,233,77,.55),rgba(255,233,77,0) 70%);animation:lfl .9s ease-out forwards}
+@keyframes lfl{from{opacity:1}to{opacity:0}}
+.list.swl{animation:swl .2s ease-out}.list.swr{animation:swr .2s ease-out}
+@keyframes swl{from{transform:translateX(30px);opacity:.3}to{transform:none;opacity:1}}@keyframes swr{from{transform:translateX(-30px);opacity:.3}to{transform:none;opacity:1}}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -429,7 +487,7 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261118b"></script>
+<script src="../bb.js?v=20261118c"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -445,12 +503,15 @@ const WICO = {
   mine: '<circle cx="12" cy="13" r="6"/><path d="M12 3v4M5 6l2 2M19 6l-2 2"/>',
   sniper: '<circle cx="12" cy="12" r="8"/><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="1"/>',
   meteor: '<circle cx="15" cy="15" r="5"/><path d="M11 11L3 3M13 9L7 3M9 13L3 7"/>',
-  pulse: '<circle cx="12" cy="12" r="2"/><path d="M7 7a7 7 0 0 0 0 10M17 7a7 7 0 0 1 0 10M4 4a11 11 0 0 0 0 16M20 4a11 11 0 0 1 0 16"/>',
+  whip: '<path d="M3 21c4-2 6-6 6-10s3-7 7-7c3 0 5 2 5 4"/><circle cx="21" cy="8" r="1"/>',
+  rockets: '<path d="M5 19l4-1 9-9a3 3 0 0 0-4-4l-9 9z"/><path d="M14 5l5 5M5 19l-2 2M8 16l-3 1M7 13l-1 3"/>',
+  grav: '<circle cx="12" cy="12" r="3"/><path d="M12 3a9 9 0 0 1 9 9M12 21a9 9 0 0 1-9-9M19 5a12 12 0 0 1-3 13M5 19A12 12 0 0 1 8 6"/>',
+  turret: '<path d="M4 20h16M6 20v-4a6 6 0 0 1 12 0v4"/><path d="M12 10l6-6"/><circle cx="12" cy="16" r="1.5"/>',
   boomer: '<path d="M4 20C6 10 12 5 20 4c-5 3-8 8-9 16z"/>',
   frost: '<path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"/><path d="M9.5 3.5L12 6l2.5-2.5M9.5 20.5L12 18l2.5 2.5"/>'
 };
 // Signaturfarbe je Waffe: jede Attacke hat ihre eigene Farbe, damit man auch bei vollem Feuer alles auseinanderhält
-const WCOL = { line: '#5ce8f0', star: '#ff4f7a', drill: '#4fc3ff', nova: '#8cff9a', scatter: '#ff9a3a', drones: '#c8ff5a', chain: '#a8a8ff', saw: '#e8eef2', mine: '#ff3a5c', sniper: '#ffd23f', meteor: '#ff7a2a', pulse: '#3affc0', boomer: '#b98cff', frost: '#bfefff' };
+const WCOL = { line: '#5ce8f0', star: '#ff4f7a', drill: '#4fc3ff', nova: '#8cff9a', scatter: '#ff9a3a', drones: '#c8ff5a', chain: '#a8a8ff', saw: '#e8eef2', mine: '#ff3a5c', sniper: '#ffd23f', meteor: '#ff7a2a', whip: '#3affc0', rockets: '#ff9b7a', grav: '#ff5fd0', turret: '#8fb8ff', boomer: '#b98cff', frost: '#bfefff' };
 const INK = '#050912';
 const WEAP = [
   { id: 'line', n: 'Kobold-Blaster', d: 'Schießt Energie-Kugeln auf den nächsten Block' },
@@ -464,7 +525,10 @@ const WEAP = [
   { id: 'mine', n: 'Allans Minenwerfer', d: 'Minen explodieren auf der Oberfläche' },
   { id: 'sniper', n: 'Königsschuss', d: 'Ein Riesenschuss auf das wertvollste Erz' },
   { id: 'meteor', n: 'Meteorregen', d: 'Glühende Brocken stürzen aus dem All auf den Planeten' },
-  { id: 'pulse', n: 'Schockwellen-Pulser', d: 'Ringförmige Druckwelle rund ums Schiff' },
+  { id: 'whip', n: 'Plasmapeitsche', d: 'Eine Energiepeitsche fegt im Bogen über die Oberfläche' },
+  { id: 'rockets', n: 'Raketenschwarm', d: 'Zielsuchende Mini-Raketen mit Rauchspur' },
+  { id: 'grav', n: 'Gravitonbombe', d: 'Mini-Singularität zieht Blöcke in sich hinein' },
+  { id: 'turret', n: 'Geschützturm', d: 'Setzt einen Turm auf den Planeten, der selbst feuert' },
   { id: 'boomer', n: 'Sichelbumerang', d: 'Leuchtende Sichel schneidet hin und zurück durch die Blöcke' },
   { id: 'frost', n: 'Frostkanone', d: 'Eissplitter frieren Blöcke ein – gefrorene Blöcke nehmen +30 % Schaden' }
 ];
@@ -684,7 +748,7 @@ const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100
 const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(200, (Math.floor(l / 100) + 1) * 100); };
 const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l >= 200 ? Math.floor(l / 100) * 100 : p; };
 const ST = id => msN(WL(id));
-const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', pulse: 'größere Druckwelle', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
+const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', whip: 'längere Peitsche', rockets: 'eine Rakete mehr', grav: 'größerer Sog', turret: 'ein Turm mehr', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
 const wDps = w => { const l = WL(w.id); return l ? T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() * (1 + HAw(w.id)) * (1 + .5 * ML(w.id)) : 0; };
 // ================== Waffen-Mods: mit ⬢ Chips (1 Chip pro 5 geschaffte Planeten), bleiben für immer ==================
 const ML = id => (S.mod || {})[id] || 0;
@@ -702,7 +766,10 @@ const MODS = {
   mine: { s: 'Größere Minen-Explosion', f: l => (l >= 3 ? '7×7' : '5×5') + ' Explosion' },
   sniper: { s: 'Trifft mehrere Erze', f: l => (l >= 3 ? 3 : 2) + ' Ziele pro Schuss' },
   meteor: { s: 'Größere Einschläge', f: l => (l >= 3 ? '7×7' : '5×5') + ' Krater' },
-  pulse: { s: 'Größere Reichweite', f: l => '+' + 20 * l + ' % Radius' },
+  whip: { s: 'Längere Peitsche', f: l => '+' + 15 * l + ' % Reichweite' },
+  rockets: { s: 'Größere Sprengköpfe', f: l => (l >= 3 ? '5×5' : '3×3+') + ' Explosion' },
+  grav: { s: 'Stärkerer Sog', f: l => '+' + 20 * l + ' % Radius' },
+  turret: { s: 'Länger aktiv', f: l => '+' + l + ' s Laufzeit' },
   boomer: { s: 'Breitere Sichel', f: l => l >= 3 ? 'Riesensichel' : 'breite Sichel' },
   frost: { s: 'Frostfeld beim Aufprall', f: l => (l >= 3 ? '5×5' : '3×3') + ' Blöcke gefrieren' }
 };
@@ -787,10 +854,12 @@ const cellAt = (x, y) => { const c = Math.floor((x - G.ox) / CELL), r = Math.flo
 // ================== Schaden & Belohnung ==================
 let crBuf = 0, crBufT = 0, crBufX = 0, crBufY = 0, earnedSec = 0;
 const parts = [], floats = [], fx = [];
+let curW = null; // welche Waffe gerade trifft (für die Statistik)
 function hit(i, d) {
   if (i < 0 || !G.alive[i]) return;
   if (S.buf && S.buf.frz > Date.now()) d *= 2;
   if (G.frz && G.frz[i] > clk) d *= 1.3;
+  { const dr = S.dmgRun || (S.dmgRun = {}), kk = curW || 'x'; dr[kk] = (dr[kk] || 0) + Math.min(d, G.hp[i]); }
   G.hp[i] -= d; if (G.hp[i] <= 0) { kill(i, true); return; }
   const st = Math.min(6, Math.floor((1 - G.hp[i] / G.mx[i]) * 7)); if (st !== G.dst[i]) { G.dst[i] = st; G.dirty.add(i); tDirty = true; }
 }
@@ -822,7 +891,7 @@ const novas = [], waves = [];
 const sawPat = () => { const n = ML('saw') >= 3 ? 2 : ML('saw') ? 1.5 : 1, o = []; for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) if (Math.hypot(a, b) <= n) o.push([a * CELL, b * CELL]); return o; };
 let sawB = 0; const SAWR = 78; // Sägen kreisen ums Schiff und reichen bis in die Blöcke
 let cdBlast = 0, cdChain = 0, sawA = 0, cdMine = 0, cdSnip = 0; const saws = [], mines = [];
-let cdMet = 0, cdPul = 0, cdBoo = 0, cdFro = 0, clk = 0; const mets = [], puls = [], boos = [];
+let cdMet = 0, cdBoo = 0, cdFro = 0, clk = 0, cdWh = 0, cdRk = 0, cdGr = 0, cdTu = 0; const mets = [], boos = [], whips = [], rkts = [], gravs = [], turs = [];
 function freezeAt(i, n) { if (i < 0) return; if (!G.frz) G.frz = new Float32Array(G.alive.length); const c = i % COLS, r = i / COLS | 0; for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) { const cc = c + a, rr = r + b; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) { const j = rr * COLS + cc; if (G.alive[j]) { G.frz[j] = clk + 3; (G.frL || (G.frL = new Set())).add(j); } } } }
 const bats = [], fogs = []; let drillMax = 4, starA = 0, cdDrill = 0, cdNova = 0, cdScatter = 0, lineTarget = -1, surfR = 0, surfT = 0;
 function nearest(x, y, jitter) {
@@ -847,6 +916,7 @@ function ray(x, y, a, maxL) {
   return [-1, x + dx * maxL, y + dy * maxL];
 }
 const critMul = () => Math.random() < critCh() ? 3 + WP('dkrit') : 1;
+function whipPts(w, p) { const ang = w.a0 + w.sg * (-.75 + 1.5 * Math.min(1, p)), o = [], n = 22; for (let q = 1; q <= n; q++) { const u = q / n, a = ang - w.sg * .9 * u * u, dd = w.L * u; o.push([ship.x + Math.cos(a) * dd, ship.y + Math.sin(a) * dd]); } return o; }
 // n verschiedene Ziele unter den nächsten Blöcken zum Punkt (für Salven: alle schlagen vorne ein, nicht irgendwo)
 function nearList(x, y, n) { const A = G.alive, ox = G.ox + CELL / 2, oy = G.oy + CELL / 2, best = []; let worst = 1e18;
   for (let i = 0, N = A.length; i < N; i++) { if (!A[i]) continue; const dx = ox + (i % COLS) * CELL - x, dy = oy + (i / COLS | 0) * CELL - y, d = dx * dx + dy * dy;
@@ -875,7 +945,7 @@ function step(dt) {
   // Blickrichtung des Schiffs: alle Schüsse gehen dahin, wo die Spitze hinzeigt
   const face = ship.ang + Math.PI / 2, fcx = Math.cos(face), fcy = Math.sin(face);
   const front = (dist, r2, spread) => nearest(ship.x + fcx * dist + (spread ? (Math.random() - .5) * spread : 0), ship.y + fcy * dist + (spread ? (Math.random() - .5) * spread : 0), r2);
-  hullAtk(dt, face); hentsStep(dt);
+  curW = 'x'; hullAtk(dt, face); hentsStep(dt);
   if (S.buf.dr > Date.now() && (cdDr -= dt) <= 0) { cdDr = .12; const tr = (S.bufP || {}).drT || 0, k = (Math.random() * (5 + tr * 2)) | 0, a = performance.now() / 300 + k * 6.283 / (5 + tr * 2), dx = ship.x + Math.cos(a) * 44, dy = ship.y + Math.sin(a) * 44, i = nearest(dx, dy, 20 * CELL * CELL);
     if (i >= 0) { hit(i, ((S.bufP || {}).dr || 1) * .12 * critMul()); const [x, y] = cellXY(i); fx.push({ k: 'bolt2', x: dx, y: dy, x2: x, y2: y, t: .14, c: ABCOL.drohne[tr][0] }); } }
   for (let q = storms.length - 1; q >= 0; q--) { const st = storms[q]; if ((st.t -= dt) > 0) continue; storms.splice(q, 1); const i = randAlive(); if (i < 0) continue; const [x, y] = cellXY(i);
@@ -884,15 +954,18 @@ function step(dt) {
   if (G.type === 'lava' && (G.rg -= dt) <= 0) { G.rg = .7; if (G.left > G.total * .1 && G.dead.length) { const k = (Math.random() * G.dead.length) | 0, i = G.dead[k]; G.dead.splice(k, 1);
     if (!G.alive[i]) { G.alive[i] = 1; G.hp[i] = G.mx[i] * .6; G.dst[i] = 0; G.ore[i] = 0; G.left++; G.dirty.add(i); tDirty = true; const [x, y] = cellXY(i); fx.push({ k: 'sq', x, y, t: .5, c: '#ff8a3a' }); } } }
   // 1) Kobold-Strahl
+  curW = 'line';
   const dL = WD('line') * Rd;
   if (lineTarget < 0 || !G.alive[lineTarget]) lineTarget = nearest(ship.x + Math.cos(ship.orb + 1.57) * 30, ship.y + Math.sin(ship.orb + 1.57) * 30); // nächster Block in Flugrichtung
   if (dL) {
     if ((cdBlast -= dt * Rv * sp75('line')) <= 0 && lineTarget >= 0) { const lvL = WL('line'); cdBlast = lvL >= 100 ? .3 : lvL >= 50 ? .45 : .65; const nb = lvL >= 100 ? 3 : lvL >= 50 ? 2 : 1, a0 = face; // erst wenige dicke Kugeln, ab 50/100 schneller und mehr (Schaden pro Sekunde bleibt gleich)
-      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; SND.fx.shoot(); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * cdBlast / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1, lv: WL('line'), pierce: ML('line') ? (ML('line') >= 3 ? 2 : 1) : 0 }); } } }
+      for (let k = 0; k < nb; k++) { const a = a0 + (k - (nb - 1) / 2) * .16; SND.fx.shoot(); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, d: dL * cdBlast / nb * critMul() / .6, t: 2, c: '#5ce8f0', solo: 1, w: 'line', lv: WL('line'), pierce: ML('line') ? (ML('line') >= 3 ? 2 : 1) : 0 }); } } }
   // 2) Kristallstern: 4 rotierende Strahlen
+  curW = 'star';
   const dS = WD('star') * Rd;
   if (dS) { starA += dt * 1.1 * Rv * sp75('star'); G.star = []; const ns = Math.min(8, 4 + ST('star')); for (let k = 0; k < ns; k++) { const a = starA + k * Math.PI * 2 / ns, [i, ex, ey] = ray(ship.x, ship.y, a, 170 * (1 + .15 * ML('star'))); G.star.push([ex, ey, i >= 0]); if (i >= 0) hit(i, dS / ns * dt * 1.6 * (1 + 2 * critCh())); } } else G.star = null;
   // 3) Bohrlanze: durchschlagender Stoß Richtung Kern
+  curW = 'drill';
   const dD = WD('drill') * Rd;
   if (dD && (cdDrill -= dt * Rv * sp75('drill')) <= 0) {
     // Bohrlanze lädt sichtbar auf und schießt dann einen dicken Stoß – bleibt auch auf hoher Stufe gemütlich (Schaden pro Schuss steigt dafür)
@@ -902,7 +975,7 @@ function step(dt) {
     if (ML('drill')) { const n = ML('drill') >= 3 ? 3 : 2; for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) if (a * a + b2 * b2 <= n * n) hit(cellAt(ex + a * CELL, ey + b2 * CELL), dD * cdD * critMul() * .25); fx.push({ k: 'nova', x: ex, y: ey, r: CELL * (n + 1), t: .4, c: '120,230,255' }); SND.fx.boom(); }
   }
   // 4) Geister-Nova: Geisterkugel fliegt in den Planeten und explodiert dort mit Radius (wächst mit der Stufe)
-  const dN = WD('nova') * Rd;
+  curW = 'nova'; const dN = WD('nova') * Rd;
   if (dN && (cdNova -= dt * Rv * sp75('nova')) <= 0) {
     cdNova = 3; const t0 = nearest(ship.x, ship.y, 4 * CELL * CELL);
     if (t0 >= 0) { const [tx0, ty0] = cellXY(t0), rad = CELL * (3.4 + Math.min(5, WL('nova') / 12) + ST('nova') * .8) * (1 + HA('novaR')) * (1 + .15 * ML('nova')), dx = G.cx - tx0, dy = G.cy - ty0, dl = Math.hypot(dx, dy) || 1;
@@ -917,18 +990,20 @@ function step(dt) {
   for (let k = fogs.length - 1; k >= 0; k--) { const f = fogs[k]; f.x += f.vx * dt; f.y += f.vy * dt; f.z += dt * 6; if ((f.t -= dt) <= 0) fogs.splice(k, 1); }
   if (bats.length > 80) bats.splice(0, bats.length - 80); if (fogs.length > 120) fogs.splice(0, fogs.length - 120);
   // Welle breitet sich aus und trifft die Blöcke nach und nach
+  curW = 'nova';
   for (let k = waves.length - 1; k >= 0; k--) { const w = waves[k]; w.r += dt * w.rad * 1.6; while (w.j < w.cells.length && w.cells[w.j][0] <= w.r) hit(w.cells[w.j++][1], w.d); if (w.r >= w.rad * 1.15) waves.splice(k, 1); }
   // 5) Streufeuer
   const dC = WD('scatter') * Rd;
-  if (dC && (cdScatter -= dt * Rv * sp75('scatter')) <= 0) { cdScatter = 1.4; const np = Math.min(15, 7 + 2 * ST('scatter')), aS = aimNear() ?? face; for (let k = 0; k < np; k++) { const a = aS + (k - (np - 1) / 2) * (.9 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC * 1.4 / np * critMul(), t: 2, sc: WL('scatter'), boom: ML('scatter') ? (ML('scatter') >= 3 ? 2 : 1) : 0 }); } }
+  if (dC && (cdScatter -= dt * Rv * sp75('scatter')) <= 0) { cdScatter = 1.4; const np = Math.min(15, 7 + 2 * ST('scatter')), aS = aimNear() ?? face; for (let k = 0; k < np; k++) { const a = aS + (k - (np - 1) / 2) * (.9 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC * 1.4 / np * critMul(), t: 2, w: 'scatter', sc: WL('scatter'), boom: ML('scatter') ? (ML('scatter') >= 3 ? 2 : 1) : 0 }); } }
   for (let k = proj.length - 1; k >= 0; k--) {
-    const q = proj[k]; q.x += q.vx * dt; q.y += q.vy * dt; q.t -= dt; const i = cellAt(q.x, q.y);
+    const q = proj[k]; curW = q.w || 'x'; q.x += q.vx * dt; q.y += q.vy * dt; q.t -= dt; const i = cellAt(q.x, q.y);
     if (i >= 0 && G.alive[i] && i !== q.last) { hit(i, q.d * .6); if (!q.solo) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) hit(cellAt(q.x + dx * CELL, q.y + dy * CELL), q.d * .1);
       if (q.boom) { const n = q.boom; for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) if (a || b2) hit(cellAt(q.x + a * CELL, q.y + b2 * CELL), q.d * .25); fx.push({ k: 'nova', x: q.x, y: q.y, r: CELL * (n + .8), t: .3, c: '255,200,90' }); }
       if (q.fr != null) freezeAt(i, q.fr); fx.push({ k: 'pop', x: q.x, y: q.y, t: .25, c: q.fr != null ? '191,239,255' : null }); if (q.pierce > 0) { q.pierce--; q.last = i; } else proj.splice(k, 1); }
     else if (q.t <= 0 || Math.hypot(q.x - G.cx, q.y - G.cy) > G.R * 1.4 + 400) proj.splice(k, 1);
   }
   // 6) Drohnen
+  curW = 'drones';
   const dR = WD('drones') * Rd;
   const ndr = Math.min(6, 3 + Math.floor(ST('drones') / 2));
   for (const d of drones.slice(0, ndr)) {
@@ -937,27 +1012,32 @@ function step(dt) {
     if ((d.cd -= dt * Rv * sp75('drones')) <= 0) { d.cd = .6 / (1 + .25 * ML('drones')); const i = nearest(d.x, d.y, 40 * CELL * CELL); if (i >= 0) { hit(i, dR * .6 / ndr * critMul()); const [x, y] = cellXY(i); fx.push({ k: 'bolt', x: d.x, y: d.y, x2: x, y2: y, t: .15, lv: WL('drones') }); } }
   }
   // 7) Kettenblitz
+  curW = 'chain';
   const dK = WD('chain') * Rd;
   if (dK && (cdChain -= dt * Rv * sp75('chain')) <= 0) { cdChain = 2; let i = front(CELL * 3), px = ship.x, py = ship.y; const pts = []; const used = new Set();
     const nj = Math.min(24, 6 + 2 * ST('chain') + 2 * ML('chain')); for (let k = 0; k < nj && i >= 0; k++) { used.add(i); const [x, y] = cellXY(i); pts.push([px, py, x, y]); hit(i, dK * 2 / nj * critMul()); px = x; py = y;
       let nb = -1, bd = 1e9; const c = i % COLS, r = i / COLS | 0; for (let a = -3; a <= 3; a++) for (let b2 = -3; b2 <= 3; b2++) { const cc = c + a, rr = r + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS) continue; const j = rr * COLS + cc; if (!G.alive[j] || used.has(j)) continue; const d = a * a + b2 * b2 + Math.random() * 3; if (d < bd) { bd = d; nb = j; } } i = nb; }
     SND.fx.zap(); pts.forEach((p, q) => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .55 + q * .02, t0: .55 + q * .02, lv: WL('chain') })); }
   // 8) Kräutersäge
+  curW = 'saw';
   const dW = WD('saw') * Rd;
   if (dW) { const sv = dt * Rv * sp75('saw'); sawA += sv * 1.2; const nsw = Math.min(8, 2 + ST('saw')); saws.length = nsw; // kleine Sägeblätter kreisen ums Schiff, mit jeder Meilenstein-Stufe kommt eins dazu
     for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, rk = SAWR, x = ship.x + Math.cos(a) * rk, y = ship.y + Math.sin(a) * rk; saws[k] = [x, y, rk, a];
     for (const [ox, oy] of sawPat()) hit(cellAt(x + ox, y + oy), dW / nsw / 2.5 * dt * 2 * (1 + 2 * critCh())); } }
   // 9) Minenwerfer
+  curW = 'mine';
   const dM = WD('mine') * Rd;
   if (dM && (cdMine -= dt * Rv * sp75('mine')) <= 0) { cdMine = 2.6; const nm = Math.min(8, 3 + ST('mine')); const tg = nearList(ship.x, ship.y, nm); for (const i of tg) { const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, i, t: 0, d: dM * 2.6 / nm * critMul() }); } }
   for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.i != null && !G.alive[m.i]) { const j = nearest(m.tx, m.ty); if (j >= 0) { m.i = j; [m.tx, m.ty] = cellXY(j); } } if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 6); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35 + lvTier(WL('mine')) * .05, c: lvTier(WL('mine')) >= 3 ? '255,90,122' : '255,58,92', thick: lvTier(WL('mine')) >= 2 }); if (lvTier(WL('mine')) >= 2) for (let q = 0; q < 6 + lvTier(WL('mine')) * 3; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, t: .5, c: lvTier(WL('mine')) >= 3 ? '#ffb0f0' : '#ffd23f' }); mines.splice(k, 1); } }
   // 10) Königsschuss
+  curW = 'sniper';
   const dP = WD('sniper') * Rd;
   if (dP && (cdSnip -= dt * Rv * sp75('sniper')) <= 0) { cdSnip = 4.5; let best = -1; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i] && (best < 0 || G.ore[i] > G.ore[best])) { const [x0, y0] = cellXY(i); let da = Math.atan2(y0 - ship.y, x0 - ship.x) - face; da = Math.atan2(Math.sin(da), Math.cos(da)); if (Math.abs(da) < .6) best = i; } if (best < 0) best = front(CELL * 3);
     const extra = ML('sniper') ? (ML('sniper') >= 3 ? 2 : 1) : 0; if (best >= 0 && extra) { const used = new Set([best]); for (let e = 0; e < extra; e++) { let b2 = -1; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i] && !used.has(i) && (b2 < 0 || G.ore[i] > G.ore[b2])) { const [x0, y0] = cellXY(i); let da = Math.atan2(y0 - ship.y, x0 - ship.x) - face; da = Math.atan2(Math.sin(da), Math.cos(da)); if (Math.abs(da) < .9) b2 = i; } if (b2 < 0) b2 = front(CELL * (4 + e * 3), 40 * CELL * CELL); if (b2 < 0 || used.has(b2)) break; used.add(b2); const [x3, y3] = cellXY(b2); hit(b2, dP * cdSnip * 3 * critMul()); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: x3, y2: y3, t: .3, w: 2, c: '#ffd23f', c50: '#ff6a3a', lv: WL('sniper') }); } }
     if (best >= 0) { const [x, y] = cellXY(best); hit(best, dP * cdSnip * 3 * critMul()); const c = best % COLS, r = best / COLS | 0; for (const [a, b2] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (c + a >= 0 && c + a < COLS && r + b2 >= 0 && r + b2 < ROWS) hit((r + b2) * COLS + c + a, dP); fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: x, y2: y, t: .3, w: 2, c: '#ffd23f', c50: '#ff6a3a', lv: WL('sniper') }); } }
   clk += dt;
   // 11) Meteorregen
+  curW = 'meteor';
   const dMe = WD('meteor') * Rd;
   if (dMe && (cdMet -= dt * Rv * sp75('meteor')) <= 0) { cdMet = 3.2; const nm = Math.min(9, 3 + ST('meteor'));
     const tg = nearList(ship.x, ship.y, nm); for (let k = 0; k < tg.length; k++) { const i = tg[k]; const [x, y] = cellXY(i), oa = Math.atan2(y - G.cy, x - G.cx) + (Math.random() - .5) * .6, D = 260 + Math.random() * 120;
@@ -966,23 +1046,52 @@ function step(dt) {
     const c0 = cellAt(m.tx, m.ty), mr = ML('meteor') ? (ML('meteor') >= 3 ? 3 : 2) : 1; if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0, nc = (2 * mr + 1) ** 2; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d * (a || b2 ? .5 / (nc - 1) : .5)); } }
     const T = lvTier(WL('meteor')); fx.push({ k: 'ring', x: m.tx, y: m.ty, r: CELL * (mr + 1.2), t: .4, c: T >= 3 ? '#ffd23f' : WCOL.meteor, w: 3 + T });
     for (let q = 0; q < 4 + T * 2; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 200, vy: (Math.random() - .5) * 200, t: .45, c: q % 2 ? '#8a5a3a' : '#ffb04a' }); shake = Math.max(shake, 1.5); }
-  // 12) Schockwellen-Pulser
-  const dPu = WD('pulse') * Rd;
-  if (dPu && (cdPul -= dt * Rv * sp75('pulse')) <= 0) { cdPul = 2.2; const rad = (85 + 10 * Math.min(6, ST('pulse'))) * (1 + .2 * ML('pulse')), cells = [];
-    const c0 = Math.floor((ship.x - G.ox - rad) / CELL), c1 = Math.ceil((ship.x - G.ox + rad) / CELL), r0 = Math.floor((ship.y - G.oy - rad) / CELL), r1 = Math.ceil((ship.y - G.oy + rad) / CELL);
-    for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) for (let c = Math.max(0, c0); c <= Math.min(COLS - 1, c1); c++) { const i = r * COLS + c; if (!G.alive[i]) continue; const [x, y] = cellXY(i), d = Math.hypot(x - ship.x, y - ship.y); if (d <= rad) cells.push([d, i]); }
-    cells.sort((a2, b2) => a2[0] - b2[0]); puls.push({ x: ship.x, y: ship.y, rad, r: 8, cells, j: 0, d: dPu * 2.2 * critMul() / Math.max(6, cells.length), a: Math.random() * 6 }); }
-  for (let k = puls.length - 1; k >= 0; k--) { const p = puls[k]; p.r += dt * p.rad * 1.5; while (p.j < p.cells.length && p.cells[p.j][0] <= p.r) hit(p.cells[p.j++][1], p.d); if (p.r >= p.rad) puls.splice(k, 1); }
+  // 12) Plasmapeitsche: fegt im Bogen über die Oberfläche, jeder Block wird pro Hieb einmal getroffen
+  curW = 'whip';
+  const dWh = WD('whip') * Rd;
+  if (dWh && (cdWh -= dt * Rv * sp75('whip')) <= 0) { cdWh = 1.8; const a0 = aimNear() ?? face; whips.push({ t: 0, a0, sg: Math.random() < .5 ? -1 : 1, L: (80 + 9 * Math.min(6, ST('whip'))) * (1 + .15 * ML('whip')), seen: new Set(), d: dWh * 1.8 * critMul() / 10 }); }
+  for (let k = whips.length - 1; k >= 0; k--) { const w = whips[k]; w.t += dt / .42; if (w.t >= 1.25) { whips.splice(k, 1); continue; } if (w.t > 1) continue;
+    w.pts = whipPts(w, w.t); for (const [x, y] of w.pts) { const i = cellAt(x, y); if (i >= 0 && G.alive[i] && !w.seen.has(i)) { w.seen.add(i); hit(i, w.d); } } }
+  // 13) Raketenschwarm: zielsuchende Mini-Raketen
+  curW = 'rockets';
+  const dRk = WD('rockets') * Rd;
+  if (dRk && (cdRk -= dt * Rv * sp75('rockets')) <= 0) { cdRk = 2.6; const nr = Math.min(9, 3 + ST('rockets')), tg = nearList(ship.x, ship.y, nr);
+    tg.forEach((i, k) => { const side = (k % 2 ? 1 : -1), pa = face + side * (1.2 + Math.random() * .5); rkts.push({ x: ship.x, y: ship.y, vx: Math.cos(pa) * 150, vy: Math.sin(pa) * 150, i, t: 0, dl: k * .07, d: dRk * 2.6 / tg.length * critMul() }); }); }
+  for (let k = rkts.length - 1; k >= 0; k--) { const r = rkts[k]; if ((r.dl -= dt) > 0) { r.x = ship.x; r.y = ship.y; continue; } r.t += dt;
+    if (!G.alive[r.i]) { const j = nearest(r.x, r.y); if (j < 0) { rkts.splice(k, 1); continue; } r.i = j; }
+    const [tx, ty] = cellXY(r.i), dx = tx - r.x, dy = ty - r.y, dl = Math.hypot(dx, dy) || 1, sp = 170 + r.t * 260, steer = Math.min(1, dt * (4 + r.t * 10));
+    r.vx += (dx / dl * sp - r.vx) * steer; r.vy += (dy / dl * sp - r.vy) * steer; r.x += r.vx * dt; r.y += r.vy * dt;
+    if (Math.random() < .7 && parts.length < 380) parts.push({ x: r.x - r.vx * .02, y: r.y - r.vy * .02, vx: (Math.random() - .5) * 14, vy: (Math.random() - .5) * 14, t: .45, c: '#8a96a4' });
+    if (dl < CELL * .7 || r.t > 2.5) { const c0 = cellAt(r.x, r.y) >= 0 && G.alive[cellAt(r.x, r.y)] ? cellAt(r.x, r.y) : r.i, c = c0 % COLS, rr0 = c0 / COLS | 0, mr = ML('rockets') >= 3 ? 2 : 1, nc = (2 * mr + 1) ** 2;
+      for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = rr0 + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, r.d * (a || b2 ? (ML('rockets') ? .7 : .5) / (nc - 1) : .5)); }
+      const [ex, ey] = cellXY(c0); fx.push({ k: 'ring', x: ex, y: ey, r: CELL * (mr + .8), t: .3, c: WCOL.rockets, w: 2 }); for (let q = 0; q < 5; q++) parts.push({ x: ex, y: ey, vx: (Math.random() - .5) * 150, vy: (Math.random() - .5) * 150, t: .35, c: q % 2 ? '#ffd23f' : '#ff7a4a' }); rkts.splice(k, 1); } }
+  // 14) Gravitonbombe: fliegt langsam zum nächsten Block und saugt dann 1,6 s lang alles im Radius aus
+  curW = 'grav';
+  const dGr = WD('grav') * Rd;
+  if (dGr && (cdGr -= dt * Rv * sp75('grav')) <= 0) { cdGr = 4; const i = nearest(ship.x, ship.y, 4 * CELL * CELL); if (i >= 0) { const [tx, ty] = cellXY(i); gravs.push({ x0: ship.x, y0: ship.y, tx, ty, t: 0, live: 0, rad: CELL * (2.6 + .3 * Math.min(6, ST('grav'))) * (1 + .2 * ML('grav')), d: dGr * 4 * critMul(), a: 0 }); } }
+  for (let k = gravs.length - 1; k >= 0; k--) { const gq = gravs[k]; gq.a += dt * 5;
+    if (gq.t < 1) { gq.t += dt * 1.6; if (gq.t >= 1) { { const j = cellAt(gq.tx, gq.ty); if (j < 0 || !G.alive[j]) { const n2 = nearest(gq.tx, gq.ty); if (n2 >= 0) { const [nx3, ny3] = cellXY(n2); if (Math.hypot(nx3 - gq.tx, ny3 - gq.ty) < CELL * 8) { gq.x0 = gq.tx; gq.y0 = gq.ty; gq.tx = nx3; gq.ty = ny3; gq.t = .6; continue; } } } } gq.cells = []; const R = gq.rad; for (let r = Math.max(0, Math.floor((gq.ty - G.oy - R) / CELL)); r <= Math.min(ROWS - 1, Math.ceil((gq.ty - G.oy + R) / CELL)); r++) for (let c = Math.max(0, Math.floor((gq.tx - G.ox - R) / CELL)); c <= Math.min(COLS - 1, Math.ceil((gq.tx - G.ox + R) / CELL)); c++) { const i = r * COLS + c, [x, y] = cellXY(i); if (G.alive[i] && Math.hypot(x - gq.tx, y - gq.ty) <= R) gq.cells.push(i); } shake = Math.max(shake, 2); } continue; }
+    gq.live += dt; const per = gq.d / 1.6 / Math.max(8, gq.cells.length) * dt; for (const i of gq.cells) hit(i, per);
+    if (gq.live >= 1.6) { fx.push({ k: 'ring', x: gq.tx, y: gq.ty, r: gq.rad * 1.1, t: .35, c: WCOL.grav, w: 3 }); gravs.splice(k, 1); } }
+  // 15) Geschützturm: steht auf der Oberfläche und schießt selbst auf die nächsten Blöcke
+  curW = 'turret';
+  const dTu = WD('turret') * Rd, tLife = 5 + ML('turret'), tMax = 1 + Math.floor(ST('turret') / 3);
+  if (dTu && (cdTu -= dt * Rv * sp75('turret')) <= 0) { cdTu = 6 / tMax; const i = nearest(ship.x, ship.y); if (i >= 0) { const [x, y] = cellXY(i), oa = Math.atan2(y - G.cy, x - G.cx); while (turs.length >= tMax) turs.shift(); turs.push({ i, x: x + Math.cos(oa) * CELL * .9, y: y + Math.sin(oa) * CELL * .9, up: oa, aim: oa + Math.PI, t: 0, life: tLife, cd: .4, fl: 0, d: dTu * 6 / tMax / (tLife / .32) * (tLife / 5) }); } }
+  for (let k = turs.length - 1; k >= 0; k--) { const u = turs[k]; u.t += dt; u.fl = Math.max(0, u.fl - dt);
+    if (!G.alive[u.i]) { const j = nearest(u.x, u.y); if (j >= 0) { u.i = j; } } { const [ax, ay] = cellXY(u.i), oa = Math.atan2(ay - G.cy, ax - G.cx), gx = ax + Math.cos(oa) * CELL * .9, gy = ay + Math.sin(oa) * CELL * .9, kk = Math.min(1, dt * 6); u.x += (gx - u.x) * kk; u.y += (gy - u.y) * kk; u.up += Math.atan2(Math.sin(oa - u.up), Math.cos(oa - u.up)) * kk; } if (u.t >= u.life + .4) { turs.splice(k, 1); continue; } if (u.t < .35 || u.t > u.life || !dTu) continue;
+    if ((u.cd -= dt * Rv * sp75('turret')) <= 0) { u.cd = .32; const i = nearest(u.x, u.y); if (i >= 0) { const [x, y] = cellXY(i); u.aim = Math.atan2(y - u.y, x - u.x); hit(i, u.d * critMul()); u.fl = .08; fx.push({ k: 'tbolt', x: u.x + Math.cos(u.aim) * 8, y: u.y + Math.sin(u.aim) * 8, x2: x, y2: y, t: .12, lv: WL('turret') }); } } }
   // 13) Sichelbumerang
+  curW = 'boomer';
   const dBo = WD('boomer') * Rd;
   if (dBo && (cdBoo -= dt * Rv * sp75('boomer')) <= 0) { cdBoo = 3; const nb = Math.min(4, 1 + Math.floor(ST('boomer') / 2)), aB = aimNear() ?? face; for (let k = 0; k < nb; k++) boos.push({ s: 0, a: aB + (k - (nb - 1) / 2) * .5, sg: k % 2 ? -1 : 1, D: 150 + k * 18, nb }); }
   for (let k = boos.length - 1; k >= 0; k--) { const b = boos[k]; b.s += dt / 1.6 * Rv * sp75('boomer'); if (b.s >= 1) { boos.splice(k, 1); continue; }
     const f = Math.sin(Math.PI * b.s) * b.D, sd = Math.sin(2 * Math.PI * b.s) * b.D * .35 * b.sg, ca = Math.cos(b.a), sa = Math.sin(b.a); b.x = ship.x + ca * f - sa * sd; b.y = ship.y + sa * f + ca * sd;
     const rr = ML('boomer') ? (ML('boomer') >= 3 ? 2 : 1.5) : 1; for (let a = -2; a <= 2; a++) for (let c = -2; c <= 2; c++) if (Math.hypot(a, c) <= rr) hit(cellAt(b.x + a * CELL, b.y + c * CELL), dBo * 1.875 / b.nb / 5 * dt * Rv); }
   // 14) Frostkanone
+  curW = 'frost';
   const dFr = WD('frost') * Rd;
-  if (dFr && (cdFro -= dt * Rv * sp75('frost')) <= 0) { cdFro = 2.4; const np = Math.min(10, 4 + ST('frost')), fr = ML('frost') ? (ML('frost') >= 3 ? 2 : 1) : 0, aF = aimNear() ?? face; for (let k = 0; k < np; k++) { const a = aF + (k - (np - 1) / 2) * (.5 / np) + (Math.random() - .5) * .05, sp = 300 + Math.random() * 40; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, d: dFr * 2.4 / np * critMul(), t: 2, fr, flv: WL('frost'), c: WCOL.frost }); } }
-  abStep(dt);
+  if (dFr && (cdFro -= dt * Rv * sp75('frost')) <= 0) { cdFro = 2.4; const np = Math.min(10, 4 + ST('frost')), fr = ML('frost') ? (ML('frost') >= 3 ? 2 : 1) : 0, aF = aimNear() ?? face; for (let k = 0; k < np; k++) { const a = aF + (k - (np - 1) / 2) * (.5 / np) + (Math.random() - .5) * .05, sp = 300 + Math.random() * 40; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, d: dFr * 2.4 / np * critMul(), t: 2, w: 'frost', fr, flv: WL('frost'), c: WCOL.frost }); } }
+  curW = 'x'; abStep(dt); curW = null;
   shake = Math.max(0, shake - dt * 30); if (intro > 0) intro -= dt;
   { const e = eqItem('t'); if (Math.random() < dt * (e.smoke ? 30 : e.tr ? 18 : 10) && parts.length < 420) { const a = ship.ang - Math.PI / 2; parts.push({ x: ship.x + Math.cos(a) * 14, y: ship.y + Math.sin(a) * 14, vx: Math.cos(a) * 30 + (Math.random() - .5) * 20, vy: Math.sin(a) * 30 + (Math.random() - .5) * 20, t: e.smoke ? 1.1 : .5, c: e.smoke ? '#7fbf6a' : (e.col === 'rainbow' ? `hsl(${Math.random() * 360},100%,65%)` : e.col) }); } }
   // Bubatz-Komet
@@ -1216,6 +1325,8 @@ function draw(now) {
       if (p < .3) { g.globalAlpha = 1; g.fillStyle = '#fff3b0'; g.fillRect(f.x - 2, f.y - 2, 4, 4); } g.globalAlpha = 1; }
     else if (f.k === 'bolt2') beam(f.x, f.y, f.x2, f.y2, f.c, 1.6);
     else if (f.k === 'strike') { let px = f.x + (Math.random() - .5) * 20, py = f.y - H; g.strokeStyle = f.c; g.globalAlpha = Math.min(1, f.t * 5); g.lineWidth = f.w; g.beginPath(); g.moveTo(px, py); for (let q = 1; q <= 8; q++) { px = f.x + (Math.random() - .5) * 30 * (1 - q / 8); py = f.y - H + H * q / 8; g.lineTo(px, py); } g.stroke(); g.globalAlpha = 1; }
+    else if (f.k === 'tbolt') { const T = lvTier(f.lv || 0), c = T >= 3 ? '#ffe98a' : WCOL.turret, p = 1 - f.t / .12, bx = f.x + (f.x2 - f.x) * p, by = f.y + (f.y2 - f.y) * p, b0x = f.x + (f.x2 - f.x) * Math.max(0, p - .35), b0y = f.y + (f.y2 - f.y) * Math.max(0, p - .35);
+      ink(() => { g.strokeStyle = INK; g.lineWidth = 4; g.globalAlpha = .6; g.beginPath(); g.moveTo(b0x, b0y); g.lineTo(bx, by); g.stroke(); }); g.strokeStyle = c; g.lineWidth = 2; g.globalAlpha = 1; g.beginPath(); g.moveTo(b0x, b0y); g.lineTo(bx, by); g.stroke(); g.fillStyle = '#fff'; g.fillRect(bx - 1, by - 1, 2, 2); g.globalAlpha = 1; }
     else if (f.k === 'ring') { if (f.d == null) f.d = f.t; const k = 1 - f.t / f.d, rr = f.r * (.3 + .7 * k);
       ink(() => { g.strokeStyle = INK; g.globalAlpha = f.t / f.d * .6; g.lineWidth = f.w + 3; g.beginPath(); g.arc(f.x, f.y, rr, 0, 7); g.stroke(); });
       g.strokeStyle = f.c; g.globalAlpha = f.t / f.d; g.lineWidth = f.w; g.beginPath(); g.arc(f.x, f.y, rr, 0, 7); g.stroke(); g.strokeStyle = '#ffffff'; g.lineWidth = 1; g.stroke(); g.globalAlpha = 1; }
@@ -1320,19 +1431,29 @@ function draw(now) {
     for (let q = 0; q < 10 + T * 4; q++) { const a = q * 2.39 + tq * 3, d = (1 - ((k * 1.6 + q * .07) % 1)) * (34 + T * 6); g.globalAlpha = .9 * k; g.fillRect(Math.round(nx2 + Math.cos(a) * d) - 1, Math.round(ny2 + Math.sin(a) * d) - 1, 2, 2); }
     const r = 2 + k * (7 + T * 2) * (1 + .1 * Math.sin(tq * 30)); g.globalAlpha = .35 * k; g.beginPath(); g.arc(nx2, ny2, r * 2, 0, 7); g.fill(); g.globalAlpha = k; g.fillStyle = '#ffffff'; g.beginPath(); g.arc(nx2, ny2, r * .6, 0, 7); g.fill();
     g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
-  // Drohnen
-  if (WD('drones')) { const T = lvTier(WL('drones')), c = T >= 3 ? '#ffd23f' : '#9dff6a', dk = T >= 3 ? '#6e550c' : '#1f4a14', tq = performance.now() / 1000, fa = ship.ang + Math.PI / 2;
-    // Pixel-Quadrokopter: 4 Rotoren, Kanone zeigt nach vorne, Blinklicht; ab 25 Nachleuchten, ab 50 golden, ab 100 Schild
+  // Drohnen: kleine Kampfdrohnen im Schiff-Stil – Metallkörper mit Kontur, Linse, Lauf, Seitengondeln mit drehenden Rotoren
+  if (WD('drones')) { const T = lvTier(WL('drones')), acc = T >= 3 ? '#ffd23f' : WCOL.drones, tq = performance.now() / 1000, fa = ship.ang + Math.PI / 2, z = 4.6 + T * .4;
     for (const d of drones.slice(0, Math.min(6, 3 + Math.floor(ST('drones') / 2)))) {
-      if (T >= 2) for (let q = 1; q <= 3; q++) { const a = d.a - q * .1; g.fillStyle = c; g.globalAlpha = .18 - q * .04; g.fillRect(Math.round(ship.x + Math.cos(a) * 30) - 3, Math.round(ship.y + Math.sin(a) * 30) - 3, 6, 6); }
-      g.globalAlpha = 1; const x = Math.round(d.x), y = Math.round(d.y), u = T >= 4 ? 2.5 : 2, P = (px, py, w, h) => g.fillRect(x + px * u, y + py * u, w * u, h * u);
-      g.fillStyle = dk; P(-3, -1, 6, 2); P(-1, -3, 2, 6); // Arme
-      const spin = Math.sin(tq * 8 + d.a * 3) > 0; g.fillStyle = 'rgba(220,255,220,.75)'; // Rotoren (2 Frames)
-      for (const [rx, ry] of [[-4, -4], [3, -4], [-4, 3], [3, 3]]) spin ? P(rx - 1, ry, 3, 1) : P(rx, ry - 1, 1, 3);
-      g.fillStyle = c; P(-2, -2, 4, 4); g.fillStyle = '#ffffff'; P(-1, -1, 1, 1);
-      g.fillStyle = (Math.sin(tq * 3 + d.a) > .3) ? '#ff2e2e' : '#3a0a0a'; P(1, 1, 1, 1); // Blinklicht
-      g.strokeStyle = c; g.lineWidth = u; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(fa) * 6 * u, y + Math.sin(fa) * 6 * u); g.stroke(); // Kanone
-      if (T >= 4) { g.strokeStyle = 'rgba(255,210,63,.45)'; g.lineWidth = 1; g.beginPath(); g.arc(x, y, 9 * u, 0, 7); g.stroke(); } } }
+      if (T >= 2) for (let q = 1; q <= 3; q++) { const a = d.a - q * .12; g.fillStyle = acc; g.globalAlpha = .16 - q * .04; g.beginPath(); g.arc(ship.x + Math.cos(a) * 30, ship.y + Math.sin(a) * 30, z * .8, 0, 7); g.fill(); }
+      g.globalAlpha = 1; g.save(); g.translate(d.x, d.y); g.rotate(fa);
+      const circ = (cx, cy, r, f) => { g.fillStyle = f; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill(); };
+      // Arme + Gondeln
+      g.fillStyle = INK; g.fillRect(-z * .45, -z * 1.15, z * .5, z * 2.3);
+      g.fillStyle = '#5a6876'; g.fillRect(-z * .35, -z * 1.1, z * .3, z * 2.2);
+      for (const sd of [-1, 1]) { const py = sd * z * 1.15; circ(-z * .2, py, z * .48 + 1.2, INK); const gr = g.createRadialGradient(-z * .35, py - z * .15, 0, -z * .2, py, z * .5); gr.addColorStop(0, '#d8e0e8'); gr.addColorStop(1, '#3c4856'); circ(-z * .2, py, z * .48, gr);
+        // Rotor: Unschärfe-Scheibe + zwei Blätter
+        g.globalAlpha = .28; circ(-z * .2, py, z * .95, '#dfffe8'); g.globalAlpha = .9; g.strokeStyle = '#eef6f0'; g.lineWidth = 1.2; const ra = tq * 38 * sd + d.a; g.beginPath(); g.moveTo(-z * .2 + Math.cos(ra) * z * .9, py + Math.sin(ra) * z * .9); g.lineTo(-z * .2 - Math.cos(ra) * z * .9, py - Math.sin(ra) * z * .9); g.stroke(); g.globalAlpha = 1; }
+      // Lauf
+      g.fillStyle = INK; g.fillRect(z * .5, -1.9, z * 1.1, 3.8); g.fillStyle = '#cfd8e0'; g.fillRect(z * .55, -1, z * 1, 2); g.fillStyle = acc; g.fillRect(z * 1.4, -1, 1.5, 2);
+      // Körper
+      circ(0, 0, z + 1.5, INK); { const gr = g.createRadialGradient(-z * .35, -z * .35, 0, 0, 0, z); gr.addColorStop(0, '#f4f8fb'); gr.addColorStop(.55, '#9aa8b6'); gr.addColorStop(1, '#3a4654'); circ(0, 0, z, gr); }
+      g.strokeStyle = acc; g.lineWidth = 1.6; g.beginPath(); g.arc(0, 0, z * .74, 0, 7); g.stroke();
+      // Linse
+      circ(z * .12, 0, z * .4, '#08141c'); circ(z * .12, 0, z * .26, T >= 3 ? '#ffe98a' : '#5ce8f0'); circ(z * .02, -z * .1, z * .09, '#ffffff');
+      // Blinklicht hinten
+      circ(-z * .72, 0, 1.3, Math.sin(tq * 3 + d.a) > .3 ? '#ff3a3a' : '#4a1010');
+      g.restore();
+      if (T >= 4) { g.strokeStyle = 'rgba(255,210,63,.4)'; g.lineWidth = 1; g.beginPath(); g.arc(d.x, d.y, z * 2, tq * 2, tq * 2 + 4); g.stroke(); } } }
   // Schiff
   const tx = lineTarget >= 0 ? cellXY(lineTarget) : [ship.x, ship.y + 50];
   const a = Math.atan2(tx[1] - ship.y, tx[0] - ship.x) - Math.PI / 2; { let d = a - ship.ang; d = Math.atan2(Math.sin(d), Math.cos(d)); ship.ang += d * .15; }
@@ -1382,15 +1503,37 @@ function drawNewWeapons(tt) {
       g.fillStyle = INK; rock(1.25); g.fill(); g.fillStyle = '#6a4632'; rock(1); g.fill(); g.fillStyle = '#a8724a'; g.save(); g.translate(-z * .2, -z * .2); rock(.55); g.fill(); g.restore();
       if (T >= 2) { g.strokeStyle = T >= 3 ? '#ffd23f' : '#ff7a2a'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(-z * .5, z * .1); g.lineTo(0, -z * .1); g.lineTo(z * .4, z * .35); g.stroke(); }
       g.restore(); } }
-  // Schockwelle: klarer Ring mit dunklem Rand, ab Stufe 25 doppelt, ab 50 mit kreisenden Segmenten
-  if (puls.length) { const T = lvTier(WL('pulse')), c = T >= 3 ? '#9dffe8' : WCOL.pulse;
-    for (const p of puls) { const k = p.r / p.rad, a = Math.max(0, 1 - k * k);
-      const ringP = (r, w, col, al) => { g.strokeStyle = col; g.globalAlpha = al; g.lineWidth = w; g.beginPath(); g.arc(p.x, p.y, r, 0, 7); g.stroke(); };
-      g.globalCompositeOperation = 'source-over'; ringP(p.r, 4, INK, a * .55);
-      g.globalCompositeOperation = 'lighter'; ringP(p.r, 6 + T, c, a * .14 * glowK); ringP(p.r, 2 + T * .3, c, a); ringP(p.r, 1, '#ffffff', a);
-      if (T >= 2) ringP(p.r * .72, 2, c, a * .6);
-      if (T >= 3) { g.lineWidth = 4; g.strokeStyle = '#ffffff'; g.globalAlpha = a; const n = 6; for (let q = 0; q < n; q++) { const s0 = p.a + tt * 3 + q * 6.283 / n; g.beginPath(); g.arc(p.x, p.y, p.r + 4, s0, s0 + .35); g.stroke(); } }
-      if (T >= 4 && Math.random() < .5) parts.push({ x: p.x + Math.cos(p.a + tt * 9) * p.r, y: p.y + Math.sin(p.a + tt * 9) * p.r, vx: 0, vy: 0, t: .3, c }); } }
+  // Plasmapeitsche: geschwungene Energielinie, dünner zur Spitze, mit Nachbildern
+  if (whips.length) { const T = lvTier(WL('whip')), c = T >= 3 ? '#b8fff0' : WCOL.whip;
+    for (const w of whips) { const fade = w.t > 1 ? 1 - (w.t - 1) / .25 : 1; for (let gh = 2; gh >= 0; gh--) { const pts = whipPts(w, w.t - gh * .07); const path = [[ship.x, ship.y], ...pts];
+        const strokeW = (wd, col, al, comp) => { g.globalCompositeOperation = comp; g.strokeStyle = col; g.globalAlpha = al * fade * (gh ? .35 / gh : 1); g.lineCap = 'round'; for (let q = 1; q < path.length; q++) { g.lineWidth = Math.max(.6, wd * (1 - q / path.length * .75)); g.beginPath(); g.moveTo(path[q - 1][0], path[q - 1][1]); g.lineTo(path[q][0], path[q][1]); g.stroke(); } };
+        if (!gh) strokeW(4 + T * .6, INK, .55, 'source-over'); strokeW(2.6 + T * .5, c, 1, 'lighter'); if (!gh) strokeW(1, '#ffffff', .9, 'lighter');
+        if (!gh && T >= 2) { const [tx, ty] = path[path.length - 1]; g.globalCompositeOperation = 'lighter'; g.fillStyle = c; g.globalAlpha = .6 * fade; g.beginPath(); g.arc(tx, ty, 3 + T, 0, 7); g.fill(); } }
+      g.lineCap = 'butt'; } }
+  // Raketen: weißer Körper mit roter Spitze, dunkle Kontur, Flamme
+  if (rkts.length) { const T = lvTier(WL('rockets'));
+    for (const r of rkts) { if (r.dl > 0) continue; const a = Math.atan2(r.vy, r.vx), L = 6 + T * .5; g.save(); g.translate(r.x, r.y); g.rotate(a);
+      g.globalCompositeOperation = 'lighter'; g.fillStyle = T >= 3 ? '#9fe8ff' : '#ffb04a'; g.globalAlpha = .9; g.beginPath(); g.moveTo(-L * .6, -1.6); g.lineTo(-L * .6 - 5 - Math.random() * 4, 0); g.lineTo(-L * .6, 1.6); g.fill();
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.fillStyle = INK; g.fillRect(-L * .6 - 1, -2.6, L * 1.2 + 2, 5.2);
+      g.fillStyle = '#e8eef2'; g.fillRect(-L * .6, -1.6, L * 1.1, 3.2); g.fillStyle = T >= 3 ? '#ffd23f' : '#ff4a4a'; g.beginPath(); g.moveTo(L * .5, -1.6); g.lineTo(L * .5 + 3, 0); g.lineTo(L * .5, 1.6); g.fill();
+      g.fillStyle = '#7a8694'; g.fillRect(-L * .6, -2.6, 2, 1); g.fillRect(-L * .6, 1.6, 2, 1); g.restore(); } }
+  // Gravitonbombe: dunkler Kern, magentafarbener Akkretionsring, einströmende Teilchen
+  if (gravs.length) { const T = lvTier(WL('grav')), c = T >= 3 ? '#ff9ae8' : WCOL.grav;
+    for (const q of gravs) { let x, y, R; if (q.t < 1) { const e = q.t; x = q.x0 + (q.tx - q.x0) * e; y = q.y0 + (q.ty - q.y0) * e - Math.sin(e * Math.PI) * 14; R = 4 + T * .5; } else { x = q.tx; y = q.ty; const k = Math.min(1, q.live / .2) * (q.live > 1.4 ? (1.6 - q.live) / .2 : 1); R = (5 + T) * (.4 + .6 * k); }
+      if (q.t >= 1) { g.globalCompositeOperation = 'lighter'; for (let n = 0; n < 10 + T * 3; n++) { const a = q.a * (1 + n % 3 * .2) + n * 2.4, dd = q.rad * (1 - ((q.live * 1.2 + n * .13) % 1)); g.fillStyle = c; g.globalAlpha = .7; g.fillRect(x + Math.cos(a) * dd - 1, y + Math.sin(a) * dd - 1, 2, 2); }
+        g.strokeStyle = c; g.globalAlpha = .25 * glowK; g.lineWidth = 1; g.beginPath(); g.arc(x, y, q.rad, 0, 7); g.stroke(); }
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.fillStyle = INK; g.beginPath(); g.arc(x, y, R + 2.5, 0, 7); g.fill();
+      g.globalCompositeOperation = 'lighter'; g.strokeStyle = c; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, R * 1.9, R * .7, q.a, 0, 7); g.stroke(); g.strokeStyle = '#ffffff'; g.lineWidth = .8; g.beginPath(); g.ellipse(x, y, R * 1.9, R * .7, q.a, -.6, .9); g.stroke();
+      g.globalCompositeOperation = 'source-over'; g.fillStyle = '#000'; g.beginPath(); g.arc(x, y, R, 0, 7); g.fill(); g.strokeStyle = c; g.lineWidth = 1; g.beginPath(); g.arc(x, y, R, 0, 7); g.stroke(); } }
+  // Geschütztürme: Metallkuppel auf der Oberfläche, Lauf dreht zum Ziel, Mündungsblitz
+  if (turs.length) { const T = lvTier(WL('turret')), acc = T >= 3 ? '#ffd23f' : WCOL.turret;
+    for (const u of turs) { const pop = Math.min(1, u.t / .35), out = u.t > u.life ? Math.max(0, 1 - (u.t - u.life) / .4) : 1, sc = pop * out; if (sc <= 0) continue;
+      g.save(); g.translate(u.x, u.y); g.globalAlpha = 1; const s2 = (5 + T * .4) * sc;
+      g.save(); g.rotate(u.aim); g.fillStyle = INK; g.fillRect(0, -2.2 * sc, s2 * 1.9, 4.4 * sc); g.fillStyle = '#cfd8e0'; g.fillRect(0, -1.2 * sc, s2 * 1.8, 2.4 * sc); if (u.fl > 0) { g.fillStyle = '#fff3b0'; g.beginPath(); g.arc(s2 * 2, 0, 3.5, 0, 7); g.fill(); } g.restore();
+      g.rotate(u.up + Math.PI / 2); g.fillStyle = INK; g.beginPath(); g.arc(0, 0, s2 + 2, Math.PI, 0); g.lineTo(s2 + 2, 2.5); g.lineTo(-s2 - 2, 2.5); g.fill();
+      { const gr = g.createLinearGradient(0, -s2, 0, 2); gr.addColorStop(0, '#f2f6fa'); gr.addColorStop(.6, '#8a98a6'); gr.addColorStop(1, '#3a4654'); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, s2, Math.PI, 0); g.lineTo(s2, 1.5); g.lineTo(-s2, 1.5); g.fill(); }
+      g.fillStyle = acc; g.fillRect(-s2 * .7, -1.2, s2 * 1.4, 1.4); g.fillStyle = Math.sin(u.t * 6) > 0 ? '#ff3a3a' : '#4a1010'; g.fillRect(-1, -s2 * .7, 2, 2);
+      g.restore(); } }
   // Sichelbumerang: Sichel mit Kontur, Glanzkante und Nachbildern
   if (boos.length) { const T = lvTier(WL('boomer')), c = T >= 3 ? '#e0c8ff' : WCOL.boomer, rr = (ML('boomer') >= 3 ? 1.6 : ML('boomer') ? 1.3 : 1) * (11 + T * 1.2);
     const sickle = (x, y, rot, sc) => { g.save(); g.translate(x, y); g.rotate(rot); g.beginPath(); g.arc(0, 0, rr * sc, -1.9, 1.9); g.arc(rr * .45 * sc, 0, rr * .78 * sc, 1.6, -1.6, true); g.closePath(); g.restore(); };
@@ -1458,8 +1601,14 @@ function ui() {
   document.querySelectorAll('[data-dps]').forEach(el => { el.textContent = 'DPS ' + fmt(wDps(WEAP.find(x => x.id === el.dataset.dps))) + '/s'; });
 }
 const mmss = ms => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const FULLT = { k: 'Shop', h: 'Hangar', a: 'Fähigkeiten', st: 'Statistik' };
+const isDesk = () => matchMedia('(min-width:900px)').matches;
+function applyFull() { const on = !!FULLT[tab] && !isDesk(), a = $('app'); if (on) a.style.setProperty('--hudh', document.querySelector('.hud').offsetHeight + 'px'); if (a.classList.contains('full') !== on) a.classList.toggle('full', on); }
+function fullHead(L) { if (!FULLT[tab]) return; const cur = tab === 'h' ? `✦ ${fmt(S.dm || 0)} · ⬢ ${fmt(S.chip || 0)}` : tab === 'st' ? '' : `◆ ${fmt(S.cry)}`;
+  L.insertAdjacentHTML('afterbegin', `<div class="fhd"><b>${FULLT[tab]}</b><span class="fcur">${cur}</span><button id="fclose">✕ Zum Spiel</button></div>`); $('fclose').onclick = () => goTab('w'); }
 function render() {
   if (tab !== 'h') document.querySelectorAll('.hsheet').forEach(x => x.remove());
+  applyFull();
   const L = $('list');
   if (tab === 'w') {
     let h = `<div class="mode">${[1, 10, 'max'].map(n => `<button data-n="${n}" class="${buyN === n ? 'on' : ''}">${n === 'max' ? 'Max' : 'x' + n}</button>`).join('')}</div>`;
@@ -1488,12 +1637,13 @@ function render() {
     L.querySelectorAll('[data-mod]').forEach(b => b.onclick = () => { const id = b.dataset.mod, l = ML(id), c = modCost(l); if (l >= MOD_MAX || (S.chip || 0) < c) return; S.chip -= c; S.mod = S.mod || {}; S.mod[id] = l + 1; SND.fx.win(); const w = WEAP.find(x => x.id === id);
       overlay(`<div class="crate" style="--rc:#ff9f43"><div class="cbox" style="color:#ff9f43"><svg width="66" height="66" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${WICO[id]}</svg></div></div><h2 style="color:#ff9f43">${w.n} · Mod ${l + 1}</h2><p>+${50 * (l + 1)} % Schaden<br><b style="color:var(--txt)">★ ${MODS[id].s}: ${MODS[id].f(l + 1)}</b></p>`, [['Stark', null]]); save('now'); render(); });
     if ($('reroll')) $('reroll').onclick = () => { if (S.rrUsed) return; offers(); if (!S.offer) return; S.rrUsed = true; const left = WEAP.filter(w => !WL(w.id) && !S.offer.includes(w.id)).map(w => w.id).sort(() => Math.random() - .5); const keep = left.length >= 2 ? [] : S.offer.slice(0, 2 - left.length); S.offer = left.slice(0, 2).concat(keep).slice(0, 2); save(true); render(); };
-  } else if (tab === 'a') renderAb(L);
-  else if (tab === 'h') renderHangar(L);
-  else if (tab === 'k') renderShop(L);
+  } else if (tab === 'a') { renderAb(L); fullHead(L); }
+  else if (tab === 'h') { renderHangar(L); fullHead(L); }
+  else if (tab === 'k') { renderShop(L); fullHead(L); }
+  else if (tab === 'st') { renderStats(L); fullHead(L); }
   else if (tab === 'p') {
     const g0 = dmGain();
-    L.innerHTML = `<div class="wh wbox"><div class="wrow"><div><small>Warp bringt</small><b id="wgain">✦${fmt(g0)}</b></div><div><small>Multiplikator</small><b class="wm">x${(S.wm || 1).toFixed(2)} → <span id="wmto">x${((S.wm || 1) + wmGain()).toFixed(2)}</span></b></div></div>
+    L.innerHTML = `<button class="br unl" id="stopen" style="margin:0 0 9px">📊 STATISTIK · WELCHE WAFFE MACHT WIE VIEL</button><div class="wh wbox"><div class="wrow"><div><small>Warp bringt</small><b id="wgain">✦${fmt(g0)}</b></div><div><small>Multiplikator</small><b class="wm">x${(S.wm || 1).toFixed(2)} → <span id="wmto">x${((S.wm || 1) + wmGain()).toFixed(2)}</span></b></div></div>
       <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR, Waffen und Skills sind weg, von deinen ◆ behältst du ${keepPct()} % (mehr mit „Kristallspeicher“). Fähigkeiten, Hangar und Werkstatt bleiben. ✦: ab Planet 3 bringt jeder Planet ✦, und alle 2 Planeten gibt's 1 mehr pro Planet (gerade +${String(dmPer(Math.max(1, S.p - 1))).replace('.', ',')} pro Planet). Multiplikator: +0.01 pro ✦, das der Warp bringt. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'} · Spielzeit ${(S.play || 0) >= 3600 ? ((S.play || 0) / 3600).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' Std.' : Math.floor((S.play || 0) / 60) + ' Min.'}.</p>
       <button class="br" id="wgo" ${g0 ? '' : 'disabled'}>${g0 ? 'WARP-SPRUNG' : 'Ab Planet 3 (noch ' + Math.max(0, 3 - S.p) + ')'}</button></div>
       <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${fmt(S.dm || 0)}</b></div>
@@ -1504,6 +1654,7 @@ function render() {
       <div class="savebar"><span id="svtxt">${logged() ? 'Dein Stand wird automatisch auf deinem Konto gespeichert.' : 'Melde dich an, damit dein Stand auf dem Konto landet.'}</span><button id="svnow">${logged() ? 'Jetzt speichern' : 'Anmelden'}</button></div>`;
     $('wgo').onclick = warp;
     if ($('wpunl')) $('wpunl').onclick = wpUnlock;
+    $('stopen').onclick = () => goTab('st');
     $('svnow').onclick = () => { if (!logged()) return BB.open && BB.open('login'); save('now'); toast('Gespeichert ☁'); };
     L.querySelectorAll('[data-wp]').forEach(b => b.onclick = () => wpInfo(b.dataset.wp));
   } else {
@@ -1517,13 +1668,19 @@ function render() {
 const setFold = on => { const a = $('app'); if (a.classList.contains('fold') === on) return; a.classList.toggle('fold', on); if (on) document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.remove('on')); requestAnimationFrame(() => { resize(); }); };
 document.querySelectorAll('.nav [data-t]').forEach(b => b.onclick = () => {
   const fold = $('app').classList.contains('fold');
-  if (!fold && tab === b.dataset.t) { setFold(true); return; }
+  if (!fold && tab === b.dataset.t) { if (FULLT[tab] && !isDesk()) { goTab('w'); return; } setFold(true); return; }
   tab = b.dataset.t; $('list').scrollTop = 0; setFold(false); document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x === b)); render(); });
 function upgradeFx(w) { SND.fx.win(); const n = ST(w.id); fx.push({ k: 'nova', x: ship.x, y: ship.y, r: 90, t: .8, c: '255,233,77' }); for (let k = 0; k < 30; k++) parts.push({ x: ship.x, y: ship.y, vx: (Math.random() - .5) * 300, vy: (Math.random() - .5) * 300, t: .8, c: '#ffe94d' });
   overlay(`<div class="crate" style="--rc:#ffe94d"><div class="cbox" style="font-size:44px;color:#ffe94d">★${n}</div></div><h2 style="color:#ffe94d">${w.n} aufgewertet!</h2><p>x2 Schaden${UPTXT[w.id] ? ' · ' + UPTXT[w.id] : ''}<br>Nächstes Upgrade bei Stufe ${msNext(WL(w.id))}</p>`, [['Stark', null]]); }
 function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3 * (PK('r', 10) ? 1.5 : 1); S.boostCd = S.boostEnd + 3 * 60e3; /* 3 min Abklingzeit nach dem Boost */ toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); }
 $('lb').onclick = () => window.BB && BB.open('board', 'drill');
 $('opt').onclick = openSettings;
+// Wischen im Menü: links/rechts = nächster/vorheriger Reiter
+{ let sx = 0, sy = 0, st = 0; const LL = $('list'), ORD = ['w', 's', 'a', 'h', 'p'];
+  LL.addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); }, { passive: true });
+  LL.addEventListener('touchend', e => { const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; if (Date.now() - st > 650 || Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+    if (e.target.closest && e.target.closest('.mgrid,.hsheet,input')) return; const i = ORD.indexOf(tab); if (i < 0) return; const j = i + (dx < 0 ? 1 : -1); if (j < 0 || j >= ORD.length) return; goTab(ORD[j]); LL.classList.remove('swl', 'swr'); void LL.offsetWidth; LL.classList.add(dx < 0 ? 'swl' : 'swr'); }, { passive: true }); }
+addEventListener('resize', () => { try { applyFull(); } catch (e) {} });
 let toastT = 0; function toast(s) { const t = $('toast'); if (!t) return; t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
 function overlay(html, btns) { infNav = null; $('ovb').innerHTML = html + btns.map((b, k) => `<button class="br" data-k="${k}">${b[0]}</button>`).join(''); $('ov').classList.toggle('bare', /class="(flip|crate)[" ]/.test(html)); $('ov').classList.remove('hide'); $('ovb').style.animation = 'none'; void $('ovb').offsetWidth; $('ovb').style.animation = ''; $('ovb').querySelectorAll('[data-k]').forEach(el => el.onclick = () => { $('ov').classList.add('hide'); btns[+el.dataset.k][1] && btns[+el.dataset.k][1](); }); }
 
@@ -1550,6 +1707,9 @@ function travelStep(dt) {
   if (built && travel < 1.5) camStep(dt);
 }
 const warpBonus = n => 5 + Math.ceil(n * .5);
+function cele(title, sub, uni) { document.querySelectorAll('.cele').forEach(x => x.remove()); const d = document.createElement('div'); d.className = 'cele' + (uni ? ' uni' : '');
+  d.innerHTML = `<div class="cs">${itemSvg(eqItem('h'), 86)}</div><b>${title}</b><span>${sub}</span>`; $('app').appendChild(d); setTimeout(() => d.remove(), 2200); }
+function lflash() { const d = document.createElement('div'); d.className = 'lflash'; document.body.appendChild(d); setTimeout(() => d.remove(), 950); }
 function planetDone() {
   SND.fx.win();
   const gain = (4 + S.p + 2 * WP('kris')) * (G.boss ? 3 : 1), old = G.name;
@@ -1562,6 +1722,7 @@ function planetDone() {
   travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
   toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${fmt(gain)} · Sprung nach ${uniName(uniOf(S.p))} · Warp bringt jetzt ✦${fmt(dmGain())}` : `Planet abgebaut! +◆${fmt(gain)}${chipT}${bgN ? ` · +${bgN} Bandengold` : ''} · Warp bringt jetzt ✦${fmt(dmGain())}`);
   if (S.p === 3 && !S.pc) setTimeout(() => toast('Warp-Sprung freigeschaltet! Hol dir ✦ im Warp-Tab.'), 2800);
+  if (!document.hidden) { if (pInU(S.p) === 1) cele('UNIVERSUM ' + (uniOf(S.p) - 1) + '!', 'Sprung nach ' + uniName(uniOf(S.p)) + ' · +◆' + fmt(gain), 1); else cele(G.boss ? 'BOSS BESIEGT!' : 'PLANET ' + (S.p - 1) + '!', '+◆' + fmt(gain) + (chipT ? ' · +⬢' : '')); }
   render();
 }
 
@@ -1569,7 +1730,7 @@ function warp() {
   const n = dmGain(); if (!n) return;
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${fmt(n)} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)<br><br>Du behältst <b style="color:var(--txt)">${keepPct()} % deiner ◆</b> (◆${fmt(S.cry)} → ◆${fmt(Math.floor(S.cry * keepPct() / 100))}).<br>CR, Waffen, Planet und Skills werden zurückgesetzt. Fähigkeiten, Hangar und Warp-Werkstatt bleiben.</p>`,
     [['SPRINGEN', () => {
-      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); vib([40, 30, 40, 30, 300]); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1;
+      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); vib([40, 30, 40, 30, 300]); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.pc = (S.pc || 0) + 1; S.dmgRun = {};
       S.cry = Math.floor(S.cry * keepPct() / 100); { const e = WP('erbe'), o = S.sk || {}; S.sk = {}; if (e) for (const k in o) S.sk[k] = Math.min(o[k], e); } S.abT = {}; S.buf = {}; S.cr = Math.max(150, startCr(WP('start'))); S.w = { line: 1 }; S.wo = ['line']; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
       if (window.BB) BB.unlock('drill_warp');
@@ -1881,7 +2042,7 @@ function openMulti(k, n) {
   const ovb = $('ovb'), all = ovb.querySelector('[data-k="0"]'), nx = ovb.querySelector('[data-k="1"]'); nx.style.visibility = 'hidden';
   const flip = el => { if (el.classList.contains('on')) return; el.classList.add('on'); const r = el.dataset.r; SND.fx.up();
     setTimeout(() => { el.classList.add('r-' + r); if (r === 'l' || r === 'e') { const P = el.querySelector('.fx-p'), m = r === 'l' ? 30 : 12; for (let q = 0; q < m; q++) { const sp = document.createElement('i'), an = Math.random() * 6.283, d = 40 + Math.random() * (r === 'l' ? 80 : 40); sp.style.cssText = `--dx:${Math.cos(an) * d}px;--dy:${Math.sin(an) * d}px;--dl:${Math.random() * .2}s;--sz:${2 + Math.random() * 4}px`; P.appendChild(sp); } SND.fx.win(); }
-      if (r === 'l') { vib([80, 50, 80, 50, 220]); shake = 14; toast('★ LEGENDÄR! ★'); if (window.BB) BB.unlock('drill_legende'); } else if (r === 'e') vib(40);
+      if (r === 'l') { lflash(); vib([80, 50, 80, 50, 220]); shake = 14; toast('★ LEGENDÄR! ★'); if (window.BB) BB.unlock('drill_legende'); } else if (r === 'e') vib(40);
       if (!$('msum')) return; if (![...ovb.querySelectorAll('.flip.mini')].some(x => !x.classList.contains('on'))) { $('msum').classList.add('on'); all.style.display = 'none'; nx.style.visibility = ''; } }, 450); };
   ovb.querySelectorAll('.flip.mini').forEach(el => el.onclick = () => flip(el));
   all.onclick = e => { e.stopPropagation(); [...ovb.querySelectorAll('.flip.mini:not(.on)')].forEach((el, q) => setTimeout(() => flip(el), q * 140)); };
@@ -1904,7 +2065,7 @@ function openCrate(k) {
     setTimeout(() => { if (!$('frev')) return; fl.classList.add('r-' + r); $('frev').classList.add('on'); btns.forEach(x => x.style.visibility = '');
       if (r === 'l' || r === 'e') { SND.fx.win(); const P = $('fxp'), n = r === 'l' ? 46 : 18; for (let q = 0; q < n; q++) { const sp = document.createElement('i'), an = Math.random() * 6.283, d = 70 + Math.random() * (r === 'l' ? 120 : 60);
         sp.style.cssText = `--dx:${Math.cos(an) * d}px;--dy:${Math.sin(an) * d}px;--dl:${Math.random() * .25}s;--sz:${2 + Math.random() * 5}px`; P.appendChild(sp); } }
-      if (r === 'e') vib(60); if (r === 'l') { vib([80, 50, 80, 50, 220]); shake = 14; toast('★ LEGENDÄR! ★'); if (window.BB) BB.unlock('drill_legende'); } }, 520); };
+      if (r === 'e') vib(60); if (r === 'l') { lflash(); vib([80, 50, 80, 50, 220]); shake = 14; toast('★ LEGENDÄR! ★'); if (window.BB) BB.unlock('drill_legende'); } }, 520); };
   fl.onclick = reveal;
 }
 const HURL = {};
@@ -1942,9 +2103,13 @@ function hotbar(force) {
 }
 function goTab(t) { setFold(false); tab = t; $('list').scrollTop = 0; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === t)); render(); }
 let hTab = 'h', abSel = null;
+let abSlot = null;
 function renderAb(L) {
   const own = ABIL.filter(a => AL(a.id)), dc = drawCost(), allOwned = own.length === ABIL.length;
-  L.innerHTML = `<div class="skh"><span>Fähigkeiten · tippen = auf Hotbar</span><b>◆ ${fmt(S.cry)}</b></div>
+  L.innerHTML = `<div class="skh"><span>Deine Hotbar</span><b>◆ ${fmt(S.cry)}</b></div>
+    <div class="hbe">${[0, 1, 2, 3, 4].map(k => { const a = S.hot[k] && ABIL.find(x => x.id === S.hot[k]); return `<button data-hs="${k}" class="${a ? '' : 'emp'}${abSlot === k ? ' sel' : ''}"><small>${k + 1}</small>${a ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg>` : '+'}</button>`; }).join('')}</div>
+    <div class="hbe-h">${abSlot == null ? 'Slot antippen, dann eine Fähigkeit darunter wählen' : `<b>Slot ${abSlot + 1}:</b> jetzt eine Fähigkeit antippen${S.hot[abSlot] ? ' · <a href="#" id="hsclr" style="color:#ff7a96">Slot leeren</a>' : ''}`}</div>
+    <div class="skh"><span>Fähigkeiten</span><b>${own.length}/${ABIL.length}</b></div>
     <button class="br aut ${WP('auto') && !S.autoOff ? 'on' : ''}" id="autot" ${WP('auto') ? '' : 'disabled'}>${WP('auto') ? (S.autoOff ? '🤖 AUTOPILOT: AUS' : '🤖 AUTOPILOT: AN') : '🔒 Autopilot (Warp-Werkstatt)'}<span class="gn">${WP('auto') ? 'zündet Fähigkeiten automatisch · tippen = umschalten' : 'erst in der Warp-Werkstatt freischalten'}</span></button>
     ${own.length ? '' : `<div class="wh" style="text-align:center"><p style="margin-bottom:8px">Noch keine Fähigkeit. Die erste gibt's aus der <b style="display:inline;font-size:inherit;color:#c9a2ff">Fähigkeiten-Kiste</b> für ◆10 – dann einfach antippen und auf die Hotbar legen.</p><button class="br" data-shop="1" style="width:100%">🛒 Zum Shop</button></div>`}
     <div class="sk ab">${ABIL.map(a => { const l = AL(a.id), on = S.hot.includes(a.id);
@@ -1959,7 +2124,11 @@ function renderAb(L) {
     <button class="br unl" data-shop="1" style="margin-top:9px">🛒 FÄHIGKEITEN-KISTE IM SHOP</button>
     <div class="hint">◆ Kristalle gibt's für jeden abgebauten Planeten (je weiter, desto mehr, Boss x3) – ✦ Dunkle Materie gibt's nur beim Warp.</div>`;
   $('autot').onclick = () => { if (!WP('auto')) return; S.autoOff = !S.autoOff; toast(S.autoOff ? 'Autopilot aus' : 'Autopilot an'); save('now'); render(); };
-  L.querySelectorAll('[data-ab]').forEach(b => b.onclick = () => { abSel = abSel === b.dataset.ab ? null : b.dataset.ab; render(); });
+  L.querySelectorAll('[data-ab]').forEach(b => b.onclick = () => { const id = b.dataset.ab;
+    if (abSlot != null) { S.hot = S.hot.map(x => x === id ? null : x); S.hot[abSlot] = id; abSlot = null; hotbar(true); save('now'); SND.fx.up(); render(); return; }
+    abSel = abSel === id ? null : id; render(); });
+  L.querySelectorAll('[data-hs]').forEach(b => b.onclick = () => { const k = +b.dataset.hs; abSlot = abSlot === k ? null : k; render(); });
+  if ($('hsclr')) $('hsclr').onclick = e => { e.preventDefault(); S.hot[abSlot] = null; abSlot = null; hotbar(true); save('now'); render(); };
   if ($('abeq')) $('abeq').onclick = () => { const i = S.hot.indexOf(abSel); if (i >= 0) S.hot[i] = null; else { const f = S.hot.findIndex(x => !x); if (f >= 0 && f < 5) S.hot[f] = abSel; else if (S.hot.length < 5) S.hot.push(abSel); else S.hot[4] = abSel; } S.hot = S.hot.slice(0, 5); save('now'); hotbar(true); render(); };
   if ($('abup')) $('abup').onclick = () => { const c = abUpCost(abSel); if (AL(abSel) >= 10 || S.cry < c) return; S.cry -= c; S.ab[abSel]++; save('now'); render(); };
   $('aball').onclick = () => { let go = true; while (go) { go = false; const c = own.filter(a => AL(a.id) < 10).sort((a, b) => abUpCost(a.id) - abUpCost(b.id))[0]; if (c && S.cry >= abUpCost(c.id)) { S.cry -= abUpCost(c.id); S.ab[c.id]++; go = true; } } save('now'); render(); };
@@ -1993,13 +2162,28 @@ function loginCheck() {
     <p>${st > 1 ? `🔥 ${st} Tage in Folge!` : 'Komm jeden Tag wieder, Tag 7 bringt eine Ultimative Kiste.'}<br>Heute: <b style="color:var(--cy)">${rwTxt(rw)}</b></p>`,
     [['Abholen', () => { D.last = td; D.streak = st; giveRw(rw); if (tab === 'k') render(); }]]);
 }
+function renderStats(L) {
+  const dr = S.dmgRun || {}, tot = Object.values(dr).reduce((a, b) => a + b, 0) || 1;
+  const rows = Object.keys(dr).filter(k => dr[k] > 0).sort((a, b) => dr[b] - dr[a]);
+  const nm = k => k === 'x' ? 'Fähigkeiten & Rumpf' : (WEAP.find(w => w.id === k) || { n: k }).n, col = k => WCOL[k] || '#c9a2ff';
+  const pl = S.play || 0, ptxt = pl >= 3600 ? Math.floor(pl / 3600) + ' Std ' + Math.floor(pl % 3600 / 60) + ' Min' : Math.floor(pl / 60) + ' Min';
+  L.innerHTML = `<div class="skh"><span>Schaden in diesem Lauf</span><b style="font-size:12px">${fmt(tot)}</b></div>
+    <div class="stw">${rows.length ? rows.map(k => { const p = dr[k] / tot * 100; return `<div><span class="wic" style="color:${col(k)};border-color:${col(k)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${WICO[k] || '<path d="M13 2L5 13h6l-2 9 9-12h-6z"/>'}</svg></span><span class="bar"><i style="width:${p}%;background:linear-gradient(90deg,${col(k)}cc,${col(k)}66)"></i><span>${nm(k)}</span></span><em>${p >= 10 ? Math.round(p) : p.toFixed(1)} %</em></div>`; }).join('') : '<p class="hint">Noch kein Schaden in diesem Lauf – kurz zuschauen, dann füllt sich das hier.</p>'}</div>
+    <div class="skh"><span>Rekorde</span></div>
+    <div class="stg"><div><small>Bester Planet</small><b>${S.best || 1}</b></div><div><small>Planeten gesamt</small><b>${fmt(S.pAll || 0)}</b></div>
+      <div><small>Warp-Sprünge</small><b>${S.pc || 0}</b></div><div><small>Multiplikator</small><b>x${(S.wm || 1).toFixed(2)}</b></div>
+      <div><small>Dunkle Materie gesamt</small><b>✦${fmt(S.dmAll || 0)}</b></div><div><small>Spielzeit</small><b>${ptxt}</b></div>
+      <div><small>Gesamt-DPS</small><b>${fmt(totalDps())}</b></div><div><small>Waffen</small><b>${owned().length}/${WEAP.length}</b></div>
+      <div><small>Hangar-Sammlung</small><b>${ITEMS.filter(x => S.inv[x.id]).length}/${ITEMS.length}</b></div><div><small>Fähigkeiten</small><b>${ABIL.filter(a => AL(a.id)).length}/${ABIL.length}</b></div></div>
+    <div class="hint">Der Schadensanteil zählt ab dem letzten Warp-Sprung.</div>`;
+}
 function renderShop(L) {
   const D = dly();
   L.innerHTML = `<div class="skh" style="border-left-color:#ffe94d"><span>Tagesmissionen · 🔥 ${D.streak || 0} ${D.streak === 1 ? 'Tag' : 'Tage'} in Folge</span><b style="font-size:11px">neu um 0 Uhr</b></div>
     <div class="mis">${D.ms.map((m, i) => { const M = MPOOL.find(x => x.id === m.id), dn = m.p >= M.n; return `<div class="${m.c ? 'c' : dn ? 'd' : ''}"><div class="mt"><b>${M.t}</b><small>${rwTxt(M.rw)}</small><i><s style="width:${Math.min(100, m.p / M.n * 100)}%"></s></i><em>${m.p}/${M.n}</em></div><button class="br" data-mi="${i}" ${dn && !m.c ? '' : 'disabled'}>${m.c ? '✓' : 'Abholen'}</button></div>`; }).join('')}
       <div class="${D.bonus ? 'c' : D.ms.every(m => m.c) ? 'd' : ''}"><div class="mt"><b>Bonus: alle 3 geschafft</b><small>Ultimative Kiste</small></div><button class="br" id="mibo" ${D.ms.every(m => m.c) && !D.bonus ? '' : 'disabled'}>${D.bonus ? '✓' : 'Abholen'}</button></div></div>
     <div class="skh"><span>Shop</span><b>◆ ${fmt(S.cry)}</b></div>
-    <div class="shop">${CRATES.map(k => `<div class="sbox" style="--rc:${k.c}"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.4"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/>${k.ab && k.w ? '<path d="M7 3l1 2M17 3l-1 2M12 1v3"/>' : ''}</svg><div><b>${k.n}</b><small>${k.d}</small>${k.w ? `<small class="odds">${['g', 's', 'e', 'l'].filter(r => k.w[r]).map(r => `<i style="color:${RAR[r].c}">${String(k.w[r]).replace('.', ',')} %</i>`).join(' ')}</small>` : ''}</div><div class="cbtn"><button class="br" data-cr="${k.id}" ${S.cry < k.cost ? 'disabled' : ''}>◆${k.cost}</button><button class="br" data-cm="${k.id}" data-n="5" ${S.cry < k.cost * 5 ? 'disabled' : ''}>x5<small>◆${k.cost * 5}</small></button><button class="br" data-cm="${k.id}" data-n="10" ${S.cry < k.cost * 10 ? 'disabled' : ''}>x10<small>◆${k.cost * 10}</small></button></div></div>`).join('')}</div>
+    <div class="shop">${CRATES.map(k => `<div class="sbox" style="--rc:${k.c}"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.4"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/>${k.ab && k.w ? '<path d="M7 3l1 2M17 3l-1 2M12 1v3"/>' : ''}</svg><div><b>${k.n}</b><small>${k.d}</small>${k.w ? `<small class="odds">${['g', 's', 'e', 'l'].filter(r => k.w[r]).map(r => `<i style="color:${RAR[r].c}">${String(k.w[r]).replace('.', ',')} %</i>`).join(' ')}</small><div class="oddsbar">${['g', 's', 'e', 'l'].filter(r => k.w[r]).map(r => `<i style="flex:${Math.max(1.5, k.w[r])};background:${RAR[r].c}"></i>`).join('')}</div>` : ''}</div><div class="cbtn"><button class="br" data-cr="${k.id}" ${S.cry < k.cost ? 'disabled' : ''}>◆${k.cost}</button><button class="br" data-cm="${k.id}" data-n="5" ${S.cry < k.cost * 5 ? 'disabled' : ''}>x5<small>◆${k.cost * 5}</small></button><button class="br" data-cm="${k.id}" data-n="10" ${S.cry < k.cost * 10 ? 'disabled' : ''}>x10<small>◆${k.cost * 10}</small></button></div></div>`).join('')}</div>
     <div class="hint">◆ Kristalle gibt's für jeden abgebauten Planeten. Prozente = Chance auf Gewöhnlich / Selten / Episch / Legendär.</div>`;
   L.querySelectorAll('[data-cr]').forEach(b => b.onclick = () => openShopCrate(CRATES.find(k => k.id === b.dataset.cr)));
   L.querySelectorAll('[data-cm]').forEach(b => b.onclick = () => openMulti(CRATES.find(k => k.id === b.dataset.cm), +b.dataset.n));
@@ -2026,7 +2210,9 @@ function renderHangar(L) {
   const canLv = ITEMS.filter(it => S.inv[it.id] && ILV(it.id) < ITEM_MAX && ((S.dup || {})[it.id] || 0) >= DUPN);
   const ownAll = ITEMS.filter(x => S.inv[x.id]).length, RO = { l: 0, e: 1, s: 2, g: 3 };
   const hab = HULLAB[eqItem('h').id];
+  const eh = eqItem('h');
   L.innerHTML = `
+    <div class="hg-hero" style="--rc:${RAR[eh.r].c}"><div class="hg-ship">${itemSvg(eh, 108)}</div><div class="hg-sum"><b>${eh.n}</b>${['h', 'r', 't'].map(s2 => { const it = eqItem(s2); return `<div><span>${SLOT[s2].n}</span><span>+${pct(it)} % ${SLOT[s2].st}</span></div>`; }).join('')}<div><span>Sammlung</span><span>${ownAll}/${ITEMS.length}</span></div></div></div>
     <div class="hg-info">⬆ Jedes Teil levelt einzeln: <b>${DUPN} Doppelte = +1 Stufe</b> (max. ${ITEM_MAX}). Einschmelzen gibt ✦ (Legendär: ⬢).</div>
     <button class="br unl" id="lvall" style="margin:0 0 8px" ${canLv.length ? '' : 'disabled'}>${canLv.length ? '⬆ ALLE LEVELN · ' + canLv.length + ' TEILE BEREIT' : 'NOCH KEIN TEIL BEREIT ZUM LEVELN'}</button>
     <button class="br unl" id="best" style="margin:0 0 10px">${ITEMS.some(it => S.inv[it.id] && better(it)) ? '⬆ BESTE AUSRÜSTEN · BESSERE TEILE DA' : '✓ BESTE AUSRÜSTEN'}</button>
@@ -2051,6 +2237,7 @@ function renderHangar(L) {
   sh.innerHTML = `<div class="hsbg"></div><div class="hsp" style="--rc:${RAR[sel.r].c}"><button class="hsx" aria-label="Schließen">✕</button>
     <div class="ihd"><div class="ib">${itemSvg(sel, 46)}</div><div><b>${sel.n} · Lv. ${lv}</b><small>${RAR[sel.r].n} · ${SLOT[sel.s].n}${on ? ' · <span style="color:var(--li)">ausgerüstet</span>' : ''}</small></div></div>
     <div class="xpb"><i style="width:${mx ? 100 : Math.min(100, dp / DUPN * 100)}%"></i><span>${mx ? 'MAX · LV. ' + ITEM_MAX : 'DOPPELTE ' + dp + ' / ' + DUPN + ' FÜR LV. ' + (lv + 1)}</span></div>
+    ${on ? '' : (() => { const e = eqItem(sel.s), a0 = pct(e), a1 = pct(sel), df = a1 - a0; return `<div class="cmp">Statt <b style="color:${RAR[e.r].c}">${e.n}</b> (+${a0} %): <b class="${df >= 0 ? 'up' : 'dn'}">${df >= 0 ? '▲ +' : '▼ '}${df} % ${SLOT[sel.s].st}</b></div>`; })()}
     <div class="ist2"><div><small>${SLOT[sel.s].st} auf Lv. ${lv}</small><b>+${pct(sel)} %</b>${mx ? '' : `<em>auf Lv. ${lv + 1}: +${Math.round(itemVal(sel, lv + 1) * 100)} %</em>`}</div>${HATK[sel.id] ? `<div class="hab"><small>Rumpf-Attacke · ${RAR[sel.r].n}</small><b>⚔ ${HATK[sel.id].n}</b><span style="display:block;font-size:11px;color:#cfd8da;margin:2px 0">${HATK[sel.id].d}</span><em>${Math.round(HRF[sel.r] * (1 + .1 * (lv - 1)) * 100)} % deiner Waffen-DPS${mx ? '' : ` · auf Lv. ${lv + 1}: ${Math.round(HRF[sel.r] * (1 + .1 * lv) * 100)} %`}</em></div>` : ''}${HULLAB[sel.id] ? `<div class="hab"><small>Rumpf-Bonus</small><b>★ ${HULLAB[sel.id].d}</b><em>x${(1 + .2 * (lv - 1)).toFixed(1)} durch die Stufe${mx ? '' : ` · auf Lv. ${lv + 1}: x${(1 + .2 * lv).toFixed(1)}`}</em></div>` : ''}</div>
     <div class="pks"><small>Stufen-Boni (wirken, wenn ausgerüstet)</small>${PERKS[sel.s].map(([l, n, d]) => `<div class="${lv >= l ? 'on' : ''}"><b>${lv >= l ? '✓' : '🔒'} Lv. ${l} · ${n}</b><span>${d}</span></div>`).join('')}</div>
     <div class="row2"><button class="br" id="ieq" ${on ? 'disabled' : ''}>${on ? 'Ausgerüstet ✓' : 'Ausrüsten'}</button><button class="br" id="ilv" ${!mx && dp >= DUPN ? '' : 'disabled'}>${mx ? 'MAX' : `Leveln<span class="gn">${DUPN} Doppelte</span>`}</button></div>
@@ -2204,6 +2391,8 @@ function cleanSave() {
   for (const k in (S.ab || {})) if (!ABIL.find(a => a.id === k)) delete S.ab[k];
   S.hot = (S.hot || []).slice(0, 5).map(x => x && S.ab && S.ab[x] ? x : null);
   for (const k in (S.wp || {})) if (!WARP.find(w => w.id === k)) delete S.wp[k];
+  if (S.w && S.w.pulse) { S.w.whip = Math.max(S.w.whip || 0, S.w.pulse); delete S.w.pulse; S.wo = (S.wo || []).map(x => x === 'pulse' ? 'whip' : x); if (S.mod && S.mod.pulse) { S.mod.whip = S.mod.pulse; delete S.mod.pulse; } }
+  if (S.dmgRun) delete S.dmgRun.pulse; if (S.offer) S.offer = S.offer.filter(x => x !== 'pulse');
   S.wo = (S.wo || ['line']).filter(id => WEAP.find(w => w.id === id)); if (!S.wo.length) S.wo = ['line'];
   for (const k in (S.mod || {})) if (!MODS[k]) delete S.mod[k];
 }
@@ -2220,7 +2409,7 @@ function showIntro() {
 if (logged()) pull().then(() => offline()).then(showIntro).then(() => setTimeout(loginCheck, 1200)); else { offline(); showIntro(); setTimeout(loginCheck, 1200); }
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
-window.GB = { get mets() { return mets; }, get mines() { return mines; }, get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, ILV, lvUp, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
+window.GB = { get rkts() { return rkts; }, get gravs() { return gravs; }, get turs() { return turs; }, get whips() { return whips; }, get mets() { return mets; }, get mines() { return mines; }, get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, ILV, lvUp, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
 </script>
 </body>
 </html>
