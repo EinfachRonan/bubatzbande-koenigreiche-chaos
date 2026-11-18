@@ -243,6 +243,7 @@ if ($a === 'login') {
 $SECRET = [
   hash('sha256', 'bbcode:420') => ['g' => 'kh', 'name' => 'Die Legenden der Kräuterhöhle', 'v' => '0.5', 'url' => 'kraeuterhoehle/'],
   hash('sha256', 'bbcode:421') => ['g' => 'ernte', 'name' => 'Erntezeit', 'v' => '1.0', 'url' => 'ernte/'],
+  hash('sha256', 'bbcode:7878') => ['g' => 'hl', 'name' => 'Höhlenlauf', 'v' => '0.1', 'url' => 'hoehlenlauf/'],
 ];
 if ($a === 'code') {
   $n = 0; foreach ($rl as $x) if ($x['ip'] === $ip) $n++;
