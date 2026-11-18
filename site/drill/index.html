@@ -486,6 +486,14 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 .sk button{border-style:solid;border-image:url(ui/slot_g.png) 24 fill / 9px stretch;background:none!important;border-radius:0}
 .sk.ab button.on{border-image-source:url(ui/slot_s.png)}
 .sk.wp6 button{box-shadow:inset 0 0 18px rgba(201,162,255,.25)!important}
+
+.trd-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}.trd-h canvas{flex:none;width:96px;height:72px;image-rendering:pixelated}
+.trd-h b{display:block;font:400 18px Silkscreen,var(--mono);color:#ffb04a;text-shadow:0 0 10px rgba(255,176,74,.5)}.trd-h small{font-size:11px;color:var(--mut)}
+.trd-msg{margin:0 0 8px;padding:8px;border-radius:6px;background:rgba(157,255,106,.12);color:#c8ff9a;font-weight:700;text-align:center}
+.trd-o{display:flex;width:100%;align-items:center;gap:10px;margin:0 0 7px;padding:10px 12px;text-align:left;border-style:solid;border-image:url(ui/btn.png) 22 24 fill / 9px 10px stretch;background:none;color:var(--txt);cursor:pointer}
+.trd-o span{flex:1;min-width:0}.trd-o b{display:block;font-size:14px;color:#fff}.trd-o small{font-size:11px;color:#b9c8d0}
+.trd-o em{font-style:normal;font:700 15px var(--mono);color:#ffe94d;white-space:nowrap}
+.trd-o:disabled{opacity:.45;cursor:default}.trd-w{font-size:11px;color:var(--mut);text-align:center;margin-top:4px}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -640,7 +648,7 @@ let pulled = !logged(), lastCloud = 0;
 const DEV = (() => { try { let d = localStorage.getItem('gb_dev'); if (!d) { d = Math.random().toString(36).slice(2, 10); localStorage.setItem('gb_dev', d); } return d; } catch (e) { return 'x' + Math.random(); } })();
 let lastSn = 0, chkT = 0, conflict = false;
 function save(cloud) {
-  S.t = Date.now(); S.last = Date.now(); S.done = G && built ? G.total - G.left : 0; if (myId()) S.own = myId();
+  S.t = Date.now(); S.last = Date.now(); S.done = BON ? BON.done : G && built ? G.total - G.left : 0; if (myId()) S.own = myId();
   try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
   if (cloud && logged() && pulled && BB.cloud && !conflict) cloudSave(cloud === 'now');
   svState();
@@ -815,6 +823,7 @@ function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Ma
 let RETRO = true; try { RETRO = localStorage.getItem('gb_retro') !== '0'; } catch (e) {}
 function resize() {
   const r = cv.getBoundingClientRect(); DPR = RETRO ? 1 : (devicePixelRatio || 1) > 1.5 ? 1.5 : 1; // Pixel-Art-Look wie das Titelbild: feine, scharfe Pixel // Pixel-Look braucht keine volle Auflösung, spart auf Handys viel Leistung
+  if (BON) exitBonus(null, 1);
   scanPat = null; W = r.width; H = r.height; cv.width = W * DPR; cv.height = H * DPR;
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
   if (travel > 0 && !built) { built = true; buildPlanet(0); intro = 2.4; introName = G.name; }
@@ -909,6 +918,120 @@ function kill(i, reward) {
   else if (G.ore[i]) floats.push({ x, y: y - 10, t: 1.2, s: '+' + fmt(val) + ' CR', c: '#ffe36a' });
 }
 const SPC = 3; // ◆ pro Kristall-Block
+
+// ================== Zufalls-Ereignisse: Weltraum-Händler & Wurmloch ==================
+var BON = null; // aktiver Bonus-Planet (Wurmloch)
+let trader = null, traderT = 100, worm = null, wormT = 320;
+const TRN = ['Zorgo', 'Krümel-Karl', 'Madame Nebula', 'Onkel Quark', 'Bubatz-Bernd'];
+const TROFF = [
+  { id: 'myst', n: 'Mystery-Kiste', d: 'Ein Schiffsteil – bessere Chancen als im Shop', cur: 'chip', c: 3, go: () => openCrate({ id: 'tr', n: 'Mystery-Kiste', cost: 0, w: { g: 25, s: 47, e: 27.5, l: .5 }, c: '#ff9b3a', noAgain: 1 }) },
+  { id: 'swap', n: 'Materie-Tausch', d: '✦5 gegen ◆15', cur: 'dm', c: 5, go: () => { S.cry += 15; return '+◆15'; } },
+  { id: 'cr', n: 'CR-Spritze', d: 'Sofort 5 Minuten Ertrag', cur: 'cry', c: 8, go: () => { const v = Math.max(S.ema || 0, G.v0 * crMult() * 2) * 300; S.cr += v; earnedSec += v; return '+' + fmt(v) + ' CR'; } },
+  { id: 'gamble', n: 'Münzwurf', d: '◆10 setzen – 50 % Chance auf ◆25', cur: 'cry', c: 10, go: () => { if (Math.random() < .5) { S.cry += 25; return 'GEWONNEN! +◆25'; } return 'Pech gehabt …'; } },
+  { id: 'boost', n: 'Boost-Kapsel', d: '+3 Minuten Boost ×2', cur: 'cry', c: 6, go: () => { S.boostEnd = Math.max(Date.now(), S.boostEnd || 0) + 180e3; return '+3 min Boost'; } },
+  { id: 'chip', n: 'Chip-Schmuggel', d: '◆20 gegen ⬢2', cur: 'cry', c: 20, go: () => { S.chip = (S.chip || 0) + 2; return '+⬢2'; } },
+  { id: 'dmb', n: 'Dunkle Ware', d: '◆12 gegen ✦4', cur: 'cry', c: 12, go: () => { S.dm = (S.dm || 0) + 4; return '+✦4'; } }
+];
+const CURS = { cry: '◆', dm: '✦', chip: '⬢' };
+function evStep(dt) {
+  if (travel > 0 || intro > 0 || document.hidden || !G) return;
+  if (BON) { BON.t -= dt; if (BON.t <= 0) exitBonus('Zeit um!'); return; }
+  if (S.p >= 2) {
+    if (!trader && (traderT -= dt) <= 0) { const l = Math.random() < .5; trader = { x: l ? -60 : W + 60, y: H * (.16 + Math.random() * .14), dir: l ? 1 : -1, t: 0, life: 20, name: TRN[(Math.random() * TRN.length) | 0], offers: [...TROFF].sort(() => Math.random() - .5).slice(0, 3).map(o => ({ ...o, sold: 0 })), open: 0 }; SND.fx.up(); }
+    if (trader && !trader.open) { trader.t += dt; const L = trader.life, k = trader.t / L, mid = trader.dir > 0 ? W * .5 : W * .5;
+      // fliegt rein, schwebt eine Weile in der Mitte, fliegt wieder raus
+      const x0 = trader.dir > 0 ? -60 : W + 60, x1 = trader.dir > 0 ? W + 60 : -60, e = k < .15 ? k / .15 : k > .85 ? (k - .85) / .15 : 0;
+      trader.x = k < .15 ? x0 + (mid - x0) * (1 - (1 - e) * (1 - e)) : k > .85 ? mid + (x1 - mid) * e * e : mid + Math.sin(trader.t * .7) * W * .18;
+      if (trader.t >= L) { trader = null; traderT = 240 + Math.random() * 200; } }
+  }
+  if (S.p >= 3 && !trader) {
+    if (!worm && (wormT -= dt) <= 0) { worm = { x: W * (.2 + Math.random() * .6), y: H * (.14 + Math.random() * .2), t: 0, life: 15, kind: Math.random() < .5 ? 'gold' : 'kris' }; SND.fx.up(); }
+    if (worm) { worm.t += dt; if (worm.t >= worm.life) { worm = null; wormT = 480 + Math.random() * 360; } }
+  }
+}
+function evTap(px, py) {
+  if (BON) return false;
+  if (trader && !trader.open && Math.hypot(px - trader.x, py - trader.y) < 46) { openTrader(); return true; }
+  if (worm && Math.hypot(px - worm.x, py - worm.y) < 48) { const k = worm.kind; worm = null; wormT = 480 + Math.random() * 360; enterBonus(k); return true; }
+  return false;
+}
+function openTrader(msg) {
+  if (!trader) return; trader.open = 1;
+  const can = o => (S[o.cur] || 0) >= o.c;
+  overlay(`<div class="trd"><div class="trd-h"><canvas id="trdc" width="96" height="72"></canvas><div><b>${trader.name}</b><small>Weltraum-Händler · nur kurz da!</small></div></div>
+    ${msg ? `<div class="trd-msg">${msg}</div>` : ''}
+    ${trader.offers.map((o, k) => `<button class="trd-o" data-of="${k}" ${o.sold || !can(o) ? 'disabled' : ''}><span><b>${o.n}</b><small>${o.d}</small></span><em>${o.sold ? 'VERKAUFT' : CURS[o.cur] + o.c}</em></button>`).join('')}
+    <div class="trd-w">Du hast ◆${fmt(S.cry)} · ✦${fmt(S.dm || 0)} · ⬢${fmt(S.chip || 0)}</div></div>`, [['Tschüss!', () => { if (trader) { trader.open = 0; trader.t = Math.max(trader.t, trader.life * .85); } }]]);
+  { const c = $('trdc'), x = c.getContext('2d'); x.translate(48, 40); x.scale(1.6, 1.6); drawTraderShip(x, 0, 0, performance.now() / 1000, 1); }
+  $('ovb').querySelectorAll('[data-of]').forEach(b => b.onclick = () => { const o = trader.offers[+b.dataset.of]; if (o.sold || !can(o)) return; S[o.cur] -= o.c; o.sold = 1; SND.fx.up(); vib(30);
+    const r = o.go(); save('now'); ui(); if (o.id === 'myst') { trader.open = 1; return; } openTrader(o.id === 'gamble' ? (r.startsWith('GEW') ? '🪙 ' + r : '🪙 ' + r) : '✔ ' + r); });
+}
+function drawTraderShip(x, cx, cy, tt, big) {
+  const bob = Math.sin(tt * 3) * 1.5; x.save(); x.translate(cx, cy + bob);
+  const INKC = '#050912';
+  // Triebwerksflammen
+  x.fillStyle = '#ffb04a'; x.globalAlpha = .9; for (const ex of [-9, 9]) { x.beginPath(); x.moveTo(ex - 3, 7); x.lineTo(ex, 12 + Math.random() * 4); x.lineTo(ex + 3, 7); x.fill(); } x.globalAlpha = 1;
+  // Kisten hinten
+  for (const [bx, by, w, h, col] of [[-17, -10, 9, 8, '#b07a3a'], [-12, -16, 8, 7, '#8a5a2a'], [10, -9, 8, 7, '#6a8a3a']]) { x.fillStyle = INKC; x.fillRect(bx - 1, by - 1, w + 2, h + 2); x.fillStyle = col; x.fillRect(bx, by, w, h); x.fillStyle = 'rgba(0,0,0,.3)'; x.fillRect(bx, by + h / 2, w, 1); x.fillRect(bx + w / 2, by, 1, h); }
+  // Rumpf
+  x.fillStyle = INKC; x.beginPath(); x.ellipse(0, 1, 22, 9, 0, 0, 7); x.fill();
+  { const gr = x.createLinearGradient(0, -8, 0, 9); gr.addColorStop(0, '#ffc07a'); gr.addColorStop(.5, '#d0702a'); gr.addColorStop(1, '#6a3010'); x.fillStyle = gr; x.beginPath(); x.ellipse(0, 1, 20.5, 7.5, 0, 0, 7); x.fill(); }
+  x.fillStyle = '#5ce8f0'; for (let k = -2; k <= 2; k++) x.fillRect(k * 7 - 1, 3, 2, 2);
+  x.fillStyle = '#ffd23f'; x.fillRect(-20, 0, 40, 1);
+  // Glaskuppel mit Alien
+  x.fillStyle = INKC; x.beginPath(); x.arc(0, -4, 9, Math.PI, 0); x.fill();
+  x.fillStyle = 'rgba(160,230,255,.45)'; x.beginPath(); x.arc(0, -4, 7.5, Math.PI, 0); x.fill();
+  x.fillStyle = '#8fe36a'; x.beginPath(); x.arc(0, -5, 4.2, 0, 7); x.fill(); x.fillStyle = '#05140a'; x.fillRect(-2.6, -6.5, 1.8, 2.4); x.fillRect(.8, -6.5, 1.8, 2.4);
+  x.fillStyle = '#ffffff'; x.globalAlpha = .7; x.fillRect(-5, -10, 2, 2); x.globalAlpha = 1;
+  // Antenne mit Blinklicht + Schild
+  x.strokeStyle = INKC; x.lineWidth = 1.5; x.beginPath(); x.moveTo(6, -9); x.lineTo(10, -17); x.stroke(); x.fillStyle = Math.sin(tt * 6) > 0 ? '#ff3a5c' : '#5a1020'; x.beginPath(); x.arc(10, -17, 1.8, 0, 7); x.fill();
+  x.restore();
+}
+function drawWorm(x, w, tt) {
+  const k = Math.min(1, w.t / .6) * Math.min(1, (w.life - w.t) / .6), R = 30 * k, c1 = w.kind === 'gold' ? '#ffd23f' : '#5ce8f0', c2 = '#b98cff';
+  x.save(); x.translate(w.x, w.y);
+  x.globalCompositeOperation = 'lighter';
+  x.globalAlpha = .25; x.fillStyle = c2; x.beginPath(); x.arc(0, 0, R * 1.6, 0, 7); x.fill();
+  for (let a = 0; a < 3; a++) { x.strokeStyle = a % 2 ? c1 : c2; x.lineWidth = 3; x.globalAlpha = .9; x.beginPath(); for (let q = 0; q <= 40; q++) { const u = q / 40, ang = tt * 3 + a * 2.09 + u * 5, rr = R * (1 - u * .85); q ? x.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr) : x.moveTo(Math.cos(ang) * rr, Math.sin(ang) * rr); } x.stroke(); }
+  x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+  x.fillStyle = '#000'; x.beginPath(); x.arc(0, 0, R * .32, 0, 7); x.fill(); x.strokeStyle = '#050912'; x.lineWidth = 3; x.beginPath(); x.arc(0, 0, R + 2, 0, 7); x.stroke(); x.strokeStyle = c1; x.lineWidth = 1.5; x.beginPath(); x.arc(0, 0, R + 2, -Math.PI / 2, -Math.PI / 2 + 6.283 * (1 - w.t / w.life)); x.stroke();
+  x.font = '10px Silkscreen,monospace'; x.textAlign = 'center'; x.fillStyle = '#050912'; x.fillText('WURMLOCH!', 1, -R - 9); x.fillStyle = Math.sin(tt * 6) > 0 ? '#ffffff' : c1; x.fillText('WURMLOCH!', 0, -R - 10);
+  x.restore();
+}
+function drawEvents(tt) {
+  if (trader) { const t = trader; g.save(); g.translate(t.x, t.y); g.scale(1.35, 1.35); drawTraderShip(g, 0, 0, tt); g.restore(); const a = Math.min(1, t.t / .5);
+    if (!t.open) { g.globalAlpha = a; g.font = '10px Silkscreen,monospace'; g.textAlign = 'center'; const txt = t.t < 6 ? 'Psst! Deals!' : 'Antippen!', w = g.measureText(txt).width + 12, by = t.y - 36 + Math.sin(tt * 4) * 2;
+      g.fillStyle = '#050912'; g.fillRect(t.x - w / 2 - 1, by - 11, w + 2, 18); g.fillStyle = '#fff3b0'; g.fillRect(t.x - w / 2, by - 10, w, 16); g.beginPath(); g.moveTo(t.x - 4, by + 6); g.lineTo(t.x, by + 11); g.lineTo(t.x + 4, by + 6); g.fill();
+      g.fillStyle = '#3a2000'; g.fillText(txt, t.x, by + 2); g.globalAlpha = 1; } }
+  if (worm) drawWorm(g, worm, tt);
+  if (BON) { const k = Math.max(0, BON.t); g.font = '13px Silkscreen,monospace'; g.textAlign = 'center'; const c = BON.kind === 'gold' ? '#ffd23f' : '#9fe8ff', txt = (BON.kind === 'gold' ? 'GOLDPLANET' : 'KRISTALLPLANET') + ' · ' + Math.ceil(k) + ' s';
+    g.fillStyle = 'rgba(5,9,18,.75)'; g.fillRect(W / 2 - 110, H * .06 - 14, 220, 24); g.fillStyle = c; g.fillRect(W / 2 - 110, H * .06 + 8, 220 * k / 30, 2); g.fillText(txt, W / 2, H * .06 + 3);
+    g.strokeStyle = c; g.globalAlpha = .35 + .15 * Math.sin(tt * 5); g.lineWidth = 4; g.strokeRect(2, 2, W - 4, H - 4); g.globalAlpha = 1; }
+}
+function bonusPlanet(kind) {
+  const old = G, R = 8 + Math.min(4, uniOf(S.p) * .5); COLS = ROWS = Math.ceil(R * 2.3 + 6);
+  const N = COLS * ROWS, alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N), dst = new Uint8Array(N);
+  let avg = 0, cnt = 0; for (let i = 0; i < old.alive.length; i += 7) if (old.alive[i]) { avg += old.mx[i]; cnt++; } avg = cnt ? avg / cnt : 10;
+  const ccx = (COLS - 1) / 2, ccy = (ROWS - 1) / 2; let total = 0; const ids = [];
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) { const d = Math.hypot(c - ccx, r - ccy); if (d > R) continue; const i = r * COLS + c; alive[i] = 1; total++; ids.push(i);
+    dep[i] = 1 - d / R; lit[i] = Math.max(0, (-(c - ccx) - (r - ccy)) / (Math.SQRT2 * R)); mx[i] = hp[i] = avg * .3 * (1 + dep[i]);
+    ore[i] = kind === 'gold' ? (Math.random() < .15 ? 2 : 1) : (Math.random() < .3 ? 1 : 0); }
+  if (kind === 'kris') { for (let k = 0; k < 6; k++) ore[ids[(Math.random() * ids.length) | 0]] = 3; ore[ids[(Math.random() * ids.length) | 0]] = 4; }
+  const pal = kind === 'gold' ? ['#ffd23f', '#7a5a10', '#ffe98a'] : ['#9fe8ff', '#1d4a66', '#bff4ff'];
+  G = { p: S.p, pal, ox: 0, oy: 0, dst, alive, hp, mx, ore, dep, lit, total, v0: old.v0 * (kind === 'gold' ? 1.5 : 1), cx: (ccx + .5) * CELL, cy: (ccy + .5) * CELL, R: R * CELL, boss: false, name: kind === 'gold' ? 'Goldplanet' : 'Kristallplanet', clearing: 0, type: 'bonus', crM: 1, dead: [], rg: 1, bonus: kind, left: total };
+}
+function clearShots() { for (const a of [proj, novas, waves, mines, mets, boos, whips, rkts, gravs, turs]) a.length = 0; fx.length = 0; }
+function swapTerrain() { TC.width = Math.ceil(COLS * CELL * DPR); TC.height = Math.ceil(ROWS * CELL * DPR); tg.setTransform(DPR, 0, 0, DPR, 0, 0); G.dirty = new Set(); G.full = true; tDirty = true; surfaceBins(); ship.orb = -Math.PI / 2; ship.x = G.cx; ship.y = G.cy - G.R - 60; ship.vx = ship.vy = 0; cam.x = ship.x; cam.y = ship.y; }
+function enterBonus(kind) {
+  BON = { kind, t: 30, G, COLS, ROWS, done: G.total - G.left, cr0: S.cr, cry0: S.cry, dm0: S.dm || 0 };
+  clearShots(); bonusPlanet(kind); swapTerrain(); intro = 0; shake = 6; SND.fx.win(); vib([40, 30, 80]);
+  cele(kind === 'gold' ? 'GOLDPLANET!' : 'KRISTALLPLANET!', '30 Sekunden – bohr so viel du kannst!');
+}
+function exitBonus(why, quiet) {
+  if (!BON) return; const b = BON; BON = null; const got = S.cr - b.cr0, gc = S.cry - b.cry0, gd = (S.dm || 0) - b.dm0;
+  clearShots(); G = b.G; COLS = b.COLS; ROWS = b.ROWS; swapTerrain(); save('now');
+  if (!quiet) { cele(why === 'Zeit um!' ? 'ZURÜCK!' : 'ABGERÄUMT!', '+' + fmt(got) + ' CR' + (gc > 0 ? ' · +◆' + gc : '') + (gd > 0 ? ' · +✦' + gd : '')); SND.fx.win(); }
+}
 
 // ================== Schiff & Waffen ==================
 const ship = { x: 0, y: 40, vx: 0, vy: 0, orb: -Math.PI / 2, ang: 0 };
@@ -1122,6 +1245,7 @@ function step(dt) {
   shake = Math.max(0, shake - dt * 30); if (intro > 0) intro -= dt;
   { const e = eqItem('t'); if (Math.random() < dt * (e.smoke ? 30 : e.tr ? 18 : 10) && parts.length < 420) { const a = ship.ang - Math.PI / 2; parts.push({ x: ship.x + Math.cos(a) * 14, y: ship.y + Math.sin(a) * 14, vx: Math.cos(a) * 30 + (Math.random() - .5) * 20, vy: Math.sin(a) * 30 + (Math.random() - .5) * 20, t: e.smoke ? 1.1 : .5, c: e.smoke ? '#7fbf6a' : (e.col === 'rainbow' ? `hsl(${Math.random() * 360},100%,65%)` : e.col) }); } }
   // Bubatz-Komet
+  evStep(dt);
   if (!comet) { if ((cometT -= dt) <= 0) { const l = Math.random() < .5; comet = { x: cam.x + (l ? -W / 2 - 20 : W / 2 + 20), y: cam.y - H / 2 + H * (.12 + Math.random() * .35), vx: (l ? 1 : -1) * W / 7, vy: H * (.02 + Math.random() * .04), age: 0 }; } }
   else { comet.x += comet.vx * dt; comet.y += comet.vy * dt; comet.age += dt; if (comet.age > 2.2 && Math.hypot(comet.x - ship.x, comet.y - ship.y) < 260) { fx.push({ k: 'bolt', x: ship.x, y: ship.y, x2: comet.x, y2: comet.y, t: .25 }); grabComet(); } else if (Math.abs(comet.x - cam.x) > W / 2 + 60) { comet = null; cometT = nextComet(); } }
   if (warpT > 0) warpT -= dt;
@@ -1132,7 +1256,7 @@ function step(dt) {
   for (let k = fx.length - 1; k >= 0; k--) if ((fx[k].t -= dt) <= 0) fx.splice(k, 1);
   if ((crBufT -= dt) <= 0 && crBuf > 0) { floats.push({ x: crBufX, y: crBufY - 14, t: .9, s: '+' + fmt(crBuf) + ' CR', c: '#cfe6ea' }); crBuf = 0; crBufT = .45; }
   // Planet fertig?
-  if (G.left <= 0 && !G.clearing) { /* erst wenn wirklich jeder Block weg ist */ G.clearing = 1.2; fx.push({ k: 'nova', x: ship.x, y: ship.y, r: Math.max(W, H) * .8, t: 1 }); }
+  if (G.bonus) { if (G.left <= 0 && BON) exitBonus('Alles abgeräumt!'); } else if (G.left <= 0 && !G.clearing) { /* erst wenn wirklich jeder Block weg ist */ G.clearing = 1.2; fx.push({ k: 'nova', x: ship.x, y: ship.y, r: Math.max(W, H) * .8, t: 1 }); }
   if (G.clearing) { G.clearing -= dt; if (G.clearing <= 0) planetDone(); }
 }
 
@@ -1501,6 +1625,7 @@ function draw(now) {
     g.fillStyle = 'rgba(5,6,10,.75)'; g.fillRect(0, y - 26, W, 50); g.fillStyle = G.boss ? '#ff4f7a' : G.pal[2]; g.fillRect(0, y - 26, W, 2); g.fillRect(0, y + 22, W, 2);
     g.textAlign = 'center'; g.font = '22px' + ' Silkscreen,"Pixelify Sans",monospace'; g.fillStyle = '#fff'; const nu = pInU(S.p) === 1; g.fillText(nu ? 'UNIVERSUM ' + uniOf(S.p) : (G.boss ? 'BOSS' : 'PLANET ' + pInU(S.p)), W / 2 + (1 - k) * 40, y + 2);
     g.font = '10px' + ' Silkscreen,monospace'; g.fillStyle = G.boss ? '#ff9ab0' : G.pal[2]; g.fillText(nu ? uniName(uniOf(S.p)) + ' · Planet 1' : introName + ' · U' + uniOf(S.p), W / 2 - (1 - k) * 40, y + 17); if (G.type && G.type !== 'n') { g.fillStyle = '#ffe94d'; g.fillText(PTYPE[G.type].ico + ' ' + PTYPE[G.type].d, W / 2 - (1 - k) * 40, y + 32); } if (G.elite) { g.fillStyle = '#ff2a4a'; g.fillText('⚠ ELITE: doppelt so hart · Kiste garantiert', W / 2 - (1 - k) * 40, y + (G.type && G.type !== 'n' ? 46 : 32)); } g.globalAlpha = 1; }
+  drawEvents(tt);
   // Röhrenbildschirm
   if (!scanPat) overlays(); if (!RETRO) { g.fillStyle = scanPat; g.fillRect(0, 0, W, H); } g.fillStyle = vign; g.fillRect(0, 0, W, H);
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -1702,6 +1827,7 @@ function upgradeFx(w) { SND.fx.win(); const n = ST(w.id); fx.push({ k: 'nova', x
 function boostClick() { if (boosting() || S.boostCd > Date.now()) return; S.boostEnd = Date.now() + (5 + 2 * WP('boost')) * 60e3 * (PK('r', 10) ? 1.5 : 1); S.boostCd = S.boostEnd + 3 * 60e3; /* 3 min Abklingzeit nach dem Boost */ toast('Boost aktiv: doppelter Schaden und doppelte CR!'); save(true); ui(); }
 $('lb').onclick = () => window.BB && BB.open('board', 'drill');
 $('opt').onclick = openSettings;
+$('cv').addEventListener('pointerdown', e => { const r = $('cv').getBoundingClientRect(); if (evTap(e.clientX - r.left, e.clientY - r.top)) e.preventDefault(); });
 // Wischen im Menü: links/rechts = nächster/vorheriger Reiter
 { let sx = 0, sy = 0, st = 0; const LL = $('list'), ORD = ['w', 's', 'a', 'h', 'p'];
   LL.addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); }, { passive: true });
@@ -1754,6 +1880,7 @@ function planetDone() {
 }
 
 function warp() {
+  if (BON) exitBonus(null, 1);
   const n = dmGain(); if (!n) return;
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${fmt(n)} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)<br><br>Du behältst <b style="color:var(--txt)">${keepPct()} % deiner ◆</b> (◆${fmt(S.cry)} → ◆${fmt(Math.floor(S.cry * keepPct() / 100))}).<br>CR, Waffen, Planet und Skills werden zurückgesetzt. Fähigkeiten, Hangar und Warp-Werkstatt bleiben.</p>`,
     [['SPRINGEN', () => {
@@ -2088,9 +2215,9 @@ function openCrate(k) {
   overlay(`<div class="flip" id="flip" style="--rc:${RAR[r].c};--kc:${k.c}"><div class="fc"><div class="ff"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.4"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/></svg><span>${k.n}</span><small>Tippen zum Aufdecken</small></div>
       <div class="fb">${itemSvg(it, 84)}<span>${RAR[r].n.toUpperCase()}</span></div></div><div class="fx-p" id="fxp"></div></div>
     <div id="frev" class="frev">${r2 ? `<div class="ultab">${abIco(r2.a, ` width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.8"`)}<span><b>${r2.a.n}</b><br>${r2.txt}</span></div>` : ''}<h2 style="color:${RAR[r].c}">${it.n}</h2><p>[${RAR[r].n}] · ${SLOT[it.s].n}<br>${had ? '' : 'Neu im Hangar!'}${extra}<br><b style="color:var(--txt)">+${Math.round(itemVal(it, ILV(it.id)) * 100)} % ${SLOT[it.s].st}</b>${HATK[it.id] ? '<br><span style="color:var(--li)">⚔ ' + HATK[it.id].n + ': ' + HATK[it.id].d + '</span>' : ''}</p></div>`,
-    [['Nochmal ziehen ◆' + k.cost, () => { render(); openCrate(k); }], ['Ausrüsten', () => { S.eq[it.s] = it.id; save('now'); render(); }], ['Weiter', () => render()]]);
+    [k.noAgain ? ['Super!', () => { render(); if (trader) openTrader(); }] : ['Nochmal ziehen ◆' + k.cost, () => { render(); openCrate(k); }], ['Ausrüsten', () => { S.eq[it.s] = it.id; save('now'); render(); }], ['Weiter', () => render()]]);
   const ovb = $('ovb'), btns = ovb.querySelectorAll('[data-k]'); btns.forEach(x => x.style.visibility = 'hidden');
-  if (S.cry < k.cost) btns[0].disabled = true; btns[0].classList.add('again');
+  if (!k.noAgain) { if (S.cry < k.cost) btns[0].disabled = true; btns[0].classList.add('again'); }
   const fl = $('flip'); let done = false;
   const reveal = () => { if (done) return; done = true; fl.classList.add('on'); SND.fx.up();
     setTimeout(() => { if (!$('frev')) return; fl.classList.add('r-' + r); $('frev').classList.add('on'); btns.forEach(x => x.style.visibility = '');
@@ -2440,7 +2567,7 @@ function showIntro() {
 if (logged()) pull().then(() => offline()).then(showIntro).then(() => setTimeout(loginCheck, 1200)); else { offline(); showIntro(); setTimeout(loginCheck, 1200); }
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
-window.GB = { get rkts() { return rkts; }, get gravs() { return gravs; }, get turs() { return turs; }, get whips() { return whips; }, get mets() { return mets; }, get mines() { return mines; }, get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, ILV, lvUp, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
+window.GB = { get trader() { return trader; }, get worm() { return worm; }, get BON() { return BON; }, spawnTrader: () => { traderT = 0; trader = null; }, spawnWorm: k => { wormT = 0; worm = null; trader = null; traderT = 999; }, evTap, enterBonus, exitBonus, get rkts() { return rkts; }, get gravs() { return gravs; }, get turs() { return turs; }, get whips() { return whips; }, get mets() { return mets; }, get mines() { return mines; }, get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, ILV, lvUp, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
 </script>
 </body>
 </html>
