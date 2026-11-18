@@ -620,7 +620,8 @@
   { id: 'chain', n: 'Marwins Kettenblitz', d: 'Blitz springt über 6 Blöcke' },
   { id: 'saw', n: 'LG3s Kräutersäge', d: '2 große Sägeblätter kreisen ums Schiff' },
   { id: 'mine', n: 'Allans Minenwerfer', d: 'Minen explodieren auf der Oberfläche' },
-  { id: 'sniper', n: 'Königsschuss', d: 'Ein Riesenschuss auf das wertvollste Erz' }
+  { id: 'sniper', n: 'Königsschuss', d: 'Ein Riesenschuss auf das wertvollste Erz' },
+  { id: 'meteor', n: 'Meteorregen' }, { id: 'pulse', n: 'Schockwellen-Pulser' }, { id: 'boomer', n: 'Sichelbumerang' }, { id: 'frost', n: 'Frostkanone' }
 ]; const R = { g: { n: 'Gewöhnlich', c: '#c9d1d3', b: .1 }, s: { n: 'Selten', c: '#8dff5a', b: .25 }, e: { n: 'Episch', c: '#ff5fe0', b: .6 }, l: { n: 'Legendär', c: '#ffe94d', b: 1.5 } }; const A = {"over": "Hyperschub", "gold": "Goldrausch", "meteor": "Meteorschauer", "kanone": "Orbitalkanone", "loch": "Schwarzes Loch", "erz": "Erzradar", "zeit": "Zeitsprung"}; return { I, W, R, A }; })();
   function shipCard(s) {
     if (!s || !s.eq) return '';
@@ -629,7 +630,7 @@
     const ws = DR.W.filter(w => s.w && s.w[w.id]).map(w => `<span>${esc(w.n)} <b>Lv.${s.w[w.id]}</b>${s.mod && s.mod[w.id] ? ` <em>⬢${s.mod[w.id]}</em>` : ''}</span>`).join('');
     const ab = Object.keys(s.ab || {}).filter(k => DR.A[k]).map(k => `<span>${esc(DR.A[k])} <b>Lv.${s.ab[k]}</b></span>`).join('');
     const hc = DR.R[h.r].c;
-    return `<div class="bb-ship"><div class="bb-shv" style="--rc:${hc}"><svg viewBox="-20 -20 40 40" width="110" height="110"><polygon points="${h.poly.map(([x, y]) => x + ',' + (-y)).join(' ')}" fill="${h.col}22" stroke="${h.col}" stroke-width="1.4" stroke-linejoin="round"/></svg><span>Rumpf Lv. ${lv(h.id)}</span></div>
+    return `<div class="bb-ship"><div class="bb-shv" style="--rc:${hc}"><img src="/drill/ships/${h.id}.png" onerror="this.onerror=null;this.src='/drill/ships/pix/${h.id}.png'" width="96" height="96" alt="${esc(h.n)}" style="display:block;margin:7px auto;image-rendering:pixelated;filter:drop-shadow(0 0 10px ${hc}55)"><span>Rumpf Lv. ${lv(h.id)}</span></div>
       <div class="bb-spp">${part('h', 'Rumpf')}${part('r', 'Reaktor')}${part('t', 'Triebwerk')}</div></div>
       ${ws ? `<div class="bb-shl"><small>Waffen</small>${ws}</div>` : ''}${ab ? `<div class="bb-shl"><small>Fähigkeiten</small>${ab}</div>` : ''}`;
   }
