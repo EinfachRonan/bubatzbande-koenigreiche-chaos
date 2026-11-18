@@ -804,6 +804,14 @@ function ray(x, y, a, maxL) {
   return [-1, x + dx * maxL, y + dy * maxL];
 }
 const critMul = () => Math.random() < critCh() ? 3 + WP('dkrit') : 1;
+// n verschiedene Ziele unter den nächsten Blöcken zum Punkt (für Salven: alle schlagen vorne ein, nicht irgendwo)
+function nearList(x, y, n) { const A = G.alive, ox = G.ox + CELL / 2, oy = G.oy + CELL / 2, best = []; let worst = 1e18;
+  for (let i = 0, N = A.length; i < N; i++) { if (!A[i]) continue; const dx = ox + (i % COLS) * CELL - x, dy = oy + (i / COLS | 0) * CELL - y, d = dx * dx + dy * dy;
+    if (best.length < n * 3) { best.push([d, i]); if (best.length === n * 3) { best.sort((a, b) => a[0] - b[0]); worst = best[best.length - 1][0]; } } else if (d < worst) { best[best.length - 1] = [d, i]; best.sort((a, b) => a[0] - b[0]); worst = best[best.length - 1][0]; } }
+  best.sort((a, b) => a[0] - b[0]); const out = []; for (const [, i] of best) { if (out.length >= n) break; if (out.every(j => Math.abs((j % COLS) - (i % COLS)) + Math.abs((j / COLS | 0) - (i / COLS | 0)) > 1) || best.length <= n) out.push(i); }
+  for (const [, i] of best) { if (out.length >= n) break; if (!out.includes(i)) out.push(i); } return out; }
+// Richtung zum nächsten Block (Fächer-Waffen zielen dorthin statt stur geradeaus)
+const aimNear = () => { const i = nearest(ship.x, ship.y); if (i < 0) return null; const [x, y] = cellXY(i); return Math.atan2(y - ship.y, x - ship.x); };
 
 function step(dt) {
   if (!isFinite(ship.x) || !isFinite(ship.y)) { ship.x = G.cx; ship.y = G.cy - G.R - 60; ship.vx = ship.vy = 0; }
@@ -853,7 +861,7 @@ function step(dt) {
   // 4) Geister-Nova: Geisterkugel fliegt in den Planeten und explodiert dort mit Radius (wächst mit der Stufe)
   const dN = WD('nova') * Rd;
   if (dN && (cdNova -= dt * Rv * sp75('nova')) <= 0) {
-    cdNova = 3; const t0 = front(CELL * 4, 25 * CELL * CELL);
+    cdNova = 3; const t0 = nearest(ship.x, ship.y, 4 * CELL * CELL);
     if (t0 >= 0) { const [tx0, ty0] = cellXY(t0), rad = CELL * (3.4 + Math.min(5, WL('nova') / 12) + ST('nova') * .8) * (1 + HA('novaR')) * (1 + .15 * ML('nova')), dx = G.cx - tx0, dy = G.cy - ty0, dl = Math.hypot(dx, dy) || 1;
       novas.push({ x: ship.x, y: ship.y, tx: tx0 + dx / dl * rad * .6, ty: ty0 + dy / dl * rad * .6, rad, d: dN * 3 * critMul() / 7, t: 0 }); } }
   for (let k = novas.length - 1; k >= 0; k--) { const n = novas[k]; n.t += dt * 2.6; if (n.t < 1) continue; novas.splice(k, 1);
@@ -869,7 +877,7 @@ function step(dt) {
   for (let k = waves.length - 1; k >= 0; k--) { const w = waves[k]; w.r += dt * w.rad * 1.6; while (w.j < w.cells.length && w.cells[w.j][0] <= w.r) hit(w.cells[w.j++][1], w.d); if (w.r >= w.rad * 1.15) waves.splice(k, 1); }
   // 5) Streufeuer
   const dC = WD('scatter') * Rd;
-  if (dC && (cdScatter -= dt * Rv * sp75('scatter')) <= 0) { cdScatter = 1.4; const np = Math.min(15, 7 + 2 * ST('scatter')); for (let k = 0; k < np; k++) { const a = face + (k - (np - 1) / 2) * (.9 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC * 1.4 / np * critMul(), t: 2, sc: WL('scatter'), boom: ML('scatter') ? (ML('scatter') >= 3 ? 2 : 1) : 0 }); } }
+  if (dC && (cdScatter -= dt * Rv * sp75('scatter')) <= 0) { cdScatter = 1.4; const np = Math.min(15, 7 + 2 * ST('scatter')), aS = aimNear() ?? face; for (let k = 0; k < np; k++) { const a = aS + (k - (np - 1) / 2) * (.9 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC * 1.4 / np * critMul(), t: 2, sc: WL('scatter'), boom: ML('scatter') ? (ML('scatter') >= 3 ? 2 : 1) : 0 }); } }
   for (let k = proj.length - 1; k >= 0; k--) {
     const q = proj[k]; q.x += q.vx * dt; q.y += q.vy * dt; q.t -= dt; const i = cellAt(q.x, q.y);
     if (i >= 0 && G.alive[i] && i !== q.last) { hit(i, q.d * .6); if (!q.solo) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) hit(cellAt(q.x + dx * CELL, q.y + dy * CELL), q.d * .1);
@@ -898,8 +906,8 @@ function step(dt) {
     for (const [ox, oy] of sawPat()) hit(cellAt(x + ox, y + oy), dW / nsw / 2.5 * dt * 2 * (1 + 2 * critCh())); } }
   // 9) Minenwerfer
   const dM = WD('mine') * Rd;
-  if (dM && (cdMine -= dt * Rv * sp75('mine')) <= 0) { cdMine = 2.6; const nm = Math.min(8, 3 + ST('mine')); for (let k = 0; k < nm; k++) { const i = front(70, 30 * CELL * CELL, 110); if (i < 0) break; const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, t: 0, d: dM * 2.6 / nm * critMul() }); } }
-  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 6); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35 + lvTier(WL('mine')) * .05, c: lvTier(WL('mine')) >= 3 ? '255,90,122' : '255,58,92', thick: lvTier(WL('mine')) >= 2 }); if (lvTier(WL('mine')) >= 2) for (let q = 0; q < 6 + lvTier(WL('mine')) * 3; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, t: .5, c: lvTier(WL('mine')) >= 3 ? '#ffb0f0' : '#ffd23f' }); mines.splice(k, 1); } }
+  if (dM && (cdMine -= dt * Rv * sp75('mine')) <= 0) { cdMine = 2.6; const nm = Math.min(8, 3 + ST('mine')); const tg = nearList(ship.x, ship.y, nm); for (const i of tg) { const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, i, t: 0, d: dM * 2.6 / nm * critMul() }); } }
+  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.i != null && !G.alive[m.i]) { const j = nearest(m.tx, m.ty); if (j >= 0) { m.i = j; [m.tx, m.ty] = cellXY(j); } } if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 6); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35 + lvTier(WL('mine')) * .05, c: lvTier(WL('mine')) >= 3 ? '255,90,122' : '255,58,92', thick: lvTier(WL('mine')) >= 2 }); if (lvTier(WL('mine')) >= 2) for (let q = 0; q < 6 + lvTier(WL('mine')) * 3; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, t: .5, c: lvTier(WL('mine')) >= 3 ? '#ffb0f0' : '#ffd23f' }); mines.splice(k, 1); } }
   // 10) Königsschuss
   const dP = WD('sniper') * Rd;
   if (dP && (cdSnip -= dt * Rv * sp75('sniper')) <= 0) { cdSnip = 4.5; let best = -1; for (let i = 0; i < G.alive.length; i++) if (G.alive[i] && G.ore[i] && (best < 0 || G.ore[i] > G.ore[best])) { const [x0, y0] = cellXY(i); let da = Math.atan2(y0 - ship.y, x0 - ship.x) - face; da = Math.atan2(Math.sin(da), Math.cos(da)); if (Math.abs(da) < .6) best = i; } if (best < 0) best = front(CELL * 3);
@@ -909,9 +917,9 @@ function step(dt) {
   // 11) Meteorregen
   const dMe = WD('meteor') * Rd;
   if (dMe && (cdMet -= dt * Rv * sp75('meteor')) <= 0) { cdMet = 3.2; const nm = Math.min(9, 3 + ST('meteor'));
-    for (let k = 0; k < nm; k++) { const i = front(40, 60 * CELL * CELL, 260); if (i < 0) break; const [x, y] = cellXY(i), oa = Math.atan2(y - G.cy, x - G.cx) + (Math.random() - .5) * .6, D = 260 + Math.random() * 120;
-      mets.push({ x0: x + Math.cos(oa) * D, y0: y + Math.sin(oa) * D, tx: x, ty: y, t: -k * .12, z: 5 + Math.random() * 3, rot: Math.random() * 6, d: dMe * 3.2 / nm * critMul() }); } }
-  for (let k = mets.length - 1; k >= 0; k--) { const m = mets[k]; m.t += dt * 1.5; m.rot += dt * 4; if (m.t < 1) continue; mets.splice(k, 1);
+    const tg = nearList(ship.x, ship.y, nm); for (let k = 0; k < tg.length; k++) { const i = tg[k]; const [x, y] = cellXY(i), oa = Math.atan2(y - G.cy, x - G.cx) + (Math.random() - .5) * .6, D = 260 + Math.random() * 120;
+      mets.push({ x0: x + Math.cos(oa) * D, y0: y + Math.sin(oa) * D, tx: x, ty: y, i, t: -k * .12, z: 5 + Math.random() * 3, rot: Math.random() * 6, d: dMe * 3.2 / nm * critMul() }); } }
+  for (let k = mets.length - 1; k >= 0; k--) { const m = mets[k]; m.t += dt * 1.5; m.rot += dt * 4; if (!G.alive[m.i]) { const j = nearest(m.tx, m.ty); if (j >= 0) { m.i = j; [m.tx, m.ty] = cellXY(j); } } if (m.t < 1) continue; mets.splice(k, 1);
     const c0 = cellAt(m.tx, m.ty), mr = ML('meteor') ? (ML('meteor') >= 3 ? 3 : 2) : 1; if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0, nc = (2 * mr + 1) ** 2; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d * (a || b2 ? .5 / (nc - 1) : .5)); } }
     const T = lvTier(WL('meteor')); fx.push({ k: 'ring', x: m.tx, y: m.ty, r: CELL * (mr + 1.2), t: .4, c: T >= 3 ? '#ffd23f' : WCOL.meteor, w: 3 + T });
     for (let q = 0; q < 4 + T * 2; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 200, vy: (Math.random() - .5) * 200, t: .45, c: q % 2 ? '#8a5a3a' : '#ffb04a' }); shake = Math.max(shake, 1.5); }
@@ -924,13 +932,13 @@ function step(dt) {
   for (let k = puls.length - 1; k >= 0; k--) { const p = puls[k]; p.r += dt * p.rad * 1.5; while (p.j < p.cells.length && p.cells[p.j][0] <= p.r) hit(p.cells[p.j++][1], p.d); if (p.r >= p.rad) puls.splice(k, 1); }
   // 13) Sichelbumerang
   const dBo = WD('boomer') * Rd;
-  if (dBo && (cdBoo -= dt * Rv * sp75('boomer')) <= 0) { cdBoo = 3; const nb = Math.min(4, 1 + Math.floor(ST('boomer') / 2)); for (let k = 0; k < nb; k++) boos.push({ s: 0, a: face + (k - (nb - 1) / 2) * .5, sg: k % 2 ? -1 : 1, D: 150 + k * 18, nb }); }
+  if (dBo && (cdBoo -= dt * Rv * sp75('boomer')) <= 0) { cdBoo = 3; const nb = Math.min(4, 1 + Math.floor(ST('boomer') / 2)), aB = aimNear() ?? face; for (let k = 0; k < nb; k++) boos.push({ s: 0, a: aB + (k - (nb - 1) / 2) * .5, sg: k % 2 ? -1 : 1, D: 150 + k * 18, nb }); }
   for (let k = boos.length - 1; k >= 0; k--) { const b = boos[k]; b.s += dt / 1.6 * Rv * sp75('boomer'); if (b.s >= 1) { boos.splice(k, 1); continue; }
     const f = Math.sin(Math.PI * b.s) * b.D, sd = Math.sin(2 * Math.PI * b.s) * b.D * .35 * b.sg, ca = Math.cos(b.a), sa = Math.sin(b.a); b.x = ship.x + ca * f - sa * sd; b.y = ship.y + sa * f + ca * sd;
     const rr = ML('boomer') ? (ML('boomer') >= 3 ? 2 : 1.5) : 1; for (let a = -2; a <= 2; a++) for (let c = -2; c <= 2; c++) if (Math.hypot(a, c) <= rr) hit(cellAt(b.x + a * CELL, b.y + c * CELL), dBo * 1.875 / b.nb / 5 * dt * Rv); }
   // 14) Frostkanone
   const dFr = WD('frost') * Rd;
-  if (dFr && (cdFro -= dt * Rv * sp75('frost')) <= 0) { cdFro = 2.4; const np = Math.min(10, 4 + ST('frost')), fr = ML('frost') ? (ML('frost') >= 3 ? 2 : 1) : 0; for (let k = 0; k < np; k++) { const a = face + (k - (np - 1) / 2) * (.5 / np) + (Math.random() - .5) * .05, sp = 300 + Math.random() * 40; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, d: dFr * 2.4 / np * critMul(), t: 2, fr, flv: WL('frost'), c: WCOL.frost }); } }
+  if (dFr && (cdFro -= dt * Rv * sp75('frost')) <= 0) { cdFro = 2.4; const np = Math.min(10, 4 + ST('frost')), fr = ML('frost') ? (ML('frost') >= 3 ? 2 : 1) : 0, aF = aimNear() ?? face; for (let k = 0; k < np; k++) { const a = aF + (k - (np - 1) / 2) * (.5 / np) + (Math.random() - .5) * .05, sp = 300 + Math.random() * 40; proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, d: dFr * 2.4 / np * critMul(), t: 2, fr, flv: WL('frost'), c: WCOL.frost }); } }
   abStep(dt);
   shake = Math.max(0, shake - dt * 30); if (intro > 0) intro -= dt;
   { const e = eqItem('t'); if (Math.random() < dt * (e.smoke ? 30 : e.tr ? 18 : 10) && parts.length < 420) { const a = ship.ang - Math.PI / 2; parts.push({ x: ship.x + Math.cos(a) * 14, y: ship.y + Math.sin(a) * 14, vx: Math.cos(a) * 30 + (Math.random() - .5) * 20, vy: Math.sin(a) * 30 + (Math.random() - .5) * 20, t: e.smoke ? 1.1 : .5, c: e.smoke ? '#7fbf6a' : (e.col === 'rainbow' ? `hsl(${Math.random() * 360},100%,65%)` : e.col) }); } }
@@ -2162,7 +2170,7 @@ function showIntro() {
 if (logged()) pull().then(() => offline()).then(showIntro).then(() => setTimeout(loginCheck, 1200)); else { offline(); showIntro(); setTimeout(loginCheck, 1200); }
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
-window.GB = { get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, ILV, lvUp, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
+window.GB = { get mets() { return mets; }, get mines() { return mines; }, get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, ILV, lvUp, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
 </script>
 </body>
 </html>
