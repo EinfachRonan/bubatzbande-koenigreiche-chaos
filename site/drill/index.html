@@ -459,6 +459,8 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 @keyframes lfl{from{opacity:1}to{opacity:0}}
 .list.swl{animation:swl .2s ease-out}.list.swr{animation:swr .2s ease-out}
 @keyframes swl{from{transform:translateX(30px);opacity:.3}to{transform:none;opacity:1}}@keyframes swr{from{transform:translateX(-30px);opacity:.3}to{transform:none;opacity:1}}
+.abimg{display:block;image-rendering:auto;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+.hs .abimg{width:84%;height:84%}.hbe .abimg{width:86%;height:86%}.sk button .abimg{width:44px;height:44px}.abh .abimg{width:46px;height:46px;flex:none}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -1767,6 +1769,10 @@ const ABIL = [
   { id: 'blitz', n: 'Gewitter', d: '24 Blitze schlagen ein', cd: 35, ico: '<path d="M7 14a5 5 0 1 1 1-9.9A6 6 0 0 1 19 7a4 4 0 0 1-1 7.9"/><path d="M13 12l-3 5h4l-2 5"/>' },
   { id: 'kmag', n: 'Kristallmagnet', d: 'Blöcke geben 20 s lang öfter ◆', cd: 60, ico: '<path d="M6 3v8a6 6 0 0 0 12 0V3M6 7h4M14 7h4"/><path d="M12 19l2 2-2 2-2-2z"/>' }
 ];
+// Gemalte Fähigkeiten-Icons (ab/<id>.png) – solange ein Bild fehlt, bleibt das Linien-Symbol
+const ABOK = {}; let abImgT = 0;
+function abIco(a, attrs) { if (ABOK[a.id]) { const w = /width="(\d+)"/.exec(attrs || ''); return `<img class="abimg" src="ab/${a.id}.png" alt=""${w ? ` width="${w[1]}" height="${w[1]}"` : ''}>`; } return `<svg${attrs}>${a.ico}</svg>`; }
+setTimeout(() => ABIL.forEach(a => { const im = new Image(); im.onload = () => { ABOK[a.id] = 1; clearTimeout(abImgT); abImgT = setTimeout(() => { try { hotSig = ''; hotbar(true); render(); } catch (e) {} }, 250); }; im.src = 'ab/' + a.id + '.png'; }), 300);
 const AL = id => (S.ab && S.ab[id]) || 0;
 const abPow = id => 1 + .25 * (AL(id) - 1);
 const abCd = a => a.cd * (1 - .08 * WP('meister')) * (1 - .04 * (AL(a.id) - 1)) * (1 - .04 * itemLv('t')) * (1 - Math.min(.5, HA('cd'))) * (PK('t', 3) ? .9 : 1);
@@ -2015,7 +2021,7 @@ function rollAbility() {
 function openShopCrate(k) {
   if (S.cry < k.cost) return;
   if (!k.w) { S.cry -= k.cost; mis('crate'); const r = rollAbility(); save('now');
-    overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${r.a.ico}</svg></div></div><h2 style="color:#c9a2ff">${r.a.n}</h2><p>${r.a.d}<br>${r.txt}</p>`, [['Nochmal ziehen ◆' + k.cost, () => { render(); openShopCrate(k); }], ['Weiter', () => render()]]);
+    overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox">${abIco(r.a, ` width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6"`)}</div></div><h2 style="color:#c9a2ff">${r.a.n}</h2><p>${r.a.d}<br>${r.txt}</p>`, [['Nochmal ziehen ◆' + k.cost, () => { render(); openShopCrate(k); }], ['Weiter', () => render()]]);
     const b0 = $('ovb').querySelector('[data-k="0"]'); b0.classList.add('again'); if (S.cry < k.cost) b0.disabled = true; return; }
   openCrate(k);
 }
@@ -2036,7 +2042,7 @@ function openMulti(k, n) {
   const RO = { l: 0, e: 1, s: 2, g: 3 }; let best = null; for (const x of res) if (x.o && (!best || RO[x.o.r] < RO[best.r])) best = x.o;
   overlay(`<h2 style="color:${k.c}">${n}× ${k.n}</h2><div class="mgrid">${res.map((x, q) => { const c = x.o ? RAR[x.o.r].c : '#c9a2ff';
       return `<div class="flip mini" data-q="${q}" data-r="${x.o ? x.o.r : 'a'}" style="--rc:${c};--kc:${k.c}"><div class="fc"><div class="ff"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.6"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/></svg></div>
-        <div class="fb">${x.o ? itemSvg(x.o.it, 34) : `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.8">${x.a.a.ico}</svg>`}<span>${x.o ? (x.o.had ? 'doppelt' : 'NEU') : 'Lvl. ' + AL(x.a.a.id)}</span>${x.o && x.a ? `<i class="mab"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="2">${x.a.a.ico}</svg></i>` : ''}</div></div><div class="fx-p"></div></div>`; }).join('')}</div>
+        <div class="fb">${x.o ? itemSvg(x.o.it, 34) : `${abIco(x.a.a, ` width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.8"`)}`}<span>${x.o ? (x.o.had ? 'doppelt' : 'NEU') : 'Lvl. ' + AL(x.a.a.id)}</span>${x.o && x.a ? `<i class="mab">${abIco(x.a.a, ` width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="2"`)}</i>` : ''}</div></div><div class="fx-p"></div></div>`; }).join('')}</div>
     <p id="msum" class="frev">${res.filter(x => x.o && !x.o.had).length} neue Teile · ${res.filter(x => x.o && x.o.had).length} doppelt${k.ab ? ' · ' + res.length + ' Fähigkeiten' : ''}${best ? `<br>Bestes: <b style="color:${RAR[best.r].c}">${best.it.n}</b>` : ''}</p>`,
     [['Alle aufdecken', null], ['Weiter', () => render()]]);
   const ovb = $('ovb'), all = ovb.querySelector('[data-k="0"]'), nx = ovb.querySelector('[data-k="1"]'); nx.style.visibility = 'hidden';
@@ -2056,7 +2062,7 @@ function openCrate(k) {
   const r2 = k.ab ? rollAbility() : null; if (r2) save('now');
   overlay(`<div class="flip" id="flip" style="--rc:${RAR[r].c};--kc:${k.c}"><div class="fc"><div class="ff"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="${k.c}" stroke-width="1.4"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M3 12h18M10 8V5h4v3M12 12v3"/></svg><span>${k.n}</span><small>Tippen zum Aufdecken</small></div>
       <div class="fb">${itemSvg(it, 84)}<span>${RAR[r].n.toUpperCase()}</span></div></div><div class="fx-p" id="fxp"></div></div>
-    <div id="frev" class="frev">${r2 ? `<div class="ultab"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.8">${r2.a.ico}</svg><span><b>${r2.a.n}</b><br>${r2.txt}</span></div>` : ''}<h2 style="color:${RAR[r].c}">${it.n}</h2><p>[${RAR[r].n}] · ${SLOT[it.s].n}<br>${had ? '' : 'Neu im Hangar!'}${extra}<br><b style="color:var(--txt)">+${Math.round(itemVal(it, ILV(it.id)) * 100)} % ${SLOT[it.s].st}</b>${HATK[it.id] ? '<br><span style="color:var(--li)">⚔ ' + HATK[it.id].n + ': ' + HATK[it.id].d + '</span>' : ''}</p></div>`,
+    <div id="frev" class="frev">${r2 ? `<div class="ultab">${abIco(r2.a, ` width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.8"`)}<span><b>${r2.a.n}</b><br>${r2.txt}</span></div>` : ''}<h2 style="color:${RAR[r].c}">${it.n}</h2><p>[${RAR[r].n}] · ${SLOT[it.s].n}<br>${had ? '' : 'Neu im Hangar!'}${extra}<br><b style="color:var(--txt)">+${Math.round(itemVal(it, ILV(it.id)) * 100)} % ${SLOT[it.s].st}</b>${HATK[it.id] ? '<br><span style="color:var(--li)">⚔ ' + HATK[it.id].n + ': ' + HATK[it.id].d + '</span>' : ''}</p></div>`,
     [['Nochmal ziehen ◆' + k.cost, () => { render(); openCrate(k); }], ['Ausrüsten', () => { S.eq[it.s] = it.id; save('now'); render(); }], ['Weiter', () => render()]]);
   const ovb = $('ovb'), btns = ovb.querySelectorAll('[data-k]'); btns.forEach(x => x.style.visibility = 'hidden');
   if (S.cry < k.cost) btns[0].disabled = true; btns[0].classList.add('again');
@@ -2089,7 +2095,7 @@ function hotbar(force) {
   if (force || sig !== hotSig) {
     hotSig = sig;
     el.innerHTML = [0, 1, 2, 3, 4].map(k => { const id = S.hot[k], a = id && ABIL.find(x => x.id === id);
-      return a ? `<button class="hs" data-cast="${id}" aria-label="${a.n}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg><i class="cd"></i><span class="ct"></span></button>`
+      return a ? `<button class="hs" data-cast="${id}" aria-label="${a.n}">${abIco(a, ` viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"`)}<i class="cd"></i><span class="ct"></span></button>`
         : `<button class="hs empty" data-goab="1" aria-label="Fähigkeit hinzufügen">+</button>`; }).join('') + `<button class="hs shp" data-goshop="1" aria-label="Shop"><span class="dot" id="shdot" hidden></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.4 11h10.2L20 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></button><button class="hs bst" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">x2</span></button>`;
     el.querySelectorAll('[data-cast]').forEach(b => b.onclick = () => cast(b.dataset.cast));
     el.querySelectorAll('[data-goab]').forEach(b => b.onclick = () => goTab('a'));
@@ -2107,15 +2113,15 @@ let abSlot = null;
 function renderAb(L) {
   const own = ABIL.filter(a => AL(a.id)), dc = drawCost(), allOwned = own.length === ABIL.length;
   L.innerHTML = `<div class="skh"><span>Deine Hotbar</span><b>◆ ${fmt(S.cry)}</b></div>
-    <div class="hbe">${[0, 1, 2, 3, 4].map(k => { const a = S.hot[k] && ABIL.find(x => x.id === S.hot[k]); return `<button data-hs="${k}" class="${a ? '' : 'emp'}${abSlot === k ? ' sel' : ''}"><small>${k + 1}</small>${a ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg>` : '+'}</button>`; }).join('')}</div>
+    <div class="hbe">${[0, 1, 2, 3, 4].map(k => { const a = S.hot[k] && ABIL.find(x => x.id === S.hot[k]); return `<button data-hs="${k}" class="${a ? '' : 'emp'}${abSlot === k ? ' sel' : ''}"><small>${k + 1}</small>${a ? `${abIco(a, ` viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"`)}` : '+'}</button>`; }).join('')}</div>
     <div class="hbe-h">${abSlot == null ? 'Slot antippen, dann eine Fähigkeit darunter wählen' : `<b>Slot ${abSlot + 1}:</b> jetzt eine Fähigkeit antippen${S.hot[abSlot] ? ' · <a href="#" id="hsclr" style="color:#ff7a96">Slot leeren</a>' : ''}`}</div>
     <div class="skh"><span>Fähigkeiten</span><b>${own.length}/${ABIL.length}</b></div>
     <button class="br aut ${WP('auto') && !S.autoOff ? 'on' : ''}" id="autot" ${WP('auto') ? '' : 'disabled'}>${WP('auto') ? (S.autoOff ? '🤖 AUTOPILOT: AUS' : '🤖 AUTOPILOT: AN') : '🔒 Autopilot (Warp-Werkstatt)'}<span class="gn">${WP('auto') ? 'zündet Fähigkeiten automatisch · tippen = umschalten' : 'erst in der Warp-Werkstatt freischalten'}</span></button>
     ${own.length ? '' : `<div class="wh" style="text-align:center"><p style="margin-bottom:8px">Noch keine Fähigkeit. Die erste gibt's aus der <b style="display:inline;font-size:inherit;color:#c9a2ff">Fähigkeiten-Kiste</b> für ◆10 – dann einfach antippen und auf die Hotbar legen.</p><button class="br" data-shop="1" style="width:100%">🛒 Zum Shop</button></div>`}
     <div class="sk ab">${ABIL.map(a => { const l = AL(a.id), on = S.hot.includes(a.id);
-      return l ? `<button data-ab="${a.id}" class="${on ? 'on' : ''}"><span class="c">${l}/10</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg>${a.n}<small>${a.d} · ${Math.round(abCd(a))} s<br><i class="upc">${l >= 10 ? 'MAX' : '⬆ ◆' + abUpCost(a.id)}</i></small>${on ? '<em>AUSG</em>' : ''}</button>`
+      return l ? `<button data-ab="${a.id}" class="${on ? 'on' : ''}"><span class="c">${l}/10</span>${abIco(a, ` viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"`)}${a.n}<small>${a.d} · ${Math.round(abCd(a))} s<br><i class="upc">${l >= 10 ? 'MAX' : '⬆ ◆' + abUpCost(a.id)}</i></small>${on ? '<em>AUSG</em>' : ''}</button>`
         : `<button class="lock" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>???</button>`; }).join('')}</div>
-    ${abSel && AL(abSel) ? (() => { const a = ABIL.find(x => x.id === abSel), l = AL(abSel), c = abUpCost(abSel), now = abStats(abSel, l), nx = l < 10 ? abStats(abSel, l + 1) : null; return `<div class="wh abd" style="margin-top:10px"><div class="abh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${a.ico}</svg><div><b>${a.n}</b><small>Lvl. ${l}/10 · ${a.d}</small></div></div>
+    ${abSel && AL(abSel) ? (() => { const a = ABIL.find(x => x.id === abSel), l = AL(abSel), c = abUpCost(abSel), now = abStats(abSel, l), nx = l < 10 ? abStats(abSel, l + 1) : null; return `<div class="wh abd" style="margin-top:10px"><div class="abh">${abIco(a, ` viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"`)}<div><b>${a.n}</b><small>Lvl. ${l}/10 · ${a.d}</small></div></div>
       <p class="abtx">${ABTXT[abSel] || ''}</p>
       <div class="abst">${now.map(([k, v], i) => `<div><small>${k}</small><b>${v}</b>${nx && nx[i][1] !== v ? `<em>→ ${nx[i][1]}</em>` : ''}</div>`).join('')}</div>
       <p class="hint" style="padding:2px 0 8px">Schaden-Werte rechnen mit deiner aktuellen Waffen-DPS (${fmt(Math.max(totalDps(), 1))}/s).${nx ? ' Grün = Wert auf der nächsten Stufe.' : ''}</p>
