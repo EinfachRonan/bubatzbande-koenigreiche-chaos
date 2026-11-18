@@ -976,8 +976,7 @@ function openTrader(msg) {
 // Gemalte Sprites (ev/trader.png Seitenansicht nach rechts, ev/worm.png) – sonst selbst gezeichnet
 const EVI = {}; ['trader', 'worm'].forEach(n => { const im = new Image(); im.onload = () => EVI[n] = im; im.src = 'ev/' + n + '.png'; });
 function drawTraderShip(x, cx, cy, tt, big, dir) {
-  if (EVI.trader) { const im = EVI.trader, w = 58, h = w * im.height / im.width, bob = Math.sin(tt * 3) * 1.5; x.save(); x.translate(cx, cy + bob); if (dir < 0) x.scale(-1, 1); x.drawImage(im, -w / 2, -h / 2, w, h);
-    x.globalCompositeOperation = 'lighter'; x.fillStyle = '#ffb04a'; x.globalAlpha = .8; x.beginPath(); x.moveTo(-w / 2 + 2, -3); x.lineTo(-w / 2 - 6 - Math.random() * 5, 0); x.lineTo(-w / 2 + 2, 3); x.fill(); x.restore(); return; }
+  if (EVI.trader) { const im = EVI.trader, w = big ? 60 : 50, h = w * im.height / im.width, bob = Math.sin(tt * 3) * 1.5; x.save(); x.translate(cx, cy + bob); if (dir < 0) x.scale(-1, 1); x.drawImage(im, -w / 2, -h / 2, w, h); x.restore(); return; }
   const bob = Math.sin(tt * 3) * 1.5; x.save(); x.translate(cx, cy + bob);
   const INKC = '#050912';
   // Triebwerksflammen
