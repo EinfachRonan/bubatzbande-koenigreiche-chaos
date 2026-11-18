@@ -147,7 +147,7 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 <div class="app">
   <header class="top" id="top"></header>
   <main class="main">
-    <div class="intro"><h1>4 Spiele.<br><span>1 Bande.</span></h1><small id="nG">Auswahl der Bande</small></div>
+    <div class="intro"><h1>3 Spiele.<br><span>1 Bande.</span></h1><small id="nG">Auswahl der Bande</small></div>
     <section class="bento" id="games" aria-label="Spiele"></section>
     <div class="sec"><h2>Deine Bestwerte</h2><small id="bsN"></small></div>
     <div class="stats" id="stats"></div>
@@ -183,15 +183,15 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 <script>
 'use strict';
 const IMG = k => 'krieg/img/' + k + '.jpg';
-// Aktive Spiele. Archiv (vorerst raus, Code bleibt): Bandenkrieg, Kräuter-Match, Bandenhof, Kneipen-Duell, Bubatz-Quiz
+// Aktive Spiele (Erntezeit ist in der Testphase → SECRET, Code 421). Archiv (vorerst raus, Code bleibt): Bandenkrieg, Kräuter-Match, Bandenhof, Kneipen-Duell, Bubatz-Quiz
 const GAMES = [
-  { k: 'ernte', url: 'ernte/', name: 'Erntezeit', img: 'ernte/key.jpg', pos: '50% 40%', text: 'Zombie-Bauern, Traktor-Boss – jetzt auch zu zweit im Koop.', tag: 'Shooter · Koop', neu: 1, cls: 'big' },
-  { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', img: 'drill/key.jpg', pos: '50% 40%', text: 'Dein Schiff bohrt Planeten, auch offline.', tag: 'Idle', cls: 'tall' },
-  { k: 'runner', url: 'runner/', name: 'Kobold-Runner', img: 'krieg/img/kobold.jpg', pos: '50% 25%', text: 'Springen, rutschen, Gold sammeln.', tag: 'Endlos', cls: '' },
-  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', img: 'krieg/img/koenig.jpg', pos: '50% 25%', text: '3D-Schach mit Ego-Duellen.', tag: 'Online', cls: 'wide' }
+  { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', img: 'drill/key.jpg', pos: '50% 40%', text: 'Dein Schiff bohrt Planeten, auch offline.', tag: 'Idle', neu: 1, cls: 'big' },
+  { k: 'runner', url: 'runner/', name: 'Kobold-Runner', img: 'krieg/img/kobold.jpg', pos: '50% 25%', text: 'Springen, rutschen, Gold sammeln.', tag: 'Endlos', cls: 'tall' },
+  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', img: 'krieg/img/koenig.jpg', pos: '50% 25%', text: '3D-Schach mit Ego-Duellen.', tag: 'Online', cls: 'tall' }
 ];
 // Geheim-Spiele: erscheinen nur, wenn per „Code eingeben“ freigeschaltet (mit Konto im Profil, sonst auf diesem Gerät)
 const SECRET = [
+  { k: 'ernte', url: 'ernte/', name: 'Erntezeit', img: 'ernte/key.jpg', pos: '50% 40%', text: 'Zombie-Bauern, Traktor-Boss – auch zu zweit im Koop.', tag: 'Testphase · v1.0', sec: 1, cls: 'xl' },
   { k: 'kh', url: 'kraeuterhoehle/', name: 'Die Legenden der Kräuterhöhle', img: 'krieg/img/hoehle.jpg', pos: '50% 55%', text: 'Pakete knacken, Bande sammeln, die Höhle verteidigen.', tag: 'Testphase · v0.5', sec: 1, cls: 'xl' }
 ];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

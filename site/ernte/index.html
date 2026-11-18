@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ERNTEZEIT – Zombie-Shooter (v1.0)</title>
+<meta name="robots" content="noindex,nofollow">
+<script src="../bb.js?v=20261118a"></script>
+<script>
+/* Testphase: nur spielbar, wenn über „Code eingeben“ auf der Startseite freigeschaltet. */
+(function(){ var ok = false; try { ok = !!(window.BB && BB.secret('ernte')); } catch(e) {}
+  if (!ok) { document.documentElement.style.display = 'none'; location.replace('../'); } })();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -228,7 +235,6 @@ body.touch #ammo{top:56px}
 </div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="../bb.js?v=20261117a"></script>
 <script>
 (()=>{
 'use strict';
