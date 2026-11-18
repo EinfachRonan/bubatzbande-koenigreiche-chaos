@@ -541,12 +541,12 @@ const WICO = {
   whip: '<path d="M3 21c4-2 6-6 6-10s3-7 7-7c3 0 5 2 5 4"/><circle cx="21" cy="8" r="1"/>',
   rockets: '<path d="M5 19l4-1 9-9a3 3 0 0 0-4-4l-9 9z"/><path d="M14 5l5 5M5 19l-2 2M8 16l-3 1M7 13l-1 3"/>',
   grav: '<circle cx="12" cy="12" r="3"/><path d="M12 3a9 9 0 0 1 9 9M12 21a9 9 0 0 1-9-9M19 5a12 12 0 0 1-3 13M5 19A12 12 0 0 1 8 6"/>',
-  turret: '<path d="M4 20h16M6 20v-4a6 6 0 0 1 12 0v4"/><path d="M12 10l6-6"/><circle cx="12" cy="16" r="1.5"/>',
+  tornado: '<path d="M3 5h18M5 9h14M7 13h10M9 17h6M11 21h2"/>',
   boomer: '<path d="M4 20C6 10 12 5 20 4c-5 3-8 8-9 16z"/>',
   frost: '<path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"/><path d="M9.5 3.5L12 6l2.5-2.5M9.5 20.5L12 18l2.5 2.5"/>'
 };
 // Signaturfarbe je Waffe: jede Attacke hat ihre eigene Farbe, damit man auch bei vollem Feuer alles auseinanderhält
-const WCOL = { line: '#5ce8f0', star: '#ff4f7a', drill: '#4fc3ff', nova: '#8cff9a', scatter: '#ff9a3a', drones: '#c8ff5a', chain: '#a8a8ff', saw: '#e8eef2', mine: '#ff3a5c', sniper: '#ffd23f', meteor: '#ff7a2a', whip: '#3affc0', rockets: '#ff9b7a', grav: '#ff5fd0', turret: '#8fb8ff', boomer: '#b98cff', frost: '#bfefff' };
+const WCOL = { line: '#5ce8f0', star: '#ff4f7a', drill: '#4fc3ff', nova: '#8cff9a', scatter: '#ff9a3a', drones: '#c8ff5a', chain: '#a8a8ff', saw: '#e8eef2', mine: '#ff3a5c', sniper: '#ffd23f', meteor: '#ff7a2a', whip: '#3affc0', rockets: '#ff9b7a', grav: '#ff5fd0', tornado: '#8fb8ff', boomer: '#b98cff', frost: '#bfefff' };
 const INK = '#050912';
 const WEAP = [
   { id: 'line', n: 'Kobold-Blaster', d: 'Schießt Energie-Kugeln auf den nächsten Block' },
@@ -563,7 +563,7 @@ const WEAP = [
   { id: 'whip', n: 'Plasmapeitsche', d: 'Eine Energiepeitsche fegt im Bogen über die Oberfläche' },
   { id: 'rockets', n: 'Raketenschwarm', d: 'Zielsuchende Mini-Raketen mit Rauchspur' },
   { id: 'grav', n: 'Gravitonbombe', d: 'Mini-Singularität zieht Blöcke in sich hinein' },
-  { id: 'turret', n: 'Geschützturm', d: 'Setzt einen Turm auf den Planeten, der selbst feuert' },
+  { id: 'tornado', n: 'Wirbelsturm', d: 'Ein Tornado wandert über die Oberfläche und frisst sich durch die Blöcke' },
   { id: 'boomer', n: 'Sichelbumerang', d: 'Leuchtende Sichel schneidet hin und zurück durch die Blöcke' },
   { id: 'frost', n: 'Frostkanone', d: 'Eissplitter frieren Blöcke ein – gefrorene Blöcke nehmen +30 % Schaden' }
 ];
@@ -783,7 +783,7 @@ const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100
 const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(200, (Math.floor(l / 100) + 1) * 100); };
 const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l >= 200 ? Math.floor(l / 100) * 100 : p; };
 const ST = id => msN(WL(id));
-const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', whip: 'längere Peitsche', rockets: 'eine Rakete mehr', grav: 'größerer Sog', turret: 'ein Turm mehr', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
+const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', whip: 'längere Peitsche', rockets: 'eine Rakete mehr', grav: 'größerer Sog', tornado: 'ein Wirbel mehr', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
 const wDps = w => { const l = WL(w.id); return l ? T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() * (1 + HAw(w.id)) * (1 + .5 * ML(w.id)) : 0; };
 // ================== Waffen-Mods: mit ⬢ Chips (1 Chip pro 5 geschaffte Planeten), bleiben für immer ==================
 const ML = id => (S.mod || {})[id] || 0;
@@ -804,7 +804,7 @@ const MODS = {
   whip: { s: 'Längere Peitsche', f: l => '+' + 15 * l + ' % Reichweite' },
   rockets: { s: 'Größere Sprengköpfe', f: l => (l >= 3 ? '5×5' : '3×3+') + ' Explosion' },
   grav: { s: 'Stärkerer Sog', f: l => '+' + 20 * l + ' % Radius' },
-  turret: { s: 'Länger aktiv', f: l => '+' + l + ' s Laufzeit' },
+  tornado: { s: 'Größerer Wirbel', f: l => '+' + 25 * l + ' % Breite' },
   boomer: { s: 'Breitere Sichel', f: l => l >= 3 ? 'Riesensichel' : 'breite Sichel' },
   frost: { s: 'Frostfeld beim Aufprall', f: l => (l >= 3 ? '5×5' : '3×3') + ' Blöcke gefrieren' }
 };
@@ -1030,7 +1030,7 @@ function bonusPlanet(kind) {
   const pal = kind === 'gold' ? ['#ffd23f', '#7a5a10', '#ffe98a'] : ['#9fe8ff', '#1d4a66', '#bff4ff'];
   G = { p: S.p, pal, ox: 0, oy: 0, dst, alive, hp, mx, ore, dep, lit, total, v0: old.v0 * (kind === 'gold' ? 1.5 : 1), cx: (ccx + .5) * CELL, cy: (ccy + .5) * CELL, R: R * CELL, boss: false, name: kind === 'gold' ? 'Goldplanet' : 'Kristallplanet', clearing: 0, type: 'bonus', crM: 1, dead: [], rg: 1, bonus: kind, left: total };
 }
-function clearShots() { for (const a of [proj, novas, waves, mines, mets, boos, whips, rkts, gravs, turs]) a.length = 0; fx.length = 0; }
+function clearShots() { for (const a of [proj, novas, waves, mines, mets, boos, whips, rkts, gravs, tors]) a.length = 0; fx.length = 0; }
 function swapTerrain() { TC.width = Math.ceil(COLS * CELL * DPR); TC.height = Math.ceil(ROWS * CELL * DPR); tg.setTransform(DPR, 0, 0, DPR, 0, 0); G.dirty = new Set(); G.full = true; tDirty = true; surfaceBins(); ship.orb = -Math.PI / 2; ship.x = G.cx; ship.y = G.cy - G.R - 60; ship.vx = ship.vy = 0; cam.x = ship.x; cam.y = ship.y; }
 function enterBonus(kind) {
   BON = { kind, t: 30, G, COLS, ROWS, done: G.total - G.left, cr0: S.cr, cry0: S.cry, dm0: S.dm || 0 };
@@ -1051,7 +1051,7 @@ const novas = [], waves = [];
 const sawPat = () => { const n = ML('saw') >= 3 ? 2 : ML('saw') ? 1.5 : 1, o = []; for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) if (Math.hypot(a, b) <= n) o.push([a * CELL, b * CELL]); return o; };
 let sawB = 0; const SAWR = 78; // Sägen kreisen ums Schiff und reichen bis in die Blöcke
 let cdBlast = 0, cdChain = 0, sawA = 0, cdMine = 0, cdSnip = 0; const saws = [], mines = [];
-let cdMet = 0, cdBoo = 0, cdFro = 0, clk = 0, cdWh = 0, cdRk = 0, cdGr = 0, cdTu = 0; const mets = [], boos = [], whips = [], rkts = [], gravs = [], turs = [];
+let cdMet = 0, cdBoo = 0, cdFro = 0, clk = 0, cdWh = 0, cdRk = 0, cdGr = 0, cdTo = 0; const mets = [], boos = [], whips = [], rkts = [], gravs = [], tors = [];
 function freezeAt(i, n) { if (i < 0) return; if (!G.frz) G.frz = new Float32Array(G.alive.length); const c = i % COLS, r = i / COLS | 0; for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) { const cc = c + a, rr = r + b; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) { const j = rr * COLS + cc; if (G.alive[j]) { G.frz[j] = clk + 3; (G.frL || (G.frL = new Set())).add(j); } } } }
 const bats = [], fogs = []; let drillMax = 4, starA = 0, cdDrill = 0, cdNova = 0, cdScatter = 0, lineTarget = -1, surfR = 0, surfT = 0;
 function nearest(x, y, jitter) {
@@ -1076,6 +1076,8 @@ function ray(x, y, a, maxL) {
   return [-1, x + dx * maxL, y + dy * maxL];
 }
 const critMul = () => Math.random() < critCh() ? 3 + WP('dkrit') : 1;
+// äußerster Block in Richtung a (vom Planetenkern aus gesehen) – für Effekte, die über die Oberfläche wandern
+function surfAt(a) { const ca = Math.cos(a), sa = Math.sin(a); for (let d = G.R + CELL * 3; d > 0; d -= CELL * .5) { const x = G.cx + ca * d, y = G.cy + sa * d, i = cellAt(x, y); if (i >= 0 && G.alive[i]) return [x, y]; } return [G.cx, G.cy]; }
 function whipPts(w, p) { const ang = w.a0 + w.sg * (-.75 + 1.5 * Math.min(1, p)), o = [], n = 22; for (let q = 1; q <= n; q++) { const u = q / n, a = ang - w.sg * .9 * u * u, dd = w.L * u; o.push([ship.x + Math.cos(a) * dd, ship.y + Math.sin(a) * dd]); } return o; }
 // n verschiedene Ziele unter den nächsten Blöcken zum Punkt (für Salven: alle schlagen vorne ein, nicht irgendwo)
 function nearList(x, y, n) { const A = G.alive, ox = G.ox + CELL / 2, oy = G.oy + CELL / 2, best = []; let worst = 1e18;
@@ -1233,13 +1235,16 @@ function step(dt) {
     if (gq.t < 1) { gq.t += dt * 1.6; if (gq.t >= 1) { { const j = cellAt(gq.tx, gq.ty); if (j < 0 || !G.alive[j]) { const n2 = nearest(gq.tx, gq.ty); if (n2 >= 0) { const [nx3, ny3] = cellXY(n2); if (Math.hypot(nx3 - gq.tx, ny3 - gq.ty) < CELL * 8) { gq.x0 = gq.tx; gq.y0 = gq.ty; gq.tx = nx3; gq.ty = ny3; gq.t = .6; continue; } } } } gq.cells = []; const R = gq.rad; for (let r = Math.max(0, Math.floor((gq.ty - G.oy - R) / CELL)); r <= Math.min(ROWS - 1, Math.ceil((gq.ty - G.oy + R) / CELL)); r++) for (let c = Math.max(0, Math.floor((gq.tx - G.ox - R) / CELL)); c <= Math.min(COLS - 1, Math.ceil((gq.tx - G.ox + R) / CELL)); c++) { const i = r * COLS + c, [x, y] = cellXY(i); if (G.alive[i] && Math.hypot(x - gq.tx, y - gq.ty) <= R) gq.cells.push(i); } shake = Math.max(shake, 2); } continue; }
     gq.live += dt; const per = gq.d / 1.6 / Math.max(8, gq.cells.length) * dt; for (const i of gq.cells) hit(i, per);
     if (gq.live >= 1.6) { fx.push({ k: 'ring', x: gq.tx, y: gq.ty, r: gq.rad * 1.1, t: .35, c: WCOL.grav, w: 3 }); gravs.splice(k, 1); } }
-  // 15) Geschützturm: steht auf der Oberfläche und schießt selbst auf die nächsten Blöcke
-  curW = 'turret';
-  const dTu = WD('turret') * Rd, tLife = 5 + ML('turret'), tMax = 1 + Math.floor(ST('turret') / 3);
-  if (dTu && (cdTu -= dt * Rv * sp75('turret')) <= 0) { cdTu = 6 / tMax; const i = nearest(ship.x, ship.y); if (i >= 0) { const [x, y] = cellXY(i), oa = Math.atan2(y - G.cy, x - G.cx); while (turs.length >= tMax) turs.shift(); turs.push({ i, x: x + Math.cos(oa) * CELL * .9, y: y + Math.sin(oa) * CELL * .9, up: oa, aim: oa + Math.PI, t: 0, life: tLife, cd: .4, fl: 0, d: dTu * 6 / tMax / (tLife / .32) * (tLife / 5) }); } }
-  for (let k = turs.length - 1; k >= 0; k--) { const u = turs[k]; u.t += dt; u.fl = Math.max(0, u.fl - dt);
-    if (!G.alive[u.i]) { const j = nearest(u.x, u.y); if (j >= 0) { u.i = j; } } { const [ax, ay] = cellXY(u.i), oa = Math.atan2(ay - G.cy, ax - G.cx), gx = ax + Math.cos(oa) * CELL * .9, gy = ay + Math.sin(oa) * CELL * .9, kk = Math.min(1, dt * 6); u.x += (gx - u.x) * kk; u.y += (gy - u.y) * kk; u.up += Math.atan2(Math.sin(oa - u.up), Math.cos(oa - u.up)) * kk; } if (u.t >= u.life + .4) { turs.splice(k, 1); continue; } if (u.t < .35 || u.t > u.life || !dTu) continue;
-    if ((u.cd -= dt * Rv * sp75('turret')) <= 0) { u.cd = .32; const i = nearest(u.x, u.y); if (i >= 0) { const [x, y] = cellXY(i); u.aim = Math.atan2(y - u.y, x - u.x); hit(i, u.d * critMul()); u.fl = .08; fx.push({ k: 'tbolt', x: u.x + Math.cos(u.aim) * 8, y: u.y + Math.sin(u.aim) * 8, x2: x, y2: y, t: .12, lv: WL('turret') }); } } }
+  // 15) Wirbelsturm: setzt auf der Oberfläche auf und wandert 3 s lang am Rand entlang
+  curW = 'tornado';
+  const dTo = WD('tornado') * Rd, nTo = Math.min(3, 1 + Math.floor(ST('tornado') / 3));
+  if (dTo && (cdTo -= dt * Rv * sp75('tornado')) <= 0) { cdTo = 3.5; const i = nearest(ship.x, ship.y); if (i >= 0) { const [x, y] = cellXY(i), a0 = Math.atan2(y - G.cy, x - G.cx);
+      for (let k = 0; k < nTo; k++) tors.push({ a: a0 + (k - (nTo - 1) / 2) * .35, dir: Math.random() < .5 ? -1 : 1, t: 0, life: 3, r: CELL * 1.7 * (1 + .25 * ML('tornado')), x, y, up: a0, d: dTo * 3.5 / nTo / 3 / 6 }); } }
+  for (let k = tors.length - 1; k >= 0; k--) { const o = tors[k]; o.t += dt; if (o.t >= o.life + .35) { tors.splice(k, 1); continue; }
+    o.a += o.dir * dt * 55 / Math.max(G.R, 40); const [sx, sy] = surfAt(o.a); o.x += (sx - o.x) * Math.min(1, dt * 8); o.y += (sy - o.y) * Math.min(1, dt * 8); o.up = o.a;
+    if (o.t > o.life) continue; const R = o.r, c0 = Math.floor((o.x - G.ox) / CELL), r0 = Math.floor((o.y - G.oy) / CELL), n = Math.ceil(R / CELL);
+    for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) { const c = c0 + a, r = r0 + b2; if (c < 0 || c >= COLS || r < 0 || r >= ROWS) continue; const i = r * COLS + c; if (!G.alive[i]) continue; const [cx2, cy2] = cellXY(i); if (Math.hypot(cx2 - o.x, cy2 - o.y) <= R) hit(i, o.d * dt * critMul()); }
+    if (Math.random() < .5 && parts.length < 380) parts.push({ x: o.x, y: o.y, vx: Math.cos(o.a) * 40 + (Math.random() - .5) * 60, vy: Math.sin(o.a) * 40 + (Math.random() - .5) * 60, t: .45, c: G.pal ? G.pal[2] : '#cfd8e0' }); }
   // 13) Sichelbumerang
   curW = 'boomer';
   const dBo = WD('boomer') * Rd;
@@ -1486,8 +1491,6 @@ function draw(now) {
       if (p < .3) { g.globalAlpha = 1; g.fillStyle = '#fff3b0'; g.fillRect(f.x - 2, f.y - 2, 4, 4); } g.globalAlpha = 1; }
     else if (f.k === 'bolt2') beam(f.x, f.y, f.x2, f.y2, f.c, 1.6);
     else if (f.k === 'strike') { let px = f.x + (Math.random() - .5) * 20, py = f.y - H; g.strokeStyle = f.c; g.globalAlpha = Math.min(1, f.t * 5); g.lineWidth = f.w; g.beginPath(); g.moveTo(px, py); for (let q = 1; q <= 8; q++) { px = f.x + (Math.random() - .5) * 30 * (1 - q / 8); py = f.y - H + H * q / 8; g.lineTo(px, py); } g.stroke(); g.globalAlpha = 1; }
-    else if (f.k === 'tbolt') { const T = lvTier(f.lv || 0), c = T >= 3 ? '#ffe98a' : WCOL.turret, p = 1 - f.t / .12, bx = f.x + (f.x2 - f.x) * p, by = f.y + (f.y2 - f.y) * p, b0x = f.x + (f.x2 - f.x) * Math.max(0, p - .35), b0y = f.y + (f.y2 - f.y) * Math.max(0, p - .35);
-      ink(() => { g.strokeStyle = INK; g.lineWidth = 4; g.globalAlpha = .6; g.beginPath(); g.moveTo(b0x, b0y); g.lineTo(bx, by); g.stroke(); }); g.strokeStyle = c; g.lineWidth = 2; g.globalAlpha = 1; g.beginPath(); g.moveTo(b0x, b0y); g.lineTo(bx, by); g.stroke(); g.fillStyle = '#fff'; g.fillRect(bx - 1, by - 1, 2, 2); g.globalAlpha = 1; }
     else if (f.k === 'ring') { if (f.d == null) f.d = f.t; const k = 1 - f.t / f.d, rr = f.r * (.3 + .7 * k);
       ink(() => { g.strokeStyle = INK; g.globalAlpha = f.t / f.d * .6; g.lineWidth = f.w + 3; g.beginPath(); g.arc(f.x, f.y, rr, 0, 7); g.stroke(); });
       g.strokeStyle = f.c; g.globalAlpha = f.t / f.d; g.lineWidth = f.w; g.beginPath(); g.arc(f.x, f.y, rr, 0, 7); g.stroke(); g.strokeStyle = '#ffffff'; g.lineWidth = 1; g.stroke(); g.globalAlpha = 1; }
@@ -1687,15 +1690,16 @@ function drawNewWeapons(tt) {
       g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.fillStyle = INK; g.beginPath(); g.arc(x, y, R + 2.5, 0, 7); g.fill();
       g.globalCompositeOperation = 'lighter'; g.strokeStyle = c; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, R * 1.9, R * .7, q.a, 0, 7); g.stroke(); g.strokeStyle = '#ffffff'; g.lineWidth = .8; g.beginPath(); g.ellipse(x, y, R * 1.9, R * .7, q.a, -.6, .9); g.stroke();
       g.globalCompositeOperation = 'source-over'; g.fillStyle = '#000'; g.beginPath(); g.arc(x, y, R, 0, 7); g.fill(); g.strokeStyle = c; g.lineWidth = 1; g.beginPath(); g.arc(x, y, R, 0, 7); g.stroke(); } }
-  // Geschütztürme: Metallkuppel auf der Oberfläche, Lauf dreht zum Ziel, Mündungsblitz
-  if (turs.length) { const T = lvTier(WL('turret')), acc = T >= 3 ? '#ffd23f' : WCOL.turret;
-    for (const u of turs) { const pop = Math.min(1, u.t / .35), out = u.t > u.life ? Math.max(0, 1 - (u.t - u.life) / .4) : 1, sc = pop * out; if (sc <= 0) continue;
-      g.save(); g.translate(u.x, u.y); g.globalAlpha = 1; const s2 = (5 + T * .4) * sc;
-      g.save(); g.rotate(u.aim); g.fillStyle = INK; g.fillRect(0, -2.2 * sc, s2 * 1.9, 4.4 * sc); g.fillStyle = '#cfd8e0'; g.fillRect(0, -1.2 * sc, s2 * 1.8, 2.4 * sc); if (u.fl > 0) { g.fillStyle = '#fff3b0'; g.beginPath(); g.arc(s2 * 2, 0, 3.5, 0, 7); g.fill(); } g.restore();
-      g.rotate(u.up + Math.PI / 2); g.fillStyle = INK; g.beginPath(); g.arc(0, 0, s2 + 2, Math.PI, 0); g.lineTo(s2 + 2, 2.5); g.lineTo(-s2 - 2, 2.5); g.fill();
-      { const gr = g.createLinearGradient(0, -s2, 0, 2); gr.addColorStop(0, '#f2f6fa'); gr.addColorStop(.6, '#8a98a6'); gr.addColorStop(1, '#3a4654'); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, s2, Math.PI, 0); g.lineTo(s2, 1.5); g.lineTo(-s2, 1.5); g.fill(); }
-      g.fillStyle = acc; g.fillRect(-s2 * .7, -1.2, s2 * 1.4, 1.4); g.fillStyle = Math.sin(u.t * 6) > 0 ? '#ff3a3a' : '#4a1010'; g.fillRect(-1, -s2 * .7, 2, 2);
-      g.restore(); } }
+  // Wirbelsturm: Trichter aus rotierenden Ringen, unten schmal am Boden, oben breit, mit Staub
+  if (tors.length) { const T = lvTier(WL('tornado')), c = T >= 3 ? '#b8d8ff' : WCOL.tornado, tq = performance.now() / 1000;
+    for (const o of tors) { const k = Math.min(1, o.t / .3) * (o.t > o.life ? Math.max(0, 1 - (o.t - o.life) / .35) : 1); if (k <= 0) continue; const Hh = (40 + T * 5) * k * (1 + .25 * ML('tornado')), n = 9;
+      g.save(); g.translate(o.x, o.y); g.rotate(o.up + Math.PI / 2);
+      for (let q = 0; q < n; q++) { const u = q / (n - 1), y = -u * Hh, rx = (4 + u * u * 20 * (1 + .25 * ML('tornado'))) * k, wob = Math.sin(tq * 9 + q * 1.3) * (2 + u * 4), ph = tq * 14 + q;
+        g.globalCompositeOperation = 'source-over'; g.strokeStyle = INK; g.globalAlpha = .55; g.lineWidth = 3.5; g.beginPath(); g.ellipse(wob, y, rx, rx * .32, 0, 0, 7); g.stroke();
+        g.globalCompositeOperation = 'lighter'; g.strokeStyle = c; g.globalAlpha = .85; g.lineWidth = 1.8; g.beginPath(); g.ellipse(wob, y, rx, rx * .32, 0, ph % 6.283, ph % 6.283 + 4.2); g.stroke();
+        g.strokeStyle = '#ffffff'; g.globalAlpha = .6; g.lineWidth = .8; g.beginPath(); g.ellipse(wob, y, rx, rx * .32, 0, ph % 6.283 + 1, ph % 6.283 + 2); g.stroke(); }
+      if (T >= 2) { g.globalCompositeOperation = 'lighter'; g.fillStyle = c; for (let q = 0; q < 4 + T * 2; q++) { const u = ((tq * .8 + q * .17) % 1), y = -u * Hh, ang = tq * 10 + q * 2.1, rx = (4 + u * u * 20) * k; g.globalAlpha = .8 * (1 - u); g.fillRect(Math.cos(ang) * rx - 1, y + Math.sin(ang) * rx * .3 - 1, 2, 2); } }
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.restore(); } }
   // Sichelbumerang: Sichel mit Kontur, Glanzkante und Nachbildern
   if (boos.length) { const T = lvTier(WL('boomer')), c = T >= 3 ? '#e0c8ff' : WCOL.boomer, rr = (ML('boomer') >= 3 ? 1.6 : ML('boomer') ? 1.3 : 1) * (11 + T * 1.2);
     const sickle = (x, y, rot, sc) => { g.save(); g.translate(x, y); g.rotate(rot); g.beginPath(); g.arc(0, 0, rr * sc, -1.9, 1.9); g.arc(rr * .45 * sc, 0, rr * .78 * sc, 1.6, -1.6, true); g.closePath(); g.restore(); };
@@ -2560,7 +2564,9 @@ function cleanSave() {
   S.hot = (S.hot || []).slice(0, 5).map(x => x && S.ab && S.ab[x] ? x : null);
   for (const k in (S.wp || {})) if (!WARP.find(w => w.id === k)) delete S.wp[k];
   if (S.w && S.w.pulse) { S.w.whip = Math.max(S.w.whip || 0, S.w.pulse); delete S.w.pulse; S.wo = (S.wo || []).map(x => x === 'pulse' ? 'whip' : x); if (S.mod && S.mod.pulse) { S.mod.whip = S.mod.pulse; delete S.mod.pulse; } }
-  if (S.dmgRun) delete S.dmgRun.pulse; if (S.offer) S.offer = S.offer.filter(x => x !== 'pulse');
+  if (S.w && S.w.turret) { S.w.tornado = Math.max(S.w.tornado || 0, S.w.turret); delete S.w.turret; S.wo = (S.wo || []).map(x => x === 'turret' ? 'tornado' : x); if (S.mod && S.mod.turret) { S.mod.tornado = S.mod.turret; delete S.mod.turret; } }
+  if (S.offer) S.offer = S.offer.filter(x => x !== 'turret');
+  if (S.dmgRun) { delete S.dmgRun.pulse; delete S.dmgRun.turret; } if (S.offer) S.offer = S.offer.filter(x => x !== 'pulse');
   S.wo = (S.wo || ['line']).filter(id => WEAP.find(w => w.id === id)); if (!S.wo.length) S.wo = ['line'];
   for (const k in (S.mod || {})) if (!MODS[k]) delete S.mod[k];
 }
@@ -2577,7 +2583,7 @@ function showIntro() {
 if (logged()) pull().then(() => offline()).then(showIntro).then(() => setTimeout(loginCheck, 1200)); else { offline(); showIntro(); setTimeout(loginCheck, 1200); }
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
-window.GB = { get trader() { return trader; }, get worm() { return worm; }, get BON() { return BON; }, spawnTrader: () => { traderT = 0; trader = null; }, spawnWorm: k => { wormT = 0; worm = null; trader = null; traderT = 999; }, evTap, enterBonus, exitBonus, get rkts() { return rkts; }, get gravs() { return gravs; }, get turs() { return turs; }, get whips() { return whips; }, get mets() { return mets; }, get mines() { return mines; }, get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, ILV, lvUp, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
+window.GB = { get trader() { return trader; }, get worm() { return worm; }, get BON() { return BON; }, spawnTrader: () => { traderT = 0; trader = null; }, spawnWorm: k => { wormT = 0; worm = null; trader = null; traderT = 999; }, evTap, enterBonus, exitBonus, get rkts() { return rkts; }, get gravs() { return gravs; }, get tors() { return tors; }, get whips() { return whips; }, get mets() { return mets; }, get mines() { return mines; }, get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, ILV, lvUp, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
 </script>
 </body>
 </html>
