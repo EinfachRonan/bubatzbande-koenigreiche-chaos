@@ -97,6 +97,11 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 .tabs nav>.on{color:var(--ac);font-weight:600}
 .tabs svg{width:22px;height:22px}
 #bbChip{display:none!important}
+/* Lofi-Knopf */
+.ib.mu.on{color:var(--ac);background:rgba(182,243,106,.12)}
+.ib.mu.on svg .eq{animation:eq 1.1s ease-in-out infinite;transform-origin:center bottom}
+.ib.mu.on svg .eq:nth-child(2){animation-delay:-.35s}.ib.mu.on svg .eq:nth-child(3){animation-delay:-.7s}
+@keyframes eq{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1)}}
 /* Geheim-Kachel (nur nach Code) */
 .tile.xl{grid-column:1/-1;min-height:170px}
 .tile .kk .sc{color:#0e1110;background:var(--gold);border-radius:99px;padding:2px 7px}
@@ -172,7 +177,7 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
   <div class="hd"><h2>Einstellungen</h2><button class="ib" id="setX" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <label class="vr"><span>🔊 Sound</span><input type="range" min="0" max="100" id="vS"><b id="vSv"></b></label>
   <label class="vr"><span>🎵 Musik</span><input type="range" min="0" max="100" id="vM"><b id="vMv"></b></label>
-  <div class="nt">Gilt für alle Spiele und bleibt auf diesem Gerät gespeichert.</div>
+  <div class="nt">Gilt für alle Spiele und bleibt auf diesem Gerät gespeichert. Auf der Startseite läuft selbstgemachtes Lofi (🎵-Knopf oben).</div>
   <button class="btn ghost wide" id="codeGo">🔑 Code eingeben</button>
   <form class="code" id="codeF" autocomplete="off"><input id="codeIn" inputmode="numeric" maxlength="12" placeholder="Code" aria-label="Code" autocomplete="off"><button class="btn" type="submit">Einlösen</button></form>
   <div class="cmsg" id="codeMsg"></div>
@@ -180,6 +185,7 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 </div></div>
 <script src="art.js?v=20261111b"></script>
 <script src="bb.js?v=20261118a"></script>
+<script src="lofi.js?v=20261118a"></script>
 <script>
 'use strict';
 const IMG = k => 'krieg/img/' + k + '.jpg';
@@ -198,6 +204,8 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 const $ = id => document.getElementById(id);
 const B = () => window.BB;
 const pic = g => g.art || IMG(g.who);
+// Lofi-Radio (selbst erzeugt, kein Copyright) – Knopf im Kopf
+const musB = () => { const o = window.BBLofi ? BBLofi.on() : 0; return `<button class="ib mu ${o ? 'on' : ''}" data-mu aria-pressed="${o ? 'true' : 'false'}" aria-label="Lofi-Musik ${o ? 'aus' : 'an'}" title="Lofi-Radio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">${o ? '<path class="eq" d="M6 19V9"/><path class="eq" d="M12 19V5"/><path class="eq" d="M18 19V11"/>' : '<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>'}</svg></button>`; };
 const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 function draw() {
   const b = B(), P = b ? b.profile : null, bg = b && b.meta ? b.meta.bg || 0 : 0;
@@ -205,12 +213,13 @@ function draw() {
   if (b && b.loggedIn) {
     const na = Object.keys(P.ach).length, lvl = 1 + Math.floor(na / 3), pr0 = (na % 3) / 3;
     $('top').innerHTML = `<button class="av" data-o="profil" aria-label="Dein Profil">${b.avH ? b.avH(P) : ''}</button><div class="who"><b>Hi ${esc(P.name)}</b><div class="rk"><span>Bandenrang ${lvl}</span><span class="bar"><i style="width:${Math.max(6, pr0 * 100)}%"></i></span></div></div>
-      <a class="pill" href="bande/" aria-label="Bandengold"><svg viewBox="0 0 24 24" fill="none" stroke="#f2c94c" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>${bg.toLocaleString('de-DE')}</a><button class="ib" data-set aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>`;
+      <a class="pill" href="bande/" aria-label="Bandengold"><svg viewBox="0 0 24 24" fill="none" stroke="#f2c94c" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>${bg.toLocaleString('de-DE')}</a>${musB()}<button class="ib" data-set aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>`;
   } else {
-    $('top').innerHTML = `<div class="av"><img src="icon-180.png" alt=""></div><div class="who"><b>Willkommen!</b><div class="rk"><span>Mit Konto: Bestenliste, Freunde & Sammlung</span></div></div><button class="ib" data-set aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="btn sm" data-o="login">Anmelden</button>`;
+    $('top').innerHTML = `<div class="av"><img src="icon-180.png" alt=""></div><div class="who"><b>Willkommen!</b><div class="rk"><span>Mit Konto: Bestenliste, Freunde & Sammlung</span></div></div>${musB()}<button class="ib" data-set aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="btn sm" data-o="login">Anmelden</button>`;
   }
   $('top').querySelectorAll('[data-o]').forEach(x => x.onclick = () => b && b.open(x.dataset.o));
   $('top').querySelectorAll('[data-set]').forEach(x => x.onclick = openSet);
+  $('top').querySelectorAll('[data-mu]').forEach(x => x.onclick = () => window.BBLofi && BBLofi.toggle());
   // Spiele-Kacheln
   const go = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
   const sec = SECRET.filter(g => b && b.secret && b.secret(g.k));
@@ -277,6 +286,7 @@ document.querySelectorAll('.tabs [data-tab]').forEach(x => x.onclick = () => {
 });
 if (location.hash === '#spiele') setTimeout(() => $('games').scrollIntoView({ behavior: 'smooth' }), 300);
 draw(); rank();
+addEventListener('bb-lofi', draw);
 if (window.BB) {
   BB.chip($('bbChip'));
   let last = '';
