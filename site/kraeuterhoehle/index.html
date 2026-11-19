@@ -941,7 +941,7 @@ NODES.forEach(n => { if(n.t === 'hero'){ const h = HERO[n.hero]; n.n = h.n; n.d 
 
 const KEY = 'kraeuterhoehle_v3';
 let S;
-function defState(){ return {kr:0, owned:{root:1, h_nille:1}, q:{basis:0, packs:0, kills:0, click:0, surv:0}, chapter:1, sel:1, best:{}, speed:1, day:null, tries:{}, ctot:{}, seen:{}, newSeen:{}}; }
+function defState(){ return {kr:0, owned:{root:1, h_nille:1}, q:{basis:0, packs:0, kills:0, click:0, surv:0}, chapter:1, sel:1, best:{}, speed:1, day:null, tries:{}, ctot:{}, seen:{}, newSeen:{}, intro:false, rerollUnlocked:false}; }
 function load(){ try{ const r = localStorage.getItem(KEY); if(r){ S = Object.assign(defState(), JSON.parse(r)); migrate(); return; } }catch(e){} S = defState(); }
 // Entfernte Mauszeiger-Knoten: ausgegebene Meisterschaft zurückgeben
 function migrate(){
@@ -952,6 +952,8 @@ function migrate(){
   for(const id of ['q_click', 'q_mouse']) delete S.owned[id];
   if(back){ S.kr += back; S.refund = (S.refund || 0) + back; }
   if(!S.galaxy && ((S.q && S.q.shiny) || S.sm)) S.galaxy = true;
+  if(!S.rerollUnlocked && ((S.q && S.q.shiny) || S.sm)) S.rerollUnlocked = true;
+  if(typeof S.intro === 'undefined') S.intro = true; // bestehende Saves: Intro bereits gesehen
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} cloudSave(); }
 function cloudSave(now){ if(window.BB && BB.loggedIn && BB.cloud) BB.cloud.put('kh', S, now); }
@@ -1096,8 +1098,8 @@ function renderShop(){
       <div class="pb"><img src="${PACK_SPR[o.p].url}" style="${o.sold ? 'opacity:.15' : ''}"></div>
       <div class="sn">${P.n}</div><div class="odds">${oddsHTML(P.w)}</div></div>`; }).join('');
   $('#bag').innerHTML = D.bag.length ? `Im Rucksack (fliegen im Kampf raus):<br>${D.bag.map(p => `<img src="${PACK_SPR[p].url}">`).join('')}` : 'Nicht ausgegebenes Gold verfällt nach dem Kampf. Kaufe Pakete. Sie fliegen im Kampf aus der Höhle und du sammelst sie per Klick ein.';
-  $('#reroll').disabled = D.coins < 1 && !D.free;
-  $('#reroll').textContent = D.free ? 'AUFFRISCHEN (GRATIS)' : 'AUFFRISCHEN 1 🪙';
+  if(!S.rerollUnlocked){ $('#reroll').disabled = true; $('#reroll').textContent = '🔒 AUFFRISCHEN (1. Shiny = Frei)'; }
+  else { $('#reroll').disabled = D.coins < 1 && !D.free; $('#reroll').textContent = D.free ? 'AUFFRISCHEN (GRATIS)' : 'AUFFRISCHEN 1 🪙'; }
   document.querySelectorAll('#offers .of').forEach(el => el.onclick = () => {
     const o = D.offers[+el.dataset.i], cst = offerCost(o);
     if(o.sold || D.coins < cst) return;
@@ -1354,10 +1356,10 @@ function spawnUnit(id, x, y, shiny, reveal, fromBasis, noFind){
   const u = {id, c:HERO[id], st, shiny, hp:st.hp, max:st.hp, x, y, hx, hy, face:x < 0 ? -1 : 1, cd:0.3, tgt:null, anim:0, moving:false, ph:Math.random()*6, kills:0, promoted:false, hit:0};
   B.units.push(u); stat(id).n++;
   if(giant) addText(x, y - 75, 'RIESE!', '#ffd070', 15, 1.4);
-  if(shiny && reveal && !HERO[id].summoned){ if(!S.galaxy){ S.galaxy = true; setTimeout(() => toast('✨ Dein erster Shiny! Der <b>Magiebaum</b> über dem Skillbaum ist erwacht. Dort gibst du Shiny-Marken aus.'), 400); } S.sm = (S.sm || 0) + 2; S.q.shiny = (S.q.shiny || 0) + 1; addText(x, y - 110, '+2 ✨ Shiny-Marken', '#fff2a0', 15, 2); }
+  if(shiny && reveal && !HERO[id].summoned){ if(!S.galaxy){ S.galaxy = true; setTimeout(() => toast('✨ Dein erster Shiny! Der <b>Magiebaum</b> über dem Skillbaum ist erwacht. Dort gibst du Shiny-Marken aus.'), 400); } if(!S.rerollUnlocked){ S.rerollUnlocked = true; setTimeout(() => toast('🔓 AUFFRISCHEN freigeschaltet! Dein erster Shiny hat den Laden erweckt.'), 1200); save(); } S.sm = (S.sm || 0) + 2; S.q.shiny = (S.q.shiny || 0) + 1; addText(x, y - 110, '+2 ✨ Shiny-Marken', '#fff2a0', 15, 2); }
   if(!HERO[id].summoned && !noFind){
     S.q['found_' + id] = (S.q['found_' + id] || 0) + 1;
-    if(!S.seen[id]){ S.seen[id] = 1; S.newSeen[id] = 1; S.owned['h_' + id] = 1; computeMods(); const k = DISC_KR[HERO[id].r]; B.earned += k; S.kr += k; addText(x, y - 95, `NEU entdeckt! +${k} 💎`, '#7fd8ff', 15, 2); }
+    if(!S.seen[id]){ S.seen[id] = 1; S.newSeen[id] = 1; S.owned['h_' + id] = 1; computeMods(); const k = DISC_KR[HERO[id].r]; B.earned += k; S.kr += k; addText(x, y - 95, `NEU entdeckt! +${k} 💎`, '#7fd8ff', 15, 2); queueHeroReveal(id, shiny); }
   }
   recalcAura();
   if(reveal){
@@ -1737,6 +1739,7 @@ function onHitFx(u, t){
 /* ---- Update ---- */
 function update(dt){
   B.t += dt;
+  tickHeroReveal(dt);
   if(B.flashShiny) B.flashShiny = Math.max(0, B.flashShiny - dt);
   if(MD.regen) B.hp = Math.min(B.maxHp, B.hp + MD.regen*dt);
 
@@ -2378,6 +2381,20 @@ function draw(){
     ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(mouse.x, mouse.y, MD.crad, 0, 7); ctx.stroke();
     ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fillRect(Math.round(mouse.x)-2, Math.round(mouse.y)-2, 4, 4);
   }
+  // Held-Vorstellung (im Screen-Space)
+  if(heroRevealActive){
+    ctx.setTransform(1,0,0,1,0,0);
+    const W = cv.width / DPR, H = cv.height / DPR;
+    ctx.save();
+    ctx.scale(DPR, DPR);
+    // Halbtransparenter Hintergrund
+    const a = heroRevealActive.t > HERO_REVEAL_DUR - 0.3 ? (HERO_REVEAL_DUR - heroRevealActive.t) / 0.3
+             : heroRevealActive.t < 0.4 ? heroRevealActive.t / 0.4 : 1;
+    ctx.fillStyle = `rgba(0,0,0,${0.72 * a})`;
+    ctx.fillRect(0, 0, W, H);
+    drawHeroReveal(ctx, W, H);
+    ctx.restore();
+  }
 }
 function drawBld(b){
   const Bd = BUILDINGS[b.id], img = BLD_SPR[b.id].c, sc = 2.6, w = img.width*sc, h = img.height*sc;
@@ -2641,7 +2658,163 @@ function loop(t){
 }
 centerTree(); checkQuests(); renderHub();
 if(S.refund){ setTimeout(() => toast(`Mauszeiger-Aufwertungen wurden entfernt: ${S.refund} 💎 zurückerstattet.`), 600); delete S.refund; save(); }
-requestAnimationFrame(loop);
+
+// ══════════════════════════════════════
+// HELD-VORSTELLUNG (im Kampf, wenn neuer Held)
+// ══════════════════════════════════════
+let heroRevealQ = []; // Warteschlange neuer Helden-Vorstellungen
+let heroRevealActive = null; // {id, shiny, t}
+const HERO_REVEAL_DUR = 3.8;
+
+function queueHeroReveal(id, shiny){
+  heroRevealQ.push({id, shiny});
+}
+function tickHeroReveal(dt){
+  if(heroRevealActive){
+    heroRevealActive.t -= dt;
+    if(heroRevealActive.t <= 0) heroRevealActive = null;
+  }
+  if(!heroRevealActive && heroRevealQ.length){
+    heroRevealActive = {...heroRevealQ.shift(), t: HERO_REVEAL_DUR};
+  }
+}
+function drawHeroReveal(ctx, W, H){
+  const r = heroRevealActive; if(!r) return;
+  const a = r.t > HERO_REVEAL_DUR - 0.3 ? (HERO_REVEAL_DUR - r.t) / 0.3
+           : r.t < 0.4 ? r.t / 0.4 : 1;
+  const c = HERO[r.id];
+  const pc = c.pc || (r.shiny ? `hsl(${Date.now()/20%360},90%,60%)` : '#7fd8ff');
+
+  // Hintergrund-Strahlenkranz
+  ctx.save();
+  ctx.globalAlpha = 0.72 * a;
+  ctx.translate(W/2, H/2 + 20);
+  const rays = 12;
+  for(let i = 0; i < rays; i++){
+    const ang = (i/rays)*Math.PI*2 + Date.now()/2000;
+    ctx.beginPath(); ctx.moveTo(0,0);
+    ctx.lineTo(Math.cos(ang)*W, Math.sin(ang)*W);
+    ctx.lineTo(Math.cos(ang + Math.PI/rays)*W, Math.sin(ang + Math.PI/rays)*W);
+    ctx.closePath();
+    ctx.fillStyle = r.shiny ? `hsl(${(i*30 + Date.now()/15)%360},80%,30%)` : pc + '44';
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Schimmer-Punkte
+  ctx.save();
+  ctx.globalAlpha = 0.55 * a;
+  for(let i = 0; i < 28; i++){
+    const ang = (i / 28) * Math.PI * 2 + Date.now()/800;
+    const rad = 90 + Math.sin(Date.now()/400 + i) * 22;
+    const px = W/2 + Math.cos(ang) * rad, py = H/2 + 20 + Math.sin(ang) * rad * 0.6;
+    ctx.beginPath(); ctx.arc(px, py, 3 + Math.sin(Date.now()/300 + i*0.7)*1.5, 0, Math.PI*2);
+    ctx.fillStyle = r.shiny ? `hsl(${(i*13 + Date.now()/10)%360},100%,70%)` : pc;
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Held-Sprite groß
+  const spr = SPR[r.id];
+  if(spr){
+    const sc = 5.5 + Math.sin(Date.now()/600)*0.08;
+    const sw = spr.c.width * sc, sh = spr.c.height * sc;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(spr.c, Math.round(W/2 - sw/2), Math.round(H/2 + 20 - sh/2 - 20), Math.round(sw), Math.round(sh));
+    ctx.restore();
+  }
+
+  // Namenstafel
+  ctx.save(); ctx.globalAlpha = a;
+  const nameY = H/2 - 90;
+  ctx.fillStyle = r.shiny ? `hsl(${Date.now()/20%360},90%,55%)` : pc;
+  ctx.shadowColor = r.shiny ? `hsl(${Date.now()/20%360},100%,60%)` : pc;
+  ctx.shadowBlur = 18;
+  ctx.font = 'bold 42px "VT323", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText((r.shiny ? '✨ ' : '') + (c.n || c.id).toUpperCase() + (r.shiny ? ' ✨' : ''), W/2, nameY);
+  ctx.shadowBlur = 0;
+  ctx.font = '28px "VT323", monospace';
+  ctx.fillStyle = '#c8d0d8';
+  ctx.fillText(c.cls ? c.cls.toUpperCase() + (c.desc ? ' · ' + c.desc : '') : (c.desc || ''), W/2, nameY + 36);
+  if(r.shiny){
+    ctx.font = '24px "VT323", monospace';
+    ctx.fillStyle = '#fff2a0';
+    ctx.fillText('✨ SHINY: ' + (c.shiny && c.shiny.txt ? c.shiny.txt : ''), W/2, nameY + 68);
+  }
+  ctx.restore();
+}
+
+// ══════════════════════════════════════
+// INTRO-SEQUENZ
+// ══════════════════════════════════════
+(function startIntro(){
+  if(S.intro){ requestAnimationFrame(loop); return; } // bereits gesehen
+
+  const ov = document.createElement('div');
+  ov.id = 'intro-ov';
+  ov.style.cssText = 'position:fixed;inset:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;user-select:none';
+
+  // Booster-Box Canvas
+  const bc = gridCanvas(packGrid(PACKS.basis.col));
+  bc.style.cssText = 'image-rendering:pixelated;width:160px;height:auto;filter:drop-shadow(0 0 24px #7ec8e855);transition:transform .15s';
+  bc.title = 'Klicken zum Öffnen';
+
+  const hint = document.createElement('div');
+  hint.textContent = 'klicken';
+  hint.style.cssText = 'color:#4a5a6a;font-family:VT323,monospace;font-size:22px;margin-top:14px;letter-spacing:3px';
+
+  ov.appendChild(bc); ov.appendChild(hint);
+  document.body.appendChild(ov);
+
+  // Booster-Box leicht schweben
+  let bFloat = 0;
+  const floatFrame = () => {
+    if(!document.getElementById('intro-ov')) return;
+    bFloat += 0.03;
+    bc.style.transform = `translateY(${Math.sin(bFloat)*6}px)`;
+    requestAnimationFrame(floatFrame);
+  };
+  requestAnimationFrame(floatFrame);
+
+  ov.onclick = () => {
+    // Phase 2: Titel-Einblendung
+    ov.style.cursor = 'default';
+    ov.innerHTML = '';
+
+    const title = document.createElement('div');
+    title.style.cssText = 'text-align:center;animation:khIntro .8s ease forwards;opacity:0';
+    title.innerHTML = `
+      <div style="font-family:VT323,monospace;font-size:clamp(32px,6vw,70px);color:#e8d870;letter-spacing:4px;text-shadow:0 0 30px #e8d87088">DIE LEGENDEN DER</div>
+      <div style="font-family:VT323,monospace;font-size:clamp(44px,9vw,110px);color:#7fd8ff;letter-spacing:6px;text-shadow:0 0 40px #7fd8ffaa;line-height:1">KRÄUTERHÖHLE</div>`;
+
+    // Höhlen-Hintergrundumriss (einfaches Canvas-Bild)
+    const cave = document.createElement('div');
+    cave.style.cssText = 'position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-size:120px;opacity:0;transition:opacity 1.2s;pointer-events:none';
+    cave.textContent = '🏔️';
+
+    const style = document.createElement('style');
+    style.textContent = '@keyframes khIntro{0%{opacity:0;transform:scale(.92) translateY(20px)}100%{opacity:1;transform:scale(1) translateY(0)}}';
+    document.head.appendChild(style);
+
+    ov.appendChild(cave); ov.appendChild(title);
+    requestAnimationFrame(() => { title.style.opacity = '1'; });
+    setTimeout(() => { cave.style.opacity = '0.6'; }, 600);
+
+    // Phase 3: Fade-out und Spiel starten
+    setTimeout(() => {
+      ov.style.transition = 'opacity 0.9s';
+      ov.style.opacity = '0';
+      setTimeout(() => {
+        ov.remove();
+        S.intro = true; save();
+        requestAnimationFrame(loop);
+      }, 900);
+    }, 2800);
+  };
+})();
+// loop wird von startIntro gestartet (entweder direkt oder nach Intro-Animation)
 /* ===================== PIXEL-SYMBOLE =====================
    Ersetzt alle Emoji im Spiel (Menüs, Skillbaum, Texte im Kampf) durch Pixel-Symbole.
    Münze und Diamant sind handgezeichnet, der Rest wird aus dem Emoji verpixelt.
