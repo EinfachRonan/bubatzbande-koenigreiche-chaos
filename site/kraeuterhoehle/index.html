@@ -1325,6 +1325,12 @@ function startFight(ch){
   S.day.bag.forEach((p, i) => throwPack(p, 0.8 + i*0.45));
   S.day.bag = []; save();
   updateHud();
+  // Sprites vorab auf 1×1px zeichnen → Browser dekodiert sie jetzt, nicht beim ersten echten drawImage
+  setTimeout(() => {
+    const tmp = document.createElement('canvas'); tmp.width = 1; tmp.height = 1;
+    const tx = tmp.getContext('2d'); tx.globalAlpha = 0.001;
+    for(const id in SPR){ const s = SPR[id]; const img = s.c || s.r; if(img && img.width) try{ tx.drawImage(img, 0, 0, 1, 1); }catch(e){} }
+  }, 100);
 }
 function throwPack(pid, delay, from){
   const a = Math.random()*Math.PI*2, r = 90 + Math.random()*120;
@@ -1377,7 +1383,11 @@ function spawnUnit(id, x, y, shiny, reveal, fromBasis, noFind){
   if(shiny && reveal && !HERO[id].summoned){ if(!S.galaxy){ S.galaxy = true; setTimeout(() => toast('✨ Dein erster Shiny! Der <b>Magiebaum</b> über dem Skillbaum ist erwacht. Dort gibst du Shiny-Marken aus.'), 400); } if(!S.rerollUnlocked){ S.rerollUnlocked = true; setTimeout(() => toast('🔓 AUFFRISCHEN freigeschaltet! Dein erster Shiny hat den Laden erweckt.'), 1200); save(); } S.sm = (S.sm || 0) + 2; S.q.shiny = (S.q.shiny || 0) + 1; addText(x, y - 110, '+2 ✨ Shiny-Marken', '#fff2a0', 15, 2); }
   if(!HERO[id].summoned && !noFind){
     S.q['found_' + id] = (S.q['found_' + id] || 0) + 1;
-    if(!S.seen[id]){ S.seen[id] = 1; S.newSeen[id] = 1; S.owned['h_' + id] = 1; computeMods(); const k = DISC_KR[HERO[id].r]; B.earned += k; S.kr += k; addText(x, y - 95, `NEU entdeckt! +${k} 💎`, '#7fd8ff', 15, 2); queueHeroReveal(id, shiny); save(); }
+    if(!S.seen[id]){ S.seen[id] = 1; S.newSeen[id] = 1; S.owned['h_' + id] = 1;
+      const _t0=performance.now(); computeMods(); console.log('[KH] computeMods:', (performance.now()-_t0).toFixed(1)+'ms');
+      const k = DISC_KR[HERO[id].r]; B.earned += k; S.kr += k; addText(x, y - 95, `NEU entdeckt! +${k} 💎`, '#7fd8ff', 15, 2);
+      const _t1=performance.now(); queueHeroReveal(id, shiny); console.log('[KH] queueHeroReveal done, paused='+( B&&B.paused), (performance.now()-_t1).toFixed(1)+'ms');
+      save(); }
   }
   recalcAura();
   if(reveal){
@@ -1435,7 +1445,10 @@ function toWorld(e){ const r = cv.getBoundingClientRect(); return {x:(e.clientX 
 cv.addEventListener('pointermove', e => { const p = toWorld(e); mouse.x = p.x; mouse.y = p.y; mouse.in = true; });
 cv.addEventListener('pointerleave', () => { mouse.in = false; if(B) B.held = false; });
 cv.addEventListener('pointerdown', e => {
-  if(!B || B.over || B.paused) return;
+  if(!B || B.over) return;
+  // Held-Reveal: Klick bestätigt und zeigt nächsten oder setzt Spiel fort
+  if(heroRevealActive){ dismissHeroReveal(); return; }
+  if(B.paused) return;
   const p = toWorld(e); mouse.x = p.x; mouse.y = p.y; mouse.in = true;
   collectAt(p.x, p.y); doClick(p.x, p.y);
   try{ cv.setPointerCapture(e.pointerId); }catch(err){}
@@ -2407,9 +2420,9 @@ function draw(){
     const W = cv.width / DPR, H = cv.height / DPR;
     ctx.save();
     ctx.scale(DPR, DPR);
-    // Halbtransparenter Hintergrund
-    const a = heroRevealActive.t > HERO_REVEAL_DUR - 0.3 ? (HERO_REVEAL_DUR - heroRevealActive.t) / 0.3
-             : heroRevealActive.t < 0.4 ? heroRevealActive.t / 0.4 : 1;
+    // Halbtransparenter Hintergrund — alpha per Date.now() damit Pause kein Problem ist
+    const _shownMs = Date.now() - (heroRevealActive.shownAt || Date.now());
+    const a = Math.min(1, _shownMs / 300);
     ctx.fillStyle = `rgba(0,0,0,${0.72 * a})`;
     ctx.fillRect(0, 0, W, H);
     drawHeroReveal(ctx, W, H);
@@ -2672,11 +2685,17 @@ function endFight(win){
 }
 
 let last = performance.now(), hudT = 0;
+let _pauseLogT = 0;
 function loop(t){
-  const raw = Math.min(0.05, (t - last) / 1000); last = t;
-  if(B && !B.over && !B.paused){ for(let i = 0; i < S.speed && B && !B.over; i++) update(raw); }
-  if(B){ draw(); hudT -= raw; if(hudT <= 0){ updateHud(); hudT = 0.08; } }
-  requestAnimationFrame(loop);
+  requestAnimationFrame(loop); // zuerst: Loop läuft immer weiter, auch bei Fehler
+  try {
+    const raw = Math.min(0.05, (t - last) / 1000); last = t;
+    if(B && B.paused && heroRevealActive && t - _pauseLogT > 1000){ _pauseLogT = t; console.log('[KH] PAUSED - heroRevealActive:', heroRevealActive.id, 'shownAt:', heroRevealActive.shownAt); }
+    if(B && !B.over && !B.paused){ for(let i = 0; i < S.speed && B && !B.over; i++) update(raw); }
+    if(B){ draw(); hudT -= raw; if(hudT <= 0){ updateHud(); hudT = 0.08; } }
+  } catch(err) {
+    console.error('[KH Loop Fehler]', err);
+  }
 }
 centerTree(); checkQuests();
 if(!S.intro){ document.getElementById('hub').style.display='none'; document.getElementById('battle').style.display='flex'; }
@@ -2688,21 +2707,36 @@ if(S.refund){ setTimeout(() => toast(`Mauszeiger-Aufwertungen wurden entfernt: $
 // ══════════════════════════════════════
 function queueHeroReveal(id, shiny){
   heroRevealQ.push({id, shiny});
+  // Erstes Reveal sofort aktivieren und Spiel pausieren
+  if(!heroRevealActive) advanceHeroReveal();
+}
+function advanceHeroReveal(){
+  if(heroRevealQ.length){
+    heroRevealActive = {...heroRevealQ.shift(), t: HERO_REVEAL_DUR, shownAt: Date.now()};
+    if(B) B.paused = true;
+  } else {
+    heroRevealActive = null;
+    if(B) B.paused = false;
+  }
+}
+function dismissHeroReveal(){
+  // Mindest-Anzeigezeit 500ms damit Fade-in sichtbar
+  if(!heroRevealActive) return;
+  if(Date.now() - (heroRevealActive.shownAt || 0) < 500) return;
+  advanceHeroReveal();
 }
 function tickHeroReveal(dt){
   if(heroRevealActive){
     heroRevealActive.t -= dt;
-    if(heroRevealActive.t <= 0) heroRevealActive = null;
-  }
-  if(!heroRevealActive && heroRevealQ.length){
-    heroRevealActive = {...heroRevealQ.shift(), t: HERO_REVEAL_DUR};
+    // Kein Auto-Expire — Spieler muss klicken (aber nach 15s als Fallback)
+    if(heroRevealActive.t <= -15) advanceHeroReveal();
   }
 }
 function drawHeroReveal(ctx, W, H){
   const r = heroRevealActive; if(!r) return;
-  const a = r.t > HERO_REVEAL_DUR - 0.3 ? (HERO_REVEAL_DUR - r.t) / 0.3
-           : r.t < 0.4 ? r.t / 0.4 : 1;
   const c = HERO[r.id];
+  if(!c){ console.warn('[KH] drawHeroReveal: HERO['+r.id+'] nicht gefunden, skip'); advanceHeroReveal(); return; }
+  const a = Math.min(1, (Date.now() - (r.shownAt || Date.now())) / 300);
   const pc = c.pc || (r.shiny ? `hsl(${Date.now()/20%360},90%,60%)` : '#7fd8ff');
 
   // Hintergrund-Strahlenkranz
@@ -2738,8 +2772,8 @@ function drawHeroReveal(ctx, W, H){
   const spr = SPR[r.id];
   if(spr){
     const sc = 5.5 + Math.sin(Date.now()/600)*0.08;
-    const img = spr.c || spr.r; // spr.c = Canvas (Pixel-Art), spr.r = Image (Custom-Sprite)
-    if(img && img.width){
+    const img = (spr.c && spr.c.width) ? spr.c : (spr.r && spr.r.width) ? spr.r : null;
+    if(img){
       const sw = img.width * sc * (spr.sc || 1), sh = img.height * sc * (spr.sc || 1);
       ctx.save(); ctx.globalAlpha = a;
       ctx.imageSmoothingEnabled = false;
@@ -2765,6 +2799,16 @@ function drawHeroReveal(ctx, W, H){
     ctx.font = '24px "VT323", monospace';
     ctx.fillStyle = '#fff2a0';
     ctx.fillText('✨ SHINY: ' + (c.shiny && c.shiny.txt ? c.shiny.txt : ''), W/2, nameY + 68);
+  }
+  // "Klick zum Weiterspielen" — erscheint nach 400ms, pulsierend
+  const shownMs = Date.now() - (r.shownAt || Date.now());
+  const clickFade = Math.min(1, (shownMs - 400) / 300); // 0→1 zwischen 400ms und 700ms
+  if(clickFade > 0){
+    ctx.font = '26px "VT323", monospace';
+    ctx.fillStyle = '#c8d0d8';
+    ctx.globalAlpha = clickFade * (0.5 + 0.5 * Math.sin(Date.now() / 350)) * a;
+    ctx.textAlign = 'center';
+    ctx.fillText('[ KLICK ZUM WEITERSPIELEN ]', W/2, H/2 + H * 0.38);
   }
   ctx.restore();
 }
