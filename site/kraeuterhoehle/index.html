@@ -945,7 +945,7 @@ let S;
 let heroRevealQ = [];
 let heroRevealActive = null;
 const HERO_REVEAL_DUR = 3.8;
-function defState(){ return {kr:0, owned:{root:1, h_nille:1}, q:{basis:0, packs:0, kills:0, click:0, surv:0}, chapter:1, sel:1, best:{}, speed:1, day:null, tries:{}, ctot:{}, seen:{}, newSeen:{}, intro:false, rerollUnlocked:false}; }
+function defState(){ return {kr:0, owned:{root:1, h_nille:1}, q:{basis:0, packs:0, kills:0, click:0, surv:0}, chapter:1, sel:1, best:{}, speed:1, day:null, tries:{}, ctot:{}, seen:{}, newSeen:{}, intro:false, introFightDone:false, rerollUnlocked:false}; }
 function load(){ try{ const r = localStorage.getItem(KEY); if(r){ S = Object.assign(defState(), JSON.parse(r)); migrate(); return; } }catch(e){} S = defState(); }
 // Entfernte Mauszeiger-Knoten: ausgegebene Meisterschaft zurückgeben
 function migrate(){
@@ -2622,6 +2622,8 @@ function updateHud(){
 function endFight(win){
   if(B.over) return;
   B.over = true; B.held = false;
+  // Tutorial-Gate: erste Intro-Runde beendet → Tutorial darf starten
+  if(S.intro && !S.introFightDone){ S.introFightDone = true; }
   const bonus = Math.floor(B.t / 10) + (win ? 100 * B.ch : 0);
   B.earned += bonus; S.kr += bonus;
   S.q.surv = Math.max(S.q.surv || 0, B.t);
@@ -2769,7 +2771,7 @@ function drawHeroReveal(ctx, W, H){
     @keyframes khPulse{0%,100%{opacity:.4}50%{opacity:1}}
     @keyframes khShake{0%,100%{transform:translate(-50%,-50%) rotate(-3deg)}25%{transform:translate(-48%,-52%) rotate(-8deg)}75%{transform:translate(-52%,-48%) rotate(2deg)}}
     @keyframes khCrack{0%{opacity:0;transform:scale(.5)}40%{opacity:1;transform:scale(1.3)}100%{opacity:.7;transform:scale(1)}}
-    @keyframes khRip{0%{transform:translate(-50%,-50%) rotate(-3deg) scale(1);filter:drop-shadow(0 0 32px #7ec8e8cc)}30%{transform:translate(-50%,-54%) rotate(-8deg) scale(1.15);filter:drop-shadow(0 0 60px #fff8) brightness(2)}60%{transform:translate(-53%,-42%) rotate(15deg) scale(1.4);filter:brightness(3) blur(1px)}100%{transform:translate(-60%,-20%) rotate(40deg) scale(.3);opacity:0;filter:blur(4px)}}
+    @keyframes khRip{0%{transform:translate(-50%,-50%) rotate(-3deg) scale(1);opacity:1;filter:drop-shadow(0 0 32px #7ec8e8cc)}30%{transform:translate(-50%,-50%) rotate(-10deg) scale(1.2);filter:drop-shadow(0 0 60px #fff8) brightness(2)}60%{transform:translate(-50%,-50%) rotate(18deg) scale(1.5);filter:brightness(3) blur(1px)}100%{transform:translate(-50%,-50%) rotate(35deg) scale(0.1);opacity:0;filter:blur(6px)}}
     #intro-wrap{position:fixed;inset:0;z-index:50;pointer-events:none;cursor:${cursorUrl}}
     #intro-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:51;text-align:center;user-select:none;pointer-events:all;animation:khBob 2s ease-in-out infinite;cursor:${cursorUrl}}
     #intro-box canvas{image-rendering:pixelated;width:200px;height:auto;filter:drop-shadow(0 0 32px #7ec8e8cc)}
@@ -3216,17 +3218,16 @@ function drawHeroReveal(ctx, W, H){
   el.querySelector('#tutN').onclick = e => { e.stopPropagation(); go(S.tut + 1 >= STEPS.length ? 99 : S.tut + 1); };
   el.querySelector('#tutX').onclick = e => { e.stopPropagation(); go(99); };
   if(S.tut === undefined){
-    const played = Object.values(S.tries || {}).some(v => v > 0) || S.kr > 0;
+    const played = Object.values(S.tries || {}).some(v => v > 0) || S.kr > 0 || S.introFightDone;
     // -1 = wartet auf erste Intro-Runde; 0 = Tutorial aktiv; 99 = fertig
-    S.tut = played ? 99 : (S.intro ? -1 : -1);
+    S.tut = played ? 99 : -1;
   }
   let shown = -1, t3 = 0;
   setInterval(() => {
     let s = S.tut; if(s === undefined || s >= 99) { el.style.display = 'none'; return; }
-    // -1: warte bis Intro gesehen UND erste Runde gespielt (tries > 0)
+    // -1: warte bis Intro-Runde beendet (endFight setzt S.introFightDone)
     if(s === -1){
-      const firstRoundDone = S.intro && Object.values(S.tries || {}).some(v => v > 0);
-      if(firstRoundDone){ s = 0; S.tut = 0; try{ save(); }catch(e){} }
+      if(S.introFightDone){ s = 0; S.tut = 0; try{ save(); }catch(e){} }
       else { el.style.display = 'none'; return; }
     }
     if(s === 0 && (inFight() || (S.day && S.day.bag && S.day.bag.length))) s = inFight() ? 2 : 1;
