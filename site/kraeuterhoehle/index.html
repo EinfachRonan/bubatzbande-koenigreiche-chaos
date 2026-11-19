@@ -1102,7 +1102,7 @@ function renderShop(){
       <div class="pb"><img src="${PACK_SPR[o.p].url}" style="${o.sold ? 'opacity:.15' : ''}"></div>
       <div class="sn">${P.n}</div><div class="odds">${oddsHTML(P.w)}</div></div>`; }).join('');
   $('#bag').innerHTML = D.bag.length ? `Im Rucksack (fliegen im Kampf raus):<br>${D.bag.map(p => `<img src="${PACK_SPR[p].url}">`).join('')}` : 'Nicht ausgegebenes Gold verfällt nach dem Kampf. Kaufe Pakete. Sie fliegen im Kampf aus der Höhle und du sammelst sie per Klick ein.';
-  if(!S.rerollUnlocked){ $('#reroll').disabled = true; $('#reroll').textContent = '🔒 AUFFRISCHEN (1. Shiny = Frei)'; }
+  if(!S.rerollUnlocked){ $('#reroll').disabled = true; $('#reroll').textContent = '🔒 AUFFRISCHEN'; }
   else { $('#reroll').disabled = D.coins < 1 && !D.free; $('#reroll').textContent = D.free ? 'AUFFRISCHEN (GRATIS)' : 'AUFFRISCHEN 1 🪙'; }
   document.querySelectorAll('#offers .of').forEach(el => el.onclick = () => {
     const o = D.offers[+el.dataset.i], cst = offerCost(o);
