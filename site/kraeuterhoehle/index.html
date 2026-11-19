@@ -2752,10 +2752,14 @@ function drawHeroReveal(ctx, W, H){
 
 // ══════════════════════════════════════
 // INTRO-SEQUENZ
-// Intro: Kampf-Map sofort sichtbar, Booster darüber, Klick → Titel → Kampf startet
+// Intro: Kampf-Map sofort sichtbar, Booster darüber, 5× Klick → Rip → Kampf
 // ══════════════════════════════════════
 (function startIntro(){
   if(S.intro){ requestAnimationFrame(loop); return; }
+
+  // ── Custom Cursor: pixeliges Zielkreuz (SVG, pixel-art Stil) ──
+  const cursorSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><rect x='10' y='0' width='4' height='4' fill='%23e8d870'/><rect x='10' y='4' width='4' height='4' fill='%23b89a30'/><rect x='10' y='16' width='4' height='4' fill='%23b89a30'/><rect x='10' y='20' width='4' height='4' fill='%23e8d870'/><rect x='0' y='10' width='4' height='4' fill='%23e8d870'/><rect x='4' y='10' width='4' height='4' fill='%23b89a30'/><rect x='16' y='10' width='4' height='4' fill='%23b89a30'/><rect x='20' y='10' width='4' height='4' fill='%23e8d870'/><rect x='10' y='10' width='4' height='4' fill='%237fd8ff'/></svg>`;
+  const cursorUrl = `url("data:image/svg+xml,${cursorSvg}") 12 12, crosshair`;
 
   // CSS
   const style = document.createElement('style');
@@ -2763,13 +2767,19 @@ function drawHeroReveal(ctx, W, H){
     @keyframes khBob{0%,100%{transform:translate(-50%,-50%) rotate(-3deg)}50%{transform:translate(-50%,-60%) rotate(3deg)}}
     @keyframes khFadeIn{from{opacity:0;transform:scale(.88) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
     @keyframes khPulse{0%,100%{opacity:.4}50%{opacity:1}}
-    #intro-wrap{position:fixed;inset:0;z-index:50;pointer-events:none}
-    #intro-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:51;text-align:center;cursor:pointer;user-select:none;pointer-events:all;animation:khBob 2s ease-in-out infinite}
+    @keyframes khShake{0%,100%{transform:translate(-50%,-50%) rotate(-3deg)}25%{transform:translate(-48%,-52%) rotate(-8deg)}75%{transform:translate(-52%,-48%) rotate(2deg)}}
+    @keyframes khCrack{0%{opacity:0;transform:scale(.5)}40%{opacity:1;transform:scale(1.3)}100%{opacity:.7;transform:scale(1)}}
+    @keyframes khRip{0%{transform:translate(-50%,-50%) rotate(-3deg) scale(1);filter:drop-shadow(0 0 32px #7ec8e8cc)}30%{transform:translate(-50%,-54%) rotate(-8deg) scale(1.15);filter:drop-shadow(0 0 60px #fff8) brightness(2)}60%{transform:translate(-53%,-42%) rotate(15deg) scale(1.4);filter:brightness(3) blur(1px)}100%{transform:translate(-60%,-20%) rotate(40deg) scale(.3);opacity:0;filter:blur(4px)}}
+    #intro-wrap{position:fixed;inset:0;z-index:50;pointer-events:none;cursor:${cursorUrl}}
+    #intro-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:51;text-align:center;user-select:none;pointer-events:all;animation:khBob 2s ease-in-out infinite;cursor:${cursorUrl}}
     #intro-box canvas{image-rendering:pixelated;width:200px;height:auto;filter:drop-shadow(0 0 32px #7ec8e8cc)}
     #intro-box .intro-hint{font-family:VT323,monospace;font-size:22px;color:#4a9abf;letter-spacing:3px;animation:khPulse 1.5s ease-in-out infinite;margin-top:8px}
+    #intro-box .crack-layer{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
     #intro-title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:52;pointer-events:none;opacity:0;transition:opacity .6s;background:rgba(0,0,0,.55)}
     #intro-title .t1{font-family:VT323,monospace;font-size:clamp(28px,5vw,60px);color:#e8d870;letter-spacing:5px;text-shadow:0 0 40px #e8d870bb;animation:khFadeIn .7s .1s both}
     #intro-title .t2{font-family:VT323,monospace;font-size:clamp(42px,8vw,100px);color:#7fd8ff;letter-spacing:7px;text-shadow:0 0 50px #7fd8ffcc;line-height:1;animation:khFadeIn .8s .3s both}
+    .intro-crack{position:absolute;pointer-events:none;animation:khCrack .2s ease-out forwards}
+    * { cursor: ${cursorUrl} !important; }
   `;
   document.head.appendChild(style);
 
@@ -2777,8 +2787,6 @@ function drawHeroReveal(ctx, W, H){
   document.getElementById('hub').style.display = 'none';
   const battleDiv = document.getElementById('battle');
   battleDiv.style.display = 'flex';
-
-  // Canvas für leere Map vorbereiten (loop läuft, zeigt Map ohne Einheiten)
   requestAnimationFrame(loop);
 
   // Wrapper über alles
@@ -2787,6 +2795,7 @@ function drawHeroReveal(ctx, W, H){
 
   // Booster-Box zentriert
   const box = document.createElement('div'); box.id = 'intro-box';
+  box.style.position = 'relative';
   const bc = gridCanvas(packGrid(PACKS.basis.col));
   const hint = document.createElement('div'); hint.className = 'intro-hint'; hint.textContent = '▶ klicken';
   box.appendChild(bc); box.appendChild(hint);
@@ -2797,18 +2806,83 @@ function drawHeroReveal(ctx, W, H){
   titleEl.innerHTML = '<div class="t1">DIE LEGENDEN DER</div><div class="t2">KRÄUTERHÖHLE</div>';
   wrap.appendChild(titleEl);
 
-  box.onclick = () => {
-    box.style.pointerEvents = 'none';
-    bc.style.transition = 'transform .15s, opacity .25s';
-    bc.style.transform = 'scale(1.5) rotate(12deg)';
-    bc.style.opacity = '0';
-    hint.style.opacity = '0';
-    setTimeout(() => { titleEl.style.opacity = '1'; }, 150);
+  // ── Crack-Overlay Canvas (Risse überzeichnen) ──
+  const crackC = document.createElement('canvas');
+  crackC.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;image-rendering:pixelated;opacity:.9';
+  crackC.width = bc.width; crackC.height = bc.height;
+  box.appendChild(crackC);
+  const crackCtx = crackC.getContext('2d');
+
+  // Crack-Muster: je Klick ein weiteres Riss-Segment hinzufügen
+  const CRACKS = [
+    [[0.5,0.5],[0.3,0.2],[0.1,0.35]],
+    [[0.5,0.5],[0.7,0.3],[0.85,0.15]],
+    [[0.5,0.5],[0.4,0.75],[0.2,0.9]],
+    [[0.5,0.5],[0.65,0.8],[0.9,0.7]],
+    [[0.5,0.5],[0.5,0.1],[0.8,0.05]]
+  ];
+  function drawCracks(n){
+    crackCtx.clearRect(0,0,crackC.width,crackC.height);
+    crackCtx.strokeStyle = '#ffffffcc'; crackCtx.lineWidth = 2;
+    for(let i=0;i<n;i++){
+      const pts = CRACKS[i];
+      crackCtx.beginPath();
+      pts.forEach((p,j) => {
+        const x = p[0]*crackC.width, y = p[1]*crackC.height;
+        j===0 ? crackCtx.moveTo(x,y) : crackCtx.lineTo(x,y);
+      });
+      crackCtx.stroke();
+      // Kleine Splitter um den Schnittpunkt
+      const cx = pts[0][0]*crackC.width, cy = pts[0][1]*crackC.height;
+      crackCtx.fillStyle = '#ffffffaa';
+      for(let s=0;s<4;s++){
+        const sx = cx + (Math.random()-.5)*20, sy = cy + (Math.random()-.5)*20;
+        crackCtx.fillRect(sx,sy,2,2);
+      }
+    }
+  }
+
+  let clicks = 0;
+  const TOTAL = 5;
+  box.onclick = (e) => {
+    if(clicks >= TOTAL) return;
+    clicks++;
+    drawCracks(clicks);
+
+    // Schütteln + Farb-Flash bei jedem Klick
+    box.style.animation = 'none';
+    bc.style.filter = `drop-shadow(0 0 ${16+clicks*8}px #fff8) saturate(${1+clicks*.3}) brightness(${1+clicks*.15})`;
     setTimeout(() => {
-      wrap.remove();
-      S.intro = true; save();
-      startFight(S.sel);
-    }, 2600);
+      box.style.animation = '';
+    }, 180);
+
+    // Hint-Text updaten
+    if(clicks < TOTAL){
+      hint.textContent = '▶'.repeat(clicks+1) + ` (${clicks}/${TOTAL})`;
+    }
+
+    if(clicks >= TOTAL){
+      // ── RIP-Animation ──
+      hint.style.opacity = '0';
+      box.style.pointerEvents = 'none';
+      box.style.animation = 'khRip .7s ease-in forwards';
+      // Flash-Effekt auf dem ganzen Bildschirm
+      const flash = document.createElement('div');
+      flash.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:60;opacity:0;transition:opacity .15s;pointer-events:none';
+      document.body.appendChild(flash);
+      setTimeout(() => { flash.style.opacity = '0.85'; }, 300);
+      setTimeout(() => { flash.style.opacity = '0'; }, 500);
+      setTimeout(() => { flash.remove(); }, 700);
+      // Titel einblenden
+      setTimeout(() => { titleEl.style.opacity = '1'; }, 500);
+      setTimeout(() => {
+        // Custom cursor wieder weg, normaler style
+        style.remove();
+        wrap.remove();
+        S.intro = true; save();
+        startFight(S.sel);
+      }, 2800);
+    }
   };
 })();
 // Loop läuft bereits (wird oben in startIntro gestartet)
@@ -3141,10 +3215,20 @@ function drawHeroReveal(ctx, W, H){
   function go(i){ S.tut = i; try{ save(); }catch(e){} show(i); }
   el.querySelector('#tutN').onclick = e => { e.stopPropagation(); go(S.tut + 1 >= STEPS.length ? 99 : S.tut + 1); };
   el.querySelector('#tutX').onclick = e => { e.stopPropagation(); go(99); };
-  if(S.tut === undefined){ const played = Object.values(S.tries || {}).some(v => v > 0) || S.kr > 0; S.tut = played ? 99 : 0; }
+  if(S.tut === undefined){
+    const played = Object.values(S.tries || {}).some(v => v > 0) || S.kr > 0;
+    // -1 = wartet auf erste Intro-Runde; 0 = Tutorial aktiv; 99 = fertig
+    S.tut = played ? 99 : (S.intro ? -1 : -1);
+  }
   let shown = -1, t3 = 0;
   setInterval(() => {
     let s = S.tut; if(s === undefined || s >= 99) { el.style.display = 'none'; return; }
+    // -1: warte bis Intro gesehen UND erste Runde gespielt (tries > 0)
+    if(s === -1){
+      const firstRoundDone = S.intro && Object.values(S.tries || {}).some(v => v > 0);
+      if(firstRoundDone){ s = 0; S.tut = 0; try{ save(); }catch(e){} }
+      else { el.style.display = 'none'; return; }
+    }
     if(s === 0 && (inFight() || (S.day && S.day.bag && S.day.bag.length))) s = inFight() ? 2 : 1;
     if(s === 1 && inFight()) s = 2;
     if(s === 2 && inFight() && B.units.length) { s = 3; t3 = 0; }
