@@ -3237,7 +3237,7 @@ function drawHeroReveal(ctx, W, H){
   ];
   const inFight = () => typeof B !== 'undefined' && B && !B.over;
   function show(i){ if(i >= STEPS.length){ el.style.display = 'none'; return; } el.querySelector('#tutT').innerHTML = STEPS[i].t; el.querySelector('#tutN').style.display = STEPS[i].btn ? '' : 'none'; el.style.display = 'block'; }
-  function go(i){ S.tut = i; try{ save(); }catch(e){} show(i); }
+  function go(i){ S.tut = i; setTimeout(() => { try{ save(); }catch(e){} }, 0); show(i); }
   el.querySelector('#tutN').onclick = e => { e.stopPropagation(); go(S.tut + 1 >= STEPS.length ? 99 : S.tut + 1); };
   el.querySelector('#tutX').onclick = e => { e.stopPropagation(); go(99); };
   if(S.tut === undefined){
@@ -3250,7 +3250,7 @@ function drawHeroReveal(ctx, W, H){
     let s = S.tut; if(s === undefined || s >= 99) { el.style.display = 'none'; return; }
     // -1: warte bis Intro-Runde beendet (endFight setzt S.introFightDone)
     if(s === -1){
-      if(S.introFightDone){ s = 0; S.tut = 0; try{ save(); }catch(e){} }
+      if(S.introFightDone){ s = 0; S.tut = 0; setTimeout(() => { try{ save(); }catch(e){} }, 0); }
       else { el.style.display = 'none'; return; }
     }
     if(s === 0 && (inFight() || (S.day && S.day.bag && S.day.bag.length))) s = inFight() ? 2 : 1;
@@ -3258,7 +3258,7 @@ function drawHeroReveal(ctx, W, H){
     if(s === 2 && inFight() && B.units.length) { s = 3; t3 = 0; }
     if(s === 3){ t3 += 0.3; if(t3 > 10 || !inFight()) s = 4; }
     if(s === 4 && inFight()) { el.style.display = 'none'; return; }
-    if(s !== S.tut){ S.tut = s; try{ save(); }catch(e){} }
+    if(s !== S.tut){ S.tut = s; setTimeout(() => { try{ save(); }catch(e){} }, 0); }
     if(s !== shown || el.style.display === 'none'){ shown = s; show(s); }
   }, 300);
 })();
