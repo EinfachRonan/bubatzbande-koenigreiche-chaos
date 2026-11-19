@@ -1496,7 +1496,7 @@ function spawnEnemy(boss, forceId, px, py){
     T = pick[0]; spr = GOBS[pick[1]];
   }
   const hp = T.hp * (boss ? 1 : hpMul);
-  const e = {born:B.t, x, y, spr, sc:T.sc,  type:T.id || 'boss', armor:T.armor || 0, stunT:0, poison:null, w:spr.w*T.sc, h:spr.h*T.sc, r:T.r || T.sc*5, slam:boss ? T.slam : null, slamCd:2, bname:T.n, hp, max:hp, spd:T.spd*(boss?1:0.9+Math.random()*0.2), n:T.n,
+  const e = {born:B.t, x, y, spr, sc:T.sc,  type:T.id || 'boss', armor:T.armor || 0, stunT:0, poison:null, w:spr.w*T.sc, h:spr.h*T.sc, r:T.r || T.sc*5, slam:boss ? T.slam : null, slamCd:2, bname:T.n, hp, max:hp, spd:T.spd*(boss?1:(0.9+Math.random()*0.2)*1.5), n:T.n,
     dmg:boss ? T.dmg : T.dmg*dMul, g:boss ? T.g : T.g*gMul, boss, slowT:0, slowF:1, atkCd:0, hit:0, ph:Math.random()*6, face:x < 0 ? 1 : -1, tgt:null,
     range:T.range || 0, ecd:T.cd || 1.8, healer:!!T.healer, summoner:!!T.summoner, legion:!!T.legion, banner:!!T.banner, phase2:boss && T.phase2, healCd:3, jump:boss && T.jump ? T.jump : null, jumpCd:boss && T.jump ? T.jump.first || 9 : 0, lift:0};
   if(T.invis){ e.invis = true; B.hidden.push(e); return; }
@@ -1830,7 +1830,7 @@ function update(dt){
   for(const u of B.units){
     if(u.dead) continue;
     u.anim = Math.max(0, u.anim - dt); u.hit = Math.max(0, u.hit - dt); u.moving = false;
-    const st = u.st, wolf = isWolf(u), sp = st.ms * (wolf ? 2 : 1);
+    const st = u.st, wolf = isWolf(u), sp = st.ms * (wolf ? 4 : 2);
     if(st.heal){ for(const o of B.units) if(!o.dead && o !== u && Math.hypot(o.x-u.x, o.y-u.y) < 120) o.hp = Math.min(o.max, o.hp + st.heal*dt); }
     if(st.healCave) B.hp = Math.min(B.maxHp, B.hp + st.healCave*dt);
     if(st.healAura){ const R = st.healAura > 4 ? 140 : 110; for(const o of B.units) if(!o.dead && Math.hypot(o.x-u.x, o.y-u.y) < R) o.hp = Math.min(o.max, o.hp + st.healAura*dt); }
@@ -1902,7 +1902,7 @@ function update(dt){
           const crit = Math.random() < st.crit; hurt(nx, unitDmg(u) * 2.5 * (crit ? 2 : 1), crit, u);
           sparks(nx.x, nx.y - nx.h/2, 14, 1.5); addRing(nx.x, nx.y - nx.h/2, 20, '#a8e0ff', 0.25);
           if(!nx.dead && !nx.boss){ nx.stunT = Math.max(nx.stunT, 0.4); }
-          U.last = nx; U.hit.add(nx); U.n--; U.t = 0.08; B.shake = Math.max(B.shake || 0, 0.06);
+          U.last = nx; U.hit.add(nx); U.n--; U.t = 0.35; B.shake = Math.max(B.shake || 0, 0.06);
         }
         continue;
       }
