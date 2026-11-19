@@ -750,13 +750,14 @@ HEROES.forEach(h => {
   SPR.kroete = {r:c, l:flip(c), url:c.toDataURL()}; }
 const SPRA = {};
 HEROES.forEach(h => { if(h.armorLook){ const c = gridCanvas(heroGrid(h.armorLook)); SPRA[h.id] = {r:c, l:flip(c), url:c.toDataURL()}; } if(h.look2){ const c = gridCanvas(heroGrid(h.look2)); SPRA[h.id + '2'] = {r:c, l:flip(c), url:c.toDataURL()}; } });
-Object.entries(CUSTOM_SPRITES).forEach(([id, c]) => { const r = new Image(), l = new Image(); r.src = c.r; l.src = c.l; const o = {r, l, url:c.r, custom:true, sc:c.sc}; SPR[id] = o; if(SPRA[id]) SPRA[id] = o;
+function _preImg(u){ const im = new Image(); im.src = u; im.decode && im.decode().catch(()=>{}); return im; }
+Object.entries(CUSTOM_SPRITES).forEach(([id, c]) => { const r = _preImg(c.r), l = _preImg(c.l); const o = {r, l, url:c.r, custom:true, sc:c.sc}; SPR[id] = o; if(SPRA[id]) SPRA[id] = o;
   if(c.leap){ o.leapR = []; o.leapL = []; o.leapAx = c.leapAx; o.leapAy = c.leapAy; o.leapW = c.leapW;
-    c.leap.forEach((u, i) => { const im = new Image(); im.onload = () => { o.leapL[i] = flip(im); }; im.src = u; o.leapR[i] = im; }); }
+    c.leap.forEach((u, i) => { const im = _preImg(u); im.onload = () => { o.leapL[i] = flip(im); }; o.leapR[i] = im; }); }
   if(c.walk){ o.walkR = []; o.walkL = []; o.walkAx = c.walkAx; o.walkAy = c.walkAy; o.walkW = c.walkW;
-    c.walk.forEach((u, i) => { const im = new Image(); im.onload = () => { o.walkL[i] = flip(im); }; im.src = u; o.walkR[i] = im; }); }
+    c.walk.forEach((u, i) => { const im = _preImg(u); im.onload = () => { o.walkL[i] = flip(im); }; o.walkR[i] = im; }); }
   if(c.atk){ o.atkR = []; o.atkL = []; o.atkAx = c.atkAx; o.atkAy = c.atkAy; o.atkW = c.atkW; o.hitFrame = c.hitFrame; o.animDur = c.animDur; o.nFrames = c.atk.length;
-    c.atk.forEach((u, i) => { const im = new Image(); im.onload = () => { o.atkL[i] = flip(im); }; im.src = u; o.atkR[i] = im; }); } });
+    c.atk.forEach((u, i) => { const im = _preImg(u); im.onload = () => { o.atkL[i] = flip(im); }; o.atkR[i] = im; }); } });
 let BERS_C = null; if(SPR.bers){ BERS_C = SPR.bers; delete SPR.bers; }
 if(SPR.kroete) SPR.riesenkroete = Object.assign({}, SPR.kroete, {sc:(SPR.kroete.sc || 1) * 2.1});
 if(SPR.wolf){ SPRW.allan = SPR.wolf; SPRW.artur = Object.assign({}, SPR.wolf, {sc:SPR.wolf.sc * 1.2}); delete SPR.wolf; }
