@@ -2768,16 +2768,25 @@ function drawHeroReveal(ctx, W, H){
   }
   ctx.restore();
 
-  // Held-Sprite groß
+  // Held-Sprite groß — links-Sprite gespiegelt = Frontansicht
   const spr = SPR[r.id];
   if(spr){
     const sc = 5.5 + Math.sin(Date.now()/600)*0.08;
-    const img = (spr.c && spr.c.width) ? spr.c : (spr.r && spr.r.width) ? spr.r : null;
+    // Bevorzuge: l gespiegelt (Frontansicht), dann c, dann r
+    const img = (spr.l && spr.l.width) ? spr.l : (spr.c && spr.c.width) ? spr.c : (spr.r && spr.r.width) ? spr.r : null;
+    const flipH = (spr.l && spr.l.width); // l-Sprite horizontal spiegeln
     if(img){
       const sw = img.width * sc * (spr.sc || 1), sh = img.height * sc * (spr.sc || 1);
+      const dx = Math.round(W/2 - sw/2), dy = Math.round(H/2 + 20 - sh/2 - 20);
       ctx.save(); ctx.globalAlpha = a;
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(img, Math.round(W/2 - sw/2), Math.round(H/2 + 20 - sh/2 - 20), Math.round(sw), Math.round(sh));
+      if(flipH){
+        ctx.translate(W/2 + sw/2, dy);
+        ctx.scale(-1, 1);
+        ctx.drawImage(img, 0, 0, Math.round(sw), Math.round(sh));
+      } else {
+        ctx.drawImage(img, dx, dy, Math.round(sw), Math.round(sh));
+      }
       ctx.restore();
     }
   }
@@ -2794,7 +2803,7 @@ function drawHeroReveal(ctx, W, H){
   ctx.shadowBlur = 0;
   ctx.font = '28px "VT323", monospace';
   ctx.fillStyle = '#c8d0d8';
-  ctx.fillText(c.cls ? c.cls.toUpperCase() + (c.desc ? ' · ' + c.desc : '') : (c.desc || ''), W/2, nameY + 36);
+  ctx.fillText(c.cls ? c.cls.toUpperCase() : '', W/2, nameY + 36);
   if(r.shiny){
     ctx.font = '24px "VT323", monospace';
     ctx.fillStyle = '#fff2a0';
