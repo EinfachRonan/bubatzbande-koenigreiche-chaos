@@ -941,6 +941,10 @@ NODES.forEach(n => { if(n.t === 'hero'){ const h = HERO[n.hero]; n.n = h.n; n.d 
 
 const KEY = 'kraeuterhoehle_v3';
 let S;
+// Held-Vorstellung – Variablen früh definiert (werden in spawnUnit genutzt)
+let heroRevealQ = [];
+let heroRevealActive = null;
+const HERO_REVEAL_DUR = 3.8;
 function defState(){ return {kr:0, owned:{root:1, h_nille:1}, q:{basis:0, packs:0, kills:0, click:0, surv:0}, chapter:1, sel:1, best:{}, speed:1, day:null, tries:{}, ctot:{}, seen:{}, newSeen:{}, intro:false, rerollUnlocked:false}; }
 function load(){ try{ const r = localStorage.getItem(KEY); if(r){ S = Object.assign(defState(), JSON.parse(r)); migrate(); return; } }catch(e){} S = defState(); }
 // Entfernte Mauszeiger-Knoten: ausgegebene Meisterschaft zurückgeben
@@ -2662,10 +2666,6 @@ if(S.refund){ setTimeout(() => toast(`Mauszeiger-Aufwertungen wurden entfernt: $
 // ══════════════════════════════════════
 // HELD-VORSTELLUNG (im Kampf, wenn neuer Held)
 // ══════════════════════════════════════
-let heroRevealQ = []; // Warteschlange neuer Helden-Vorstellungen
-let heroRevealActive = null; // {id, shiny, t}
-const HERO_REVEAL_DUR = 3.8;
-
 function queueHeroReveal(id, shiny){
   heroRevealQ.push({id, shiny});
 }
@@ -2748,73 +2748,59 @@ function drawHeroReveal(ctx, W, H){
 
 // ══════════════════════════════════════
 // INTRO-SEQUENZ
+// Booster erscheint im Hub (treebox), Klick → Titel → direkt in Kampf
 // ══════════════════════════════════════
 (function startIntro(){
-  if(S.intro){ requestAnimationFrame(loop); return; } // bereits gesehen
+  if(S.intro){ requestAnimationFrame(loop); return; }
 
-  const ov = document.createElement('div');
-  ov.id = 'intro-ov';
-  ov.style.cssText = 'position:fixed;inset:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;user-select:none';
+  // CSS-Animation einmalig einfügen
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes khBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+    @keyframes khFadeIn{from{opacity:0;transform:scale(.88) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    @keyframes khPulse{0%,100%{opacity:.4}50%{opacity:1}}
+    #intro-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20;text-align:center;cursor:pointer;user-select:none}
+    #intro-box canvas{image-rendering:pixelated;width:180px;height:auto;animation:khBob 2s ease-in-out infinite;filter:drop-shadow(0 0 28px #7ec8e8aa)}
+    #intro-box .intro-hint{font-family:VT323,monospace;font-size:20px;color:#4a7a9a;letter-spacing:3px;animation:khPulse 1.5s ease-in-out infinite;margin-top:10px}
+    #intro-title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:21;pointer-events:none;opacity:0;transition:opacity .6s}
+    #intro-title .t1{font-family:VT323,monospace;font-size:clamp(28px,5vw,60px);color:#e8d870;letter-spacing:5px;text-shadow:0 0 40px #e8d870bb;animation:khFadeIn .7s .1s both}
+    #intro-title .t2{font-family:VT323,monospace;font-size:clamp(42px,8vw,100px);color:#7fd8ff;letter-spacing:7px;text-shadow:0 0 50px #7fd8ffcc;line-height:1;animation:khFadeIn .8s .3s both}
+  `;
+  document.head.appendChild(style);
 
-  // Booster-Box Canvas
+  // Booster-Box im treebox platzieren
+  const tb = document.getElementById('treebox');
+  const box = document.createElement('div'); box.id = 'intro-box';
   const bc = gridCanvas(packGrid(PACKS.basis.col));
-  bc.style.cssText = 'image-rendering:pixelated;width:160px;height:auto;filter:drop-shadow(0 0 24px #7ec8e855);transition:transform .15s';
-  bc.title = 'Klicken zum Öffnen';
+  const hint = document.createElement('div'); hint.className = 'intro-hint'; hint.textContent = '▶ klicken';
+  box.appendChild(bc); box.appendChild(hint);
+  tb.appendChild(box);
 
-  const hint = document.createElement('div');
-  hint.textContent = 'klicken';
-  hint.style.cssText = 'color:#4a5a6a;font-family:VT323,monospace;font-size:22px;margin-top:14px;letter-spacing:3px';
+  // Titel-Overlay (noch unsichtbar)
+  const titleEl = document.createElement('div'); titleEl.id = 'intro-title';
+  titleEl.innerHTML = '<div class="t1">DIE LEGENDEN DER</div><div class="t2">KRÄUTERHÖHLE</div>';
+  tb.appendChild(titleEl);
 
-  ov.appendChild(bc); ov.appendChild(hint);
-  document.body.appendChild(ov);
+  requestAnimationFrame(loop); // Loop läuft, Hub sichtbar
 
-  // Booster-Box leicht schweben
-  let bFloat = 0;
-  const floatFrame = () => {
-    if(!document.getElementById('intro-ov')) return;
-    bFloat += 0.03;
-    bc.style.transform = `translateY(${Math.sin(bFloat)*6}px)`;
-    requestAnimationFrame(floatFrame);
-  };
-  requestAnimationFrame(floatFrame);
-
-  ov.onclick = () => {
-    // Phase 2: Titel-Einblendung
-    ov.style.cursor = 'default';
-    ov.innerHTML = '';
-
-    const title = document.createElement('div');
-    title.style.cssText = 'text-align:center;animation:khIntro .8s ease forwards;opacity:0';
-    title.innerHTML = `
-      <div style="font-family:VT323,monospace;font-size:clamp(32px,6vw,70px);color:#e8d870;letter-spacing:4px;text-shadow:0 0 30px #e8d87088">DIE LEGENDEN DER</div>
-      <div style="font-family:VT323,monospace;font-size:clamp(44px,9vw,110px);color:#7fd8ff;letter-spacing:6px;text-shadow:0 0 40px #7fd8ffaa;line-height:1">KRÄUTERHÖHLE</div>`;
-
-    // Höhlen-Hintergrundumriss (einfaches Canvas-Bild)
-    const cave = document.createElement('div');
-    cave.style.cssText = 'position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-size:120px;opacity:0;transition:opacity 1.2s;pointer-events:none';
-    cave.textContent = '🏔️';
-
-    const style = document.createElement('style');
-    style.textContent = '@keyframes khIntro{0%{opacity:0;transform:scale(.92) translateY(20px)}100%{opacity:1;transform:scale(1) translateY(0)}}';
-    document.head.appendChild(style);
-
-    ov.appendChild(cave); ov.appendChild(title);
-    requestAnimationFrame(() => { title.style.opacity = '1'; });
-    setTimeout(() => { cave.style.opacity = '0.6'; }, 600);
-
-    // Phase 3: Fade-out und Spiel starten
+  box.onclick = () => {
+    box.style.pointerEvents = 'none';
+    // Booster-Öffnungs-Flash
+    bc.style.transition = 'transform .15s, opacity .3s';
+    bc.style.transform = 'scale(1.4) rotate(10deg)';
+    bc.style.opacity = '0';
+    // Titel einblenden
+    setTimeout(() => { titleEl.style.opacity = '1'; }, 150);
+    // Nach ~2.5s direkt in Kampf starten (ohne Helden, leerer Bag)
     setTimeout(() => {
-      ov.style.transition = 'opacity 0.9s';
-      ov.style.opacity = '0';
-      setTimeout(() => {
-        ov.remove();
-        S.intro = true; save();
-        requestAnimationFrame(loop);
-      }, 900);
-    }, 2800);
+      titleEl.style.opacity = '0';
+      box.remove(); titleEl.remove();
+      S.intro = true; save();
+      startFight(S.sel);
+    }, 2500);
   };
 })();
-// loop wird von startIntro gestartet (entweder direkt oder nach Intro-Animation)
+// Loop läuft bereits (wird oben in startIntro gestartet)
 /* ===================== PIXEL-SYMBOLE =====================
    Ersetzt alle Emoji im Spiel (Menüs, Skillbaum, Texte im Kampf) durch Pixel-Symbole.
    Münze und Diamant sind handgezeichnet, der Rest wird aus dem Emoji verpixelt.
