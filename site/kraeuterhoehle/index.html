@@ -1369,8 +1369,8 @@ function openPack(p){
     if(u.st.dupe && Math.random() < u.st.dupe) spawnUnit(id, p.x + 20, p.y + 12, false, false, p.pid === 'basis');
   }
   if(p.pid === 'basis' && (MD.H.nille || {}).verst && Math.random() < 0.25){ spawnUnit('nille', p.x + 24, p.y + 10, false, true, true); addText(p.x, p.y + 30, 'Verstärkung!', '#e8d870', 13, 1.2); }
-  // 0.5% Eindringling-Chance pro Paket
-  if(Math.random() < 0.005){
+  // 0% Eindringling-Chance — noch deaktiviert bis Designs fertig
+  if(false && Math.random() < 0.005){
     const iid = rollIntruder();
     spawnUnit(iid, p.x, p.y - 20, false, false, false, true); // noFind=true: kein owned/seen
     queueHeroReveal(iid, false, true); // intruder=true
