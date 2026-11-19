@@ -2725,11 +2725,14 @@ function drawHeroReveal(ctx, W, H){
   const spr = SPR[r.id];
   if(spr){
     const sc = 5.5 + Math.sin(Date.now()/600)*0.08;
-    const sw = spr.c.width * sc, sh = spr.c.height * sc;
-    ctx.save(); ctx.globalAlpha = a;
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(spr.c, Math.round(W/2 - sw/2), Math.round(H/2 + 20 - sh/2 - 20), Math.round(sw), Math.round(sh));
-    ctx.restore();
+    const img = spr.c || spr.r; // spr.c = Canvas (Pixel-Art), spr.r = Image (Custom-Sprite)
+    if(img && img.width){
+      const sw = img.width * sc * (spr.sc || 1), sh = img.height * sc * (spr.sc || 1);
+      ctx.save(); ctx.globalAlpha = a;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, Math.round(W/2 - sw/2), Math.round(H/2 + 20 - sh/2 - 20), Math.round(sw), Math.round(sh));
+      ctx.restore();
+    }
   }
 
   // Namenstafel
