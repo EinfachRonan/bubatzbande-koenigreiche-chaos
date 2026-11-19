@@ -960,7 +960,20 @@ function migrate(){
   if(!S.rerollUnlocked && ((S.q && S.q.shiny) || S.sm)) S.rerollUnlocked = true;
   if(typeof S.intro === 'undefined') S.intro = true; // bestehende Saves: Intro bereits gesehen
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} cloudSave(); }
+let _saveTimer = null;
+function save(){ // immer deferred – verhindert Freeze im Game-Loop
+  if(_saveTimer) return; // bereits eingeplant
+  _saveTimer = setTimeout(() => {
+    _saveTimer = null;
+    try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+    cloudSave();
+  }, 0);
+}
+function saveNow(){ // nur für kritische Pfade (Seitenunload etc.)
+  if(_saveTimer){ clearTimeout(_saveTimer); _saveTimer = null; }
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+  cloudSave();
+}
 function cloudSave(now){ if(window.BB && BB.loggedIn && BB.cloud) BB.cloud.put('kh', S, now); }
 let _cloudPulled = false;
 async function cloudLoad(){
@@ -1361,10 +1374,10 @@ function spawnUnit(id, x, y, shiny, reveal, fromBasis, noFind){
   const u = {id, c:HERO[id], st, shiny, hp:st.hp, max:st.hp, x, y, hx, hy, face:x < 0 ? -1 : 1, cd:0.3, tgt:null, anim:0, moving:false, ph:Math.random()*6, kills:0, promoted:false, hit:0};
   B.units.push(u); stat(id).n++;
   if(giant) addText(x, y - 75, 'RIESE!', '#ffd070', 15, 1.4);
-  if(shiny && reveal && !HERO[id].summoned){ if(!S.galaxy){ S.galaxy = true; setTimeout(() => toast('✨ Dein erster Shiny! Der <b>Magiebaum</b> über dem Skillbaum ist erwacht. Dort gibst du Shiny-Marken aus.'), 400); } if(!S.rerollUnlocked){ S.rerollUnlocked = true; setTimeout(() => toast('🔓 AUFFRISCHEN freigeschaltet! Dein erster Shiny hat den Laden erweckt.'), 1200); setTimeout(() => { try{ save(); }catch(e){} }, 0); } S.sm = (S.sm || 0) + 2; S.q.shiny = (S.q.shiny || 0) + 1; addText(x, y - 110, '+2 ✨ Shiny-Marken', '#fff2a0', 15, 2); }
+  if(shiny && reveal && !HERO[id].summoned){ if(!S.galaxy){ S.galaxy = true; setTimeout(() => toast('✨ Dein erster Shiny! Der <b>Magiebaum</b> über dem Skillbaum ist erwacht. Dort gibst du Shiny-Marken aus.'), 400); } if(!S.rerollUnlocked){ S.rerollUnlocked = true; setTimeout(() => toast('🔓 AUFFRISCHEN freigeschaltet! Dein erster Shiny hat den Laden erweckt.'), 1200); save(); } S.sm = (S.sm || 0) + 2; S.q.shiny = (S.q.shiny || 0) + 1; addText(x, y - 110, '+2 ✨ Shiny-Marken', '#fff2a0', 15, 2); }
   if(!HERO[id].summoned && !noFind){
     S.q['found_' + id] = (S.q['found_' + id] || 0) + 1;
-    if(!S.seen[id]){ S.seen[id] = 1; S.newSeen[id] = 1; S.owned['h_' + id] = 1; computeMods(); const k = DISC_KR[HERO[id].r]; B.earned += k; S.kr += k; addText(x, y - 95, `NEU entdeckt! +${k} 💎`, '#7fd8ff', 15, 2); queueHeroReveal(id, shiny); setTimeout(() => { try{ save(); }catch(e){} }, 0); }
+    if(!S.seen[id]){ S.seen[id] = 1; S.newSeen[id] = 1; S.owned['h_' + id] = 1; computeMods(); const k = DISC_KR[HERO[id].r]; B.earned += k; S.kr += k; addText(x, y - 95, `NEU entdeckt! +${k} 💎`, '#7fd8ff', 15, 2); queueHeroReveal(id, shiny); save(); }
   }
   recalcAura();
   if(reveal){
@@ -3240,7 +3253,7 @@ function drawHeroReveal(ctx, W, H){
   ];
   const inFight = () => typeof B !== 'undefined' && B && !B.over;
   function show(i){ if(i >= STEPS.length){ el.style.display = 'none'; return; } el.querySelector('#tutT').innerHTML = STEPS[i].t; el.querySelector('#tutN').style.display = STEPS[i].btn ? '' : 'none'; el.style.display = 'block'; }
-  function go(i){ S.tut = i; setTimeout(() => { try{ save(); }catch(e){} }, 0); show(i); }
+  function go(i){ S.tut = i; save(); show(i); }
   el.querySelector('#tutN').onclick = e => { e.stopPropagation(); go(S.tut + 1 >= STEPS.length ? 99 : S.tut + 1); };
   el.querySelector('#tutX').onclick = e => { e.stopPropagation(); go(99); };
   if(S.tut === undefined){
@@ -3253,7 +3266,7 @@ function drawHeroReveal(ctx, W, H){
     let s = S.tut; if(s === undefined || s >= 99) { el.style.display = 'none'; return; }
     // -1: warte bis Intro-Runde beendet (endFight setzt S.introFightDone)
     if(s === -1){
-      if(S.introFightDone){ s = 0; S.tut = 0; setTimeout(() => { try{ save(); }catch(e){} }, 0); }
+      if(S.introFightDone){ s = 0; S.tut = 0; save(); }
       else { el.style.display = 'none'; return; }
     }
     if(s === 0 && (inFight() || (S.day && S.day.bag && S.day.bag.length))) s = inFight() ? 2 : 1;
@@ -3261,7 +3274,7 @@ function drawHeroReveal(ctx, W, H){
     if(s === 2 && inFight() && B.units.length) { s = 3; t3 = 0; }
     if(s === 3){ t3 += 0.3; if(t3 > 10 || !inFight()) s = 4; }
     if(s === 4 && inFight()) { el.style.display = 'none'; return; }
-    if(s !== S.tut){ S.tut = s; setTimeout(() => { try{ save(); }catch(e){} }, 0); }
+    if(s !== S.tut){ S.tut = s; save(); }
     if(s !== shown || el.style.display === 'none'){ shown = s; show(s); }
   }, 300);
 })();
