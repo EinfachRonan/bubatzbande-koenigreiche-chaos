@@ -14,6 +14,8 @@ bubatzbande.de zeigt eine Spielauswahl mit sieben Spielen:
 
 - **Die Legenden der Kräuterhöhle** (`site/kraeuterhoehle/`, Geheim-Testphase v0.5, von Mario): Höhlenverteidigung mit Paketen, Bande-Helden und Skilltree. Nur spielbar nach „Code eingeben“ in den Einstellungen der Startseite. Mit Konto liegt die Freischaltung im Profil (nur bei diesem Konto), ohne Konto nur auf dem Gerät. Codes stehen als Hash in `site/api/bb.php` (`$SECRET`).
 
+- **Kräuterschenke** (`site/schenke/`, Geheim-Testphase v0.1, Code 0811): Taverne in der Kräuterhöhle mit Marios Pixel-Figuren. Goblins jagen, Fleisch grillen, Gäste bedienen, mit Gold ausbauen (Tische, Kellner, Jäger, Grill, Tragen, Tempo). Spielstand auf dem Gerät.
+
 **Lofi-Radio (Startseite):** `site/lofi.js` erzeugt Lofi-Hintergrundmusik live per Web Audio (keine Audiodatei, kein Copyright). Startet beim ersten Antippen, 🎵-Knopf oben zum An/Aus (`bb_lofi`), Lautstärke = Musik-Regler.
 
 **Einstellungen (Zahnrad auf der Startseite):** Sound- und Musik-Lautstärke für alle Spiele (`BB.vol()` / `BB.setVol()`, gespeichert in `bb_vol`, Event `bb-vol`), dazu „Code eingeben“.
