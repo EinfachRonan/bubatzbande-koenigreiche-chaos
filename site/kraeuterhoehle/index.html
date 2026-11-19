@@ -2940,7 +2940,8 @@ function drawHeroReveal(ctx, W, H){
   // Eindringling: eigenes Render-System
   if(r.intruder){ drawIntruderReveal(ctx, W, H, r, c); return; }
   const a = Math.min(1, (Date.now() - (r.shownAt || Date.now())) / 300);
-  const pc = c.pc || (r.shiny ? `hsl(${Date.now()/20%360},90%,60%)` : '#7fd8ff');
+  const rarCol = RAR[c.r] ? RAR[c.r].c : '#7fd8ff';
+  const pc = r.shiny ? `hsl(${Date.now()/20%360},90%,60%)` : rarCol;
 
   // Hintergrund-Strahlenkranz
   ctx.save();
