@@ -2770,13 +2770,17 @@ function drawHeroReveal(ctx, W, H){
 
   // Held-Sprite groß — f = south/front, fallback r
   const spr = SPR[r.id];
+  let sprBottom = H/2; // Unterkante Sprite für Textpositionierung
   if(spr){
     const sc = 5.5 + Math.sin(Date.now()/600)*0.08;
     // Bevorzuge: f (echte Frontansicht), dann c, dann r
     const img = (spr.f && spr.f.width) ? spr.f : (spr.c && spr.c.width) ? spr.c : (spr.r && spr.r.width) ? spr.r : null;
     if(img){
       const sw = img.width * sc * (spr.sc || 1), sh = img.height * sc * (spr.sc || 1);
-      const dx = Math.round(W/2 - sw/2), dy = Math.round(H/2 + 20 - sh/2 - 20);
+      // Sprite in oberer Hälfte positionieren, damit Name darunter Platz hat
+      const dy = Math.round(H * 0.08);
+      const dx = Math.round(W/2 - sw/2);
+      sprBottom = dy + Math.round(sh);
       ctx.save(); ctx.globalAlpha = a;
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(img, dx, dy, Math.round(sw), Math.round(sh));
@@ -2784,9 +2788,9 @@ function drawHeroReveal(ctx, W, H){
     }
   }
 
-  // Namenstafel
+  // Namenstafel — direkt unter dem Sprite
   ctx.save(); ctx.globalAlpha = a;
-  const nameY = H/2 - 90;
+  const nameY = sprBottom + 42;
   ctx.fillStyle = r.shiny ? `hsl(${Date.now()/20%360},90%,55%)` : pc;
   ctx.shadowColor = r.shiny ? `hsl(${Date.now()/20%360},100%,60%)` : pc;
   ctx.shadowBlur = 18;
@@ -2810,7 +2814,7 @@ function drawHeroReveal(ctx, W, H){
     ctx.fillStyle = '#c8d0d8';
     ctx.globalAlpha = clickFade * (0.5 + 0.5 * Math.sin(Date.now() / 350)) * a;
     ctx.textAlign = 'center';
-    ctx.fillText('[ KLICK ZUM WEITERSPIELEN ]', W/2, H/2 + H * 0.38);
+    ctx.fillText('[ KLICK ZUM WEITERSPIELEN ]', W/2, nameY + (r.shiny ? 100 : 68));
   }
   ctx.restore();
 }
