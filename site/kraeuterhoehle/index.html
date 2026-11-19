@@ -2771,10 +2771,11 @@ function drawHeroReveal(ctx, W, H){
     @keyframes khPulse{0%,100%{opacity:.4}50%{opacity:1}}
     @keyframes khShake{0%,100%{transform:translate(-50%,-50%) rotate(-3deg)}25%{transform:translate(-48%,-52%) rotate(-8deg)}75%{transform:translate(-52%,-48%) rotate(2deg)}}
     @keyframes khCrack{0%{opacity:0;transform:scale(.5)}40%{opacity:1;transform:scale(1.3)}100%{opacity:.7;transform:scale(1)}}
-    @keyframes khRip{0%{transform:translate(-50%,-50%) rotate(-3deg) scale(1);opacity:1;filter:drop-shadow(0 0 32px #7ec8e8cc)}30%{transform:translate(-50%,-50%) rotate(-10deg) scale(1.2);filter:drop-shadow(0 0 60px #fff8) brightness(2)}60%{transform:translate(-50%,-50%) rotate(18deg) scale(1.5);filter:brightness(3) blur(1px)}100%{transform:translate(-50%,-50%) rotate(35deg) scale(0.1);opacity:0;filter:blur(6px)}}
+    @keyframes khRip{0%{transform:rotate(-3deg) scale(1);opacity:1;filter:drop-shadow(0 0 32px #7ec8e8cc)}30%{transform:rotate(-10deg) scale(1.2);filter:drop-shadow(0 0 60px #fff8) brightness(2)}60%{transform:rotate(18deg) scale(1.5);filter:brightness(3) blur(1px)}100%{transform:rotate(35deg) scale(0.1);opacity:0;filter:blur(6px)}}
     #intro-wrap{position:fixed;inset:0;z-index:50;pointer-events:none;cursor:${cursorUrl}}
-    #intro-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:51;text-align:center;user-select:none;pointer-events:all;animation:khBob 2s ease-in-out infinite;cursor:${cursorUrl}}
-    #intro-box canvas{image-rendering:pixelated;width:200px;height:auto;filter:drop-shadow(0 0 32px #7ec8e8cc)}
+    #intro-box{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:51;text-align:center;user-select:none;pointer-events:all;animation:khBob 2s ease-in-out infinite;cursor:${cursorUrl};display:inline-block}
+    #intro-box .bc-wrap{position:relative;display:inline-block}
+    #intro-box canvas{image-rendering:pixelated;width:200px;height:auto;filter:drop-shadow(0 0 32px #7ec8e8cc);display:block}
     #intro-box .intro-hint{font-family:VT323,monospace;font-size:22px;color:#4a9abf;letter-spacing:3px;animation:khPulse 1.5s ease-in-out infinite;margin-top:8px}
     #intro-box .crack-layer{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
     #intro-title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:52;pointer-events:none;opacity:0;transition:opacity .6s;background:rgba(0,0,0,.55)}
@@ -2797,10 +2798,11 @@ function drawHeroReveal(ctx, W, H){
 
   // Booster-Box zentriert
   const box = document.createElement('div'); box.id = 'intro-box';
-  box.style.position = 'relative';
+  const bcWrap = document.createElement('div'); bcWrap.className = 'bc-wrap';
   const bc = gridCanvas(packGrid(PACKS.basis.col));
+  bcWrap.appendChild(bc);
   const hint = document.createElement('div'); hint.className = 'intro-hint'; hint.textContent = '▶ klicken';
-  box.appendChild(bc); box.appendChild(hint);
+  box.appendChild(bcWrap); box.appendChild(hint);
   wrap.appendChild(box);
 
   // Titel-Overlay (noch unsichtbar)
@@ -2808,11 +2810,11 @@ function drawHeroReveal(ctx, W, H){
   titleEl.innerHTML = '<div class="t1">DIE LEGENDEN DER</div><div class="t2">KRÄUTERHÖHLE</div>';
   wrap.appendChild(titleEl);
 
-  // ── Crack-Overlay Canvas (Risse überzeichnen) ──
+  // ── Crack-Overlay Canvas — sitzt über dem bc-Canvas im bcWrap ──
   const crackC = document.createElement('canvas');
   crackC.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;image-rendering:pixelated;opacity:.9';
   crackC.width = bc.width; crackC.height = bc.height;
-  box.appendChild(crackC);
+  bcWrap.appendChild(crackC);
   const crackCtx = crackC.getContext('2d');
 
   // Crack-Muster: je Klick ein weiteres Riss-Segment hinzufügen
@@ -2867,7 +2869,8 @@ function drawHeroReveal(ctx, W, H){
       // ── RIP-Animation ──
       hint.style.opacity = '0';
       box.style.pointerEvents = 'none';
-      box.style.animation = 'khRip .7s ease-in forwards';
+      box.style.animation = 'none';
+      bcWrap.style.animation = 'khRip .7s ease-in forwards';
       // Flash-Effekt auf dem ganzen Bildschirm
       const flash = document.createElement('div');
       flash.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:60;opacity:0;transition:opacity .15s;pointer-events:none';
