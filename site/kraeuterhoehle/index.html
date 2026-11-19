@@ -1360,10 +1360,10 @@ function spawnUnit(id, x, y, shiny, reveal, fromBasis, noFind){
   const u = {id, c:HERO[id], st, shiny, hp:st.hp, max:st.hp, x, y, hx, hy, face:x < 0 ? -1 : 1, cd:0.3, tgt:null, anim:0, moving:false, ph:Math.random()*6, kills:0, promoted:false, hit:0};
   B.units.push(u); stat(id).n++;
   if(giant) addText(x, y - 75, 'RIESE!', '#ffd070', 15, 1.4);
-  if(shiny && reveal && !HERO[id].summoned){ if(!S.galaxy){ S.galaxy = true; setTimeout(() => toast('✨ Dein erster Shiny! Der <b>Magiebaum</b> über dem Skillbaum ist erwacht. Dort gibst du Shiny-Marken aus.'), 400); } if(!S.rerollUnlocked){ S.rerollUnlocked = true; setTimeout(() => toast('🔓 AUFFRISCHEN freigeschaltet! Dein erster Shiny hat den Laden erweckt.'), 1200); save(); } S.sm = (S.sm || 0) + 2; S.q.shiny = (S.q.shiny || 0) + 1; addText(x, y - 110, '+2 ✨ Shiny-Marken', '#fff2a0', 15, 2); }
+  if(shiny && reveal && !HERO[id].summoned){ if(!S.galaxy){ S.galaxy = true; setTimeout(() => toast('✨ Dein erster Shiny! Der <b>Magiebaum</b> über dem Skillbaum ist erwacht. Dort gibst du Shiny-Marken aus.'), 400); } if(!S.rerollUnlocked){ S.rerollUnlocked = true; setTimeout(() => toast('🔓 AUFFRISCHEN freigeschaltet! Dein erster Shiny hat den Laden erweckt.'), 1200); setTimeout(() => { try{ save(); }catch(e){} }, 0); } S.sm = (S.sm || 0) + 2; S.q.shiny = (S.q.shiny || 0) + 1; addText(x, y - 110, '+2 ✨ Shiny-Marken', '#fff2a0', 15, 2); }
   if(!HERO[id].summoned && !noFind){
     S.q['found_' + id] = (S.q['found_' + id] || 0) + 1;
-    if(!S.seen[id]){ S.seen[id] = 1; S.newSeen[id] = 1; S.owned['h_' + id] = 1; computeMods(); const k = DISC_KR[HERO[id].r]; B.earned += k; S.kr += k; addText(x, y - 95, `NEU entdeckt! +${k} 💎`, '#7fd8ff', 15, 2); queueHeroReveal(id, shiny); }
+    if(!S.seen[id]){ S.seen[id] = 1; S.newSeen[id] = 1; S.owned['h_' + id] = 1; computeMods(); const k = DISC_KR[HERO[id].r]; B.earned += k; S.kr += k; addText(x, y - 95, `NEU entdeckt! +${k} 💎`, '#7fd8ff', 15, 2); queueHeroReveal(id, shiny); setTimeout(() => { try{ save(); }catch(e){} }, 0); }
   }
   recalcAura();
   if(reveal){
