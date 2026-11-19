@@ -2660,7 +2660,9 @@ function loop(t){
   if(B){ draw(); hudT -= raw; if(hudT <= 0){ updateHud(); hudT = 0.08; } }
   requestAnimationFrame(loop);
 }
-centerTree(); checkQuests(); renderHub();
+centerTree(); checkQuests();
+if(!S.intro){ document.getElementById('hub').style.display='none'; document.getElementById('battle').style.display='flex'; }
+else { renderHub(); }
 if(S.refund){ setTimeout(() => toast(`Mauszeiger-Aufwertungen wurden entfernt: ${S.refund} 💎 zurückerstattet.`), 600); delete S.refund; save(); }
 
 // ══════════════════════════════════════
@@ -2748,56 +2750,63 @@ function drawHeroReveal(ctx, W, H){
 
 // ══════════════════════════════════════
 // INTRO-SEQUENZ
-// Booster erscheint im Hub (treebox), Klick → Titel → direkt in Kampf
+// Intro: Kampf-Map sofort sichtbar, Booster darüber, Klick → Titel → Kampf startet
 // ══════════════════════════════════════
 (function startIntro(){
   if(S.intro){ requestAnimationFrame(loop); return; }
 
-  // CSS-Animation einmalig einfügen
+  // CSS
   const style = document.createElement('style');
   style.textContent = `
-    @keyframes khBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+    @keyframes khBob{0%,100%{transform:translate(-50%,-50%) rotate(-3deg)}50%{transform:translate(-50%,-60%) rotate(3deg)}}
     @keyframes khFadeIn{from{opacity:0;transform:scale(.88) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
     @keyframes khPulse{0%,100%{opacity:.4}50%{opacity:1}}
-    #intro-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20;text-align:center;cursor:pointer;user-select:none}
-    #intro-box canvas{image-rendering:pixelated;width:180px;height:auto;animation:khBob 2s ease-in-out infinite;filter:drop-shadow(0 0 28px #7ec8e8aa)}
-    #intro-box .intro-hint{font-family:VT323,monospace;font-size:20px;color:#4a7a9a;letter-spacing:3px;animation:khPulse 1.5s ease-in-out infinite;margin-top:10px}
-    #intro-title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:21;pointer-events:none;opacity:0;transition:opacity .6s}
+    #intro-wrap{position:fixed;inset:0;z-index:50;pointer-events:none}
+    #intro-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:51;text-align:center;cursor:pointer;user-select:none;pointer-events:all;animation:khBob 2s ease-in-out infinite}
+    #intro-box canvas{image-rendering:pixelated;width:200px;height:auto;filter:drop-shadow(0 0 32px #7ec8e8cc)}
+    #intro-box .intro-hint{font-family:VT323,monospace;font-size:22px;color:#4a9abf;letter-spacing:3px;animation:khPulse 1.5s ease-in-out infinite;margin-top:8px}
+    #intro-title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:52;pointer-events:none;opacity:0;transition:opacity .6s;background:rgba(0,0,0,.55)}
     #intro-title .t1{font-family:VT323,monospace;font-size:clamp(28px,5vw,60px);color:#e8d870;letter-spacing:5px;text-shadow:0 0 40px #e8d870bb;animation:khFadeIn .7s .1s both}
     #intro-title .t2{font-family:VT323,monospace;font-size:clamp(42px,8vw,100px);color:#7fd8ff;letter-spacing:7px;text-shadow:0 0 50px #7fd8ffcc;line-height:1;animation:khFadeIn .8s .3s both}
   `;
   document.head.appendChild(style);
 
-  // Booster-Box im treebox platzieren
-  const tb = document.getElementById('treebox');
+  // Hub verstecken, Battle-Div zeigen (leere Map als Hintergrund)
+  document.getElementById('hub').style.display = 'none';
+  const battleDiv = document.getElementById('battle');
+  battleDiv.style.display = 'flex';
+
+  // Canvas für leere Map vorbereiten (loop läuft, zeigt Map ohne Einheiten)
+  requestAnimationFrame(loop);
+
+  // Wrapper über alles
+  const wrap = document.createElement('div'); wrap.id = 'intro-wrap';
+  document.body.appendChild(wrap);
+
+  // Booster-Box zentriert
   const box = document.createElement('div'); box.id = 'intro-box';
   const bc = gridCanvas(packGrid(PACKS.basis.col));
   const hint = document.createElement('div'); hint.className = 'intro-hint'; hint.textContent = '▶ klicken';
   box.appendChild(bc); box.appendChild(hint);
-  tb.appendChild(box);
+  wrap.appendChild(box);
 
   // Titel-Overlay (noch unsichtbar)
   const titleEl = document.createElement('div'); titleEl.id = 'intro-title';
   titleEl.innerHTML = '<div class="t1">DIE LEGENDEN DER</div><div class="t2">KRÄUTERHÖHLE</div>';
-  tb.appendChild(titleEl);
-
-  requestAnimationFrame(loop); // Loop läuft, Hub sichtbar
+  wrap.appendChild(titleEl);
 
   box.onclick = () => {
     box.style.pointerEvents = 'none';
-    // Booster-Öffnungs-Flash
-    bc.style.transition = 'transform .15s, opacity .3s';
-    bc.style.transform = 'scale(1.4) rotate(10deg)';
+    bc.style.transition = 'transform .15s, opacity .25s';
+    bc.style.transform = 'scale(1.5) rotate(12deg)';
     bc.style.opacity = '0';
-    // Titel einblenden
+    hint.style.opacity = '0';
     setTimeout(() => { titleEl.style.opacity = '1'; }, 150);
-    // Nach ~2.5s direkt in Kampf starten (ohne Helden, leerer Bag)
     setTimeout(() => {
-      titleEl.style.opacity = '0';
-      box.remove(); titleEl.remove();
+      wrap.remove();
       S.intro = true; save();
       startFight(S.sel);
-    }, 2500);
+    }, 2600);
   };
 })();
 // Loop läuft bereits (wird oben in startIntro gestartet)
