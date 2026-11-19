@@ -336,7 +336,7 @@ if ($a === 'inv_done') {
 // Spielstände in der Cloud (z. B. Bandenhof)
 if ($a === 'gput') {
   $g = (string) ($in['g'] ?? ''); $data = (string) ($in['data'] ?? '');
-  if (!in_array($g, ['hof', 'meta', 'runner', 'krieg', 'match', 'drill'], true) || strlen($data) > 40000) $stop('bad');
+  if (!in_array($g, ['hof', 'meta', 'runner', 'krieg', 'match', 'drill', 'ks'], true) || strlen($data) > 40000) $stop('bad');
   $U['gs'][$g] = ['d' => $data, 't' => time()];
   $finish(['ok' => 1]);
 }
