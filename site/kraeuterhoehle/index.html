@@ -1350,6 +1350,12 @@ function rollHero(w){
   for(let i = ri + 1; i < 5; i++){ const p = pool(i); if(p.length) return p[Math.floor(Math.random()*p.length)]; }
   return 'nille';
 }
+function rollIntruder(){
+  // Wählt zufällig eine Einheit – bevorzugt noch nicht gesehene
+  const unseen = HEROES.filter(h => !h.summoned && !S.seen[h.id]);
+  const pool = unseen.length ? unseen : HEROES.filter(h => !h.summoned);
+  return pool[Math.floor(Math.random() * pool.length)].id;
+}
 function openPack(p){
   const P = PACKS[p.pid];
   B.opened++; S.q.packs++; if(p.pid === 'basis') S.q.basis++; if(p.pid === 'gross') S.q.gross = (S.q.gross || 0) + 1;
@@ -1363,6 +1369,13 @@ function openPack(p){
     if(u.st.dupe && Math.random() < u.st.dupe) spawnUnit(id, p.x + 20, p.y + 12, false, false, p.pid === 'basis');
   }
   if(p.pid === 'basis' && (MD.H.nille || {}).verst && Math.random() < 0.25){ spawnUnit('nille', p.x + 24, p.y + 10, false, true, true); addText(p.x, p.y + 30, 'Verstärkung!', '#e8d870', 13, 1.2); }
+  // 0.5% Eindringling-Chance pro Paket
+  if(Math.random() < 0.005){
+    const iid = rollIntruder();
+    spawnUnit(iid, p.x, p.y - 20, false, false, false, true); // noFind=true: kein owned/seen
+    queueHeroReveal(iid, false, true); // intruder=true
+    addText(p.x, p.y - 60, '⚠ EINDRINGLING!', '#c060ff', 16, 2.5);
+  }
 }
 function applyArts(st, id){
   const kl = HERO[id].klasse;
@@ -2705,14 +2718,15 @@ if(S.refund){ setTimeout(() => toast(`Mauszeiger-Aufwertungen wurden entfernt: $
 // ══════════════════════════════════════
 // HELD-VORSTELLUNG (im Kampf, wenn neuer Held)
 // ══════════════════════════════════════
-function queueHeroReveal(id, shiny){
-  heroRevealQ.push({id, shiny});
+function queueHeroReveal(id, shiny, intruder){
+  heroRevealQ.push({id, shiny, intruder: !!intruder});
   // Erstes Reveal sofort aktivieren und Spiel pausieren
   if(!heroRevealActive) advanceHeroReveal();
 }
 function advanceHeroReveal(){
   if(heroRevealQ.length){
-    heroRevealActive = {...heroRevealQ.shift(), t: HERO_REVEAL_DUR, shownAt: Date.now()};
+    const item = heroRevealQ.shift();
+    heroRevealActive = {...item, t: HERO_REVEAL_DUR, shownAt: Date.now(), intruderPhase: item.intruder ? 0 : null, intruderPhaseStart: Date.now()};
     if(B) B.paused = true;
   } else {
     heroRevealActive = null;
@@ -2730,12 +2744,131 @@ function tickHeroReveal(dt){
     heroRevealActive.t -= dt;
     // Kein Auto-Expire — Spieler muss klicken (aber nach 15s als Fallback)
     if(heroRevealActive.t <= -15) advanceHeroReveal();
+    // Eindringling: Phase auto-advance (Phase 0→1 nach 1.8s, Phase 1→2 nach 1.5s)
+    if(heroRevealActive.intruder && heroRevealActive.intruderPhase !== null){
+      const ms = Date.now() - heroRevealActive.intruderPhaseStart;
+      if(heroRevealActive.intruderPhase === 0 && ms > 1800){ heroRevealActive.intruderPhase = 1; heroRevealActive.intruderPhaseStart = Date.now(); }
+      else if(heroRevealActive.intruderPhase === 1 && ms > 1500){ heroRevealActive.intruderPhase = 2; heroRevealActive.intruderPhaseStart = Date.now(); }
+    }
+  }
+}
+function drawIntruderReveal(ctx, W, H, r, c){
+  const ms = Date.now() - r.intruderPhaseStart;
+  const phase = r.intruderPhase || 0;
+  const a = Math.min(1, (Date.now() - (r.shownAt || Date.now())) / 400);
+
+  // Hintergrund: dunkles Lila/Schwarz mit Vignette
+  ctx.save();
+  const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H)*0.75);
+  bg.addColorStop(0, `rgba(60,20,90,${0.88 * a})`);
+  bg.addColorStop(1, `rgba(10,0,20,${0.97 * a})`);
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+
+  // Schwebende Partikel (immer)
+  ctx.save();
+  ctx.globalAlpha = 0.5 * a;
+  for(let i = 0; i < 40; i++){
+    const ang = (i/40)*Math.PI*2 + Date.now()/1200;
+    const rad = 70 + Math.sin(Date.now()/500 + i*0.9) * 40 + (phase === 2 ? 30 : 0);
+    const px = W/2 + Math.cos(ang)*rad*1.3, py = H/2 + Math.sin(ang)*rad*0.7 - 20;
+    ctx.beginPath(); ctx.arc(px, py, 2 + Math.sin(Date.now()/400+i)*1.2, 0, Math.PI*2);
+    ctx.fillStyle = `hsl(${(i*9+Date.now()/20)%360},70%,65%)`;
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // "EINDRINGLING" oben
+  const titleA = Math.min(1, ms / 400) * a;
+  ctx.save();
+  ctx.globalAlpha = titleA;
+  ctx.font = 'bold 46px "VT323", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#c060ff';
+  ctx.shadowColor = '#c060ff'; ctx.shadowBlur = 20;
+  ctx.fillText('EINDRINGLING', W/2, H * 0.18);
+  ctx.restore();
+
+  // Sprite-Bereich
+  const spr = SPR[r.id];
+  const img = spr ? ((spr.f && spr.f.width) ? spr.f : (spr.r && spr.r.width) ? spr.r : null) : null;
+
+  if(phase === 0){
+    // Phase 0: Fragezeichen + Chaos-Effekt
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, ms/300) * a;
+    ctx.font = 'bold 90px "VT323", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#8040c0';
+    ctx.shadowColor = '#c060ff'; ctx.shadowBlur = 30;
+    const wobX = Math.sin(Date.now()/120)*6, wobY = Math.cos(Date.now()/150)*5;
+    ctx.fillText('???', W/2 + wobX, H/2 + 30 + wobY);
+    ctx.restore();
+  } else if(phase === 1){
+    // Phase 1: Silhouette (Outline-only)
+    const silA = Math.min(1, ms/400);
+    if(img){
+      const sc = 5.0 + Math.sin(Date.now()/600)*0.06;
+      const sw = img.width * sc * (spr.sc||1), sh = img.height * sc * (spr.sc||1);
+      const dx = Math.round(W/2 - sw/2), dy = Math.round(H*0.14);
+      // Silhouette: canvas mit Composite
+      const off = document.createElement('canvas'); off.width = Math.round(sw); off.height = Math.round(sh);
+      const oc = off.getContext('2d'); oc.imageSmoothingEnabled = false;
+      oc.drawImage(img, 0, 0, Math.round(sw), Math.round(sh));
+      oc.globalCompositeOperation = 'source-atop';
+      oc.fillStyle = `rgba(160,80,255,${0.85})`;
+      oc.fillRect(0, 0, Math.round(sw), Math.round(sh));
+      ctx.save(); ctx.globalAlpha = silA * a; ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(off, dx, dy); ctx.restore();
+    }
+    // "???" unter Silhouette
+    ctx.save(); ctx.globalAlpha = silA * a;
+    ctx.font = 'bold 36px "VT323", monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#a060e0'; ctx.shadowColor = '#c060ff'; ctx.shadowBlur = 14;
+    ctx.fillText('???', W/2, H * 0.18 + 50);
+    ctx.restore();
+  } else {
+    // Phase 2: Voller Reveal — Sprite + Name
+    const revA = Math.min(1, ms / 500) * a;
+    if(img){
+      const sc = 5.2 + Math.sin(Date.now()/600)*0.07;
+      const sw = img.width * sc * (spr.sc||1), sh = img.height * sc * (spr.sc||1);
+      const dx = Math.round(W/2 - sw/2), dy = Math.round(H*0.10);
+      ctx.save(); ctx.globalAlpha = revA; ctx.imageSmoothingEnabled = false;
+      // Flash-Effekt beim Reveal
+      if(ms < 500){ ctx.globalAlpha = revA * 0.7 + Math.sin(ms/50)*0.3; }
+      ctx.drawImage(img, dx, dy, Math.round(sw), Math.round(sh));
+      ctx.restore();
+      // Name + Klasse darunter
+      const nameY = dy + Math.round(sh) + 42;
+      ctx.save(); ctx.globalAlpha = revA;
+      ctx.font = 'bold 42px "VT323", monospace'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#c060ff'; ctx.shadowColor = '#c060ff'; ctx.shadowBlur = 20;
+      ctx.fillText((c.n || c.id).toUpperCase(), W/2, nameY);
+      ctx.shadowBlur = 0;
+      ctx.font = '28px "VT323", monospace'; ctx.fillStyle = '#d0a0ff';
+      ctx.fillText((c.cls || c.klasse || '').toUpperCase(), W/2, nameY + 36);
+      ctx.font = '22px "VT323", monospace'; ctx.fillStyle = '#ff8040';
+      ctx.fillText('⚠ NUR FÜR DIESEN KAMPF', W/2, nameY + 68);
+      ctx.restore();
+    }
+    // Klick-Hinweis
+    const clickFade = Math.min(1, (ms - 600) / 300);
+    if(clickFade > 0){
+      ctx.save(); ctx.globalAlpha = clickFade * (0.6 + Math.sin(Date.now()/400)*0.4) * a;
+      ctx.font = '26px "VT323", monospace'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#c8d0d8'; ctx.fillText('[ KLICK ZUM WEITERSPIELEN ]', W/2, H - 36);
+      ctx.restore();
+    }
   }
 }
 function drawHeroReveal(ctx, W, H){
   const r = heroRevealActive; if(!r) return;
   const c = HERO[r.id];
   if(!c){ console.warn('[KH] drawHeroReveal: HERO['+r.id+'] nicht gefunden, skip'); advanceHeroReveal(); return; }
+  // Eindringling: eigenes Render-System
+  if(r.intruder){ drawIntruderReveal(ctx, W, H, r, c); return; }
   const a = Math.min(1, (Date.now() - (r.shownAt || Date.now())) / 300);
   const pc = c.pc || (r.shiny ? `hsl(${Date.now()/20%360},90%,60%)` : '#7fd8ff');
 
