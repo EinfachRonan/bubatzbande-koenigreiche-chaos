@@ -343,10 +343,10 @@ const ENEMIES = [
   {id:'wolfratte', ch:[2], n:'Wolfsratte',  hp:165, spd:48, dmg:18, g:4, sc:2,   m:50, w:.25, v:'brute', r:12},
   {id:'rkoenig',   ch:[2], n:'Rattenkönig', hp:630, spd:14, dmg:24, g:10,sc:2,   m:90, w:.08, v:'brute', armor:.2, r:18},
   // Kapitel 3 – Grabsumpf: NUR Graveyard-Monster
-  {id:'ghul',     ch:[3],   n:'Ghul',               hp:56,  spd:46, dmg:6,  g:2, sc:1.1, m:0,  w:1,   v:'brute', melee:true, gif_only:true},
+  {id:'ghul',     ch:[3],   n:'Ghul',               hp:168, spd:46, dmg:6,  g:2, sc:1.1, m:0,  w:1,   v:'brute', melee:true, gif_only:true},
   {id:'skeleton', ch:[3], n:'Friedhofs-Skelett',  hp:110, spd:24, dmg:7,  g:3, sc:1.3, m:15, w:.8,  v:'brute', gif_only:true},
   {id:'bat',      ch:[3], n:'Knochen-Fledermaus', hp:60,  spd:40, dmg:6,  g:2, sc:1.4, m:25, w:.5,  v:'brute', flying:true, range:140, cd:2.2, gif_only:true},
-  {id:'grabwaechter', ch:[3], n:'Grabwächter',    hp:190, spd:16, dmg:0,  g:5, sc:1.8, m:50, w:.18, v:'base', range:140, cd:9, summoner:1, graveSummoner:1, pal:{G:'#5a4a6a',E:'#4a8aff',M:'#0a0a1a',B:'#2a1a3a',W:'#c0b0d0'}},
+  {id:'grabwaechter', ch:[3], n:'Grabwächter',    hp:190, spd:16, dmg:0,  g:5, sc:1.8, m:50, w:.18, v:'base', range:140, cd:5, summoner:1, graveSummoner:1, pal:{G:'#5a4a6a',E:'#4a8aff',M:'#0a0a1a',B:'#2a1a3a',W:'#c0b0d0'}},
   {id:'grabkrokodil', ch:[3], n:'Grabkrokodil',   hp:350, spd:22, dmg:16, g:6, sc:1.4, m:70, w:.12, v:'brute', armor:.1, melee:true, r:20, pal:{G:'#2a4a2a',E:'#8aff4a',M:'#0a1a0a',B:'#1a3a1a',W:'#c0d8b0'}},
   // ── Vulkangebirge (Kapitel 4) ─────────────────────────────────────────
   {id:'salamander',    ch:[4],   n:'Lavasalamander',   hp:55,  spd:30, dmg:9,  g:3,  sc:1.1, m:0,  w:1,   v:'brute', melee:true, r:16, pal:{G:'#1a1a1a',E:'#ff6a1a',M:'#0a0808',B:'#2a0808',W:'#ff9050'}},
@@ -367,7 +367,7 @@ const ENEMIES = [
 const BOSSES = [
   {n:'Bergtroll', desc:'Riesiger Bergtroll mit Baumstamm – und Fokuhila.', sprite:'troll', hp:950, spd:13, dmg:20, cd:2.8, g:120, sc:3.4, r:20, slam:{every:4, rad:75, dmg:35}, jump:{every:11, first:14, rad:110, dmg:70}},
   {n:'Mutierter Rattentroll', desc:'Riesiger mutierter Rattentroll. Er täuscht seinen Tod vor – und erwacht als dämonische Bestie wieder.', phase2:1, fakedie:1, hp:14000, spd:15, dmg:45, g:250, sc:4.2, pal:{G:'#8aa83a',E:'#ff2a2a',M:'#1a0a0a',B:'#5a1a6a'}, slam:{every:5, rad:70, dmg:60}, jump:{every:10, first:12, rad:105, dmg:120}, poison:{every:3, rad:90, dmg:12, dur:5}, abilityRot:{every:3}},
-  {n:'Grabsumpf-Hexe', id:'hexe', desc:'Eine uralte Hexe aus dem Grabsumpf. Ihre Magie beschwört die Toten.', sprite:'hexe', hp:22000, spd:12, dmg:70, g:450, sc:4.4, pal:{G:'#2a2a5a',E:'#ff3a3a',M:'#0a0a1a',B:'#1a1a4a',W:'#8080c0'}, slam:{every:4.5, rad:80, dmg:80}, jump:{every:9, first:12, rad:115, dmg:180}},
+  {n:'Grabsumpf-Hexe', id:'hexe', desc:'Eine uralte Hexe aus dem Grabsumpf. Ihre Magie beschwört die Toten.', sprite:'hexe', hp:22000, spd:12, dmg:140, cd:0.5, g:450, sc:4.4, pal:{G:'#2a2a5a',E:'#ff3a3a',M:'#0a0a1a',B:'#1a1a4a',W:'#8080c0'}, slam:{every:3, rad:80, dmg:160}, jump:{every:6.5, first:10, rad:115, dmg:360}},
   {n:'Dämonenschmied Morgraak', id:'morgraak', desc:'Riesiger Dämonenschmied. Seine Lava-Rüstung macht ihn nahezu unverwundbar – bis sie bricht.', sprite:'morgraak', phase2:1, fakedie:1, hp:55000, spd:14, dmg:115, g:800, sc:4.8, pal:{G:'#2a1a0a',E:'#ff5a1a',M:'#0a0808',B:'#1a0808',W:'#ff8040'}, slam:{every:4, rad:90, dmg:120}, jump:{every:8, first:10, rad:125, dmg:280}},
   // Phase 2 — wird automatisch nach fakedie geladen (wie boss2b)
   {n:'Morgraak – Wahre Form', id:'morgraakb', desc:'Die Rüstung ist zersplittert. Morgraak erwacht als reiner Feuerdämon.', sprite:'morgraakb', hp:55000, spd:18, dmg:160, g:0, sc:5.2, pal:{G:'#3a0a0a',E:'#ff2a00',M:'#0a0404',B:'#2a0808',W:'#ffaa40'}, slam:{every:3.5, rad:95, dmg:140}, jump:{every:7, first:9, rad:130, dmg:320}},
@@ -382,7 +382,7 @@ const DIFF = {
   dmgRamp: 200,
   chHp: [0.52, 0.95, 2.2, 3.2],   // Gegner-Leben je Kapitel
   chDmg: [0.75, 1.05, 1.9, 2.5],   // Gegner-Schaden je Kapitel
-  chSpawn: [1, 1.08, 1.25, 1.35],  // Spawnrate je Kapitel
+  chSpawn: [1.3, 1.4, 1.63, 1.76],  // Spawnrate je Kapitel
 };
 const CHAPTERS = ['Magische Wiese','Katakomben','Der Friedhof','Schicksals Vulkan'];
 const MAX_CH = CHAPTERS.length;
@@ -3140,7 +3140,7 @@ function drawEnemy(e){
   if(!drew) ctx.drawImage(img, x, y, e.w, e.h);
   ctx.globalAlpha = 1;
   if(e.hit > 0){ ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.5; ctx.drawImage(img, x, y, e.w, e.h); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
-  if(e.slowF < 1 || B.freeze > 0){ ctx.fillStyle = B.freeze > 0 ? 'rgba(180,160,255,0.35)' : 'rgba(120,200,255,0.3)'; ctx.fillRect(x, y, e.w, e.h); }
+  if(B.freeze > 0){ ctx.fillStyle = 'rgba(180,160,255,0.35)'; ctx.fillRect(x, y, e.w, e.h); } // blauer Slow-Kasten entfernt
   if(e.hp < e.max){
     const w = e.boss ? 80 : Math.max(20, e.w * 0.8);
     ctx.fillStyle = '#000'; ctx.fillRect(Math.round(e.x - w/2) - 1, y - 7, w + 2, 5);
