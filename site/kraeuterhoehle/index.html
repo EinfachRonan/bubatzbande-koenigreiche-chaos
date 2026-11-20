@@ -3284,7 +3284,7 @@ function updateHud(){
 function endFight(win){
   if(B.over) return;
   B.over = true; B.held = false;
-  heroRevealQ = []; heroRevealActive = null; B.paused = false;
+  heroRevealQ = []; heroRevealActive = null; _heroRevealPendingDismiss = false; B.paused = false;
   // Tutorial-Gate: erste Intro-Runde beendet → Tutorial darf starten
   if(S.intro && !S.introFightDone){ S.introFightDone = true; }
   const bonus = Math.floor(B.t / 10) + (win ? 100 * B.ch : 0);
@@ -3317,7 +3317,7 @@ function endFight(win){
     <div class="mbtns"><button class="btn" id="mcont" style="font-size:31px;padding:12px 40px">FORTFAHREN</button></div>`);
   $('#tavg').onclick = () => { $('#stab').innerHTML = rowsFor(true); $('#tavg').style.opacity = 1; $('#ttot').style.opacity = .6; };
   $('#ttot').onclick = () => { $('#stab').innerHTML = rowsFor(false); $('#ttot').style.opacity = 1; $('#tavg').style.opacity = .6; };
-  $('#mcont').onclick = () => { closeModal(); heroRevealQ = []; heroRevealActive = null; B = null; $('#battle').style.display = 'none'; $('#hub').style.display = 'flex'; if(innerWidth <= 820) $('#hub').style.display = 'flex'; renderHub(); };
+  $('#mcont').onclick = () => { closeModal(); heroRevealQ = []; heroRevealActive = null; _heroRevealPendingDismiss = false; B = null; $('#battle').style.display = 'none'; $('#hub').style.display = 'flex'; if(innerWidth <= 820) $('#hub').style.display = 'flex'; renderHub(); };
 }
 
 let last = performance.now(), hudT = 0;
@@ -3356,15 +3356,26 @@ function advanceHeroReveal(){
     if(B) B.paused = false;
   }
 }
+let _heroRevealPendingDismiss = false;
 function dismissHeroReveal(){
-  // Mindest-Anzeigezeit 500ms damit Fade-in sichtbar
   if(!heroRevealActive) return;
-  if(Date.now() - (heroRevealActive.shownAt || 0) < 500) return;
+  // Mindest-Anzeigezeit 500ms damit Fade-in sichtbar
+  if(Date.now() - (heroRevealActive.shownAt || 0) < 500){
+    _heroRevealPendingDismiss = true; // merken: beim nächsten tick sofort dismiss
+    return;
+  }
+  _heroRevealPendingDismiss = false;
   advanceHeroReveal();
 }
 function tickHeroReveal(dt){
   if(heroRevealActive){
     heroRevealActive.t -= dt;
+    // pendingDismiss: Spieler hat zu schnell geklickt, jetzt nach 500ms ausführen
+    if(_heroRevealPendingDismiss && Date.now() - (heroRevealActive.shownAt || 0) >= 500){
+      _heroRevealPendingDismiss = false;
+      advanceHeroReveal();
+      return;
+    }
     // Kein Auto-Expire — Spieler muss klicken (aber nach 15s als Fallback)
     if(heroRevealActive.t <= -15) advanceHeroReveal();
     // Eindringling: Phase auto-advance (Phase 0→1 nach 1.8s, Phase 1→2 nach 1.5s)
