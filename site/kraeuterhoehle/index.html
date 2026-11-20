@@ -264,7 +264,7 @@ const HEROES = [
    look:{skin:'#6aa04a',top:'ears',cloth:'#5a4a2a',acc:'#8a6a3a',pants:'#3a2a1a',boots:'#2a1a10',weapon:'spear'},
    shiny:{txt:'+50% Schaden, doppelte Blutung', dmg:.5, bleed:1}},
   {id:'don', klasse:'Krieger', n:'Paladin Patron', r:'R', cls:'Paladin', desc:'Majestätischer Paladin mit riesigem Schild. Schwer gepanzert, zieht Gegner in der Nähe auf sich und blockt 15% aller Angriffe.',
-   hp:200, atk:18, cd:1.0, ms:62, range:24, melee:true, taunt:110, armor:0.35, block:0.2,
+   hp:150, atk:18, cd:1.0, ms:62, range:24, melee:true, taunt:80, armor:0.18, block:0.1,
    look:{skin:'#d9a880',top:'helm',cloth:'#5a6a80',acc:'#d4a040',pants:'#4a5260',boots:'#22262e',weapon:'sword',shield:true},
    shiny:{txt:'+100% LP, +50% Spott-Radius', hp:1, taunt:.5}},
   {id:'geist', klasse:'Bestie', n:'Der Graue Geist', r:'R', cls:'Seelenschnitter', desc:'Magischer Nahkämpfer mit Seelensense: Flächenschaden, getötete Gegner können zu Skeletten werden, die für dich kämpfen.',
@@ -1948,11 +1948,12 @@ function hurt(e, amt, crit, src){
   addText(e.x + (Math.random()-.5)*10, e.y - e.h - 4, Math.round(amt) + (crit ? '!' : ''), crit ? '#ffd84d' : src === 'mouse' ? '#ffffff' : '#c8d0c8', crit ? 15 : src === 'mouse' ? 14 : 11, 0.6);
   if(e.hp <= 0){
     // Phase-2-Boss: nie durch hurt() töten, Phase-2-Check im Update-Loop übernimmt
-    if(e.boss && e.phase2 && !e.trans && !e.fakeDying){
-      e.hp = 1; return;
-    }
-    // FakeDying: Boss spielt Todesanim, aber stirbt noch nicht
+    // Phase-2-Boss: nicht sterben solange fakeDying
     if(e.boss && e.fakeDying){ e.hp = 1; return; }
+    // Phase-2-Boss: unter 0 auf 49% clippen → Update-Loop triggert Transition
+    if(e.boss && e.phase2 && !e.trans && !e.fakeDying && e.hp <= 0){
+      e.hp = e.max * 0.49;
+    }
     // GIF-only Enemies (bat, skeleton) spielen Sterbeanimation
     if(!e.boss && e.spr && e.spr.dieR && e.spr.dieR.length && !e.dying){
       e.dying = true; e.hp = 0.001; e.dieAnim = 0; e.stunT = 999; return; // Animation läuft, wird später dead
