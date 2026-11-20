@@ -567,6 +567,15 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 @media (min-width:900px){.elcw{max-width:640px}.elcw h2{font-size:30px}.elk-f b{font-size:14px}}
 
 #plnm{font-size:8px!important;opacity:.95;max-width:180px;margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px!important;letter-spacing:0!important}
+
+.augc .neu.has{color:#ffe94d;font-size:8px}
+.augo{margin:14px auto 0;max-width:640px;background:rgba(8,13,20,.85);border:1.5px solid #26384a;border-radius:10px;padding:8px 10px}
+.augo-h{font:400 10px Silkscreen,var(--mono);color:#7f9196;margin-bottom:6px;letter-spacing:1px}
+.augo-l{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.augo-l span{display:flex;align-items:center;gap:3px;background:#101b27;border:1.5px solid #2f4a5e;border-radius:7px;padding:3px 7px;color:#9dff6a}
+.augo-l svg{width:16px;height:16px}.augo-l em{font:11px var(--mono);color:#c3d3da;font-style:normal;margin-right:2px}.augo-l b{font:700 12px var(--mono);color:#fff}.augo-l i{font:10px var(--mono);color:#7f9196;font-style:normal}
+.augo-e{font:12px var(--mono);color:#9fb3bb}
+@media (min-width:900px){.augo-l svg{width:20px;height:20px}.augo-l b{font-size:14px}}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -2045,7 +2054,7 @@ function augOffer() { const o = []; for (let k = 0; k < 3; k++) o.push(augRoll(o
 function augCard(c, k) { const T = AUGT[c.t];
   if (c.id === '_cry') return `<button class="augc t${c.t}" data-ag="${k}" style="--ac:${T.c}"><i class="tier">${T.n}</i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 7-8 13L4 9z"/></svg><b>Kristall-Fund</b><span>Alle Skills sind voll</span><em>+◆${10 + 10 * c.t}</em></button>`;
   const s = SKILLS.find(x => x.id === c.id), l = SK(c.id), nl = Math.min(s.max, l + T.lv);
-  return `<button class="augc t${c.t}" data-ag="${k}" style="--ac:${T.c}"><i class="tier">${T.n}</i>${l ? '' : '<i class="neu">NEU</i>'}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg><b>${s.n}</b><span>${SKTXT[c.id] || s.d}</span><em>${l ? skVal(c.id, l) + ' → ' : ''}${skVal(c.id, nl)}</em><small>Stufe ${l} → ${nl}/${s.max}</small></button>`; }
+  return `<button class="augc t${c.t}" data-ag="${k}" style="--ac:${T.c}"><i class="tier">${T.n}</i>${l ? `<i class="neu has">HAST: ${l}/${s.max}</i>` : '<i class="neu">NEU</i>'}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg><b>${s.n}</b><span>${SKTXT[c.id] || s.d}</span><em>${l ? skVal(c.id, l) + ' → ' : ''}${skVal(c.id, nl)}</em><small>Stufe ${l} → ${nl}/${s.max}</small></button>`; }
 
 // ================== „Was ist neu“: einmal pro größerem Update beim Start, gut sichtbar ==================
 const NEWS = [
@@ -2068,11 +2077,13 @@ function showNews(done) {
   d.querySelector('#nwgo').onclick = () => { S.newsV = NEWSV; save('now'); d.classList.add('out'); setTimeout(() => { d.remove(); done && done(); }, 250); };
 }
 function augBoot() { if (!$('ov').classList.contains('hide') || $('aug') || $('news') || travel > 0) return setTimeout(augBoot, 1000); if (S.newsV !== NEWSV) return showNews(augBoot); if (S.augMsg != null) { const b = S.augMsg; delete S.augMsg; save('now'); overlay(`<h2>Neu: Augmente!</h2><p>Skills kaufst du nicht mehr mit ◆. Nach jedem Planeten wählst du 1 von 3 Augmenten, jedes kannst du einmal neu würfeln.<br><br>${b ? `Deine Skills wurden zurückgesetzt, dafür bekommst du <b style="color:#fff">◆${b}</b> zurück.<br>` : ''}Für deinen aktuellen Lauf darfst du jetzt <b style="color:#ffe94d">${S.augQ} Augmente</b> nachwählen.</p>`, [['Los geht\'s', () => { render(); setTimeout(augShow, 60); }]]); } else if (S.augQ) augShow(); }
+function augOwned() { const own = SKILLS.filter(s => SK(s.id));
+  return `<div class="augo"><div class="augo-h">Deine Skills · ${own.length}/${SKILLS.length}</div>${own.length ? `<div class="augo-l">${own.map(s => `<span title="${s.n}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg><em>${s.n}</em><b>${SK(s.id)}</b><i>/${s.max}</i></span>`).join('')}</div>` : '<div class="augo-e">Noch keine – das ist dein erster!</div>'}</div>`; }
 function augShow() {
   if (!S.augQ || $('aug') || BON) return; if ($('elc')) return setTimeout(augShow, 1200); if (!$('ov').classList.contains('hide')) return setTimeout(augShow, 1200);
   if (!S.augO) { S.augO = augOffer(); save('now'); }
   const d = document.createElement('div'); d.id = 'aug';
-  const draw = () => { d.innerHTML = `<div class="augw"><h2>Augment wählen</h2><p>Planet geschafft! Such dir eins aus.${S.augQ > 1 ? ` <b>Noch ${S.augQ - 1} weitere</b>` : ''}</p><div class="augr">${S.augO.map((c, k) => `<div class="augs">${augCard(c, k)}<button class="augrr" data-rr="${k}" ${c.rr ? 'disabled' : ''}>${c.rr ? 'Neu gewürfelt' : '↻ Neu würfeln'}</button></div>`).join('')}</div><button class="augl" id="augl">Später</button></div>`;
+  const draw = () => { d.innerHTML = `<div class="augw"><h2>Augment wählen</h2><p>Planet geschafft! Such dir eins aus.${S.augQ > 1 ? ` <b>Noch ${S.augQ - 1} weitere</b>` : ''}</p><div class="augr">${S.augO.map((c, k) => `<div class="augs">${augCard(c, k)}<button class="augrr" data-rr="${k}" ${c.rr ? 'disabled' : ''}>${c.rr ? 'Neu gewürfelt' : '↻ Neu würfeln'}</button></div>`).join('')}</div>${augOwned()}<button class="augl" id="augl">Später</button></div>`;
     d.querySelectorAll('[data-ag]').forEach(b => b.onclick = () => augPick(+b.dataset.ag));
     d.querySelectorAll('[data-rr]').forEach(b => b.onclick = () => { const k = +b.dataset.rr, c = S.augO[k]; if (c.rr) return; const n = augRoll(S.augO.filter((_, j) => j !== k).map(x => x.id).concat(c.id)); S.augO[k] = { ...n, rr: 1 }; SND.fx.up(); save('now'); draw(); d.querySelectorAll('.augs')[k].classList.add('spin'); });
     d.querySelector('#augl').onclick = () => { d.remove(); render(); }; };
