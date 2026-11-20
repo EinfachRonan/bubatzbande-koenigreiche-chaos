@@ -1081,6 +1081,7 @@ let S;
 // Held-Vorstellung – Variablen früh definiert (werden in spawnUnit genutzt)
 let heroRevealQ = [];
 let heroRevealActive = null;
+let _heroRevealPendingDismiss = false;
 const HERO_REVEAL_DUR = 3.8;
 function defState(){ return {kr:0, owned:{root:1, h_nille:1}, q:{basis:0, packs:0, kills:0, click:0, surv:0}, chapter:1, sel:1, best:{}, speed:1, day:null, tries:{}, ctot:{}, seen:{}, newSeen:{}, intro:false, introFightDone:false, rerollUnlocked:false}; }
 function load(){ try{ const r = localStorage.getItem(KEY); if(r){ S = Object.assign(defState(), JSON.parse(r)); migrate(); return; } }catch(e){} S = defState(); }
@@ -3318,7 +3319,6 @@ function advanceHeroReveal(){
     if(B) B.paused = false;
   }
 }
-let _heroRevealPendingDismiss = false;
 function dismissHeroReveal(){
   if(!heroRevealActive) return;
   // Mindest-Anzeigezeit 500ms damit Fade-in sichtbar
