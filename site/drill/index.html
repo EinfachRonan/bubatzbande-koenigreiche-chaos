@@ -565,6 +565,8 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 .elk.pick .elk-in{transform:rotateY(180deg) scale(1.06)}.elk.dim{opacity:.45;filter:grayscale(.5)}
 .elt{min-height:70px;margin-top:14px;color:#e8f4f6;font:13px var(--mono)}.elbt{display:flex;gap:8px;margin-top:10px}.elbt .br{flex:1}
 @media (min-width:900px){.elcw{max-width:640px}.elcw h2{font-size:30px}.elk-f b{font-size:14px}}
+
+#plnm{font-size:8px!important;opacity:.95;max-width:180px;margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px!important;letter-spacing:0!important}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -575,7 +577,7 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
     <button class="lb2" id="lb" aria-label="Bestenliste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/></svg></button>
     <span class="cry" id="cry">◆0</span>
     <div class="mid"><div class="cr" id="cr">0 CR</div><div class="mul" id="mul">x1.00</div><div class="sv" id="sv" hidden></div></div>
-    <div class="pl"><div class="box"><canvas id="mini" width="124" height="124"></canvas><i id="plc" hidden></i></div><small id="pln">Planet 1</small><small id="plp">0/0</small></div>
+    <div class="pl"><div class="box"><canvas id="mini" width="124" height="124"></canvas><i id="plc" hidden></i></div><small id="pln">Planet 1</small><small id="plnm"></small><small id="plp">0/0</small></div>
   </div>
   <canvas id="cv"></canvas>
   <div class="toast" id="toast"></div>
@@ -664,10 +666,11 @@ for (const h in HYB) { const H = HYB[h]; WEAP.push({ id: h, n: H.n, d: H.d, hyb:
 const T_DPS = [2, 9, 34, 120, 450, 1800, 7000, 28000, 110000, 450000];
 const T_UP = [10, 350, 5e3, 9e4, 1.8e6, 3.5e7, 7e8, 1.4e10, 2.8e11, 5.6e12];
 const T_UNL = [0, 500, 8e3, 1.5e5, 3e6, 6e7, 1.2e9, 2.5e10, 5e11, 1e13];
+for (let k = 10; k < 20; k++) { T_DPS[k] = T_DPS[k - 1] * 4; T_UP[k] = T_UP[k - 1] * 20; T_UNL[k] = T_UNL[k - 1] * 20; } // für Waffen hinter geschmiedeten Plätzen
 const tier = id => Math.max(0, S.wo.indexOf(id));
 for (const h in HYB) { const [a, b] = HYB[h].p; WICO[h] = `<g transform="translate(-1 -1) scale(.62)">${WICO[a]}</g><g transform="translate(10 10) scale(.58)">${WICO[b]}</g>`; WCOL[h] = HYB[h].c; }
 const owned = () => S.wo.filter(id => WL(id));
-const nextUnl = () => T_UNL[owned().length];
+const nextUnl = () => T_UNL[Math.min(19, S.wo.length)]; // neue Waffe kommt ans Ende → Preis passt zur Stufe
 const RR_MAX = 3;
 function offers() {
   const left = WEAP.filter(w => !w.hyb && !WL(w.id)).map(w => w.id);
@@ -1185,6 +1188,7 @@ function ray(x, y, a, maxL) {
   for (let l = 0; l < maxL; l += st) { const px = x + dx * l, py = y + dy * l; const i = cellAt(px, py); if (i >= 0 && G.alive[i]) return [i, px, py]; }
   return [-1, x + dx * maxL, y + dy * maxL];
 }
+const OV = id => { const l = WL(id); return l >= 100 ? Math.min(2.5, 1.5 + (l - 100) / 200) : 1; }; // ab Stufe 100: Reichweite/Größe x1,5 … x2,5
 const critMul = () => Math.random() < critCh() ? 3 + WP('dkrit') + .5 * SK('kwucht') : 1;
 // äußerster Block in Richtung a (vom Planetenkern aus gesehen) – für Effekte, die über die Oberfläche wandern
 function surfAt(a) { const ca = Math.cos(a), sa = Math.sin(a); for (let d = G.R + CELL * 3; d > 0; d -= CELL * .5) { const x = G.cx + ca * d, y = G.cy + sa * d, i = cellAt(x, y); if (i >= 0 && G.alive[i]) return [x, y]; } return [G.cx, G.cy]; }
@@ -1250,7 +1254,7 @@ function step(dt) {
   curW = 'nova'; const dN = WD('nova') * Rd;
   if (dN && (cdNova -= dt * Rv * sp75('nova')) <= 0) {
     cdNova = 3; const t0 = nearest(ship.x, ship.y, 4 * CELL * CELL);
-    if (t0 >= 0) { const [tx0, ty0] = cellXY(t0), rad = CELL * (3.4 + Math.min(5, WL('nova') / 12) + ST('nova') * .8) * (1 + HA('novaR')) * (1 + .15 * ML('nova')), dx = G.cx - tx0, dy = G.cy - ty0, dl = Math.hypot(dx, dy) || 1;
+    if (t0 >= 0) { const [tx0, ty0] = cellXY(t0), rad = CELL * (3.4 + Math.min(5, WL('nova') / 12) + ST('nova') * .8) * (1 + HA('novaR')) * (1 + .15 * ML('nova')) * Math.sqrt(OV('nova')), dx = G.cx - tx0, dy = G.cy - ty0, dl = Math.hypot(dx, dy) || 1;
       novas.push({ x: ship.x, y: ship.y, tx: tx0 + dx / dl * rad * .6, ty: ty0 + dy / dl * rad * .6, rad, d: dN * 3 * critMul() / 7, t: 0 }); } }
   for (let k = novas.length - 1; k >= 0; k--) { const n = novas[k]; n.t += dt * 2.6; if (n.t < 1) continue; novas.splice(k, 1);
     const c0 = Math.floor((n.tx - G.ox - n.rad) / CELL), c1 = Math.ceil((n.tx - G.ox + n.rad) / CELL), r0 = Math.floor((n.ty - G.oy - n.rad) / CELL), r1 = Math.ceil((n.ty - G.oy + n.rad) / CELL), cells = [];
@@ -1287,9 +1291,9 @@ function step(dt) {
   // 7) Kettenblitz
   curW = 'chain';
   const dK = WD('chain') * Rd;
-  if (dK && (cdChain -= dt * Rv * sp75('chain')) <= 0) { cdChain = 2; let i = front(CELL * 3), px = ship.x, py = ship.y; const pts = []; const used = new Set();
-    const nj = Math.min(24, 6 + 2 * ST('chain') + 2 * ML('chain')); for (let k = 0; k < nj && i >= 0; k++) { used.add(i); const [x, y] = cellXY(i); pts.push([px, py, x, y]); if (HY('x_frostblitz')) freezeAt(i, 0); hit(i, dK * 2 / nj * critMul()); px = x; py = y;
-      let nb = -1, bd = 1e9; const c = i % COLS, r = i / COLS | 0; for (let a = -3; a <= 3; a++) for (let b2 = -3; b2 <= 3; b2++) { const cc = c + a, rr = r + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS) continue; const j = rr * COLS + cc; if (!G.alive[j] || used.has(j)) continue; const d = a * a + b2 * b2 + Math.random() * 3; if (d < bd) { bd = d; nb = j; } } i = nb; }
+  if (dK && (cdChain -= dt * Rv * sp75('chain')) <= 0) { cdChain = 2; let i = front(CELL * 3 * OV('chain')), px = ship.x, py = ship.y; const pts = []; const used = new Set();
+    const ovc = OV('chain'), nj = Math.min(Math.round(24 * ovc), Math.round((6 + 2 * ST('chain') + 2 * ML('chain')) * ovc)), jr = Math.round(3 * ovc); for (let k = 0; k < nj && i >= 0; k++) { used.add(i); const [x, y] = cellXY(i); pts.push([px, py, x, y]); if (HY('x_frostblitz')) freezeAt(i, 0); hit(i, dK * 2 / nj * critMul()); px = x; py = y;
+      let nb = -1, bd = 1e9; const c = i % COLS, r = i / COLS | 0; for (let a = -jr; a <= jr; a++) for (let b2 = -jr; b2 <= jr; b2++) { const cc = c + a, rr = r + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS) continue; const j = rr * COLS + cc; if (!G.alive[j] || used.has(j)) continue; const d = a * a + b2 * b2 + Math.random() * 3; if (d < bd) { bd = d; nb = j; } } i = nb; }
     SND.fx.zap(); pts.forEach((p, q) => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .55 + q * .02, t0: .55 + q * .02, lv: WL('chain') })); }
   // 8) Kräutersäge
   curW = 'saw';
@@ -1302,7 +1306,7 @@ function step(dt) {
   curW = 'mine';
   const dM = WD('mine') * Rd;
   if (dM && (cdMine -= dt * Rv * sp75('mine')) <= 0) { cdMine = 2.6; const nm = Math.min(HY('x_minen') ? 12 : 8, 3 + ST('mine') + (HY('x_minen') ? 4 : 0)); const tg = nearList(ship.x, ship.y, nm); for (const i of tg) { const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, i, t: 0, d: dM * 2.6 / nm * critMul() }); } }
-  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.i != null && !G.alive[m.i]) { const j = nearest(m.tx, m.ty); if (j >= 0) { m.i = j; [m.tx, m.ty] = cellXY(j); } } if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1) + (HY('x_novamine') ? 1 : 0); for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 7.5); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35 + lvTier(WL('mine')) * .05, c: lvTier(WL('mine')) >= 3 ? '255,90,122' : '255,58,92', thick: lvTier(WL('mine')) >= 2 }); if (lvTier(WL('mine')) >= 2) for (let q = 0; q < 6 + lvTier(WL('mine')) * 3; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, t: .5, c: lvTier(WL('mine')) >= 3 ? '#ffb0f0' : '#ffd23f' }); mines.splice(k, 1); } }
+  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.i != null && !G.alive[m.i]) { const j = nearest(m.tx, m.ty); if (j >= 0) { m.i = j; [m.tx, m.ty] = cellXY(j); } } if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1) + (HY('x_novamine') ? 1 : 0) + (OV('mine') > 1 ? 1 : 0); for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 7.5); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35 + lvTier(WL('mine')) * .05, c: lvTier(WL('mine')) >= 3 ? '255,90,122' : '255,58,92', thick: lvTier(WL('mine')) >= 2 }); if (lvTier(WL('mine')) >= 2) for (let q = 0; q < 6 + lvTier(WL('mine')) * 3; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, t: .5, c: lvTier(WL('mine')) >= 3 ? '#ffb0f0' : '#ffd23f' }); mines.splice(k, 1); } }
   // 10) Königsschuss
   curW = 'sniper';
   const dP = WD('sniper') * Rd;
@@ -1353,7 +1357,7 @@ function step(dt) {
   curW = 'tornado';
   const dTo = WD('tornado') * Rd, nTo = Math.min(HY('x_bohrsturm') ? 4 : 3, 1 + Math.floor(ST('tornado') / 3) + (HY('x_bohrsturm') ? 1 : 0));
   if (dTo && (cdTo -= dt * Rv * sp75('tornado')) <= 0) { cdTo = 3.5; const i = nearest(ship.x, ship.y); if (i >= 0) { const [x, y] = cellXY(i), a0 = Math.atan2(y - G.cy, x - G.cx);
-      for (let k = 0; k < nTo; k++) tors.push({ a: a0 + (k - (nTo - 1) / 2) * .35, dir: Math.random() < .5 ? -1 : 1, t: 0, life: 3, r: CELL * 1.7 * (1 + .25 * ML('tornado')) * (HY('x_malstrom') ? 1.6 : 1), x, y, up: a0, d: dTo * 3.5 / nTo / 3 / 6 }); } }
+      for (let k = 0; k < nTo; k++) tors.push({ a: a0 + (k - (nTo - 1) / 2) * .35, dir: Math.random() < .5 ? -1 : 1, t: 0, life: 3, r: CELL * 1.7 * (1 + .25 * ML('tornado')) * Math.sqrt(OV('tornado')) * (HY('x_malstrom') ? 1.6 : 1), x, y, up: a0, d: dTo * 3.5 / nTo / 3 / 6 }); } }
   for (let k = tors.length - 1; k >= 0; k--) { const o = tors[k]; o.t += dt; if (o.t >= o.life + .35) { tors.splice(k, 1); continue; }
     o.a += o.dir * dt * 55 / Math.max(G.R, 40); const [sx, sy] = surfAt(o.a); o.x += (sx - o.x) * Math.min(1, dt * 8); o.y += (sy - o.y) * Math.min(1, dt * 8); o.up = o.a;
     if (o.t > o.life) continue; const R = o.r, c0 = Math.floor((o.x - G.ox) / CELL), r0 = Math.floor((o.y - G.oy) / CELL), n = Math.ceil(R / CELL);
@@ -1891,6 +1895,7 @@ function ui() {
   $('cr').textContent = fmt(S.cr) + ' CR';
   { const m = $('mul'), on = boosting(); m.textContent = (on ? '⚡' : '') + 'x' + fmtX(crMult()); m.classList.toggle('bon', on); }
   $('cry').innerHTML = '◆' + fmt(S.cry) + ` <span class="dm">✦${fmt(S.dm || 0)}</span> <span class="chp">⬢${fmt(S.chip || 0)}</span>`;
+  { const nm = $('plnm'); if (nm) { nm.textContent = G.name || ''; nm.style.color = G.boss ? '#ff9ab0' : G.elite ? '#ff6a80' : (G.pal ? G.pal[2] : ''); } }
   $('pln').textContent = 'U' + uniOf(S.p) + ' · ' + (G.boss ? 'BOSS' : (G.elite ? 'ELITE ' : 'Planet ') + pInU(S.p)); $('pln').classList.toggle('boss', !!(G.boss || G.elite)); $('plp').textContent = fmt(G.total - G.left) + '/' + fmt(G.total);
   hotbar();
   const b = $('boost'), bl = $('bl'), now = Date.now();
@@ -1944,7 +1949,7 @@ function render() {
     $('fgopen').onclick = () => goTab('sm');
     L.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { buyN = b.dataset.n === 'max' ? 'max' : +b.dataset.n; render(); });
     L.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.up), n = buyN === 'max' ? maxBuy(w) : buyN, c = wCost(w, n); if (!n || S.cr < c) return; S.cr -= c; const s0 = ST(w.id); S.w[w.id] = WL(w.id) + n; mis('wup', n); SND.fx.up(); if (ST(w.id) > s0) upgradeFx(w); if (WL(w.id) >= 100 && window.BB) BB.unlock('drill_100'); save(); render(); });
-    L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c || owned().length >= maxWeapons()) return; S.cr -= c; S.w[w.id] = 1; { const e = S.wo.indexOf('_'); if (e >= 0) S.wo[e] = w.id; else S.wo = owned().concat(w.id); } S.offer = null; S.rrUsed = false; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
+    L.querySelectorAll('[data-unl]').forEach(b => b.onclick = () => { const w = WEAP.find(x => x.id === b.dataset.unl), c = nextUnl(); if (S.cr < c || owned().length >= maxWeapons()) return; S.cr -= c; S.w[w.id] = 1; S.wo = S.wo.concat(w.id); /* immer ans Ende: neue Waffen sind stärker als die davor */ S.offer = null; S.rrUsed = false; toast(`${w.n} freigeschaltet!`); if (owned().length >= 6 && window.BB) BB.unlock('drill_waffen'); save(true); render(); });
     L.querySelectorAll('[data-wi]').forEach(b => b.onclick = () => wInfo(b.dataset.wi));
     L.querySelectorAll('[data-mod]').forEach(b => b.onclick = () => { const id = b.dataset.mod, l = ML(id), c = modCost(l); if (l >= MOD_MAX || (S.chip || 0) < c) return; S.chip -= c; S.mod = S.mod || {}; S.mod[id] = l + 1; SND.fx.win(); const w = WEAP.find(x => x.id === id);
       overlay(`<div class="crate" style="--rc:#ff9f43"><div class="cbox" style="color:#ff9f43"><svg width="66" height="66" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${WICO[id]}</svg></div></div><h2 style="color:#ff9f43">${w.n} · Mod ${l + 1}</h2><p>+${50 * (l + 1)} % Schaden<br><b style="color:var(--txt)">★ ${MODS[id].s}: ${MODS[id].f(l + 1)}</b></p>`, [['Stark', null]]); save('now'); render(); });
@@ -2049,7 +2054,8 @@ const NEWS = [
   ['⚒', '8 neue Hybrid-Waffen', 'Bohrminen, Sternbumerang, Frostblitz, Railgun, Schwerkraft-Meteor, Bohrsturm, Sägenring und Nova-Minen. Jede Waffe passt nur in einen Hybrid – plan deinen Build!'],
   ['🎯', '8 Fähigkeiten-Plätze', 'Deine Hotbar hat jetzt 8 statt 5 Plätze.'],
   ['🌀', 'Warp alle 5 Planeten', 'Der nächste Warp braucht nur 5 Planeten mehr. Der Waffenslot-Warp startet direkt mit +1 Slot.'],
-  ['💥', 'Waffen überarbeitet', 'Neue Plasma-Nova, die Plasmapeitsche wird ab Stufe 50 deutlich länger.'],
+  ['💥', 'Waffen überarbeitet', 'Neue Plasma-Nova, die Plasmapeitsche wird ab Stufe 50 deutlich länger. Ab Stufe 100 bekommen Kettenblitz, Nova, Minen und Wirbelsturm deutlich mehr Reichweite.'],
+  ['🔨', 'Schmiede-Plätze', 'Nach dem Schmieden landen neue Waffen ganz hinten – und sind damit stärker als alle davor.'],
   ['🪐', 'Fairerer Start', 'Bis zum ersten Warp sind die Planeten 6–10 deutlich leichter.'],
   ['◆', 'Kristalle sind wertvoller', 'Es gibt etwas weniger ◆ – sie sind jetzt nur noch für Kisten und Fähigkeiten da.']
 ];
