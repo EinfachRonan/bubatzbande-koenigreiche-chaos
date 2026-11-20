@@ -245,6 +245,7 @@ $SECRET = [
   hash('sha256', 'bbcode:421') => ['g' => 'ernte', 'name' => 'Erntezeit', 'v' => '1.0', 'url' => 'ernte/'],
   hash('sha256', 'bbcode:7878') => ['g' => 'hl', 'name' => 'Höhlenlauf', 'v' => '0.1', 'url' => 'hoehlenlauf/'],
   hash('sha256', 'bbcode:0811') => ['g' => 'ks', 'name' => 'Kräuterschenke', 'v' => '0.6', 'url' => 'schenke/'],
+  hash('sha256', 'bbcode:422') => ['g' => 'hw', 'name' => 'Höhlenwacht', 'v' => '0.3', 'url' => 'wacht/'],
 ];
 if ($a === 'code') {
   $n = 0; foreach ($rl as $x) if ($x['ip'] === $ip) $n++;
@@ -336,7 +337,7 @@ if ($a === 'inv_done') {
 // Spielstände in der Cloud (z. B. Bandenhof)
 if ($a === 'gput') {
   $g = (string) ($in['g'] ?? ''); $data = (string) ($in['data'] ?? '');
-  if (!in_array($g, ['hof', 'meta', 'runner', 'krieg', 'match', 'drill', 'ks', 'kh'], true) || strlen($data) > 60000) $stop('bad');
+  if (!in_array($g, ['hof', 'meta', 'runner', 'krieg', 'match', 'drill', 'ks', 'kh', 'hw'], true) || strlen($data) > 60000) $stop('bad');
   $U['gs'][$g] = ['d' => $data, 't' => time()];
   $finish(['ok' => 1]);
 }
