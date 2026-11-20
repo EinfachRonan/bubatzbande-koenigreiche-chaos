@@ -3284,6 +3284,7 @@ function updateHud(){
 function endFight(win){
   if(B.over) return;
   B.over = true; B.held = false;
+  heroRevealQ = []; heroRevealActive = null; B.paused = false;
   // Tutorial-Gate: erste Intro-Runde beendet → Tutorial darf starten
   if(S.intro && !S.introFightDone){ S.introFightDone = true; }
   const bonus = Math.floor(B.t / 10) + (win ? 100 * B.ch : 0);
@@ -3316,7 +3317,7 @@ function endFight(win){
     <div class="mbtns"><button class="btn" id="mcont" style="font-size:31px;padding:12px 40px">FORTFAHREN</button></div>`);
   $('#tavg').onclick = () => { $('#stab').innerHTML = rowsFor(true); $('#tavg').style.opacity = 1; $('#ttot').style.opacity = .6; };
   $('#ttot').onclick = () => { $('#stab').innerHTML = rowsFor(false); $('#ttot').style.opacity = 1; $('#tavg').style.opacity = .6; };
-  $('#mcont').onclick = () => { closeModal(); B = null; $('#battle').style.display = 'none'; $('#hub').style.display = 'flex'; if(innerWidth <= 820) $('#hub').style.display = 'flex'; renderHub(); };
+  $('#mcont').onclick = () => { closeModal(); heroRevealQ = []; heroRevealActive = null; B = null; $('#battle').style.display = 'none'; $('#hub').style.display = 'flex'; if(innerWidth <= 820) $('#hub').style.display = 'flex'; renderHub(); };
 }
 
 let last = performance.now(), hudT = 0;
