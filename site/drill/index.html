@@ -549,9 +549,11 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 @media (min-width:900px){.nw{max-width:640px}.nw-top h2{font-size:32px}.nw-it b{font-size:15px}.nw-it p{font-size:13px}}
 
 /* Elite: Warnung + Karten */
-.elw{position:absolute;left:50%;top:26%;transform:translateX(-50%);z-index:40;pointer-events:none;text-align:center;padding:10px 22px;border:2px solid #ff2a4a;border-radius:10px;background:rgba(30,4,10,.82);box-shadow:0 0 0 2px #050912,0 0 26px rgba(255,42,74,.55);animation:elwIn .35s ease-out,elwP .9s ease-in-out .35s 3,elwOut .4s ease-in 3s forwards;width:max-content;max-width:86%}
+.elwf{position:fixed;inset:0;z-index:9000;pointer-events:none;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 50%,rgba(255,42,74,.18),rgba(120,0,20,.55) 75%);box-shadow:inset 0 0 120px rgba(255,30,60,.75);animation:elfF .45s ease-in-out 0s 3 alternate,elfO .5s ease-in 2.9s forwards}
+@keyframes elfF{from{opacity:.55}to{opacity:1}}@keyframes elfO{to{opacity:0}}
+.elw{position:relative;transform:translateX(0);text-align:center;padding:10px 22px;border:2px solid #ff2a4a;border-radius:10px;background:rgba(30,4,10,.82);box-shadow:0 0 0 2px #050912,0 0 26px rgba(255,42,74,.55);animation:elwIn .35s ease-out,elwP .9s ease-in-out .35s 3,elwOut .4s ease-in 3s forwards;width:max-content;max-width:86%}
 .elw b{display:block;font:400 clamp(16px,5vw,22px) Silkscreen,var(--mono);color:#ff4a62;letter-spacing:2px;text-shadow:0 0 12px rgba(255,42,74,.8),0 2px 0 #000}.elw span{font:12px var(--mono);color:#ffc9d1}
-@keyframes elwIn{from{opacity:0;transform:translateX(-50%) scale(1.3)}}@keyframes elwP{50%{box-shadow:0 0 0 2px #050912,0 0 40px rgba(255,42,74,.85)}}@keyframes elwOut{to{opacity:0;transform:translateX(-50%) translateY(-10px)}}
+@keyframes elwIn{from{opacity:0;transform:scale(1.3)}}@keyframes elwP{50%{box-shadow:0 0 0 2px #050912,0 0 40px rgba(255,42,74,.85)}}@keyframes elwOut{to{opacity:0;transform:translateY(-10px)}}
 #elc{position:absolute;inset:0;z-index:62;display:flex;align-items:center;justify-content:center;padding:14px;background:radial-gradient(circle at 50% 40%,rgba(80,14,24,.85),rgba(3,5,10,.96));animation:augIn .35s ease-out}
 .elcw{width:100%;max-width:560px;text-align:center}.elcw h2{font:400 22px Silkscreen,var(--mono);color:#ffd23f;margin:0 0 4px;text-shadow:0 0 14px rgba(255,42,74,.7),0 2px 0 #000}.elcw>p{color:#d8c0c4;font:13px var(--mono);margin:0 0 16px}
 .elr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;perspective:800px}
@@ -578,6 +580,9 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 @media (min-width:900px){.augo-l svg{width:20px;height:20px}.augo-l b{font-size:14px}}
 
 .fg-r.tri{gap:3px;justify-content:space-between}.fg-r.tri>*{flex:0 0 auto!important}.fg-r.tri>.pl{width:auto!important;min-width:0!important;padding:0!important;margin:0 1px!important}.fg-r.tri>.fg-ic:not(.big){width:28px!important;height:28px!important}.fg-r.tri>.fg-ic.big{width:44px!important;height:44px!important}.fg-r.tri small{font-size:9px}.fg-r.tri .pl{margin:0 1px}.fg-r.tri .fg-ic:not(.big){width:26px;height:26px}.fg-r.tri .fg-ic:not(.big) svg{width:18px;height:18px}
+
+.rst{display:block;width:100%;margin-top:12px;padding:10px;border-radius:9px;background:#2a0c12;border:1.5px solid #ff4a62;color:#ffb3bf;font:700 13px var(--mono);cursor:pointer}.rst:hover{background:#3a1018}
+.elwf .elw{background:rgba(24,3,8,.96);padding:14px 20px}.elwf .elw b{font-size:clamp(18px,5.6vw,40px);white-space:nowrap}.elwf .elw span{font-size:clamp(12px,3.4vw,16px)}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -2094,8 +2099,8 @@ function augPick(k) { const c = S.augO[k], T = AUGT[c.t];
   if (augDone()) { S.augQ = 0; toast('Alle Skills freigeschaltet! 🎉'); } if (S.augQ) setTimeout(augShow, 350); }
 
 // ================== Elite-Planeten: Warnung beim Ankommen, 3 verdeckte Karten als Belohnung ==================
-function eliteWarn() { if ($('elw')) return; const d = document.createElement('div'); d.id = 'elw'; d.className = 'elw';
-  d.innerHTML = `<b>⚠ ELITE-PLANET ⚠</b><span>Doppelte Lebenspunkte · Belohnung: Elite-Karten</span>`; $('app').appendChild(d); vib([40, 60, 40]); SND.fx.boom && SND.fx.boom(); setTimeout(() => d.remove(), 3400); }
+function eliteWarn() { if ($('elw')) return; const d = document.createElement('div'); d.id = 'elw'; d.className = 'elwf';
+  d.innerHTML = `<div class="elw"><b>⚠ ELITE-PLANET ⚠</b><span>Doppelte Lebenspunkte · Belohnung: Elite-Karten</span></div>`; document.body.appendChild(d); vib([40, 60, 40]); SND.fx.boom && SND.fx.boom(); setTimeout(() => d.remove(), 3400); }
 const ELW = () => CRATES.find(k => k.id === 'k3').w; // Gewichte wie die goldene (Ultimative) Kiste
 function elitePick() { const W8 = ELW(), tot = W8.g + W8.s + W8.e + W8.l; let x = Math.random() * tot, r = 's'; for (const [rr, w] of Object.entries(W8)) { if ((x -= w) < 0) { r = rr; break; } }
   const pool = ITEMS.filter(i => i.r === r); return { it: pool[(Math.random() * pool.length) | 0], r }; }
@@ -2813,6 +2818,9 @@ const SND = (() => {
 // Vibration am Handy (geht auf Android; iPhones unterstützen das im Browser nicht)
 let vibOn = true; try { vibOn = localStorage.getItem('gb_vib') !== '0'; } catch (e) {}
 const vib = pat => { try { if (vibOn && navigator.vibrate) navigator.vibrate(pat); } catch (e) {} };
+function resetGame() { const keep = S.newsV; S = fresh(); S.newsV = keep; S.augQ = 1; if (logged()) S.own = myId(); hybSync(); cleanSave();
+  try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {} save('now'); try { window.BB && BB.cloud && BB.cloud.flush && BB.cloud.flush(); } catch (e) {}
+  toast('Spielstand zurückgesetzt – viel Spaß beim Neustart!'); setTimeout(() => location.reload(), 1500); }
 function openSettings() {
   const v = SND.vol;
   overlay(`<h2>Einstellungen</h2>
@@ -2821,7 +2829,11 @@ function openSettings() {
     <div class="vrow"><span>💥 Effekte</span><input type="range" min="0" max="100" value="${Math.round(v.s * 100)}" id="vs"><b id="vsv">${Math.round(v.s * 100)}</b></div>
     <label class="vrow" style="cursor:pointer"><span>📳 Vibration</span><input type="checkbox" id="vvib" ${vibOn ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">${navigator.vibrate ? '' : 'geht auf diesem Gerät nicht'}</b></label>
     <label class="vrow" style="cursor:pointer"><span>👾 Pixel-Art-Grafik</span><input type="checkbox" id="vretro" ${RETRO ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">scharfe Pixel wie im Titelbild (aus = weicher, höhere Auflösung)</b></label>
-    <p style="margin-top:8px">${logged() ? '☁ Dein Stand wird auf deinem Konto gespeichert.' : '💾 Ohne Konto wird nur auf diesem Gerät gespeichert.'} · Version ${VLABEL}</p>`, [['Fertig', null]]);
+    <p style="margin-top:8px">${logged() ? '☁ Dein Stand wird auf deinem Konto gespeichert.' : '💾 Ohne Konto wird nur auf diesem Gerät gespeichert.'} · Version ${VLABEL}</p>
+    <button class="rst" id="vrst">🗑 Spielstand zurücksetzen</button>`, [['Fertig', null]]);
+  $('vrst').onclick = () => overlay(`<h2>Spielstand zurücksetzen?</h2><p>Bist du dir sicher? Dein ganzer Fortschritt im Galaxie-Bohrer wird gelöscht: Planeten, Waffen, Warps, ✦, ◆, Hangar und Fähigkeiten.</p>`,
+    [['Ja, zurücksetzen', () => setTimeout(() => overlay(`<h2 style="color:#ff4a62">Wirklich sicher?</h2><p>Das kann man <b>nicht rückgängig</b> machen. Du fängst komplett bei Planet 1 an.</p>`,
+      [['Ja, alles löschen', () => resetGame()], ['Nein, doch nicht', null]]), 60)], ['Abbrechen', null]]);
   const bind = (id, k) => { const el = $(id); el.oninput = () => { SND.set(k, el.value / 100); $(id + 'v').textContent = el.value; if (k === 's') SND.fx.up(); }; };
   bind('vm', 'm'); bind('vs', 's');
   $('vtr').onchange = e => SND.setTrack(e.target.value);
