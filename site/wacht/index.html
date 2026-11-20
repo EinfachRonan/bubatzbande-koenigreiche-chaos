@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Höhlenwacht · v0.9</title>
+<title>Höhlenwacht · v1.0</title>
 <script src="../bb.js?v=20261120a"></script>
 <script>
 /* Geheim-Spiel (Testphase): nur spielbar, wenn über „Code eingeben“ auf der Startseite freigeschaltet. */
@@ -184,14 +184,14 @@ canvas{width:100%;height:100%;display:block;object-fit:contain;image-rendering:p
 <div id="app">
   <div id="top">
     <a id="home" href="../" aria-label="Zur Startseite">‹</a><div style="flex:1"><div id="gold" class="h"><i></i><span id="goldv">0</span></div><div id="cores"></div></div>
-    <button class="btn ib" id="bMus" title="Musik an/aus">🎵</button><button class="btn ib" id="bAud" title="Lautstärke">⚙</button><button class="btn" id="bFs" title="Vollbild (F)" aria-label="Vollbild">⛶</button><div id="stage"><b id="stv">Stufe 1</b><br><span id="dps">0 Schaden/s</span></div>
+    <button class="btn ib" id="bMus" title="Musik an/aus">🎵</button><button class="btn ib" id="bAud" title="Lautstärke">⚙</button><button class="btn" id="bFs" title="Vollbild (F)" aria-label="Vollbild">⛶</button><div id="stage"><b id="stv">Stufe 1-1</b><br><span id="bio">Burghalle</span> · <span id="dps">0 Schaden/s</span></div>
   </div>
   <div id="field"><canvas id="c"></canvas><div id="wtop"><div id="wave"></div><button class="btn" id="bAdv">☠ Boss</button></div><div id="banner" class="h"></div><div id="lootfx"><div class="ic"><img></div><div class="lt"><small>BEUTE</small><b></b><i></i></div></div><div id="ultfx"><div class="band"></div><img><div class="txt"><small>ULT</small><b></b></div></div></div>
   <div id="bar"><div id="stx"></div><button class="btn" id="bAuto">Auto-Ult</button><button class="btn" id="bSpd">x1</button></div>
   <div id="ults"></div>
   <div id="tabs"><button class="btn on" data-t="bande">Bande</button><button class="btn" data-t="ausbau">Ausbau</button><button class="btn" data-t="schmiede">Schmiede</button><button class="btn" data-t="taverne">Taverne</button></div>
   <div id="panel"></div>
-  <div id="ver">Höhlenwacht · v0.9 · Testphase<span id="sv"></span></div>
+  <div id="ver">Höhlenwacht · v1.0 · Testphase<span id="sv"></span></div>
 </div>
 <div id="sheet"><div class="in"></div></div>
 <div id="aud"><div class="in"></div></div>
@@ -230,7 +230,7 @@ const UPG=[
  {id:'regen',n:'Feldflasche',d:l=>'Bande heilt '+(l*1)+' % Leben pro Sekunde',c0:5000,g:2.5,min:9}
 ];
 const TAL=[
- {id:'start',n:'Abkürzung',d:l=>'Startet nach dem Rückzug auf Stufe '+(1+l*3),c:l=>4*(l+1),max:10},
+ {id:'start',n:'Abkürzung',d:l=>'Startet nach dem Rückzug auf Stufe '+stName(1+l*3),c:l=>4*(l+1),max:10},
  {id:'off',n:'Lange Pause',d:l=>'Offline-Ertrag bis '+(4+l*2)+' Std.',c:l=>3*(l+1),max:10},
  {id:'ug',n:'Ult-Fokus',d:l=>'+'+(l*15)+' % Ult-Ladung',c:l=>4*(l+1),max:10},
  {id:'gd',n:'Goldader',d:l=>'+'+(l*25)+' % Gold',c:l=>Math.ceil(2*Math.pow(l+1,1.5)),max:50},
@@ -276,7 +276,7 @@ const ICON_ROWS={w:["..........ww",".........wwl","........wwl.",".......wwl..",
 const ICON={};function icon(sl,ri){const key=sl+ri;if(ICON[key])return ICON[key];const c=document.createElement('canvas');c.width=c.height=12;const x=c.getContext('2d');const rc=RAR[ri].c;
  const pal={w:'#e4e8ec',l:'#8a9098',h:'#6b4426',g:'#d9a948',m:sl==='r'?rc:'#888',c:'#b8b0a0',j:rc};if(sl==='w'){pal.w=ri>=2?'#fff':'#d8dce0';pal.l=rc;}
  ICON_ROWS[sl].forEach((r,j)=>[...r].forEach((ch,i)=>{if(pal[ch]){x.fillStyle=pal[ch];x.fillRect(i,j,1,1);}}));return ICON[key]=c.toDataURL();}
-function itemHtml(it,extra){const rc=RAR[it.r].c;return `<div class="icon" style="border-color:${rc};box-shadow:inset 0 0 10px ${rc}66"><img src="${icon(it.s,it.r)}"></div><div class="t"><div class="n" style="color:${it.r?rc:'#3a1c08'};filter:brightness(.8)">${it.n}${it.up?` <small>+${it.up}</small>`:''}</div><div class="d">+${fmt(iv(it))} % ${STAT[it.st].n} · ${RAR[it.r].n} · St. ${it.lv}${extra||''}</div></div>`;}
+function itemHtml(it,extra){const rc=RAR[it.r].c;return `<div class="icon" style="border-color:${rc};box-shadow:inset 0 0 10px ${rc}66"><img src="${icon(it.s,it.r)}"></div><div class="t"><div class="n" style="color:${it.r?rc:'#3a1c08'};filter:brightness(.8)">${it.n}${it.up?` <small>+${it.up}</small>`:''}</div><div class="d">+${fmt(iv(it))} % ${STAT[it.st].n} · ${RAR[it.r].n} · ${stName(it.lv)}${extra||''}</div></div>`;}
 /* Schmiede: kompakt – Helden-Reihen mit 3 Slots, Beutel als Raster, Details im Blatt unten */
 function heroOrder(sl){const hs=HORDER.filter(k=>S.heroes[k]);const base=k=>HEROES[k].dmg*lvlMul(S.heroes[k])/HEROES[k].cd;
  if(sl==='r')return hs.sort((a,b)=>(HEROES[b].melee?1:0)-(HEROES[a].melee?1:0)||HEROES[b].hp-HEROES[a].hp);return hs.sort((a,b)=>base(b)-base(a));}
@@ -299,7 +299,7 @@ function renderSchmiede(){let h=`<div class="smtop"><b class="h">⚒ ${fmt(S.sto
  return h;}
 function sheet(html){const el=document.getElementById('sheet');el.querySelector('.in').innerHTML=html;el.classList.add('on');el.onclick=e=>{if(e.target===el)el.classList.remove('on');};return el;}
 function closeSheet(){document.getElementById('sheet').classList.remove('on');}
-function itemHead(it){const rc=RAR[it.r].c;return `<div class="shd"><div class="tile" style="border-color:${rc};box-shadow:inset 0 0 9px ${rc}88"><img src="${icon(it.s,it.r)}"></div><div><b style="color:${it.r?rc:'#3a1c08'}">${it.n}${it.up?' +'+it.up:''}</b><div>+${fmt(iv(it))} % ${STAT[it.st].n}</div><small>${RAR[it.r].n} · ${SLOTS[it.s].n} · Stufe ${it.lv}</small></div></div>`;}
+function itemHead(it){const rc=RAR[it.r].c;return `<div class="shd"><div class="tile" style="border-color:${rc};box-shadow:inset 0 0 9px ${rc}88"><img src="${icon(it.s,it.r)}"></div><div><b style="color:${it.r?rc:'#3a1c08'}">${it.n}${it.up?' +'+it.up:''}</b><div>+${fmt(iv(it))} % ${STAT[it.st].n}</div><small>${RAR[it.r].n} · ${SLOTS[it.s].n} · ${stName(it.lv)}</small></div></div>`;}
 function openEq(k,sl){const it=S.eq[k]&&S.eq[k][sl];if(!it)return;const c=upCost(it),mx=it.up>=UPMAX;
  const el=sheet(`${itemHead(it)}<div class="shb"><button class="btn go" data-up ${mx?'disabled':''}>${mx?'Maximal':'Schmieden · ⚒ '+c+' · '+Math.round(upChance(it)*100)+' %'}</button><button class="btn" data-off>Ablegen</button></div><div class="shn">${HEROES[k].n} · ⚒ ${fmt(S.stones)} Schmiedesteine${it.up>=5?' · Ab +5 kann ein Fehlschlag eine Stufe kosten':''}</div>`);
  const up=el.querySelector('[data-up]');if(up)up.onclick=()=>{if(S.stones<c){showBan('Zu wenig Schmiedesteine',1);return;}S.stones-=c;if(Math.random()<upChance(it)){it.up++;sfx('lvl');showBan('Erfolg! +'+it.up,1);}else{sfx('die');if(it.up>=5){it.up--;showBan('Zerbrochen! Nur noch +'+it.up,1);}else showBan('Fehlschlag…',1);}syncHeroes();renderAll();openEq(k,sl);};
@@ -421,6 +421,7 @@ const BIOMES=[
  {n:'Glutschmiede',lights:[[60,118,'l'],[170,120,'l'],[280,116,'l']]},
  {n:'Frostpass',lights:[]}];
 const biomeOf=s=>Math.floor((s-1)/5)%BIOMES.length;
+const areaOf=s=>Math.floor((s-1)/5)+1,subOf=s=>(s-1)%5+1,stName=s=>'Stufe '+areaOf(s)+'-'+subOf(s);
 const BGC={};let BG=null,LIGHTS=[],BIO=-1,snow=[];
 function setBiome(i){if(i===BIO)return;BIO=i;if(!BGC[i])BGC[i]=makeBG(i);BG=BGC[i];LIGHTS=BIOMES[i].lights;}
 function makeBG(id){const c=document.createElement('canvas');c.width=W;c.height=H;const b=c.getContext('2d');
@@ -588,7 +589,7 @@ function castUlt(h){if(h.en<100||h.dead)return;const al=alive(enemies);if(!al.le
  renderUlts();}
 function waveDone(){state='next';stT=.6;
  for(const h of heroes){if(h.dead){h.dead=false;h.hp=h.mh*.4;}else h.hp=Math.min(h.mh,h.hp+h.mh*.25);}
- if(S.wave===WAVES){S.stage++;S.wave=1;S.wmax=1;S.farm=false;S.max=Math.max(S.max,S.stage);for(const h of heroes)h.hp=h.mh;if((S.stage-1)%5===0)showBan('Neues Gebiet: '+BIOMES[biomeOf(S.stage)].n);else showBan('Stufe '+S.stage);sfx('stage');save();renderTab();}
+ if(S.wave===WAVES){S.stage++;S.wave=1;S.wmax=1;S.farm=false;S.max=Math.max(S.max,S.stage);for(const h of heroes)h.hp=h.mh;if((S.stage-1)%5===0)showBan('Gebiet '+areaOf(S.stage)+': '+BIOMES[biomeOf(S.stage)].n);else showBan(stName(S.stage));sfx('stage');save();renderTab();}
  else if(S.farm)S.wave=WAVES-1;
  else S.wave++;
  renderTop();}
@@ -625,8 +626,8 @@ cv.addEventListener('pointerdown',()=>{ac();if(AC&&AC.state==='suspended')AC.res
 
 /* ============ UI ============ */
 const $=id=>document.getElementById(id);let tab='bande',buyN=1;
-function renderTop(){$('goldv').textContent=fmt(S.gold);$('cores').textContent=S.cores?'✦ '+S.cores+' Kräuterkerne (+'+S.cores*10+' %)':'';$('stv').textContent='Stufe '+S.stage;$('dps').textContent=fmt(teamDps())+' Schaden/s';
- $('bAdv').style.display=S.farm?'':'none';$('stx').textContent=BIOMES[biomeOf(S.stage)].n+' · '+(S.farm?'Boss nicht geschafft – Welle '+(WAVES-1)+' wird wiederholt':'Welle '+S.wave+' von '+WAVES);$('bAuto').classList.toggle('on',S.auto);$('bSpd').textContent='x'+S.spd;$('bSpd').classList.toggle('on',S.spd>1);renderWave();}
+function renderTop(){$('goldv').textContent=fmt(S.gold);$('cores').textContent=S.cores?'✦ '+S.cores+' Kräuterkerne (+'+S.cores*10+' %)':'';$('stv').textContent=stName(S.stage);$('bio').textContent=BIOMES[biomeOf(S.stage)].n;$('dps').textContent=fmt(teamDps())+' Schaden/s';
+ $('bAdv').style.display=S.farm?'':'none';$('stx').textContent=BIOMES[biomeOf(S.stage)].n+' · '+subOf(S.stage)+' von 5 · '+(S.farm?'Boss offen – Welle '+(WAVES-1)+' läuft':'Welle '+S.wave+' von '+WAVES);$('bAuto').classList.toggle('on',S.auto);$('bSpd').textContent='x'+S.spd;$('bSpd').classList.toggle('on',S.spd>1);renderWave();}
 function renderWave(){let h='';for(let i=1;i<=WAVES;i++){const b=i===WAVES,done=i<S.wave,ok=!S.farm&&!b&&i!==S.wave&&i<=S.wmax;
   h+=`<span data-w="${i}" class="${done?'d':''} ${i===S.wave?'c':''} ${b?'b':''} ${b&&S.farm?'lost':''} ${ok?'ok':''}" title="${b?'Boss':'Welle '+i}">${b?'☠':''}</span>`;}
  $('wave').innerHTML=h;$('wave').querySelectorAll('span.ok').forEach(el=>el.onclick=()=>goWave(+el.dataset.w));}
@@ -645,11 +646,11 @@ function renderTab(){const P=$('panel');let h='';
    if(!l){h+=`<div class="card locked"><div class="pic"><img src="${SPR[k].r}"></div><div class="t"><div class="n">${H0.n}</div><div class="d">${H0.d}</div></div><button class="btn buy go" data-u="${k}">Anheuern<small>${fmt(H0.unlock)}</small></button></div>`;continue;}
    const b=bulk(k),ms=25-(l%25);
    h+=`<div class="card"><div class="pic"><img src="${SPR[k].r}"></div><div class="t"><div class="n">${H0.n}<small>Lv ${l}</small></div><div class="d">${fmt(heroDmg(k,l))} Schaden · ${fmt(heroHp(k,l))} ♥<br>Ult: <b style="color:#2f6a12">${H0.ult.n}</b> – ${H0.ult.d}<br><span class="ms">in ${ms} Lv: Schaden ×2</span>${eqStrip(k)}</div></div><button class="btn buy" data-l="${k}">+${b.n} Lv<small>${fmt(b.c)}</small></button></div>`;}}
- else if(tab==='ausbau'){for(const u of UPG){const l=ul(u.id);if(S.max<u.min){h+=`<div class="card locked"><div class="t"><div class="n">???</div><div class="d">Ab Stufe ${u.min}</div></div></div>`;continue;}
+ else if(tab==='ausbau'){for(const u of UPG){const l=ul(u.id);if(S.max<u.min){h+=`<div class="card locked"><div class="t"><div class="n">???</div><div class="d">Ab Stufe ${stName(u.min)}</div></div></div>`;continue;}
    h+=`<div class="card"><div class="t"><div class="n">${u.n}<small>Stufe ${l}</small></div><div class="d">${u.d(l)} → ${u.d(l+1)}</div></div><button class="btn buy" data-g="${u.id}">Ausbauen<small>${fmt(upgCost(u))}</small></button></div>`;}}
  else if(tab==='schmiede'){h+=renderSchmiede();}
  else{const cg=coreGain();
-  h+=`<div class="box"><span class="t1">🍺 Rückzug in die Taverne</span>Die Bande zieht sich zurück, feiert durch und kommt stärker wieder. Gold, Stufen, Helden und Ausbau werden zurückgesetzt, Ausrüstung und Schmiedesteine bleiben – du bekommst <b style="color:#2f6a12">Kräuterkerne</b>. Jeder Kern gibt dauerhaft +10 % Schaden und Gold.<br><br>Höchste Stufe: <b>${S.max}</b> · ${S.max<25?'Rückzug ab Stufe 25':'Jetzt: <b style="color:#2f6a12">+'+cg+' Kerne</b>'}</div>
+  h+=`<div class="box"><span class="t1">🍺 Rückzug in die Taverne</span>Die Bande zieht sich zurück, feiert durch und kommt stärker wieder. Gold, Stufen, Helden und Ausbau werden zurückgesetzt, Ausrüstung und Schmiedesteine bleiben – du bekommst <b style="color:#2f6a12">Kräuterkerne</b>. Jeder Kern gibt dauerhaft +10 % Schaden und Gold.<br><br>Höchste Stufe: <b>${stName(S.max)}</b> · ${S.max<25?'Rückzug ab Stufe 5-5':'Jetzt: <b style="color:#2f6a12">+'+cg+' Kerne</b>'}</div>
   <button class="btn go" id="bPre" style="width:100%;padding:12px;font-size:15px;margin-bottom:6px" ${cg?'':'disabled'}>🍺 Rückzug (+${cg} ✦)</button>
   <div class="sec">Kern-Talente · ✦ ${S.cores}</div>`;
   for(const t of TAL){const l=tl(t.id),mx=l>=t.max;h+=`<div class="card"><div class="t"><div class="n">${t.n}<small>${l}/${t.max}</small></div><div class="d">${t.d(l)}${mx?'':' → '+t.d(l+1)}</div></div><button class="btn buy" data-tal="${t.id}" ${mx?'disabled':''}>${mx?'Max':'Lernen'}<small>${mx?'':'✦ '+t.c(l)}</small></button></div>`;}
