@@ -728,7 +728,6 @@ const WARP = [
   { id: 'meister', n: 'Fähigkeiten-Meister', d: () => 'Fähigkeiten laden 8 % schneller', max: 5, cost: wpCost, ico: '<path d="M12 2l3 7 7 .5-5.5 4.5 2 7L12 17l-6.5 4 2-7L2 9.5 9 9z"/><circle cx="12" cy="12" r="2"/>' },
   { id: 'magnet', n: 'Materie-Magnet', d: () => '+20 % ✦ beim Warp', max: 5, cost: wpCost, ico: '<path d="M6 3v8a6 6 0 0 0 12 0V3M6 7h4M14 7h4"/>' },
   { id: 'erbe', n: 'Skill-Erbe', d: () => '+1 Stufe pro Skill bleibt beim Warp', max: 5, cost: wpCost, ico: '<path d="M4 20h16M6 16l6-12 6 12M9 11h6"/>' },
-  { id: 'auto', n: 'Autopilot', d: () => 'Zündet Fähigkeiten selbst', max: 1, cost: wpCost, ico: '<rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/>' },
 ];
 const keepPct = l => 20 + 10 * (l == null ? WP('keep') : l);
 const startCr = l => l ? 300 * Math.pow(8, l - 1) : 0;
@@ -747,7 +746,7 @@ let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
 const VER = 14; // interne Stand-Nummer (höher = einmaliger Reset)
 const VLABEL = '0.7'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
-const NEWSV = '2026-11-20b'; // bei größerem Update hochsetzen → „Was ist neu“ erscheint einmal
+const NEWSV = '2026-11-20c'; // bei größerem Update hochsetzen → „Was ist neu“ erscheint einmal
 const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, newsV: NEWSV, wq5b: 1, slot1b: 1, aug1: 1, augQ: 1, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
 const norm = o => Object.assign(fresh(), o || {}, { wq5b: o ? o.wq5b : 1, slot1b: o ? o.slot1b : 1, aug1: o ? o.aug1 : 1, newsV: o ? o.newsV : NEWSV, augQ: o ? o.augQ || 0 : 1, w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: (o && o.inv && Object.keys(o.inv).length) ? o.inv : { h_pfeil: 1, r_basis: 1, t_basis: 1 }, /* Start-Teile nur bei neuem Spielstand, sonst kämen eingeschmolzene Teile beim Laden zurück */ eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
@@ -982,7 +981,7 @@ function buildPlanet(removed) {
   if (innerWidth >= 900 && H >= 420) CELL = Math.max(12, Math.min(18, 2 * Math.round(H / 140))); // PC: Planet passt fast ganz ins Bild
   const Rc = boss ? 27 : (p <= 2 ? 11 + rnd() * 4 : 16 + rnd() * 10) + Math.min(4, p * .15); // die ersten Planeten kleiner, damit der Start (auch nach dem Warp) flott geht
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = 12 * .39 /* allgemein deutlich weniger Leben (Bot-Test: jeder Planet ≲ 15 min) */ * (p === 1 ? .2 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (boss ? 1.2 : 1) * (!S.pc && p > 5 && p <= 10 ? Math.pow(.7, p - 5) : 1) /* erster Durchlauf: keine Wand vor dem ersten Warp */, v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = 12 * .39 /* allgemein deutlich weniger Leben (Bot-Test: jeder Planet ≲ 15 min) */ * (p === 1 ? .2 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) /* Universum-Sprung wie die CR (x1,8) */ * (boss ? 1.2 : 1) * (!S.pc && p > 5 ? Math.pow(.7, Math.min(5, p - 5)) * (p > 10 ? .7 : 1) : 1) /* erster Durchlauf: keine Wand vor dem ersten Warp */, v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
@@ -2083,10 +2082,11 @@ const NEWS = [
   ['🃏', 'Augmente statt Skills', 'Nach jedem Planeten wählst du 1 von 3 Augmenten. Jede Karte kannst du einmal neu würfeln. Gewöhnlich +1 Stufe, Silber +2, Gold +3.'],
   ['✨', '3 neue Skills', 'Riesentöter (mehr Schaden auf Boss & Elite), Abrissbirne (fast kaputte Blöcke zerbröseln) und Krit-Wucht (härtere Krits).'],
   ['⚒', 'Schmiede komplett', 'Neu: Bohrminen, Sternbumerang und die Dreier-Fusion Prisma-Railgun. Jede Waffe gehört zu genau einem Rezept – wer alle Waffen hat, kann alle verschmelzen.'],
-  ['🎯', '8 Fähigkeiten-Plätze', 'Deine Hotbar hat jetzt 8 statt 5 Plätze.'],
+  ['🎯', '8 Fähigkeiten-Plätze + Autopilot', 'Deine Hotbar hat jetzt 8 statt 5 Plätze. Der Autopilot zündet alle Fähigkeiten automatisch – jetzt für alle frei (im Fähigkeiten-Tab ausschaltbar).'],
   ['🌀', 'Warp alle 5 Planeten', 'Der nächste Warp braucht nur 5 Planeten mehr. Der Waffenslot-Warp startet direkt mit +1 Slot.'],
   ['💥', 'Waffen überarbeitet', 'Neue Plasma-Nova, die Plasmapeitsche wird ab Stufe 50 deutlich länger. Ab Stufe 100 bekommen Kettenblitz, Nova, Minen und Wirbelsturm deutlich mehr Reichweite.'],
   ['🔨', 'Schmiede-Plätze', 'Nach dem Schmieden landen neue Waffen ganz hinten – und sind damit stärker als alle davor.'],
+  ['☁', 'Spielstand-Sync', 'Spielst du auf zwei Geräten, fragt das Spiel jetzt, welchen Stand du willst. In den Einstellungen kannst du den Stand hoch- oder runterladen.'],
   ['🪐', 'Fairere Planeten', 'Alle Planeten haben 40 % weniger Leben, bis zum ersten Warp sind die Planeten 6–10 noch leichter.'],
   ['🚀', 'Eigene Standardattacke', 'Jedes Raumschiff schießt anders: Pfeil-Laser, Blattsalve, Sternsplitter, Geisterfeuer, Goldmünzen, Königslanze, Drachenfeuer …'],
   ['⚖', 'Fähigkeiten ausbalanciert', 'Meteorschauer und Zeitsprung schwächer, Orbitalkanone, Supernova, Frostschock, Drohnen und Schwarzes Loch stärker. Der Kristallmagnet hat jetzt ein Limit pro Einsatz.'],
@@ -2302,7 +2302,7 @@ function abStep(dt) {
     const c0 = Math.floor((bhole.x - G.ox) / CELL), r0 = Math.floor((bhole.y - G.oy) / CELL), n = Math.ceil(r / CELL);
     for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) { const cc = c0 + a, rr = r0 + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS || Math.hypot(a, b2) * CELL > r) continue; hit(rr * COLS + cc, bhole.d * dt / 2.2 / 6); }
     if (bhole.t <= 0) bhole = null; }
-  if (WP('auto') && !S.autoOff) for (const id of S.hot) if (id && AL(id) && abReady(id)) { cast(id, true); break; }
+  if (!S.autoOff) for (const id of S.hot) if (id && AL(id) && abReady(id)) { cast(id, true); break; }
 }
 // ================== Hangar: Schiffsteile ==================
 const RAR = { g: { n: 'Gewöhnlich', c: '#c9d1d3', b: .1 }, s: { n: 'Selten', c: '#8dff5a', b: .25 }, e: { n: 'Episch', c: '#ff5fe0', b: .6 }, l: { n: 'Legendär', c: '#ffe94d', b: 1.5 } };
@@ -2561,7 +2561,7 @@ function renderAb(L) {
     <div class="hbe">${[0, 1, 2, 3, 4, 5, 6, 7].map(k => { const a = S.hot[k] && ABIL.find(x => x.id === S.hot[k]); return `<button data-hs="${k}" class="${a ? '' : 'emp'}${abSlot === k ? ' sel' : ''}"><small>${k + 1}</small>${a ? `${abIco(a, ` viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"`)}` : '+'}</button>`; }).join('')}</div>
     <div class="hbe-h">${abSlot == null ? 'Slot antippen, dann eine Fähigkeit darunter wählen' : `<b>Slot ${abSlot + 1}:</b> jetzt eine Fähigkeit antippen${S.hot[abSlot] ? ' · <a href="#" id="hsclr" style="color:#ff7a96">Slot leeren</a>' : ''}`}</div>
     <div class="skh"><span>Fähigkeiten</span><b>${own.length}/${ABIL.length}</b></div>
-    <button class="br aut ${WP('auto') && !S.autoOff ? 'on' : ''}" id="autot" ${WP('auto') ? '' : 'disabled'}>${WP('auto') ? (S.autoOff ? '🤖 AUTOPILOT: AUS' : '🤖 AUTOPILOT: AN') : '🔒 Autopilot (Warp-Werkstatt)'}<span class="gn">${WP('auto') ? 'zündet Fähigkeiten automatisch · tippen = umschalten' : 'erst in der Warp-Werkstatt freischalten'}</span></button>
+    <button class="br aut ${!S.autoOff ? 'on' : ''}" id="autot">${S.autoOff ? '🤖 AUTOPILOT: AUS' : '🤖 AUTOPILOT: AN'}<span class="gn">zündet alle Fähigkeiten automatisch, sobald sie bereit sind · tippen = umschalten</span></button>
     ${own.length ? '' : `<div class="wh" style="text-align:center"><p style="margin-bottom:8px">Noch keine Fähigkeit. Die erste gibt's aus der <b style="display:inline;font-size:inherit;color:#c9a2ff">Fähigkeiten-Kiste</b> für ◆10 – dann einfach antippen und auf die Hotbar legen.</p><button class="br" data-shop="1" style="width:100%">🛒 Zum Shop</button></div>`}
     <div class="sk ab">${ABIL.map(a => { const l = AL(a.id), on = S.hot.includes(a.id);
       return l ? `<button data-ab="${a.id}" class="${on ? 'on' : ''}"><span class="c">${l}/10</span>${abIco(a, ` viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"`)}${a.n}<small>${a.d} · ${Math.round(abCd(a))} s<br><i class="upc">${l >= 10 ? 'MAX' : '⬆ ◆' + abUpCost(a.id)}</i></small>${on ? '<em>AUSG</em>' : ''}</button>`
@@ -2574,7 +2574,7 @@ function renderAb(L) {
     <div class="row2" style="margin-top:10px"><button class="br" id="aball" ${own.some(a => AL(a.id) < 10 && S.cry >= abUpCost(a.id)) ? '' : 'disabled'}>Alle verbessern</button><button class="br" id="abbest" ${own.length ? '' : 'disabled'}>Beste ausrüsten</button></div>
     <button class="br unl" data-shop="1" style="margin-top:9px">🛒 FÄHIGKEITEN-KISTE IM SHOP</button>
     <div class="hint">◆ Kristalle gibt's für jeden abgebauten Planeten (je weiter, desto mehr, Boss x3) – ✦ Dunkle Materie gibt's nur beim Warp.</div>`;
-  $('autot').onclick = () => { if (!WP('auto')) return; S.autoOff = !S.autoOff; toast(S.autoOff ? 'Autopilot aus' : 'Autopilot an'); save('now'); render(); };
+  $('autot').onclick = () => { S.autoOff = !S.autoOff; toast(S.autoOff ? 'Autopilot aus' : 'Autopilot an'); save('now'); render(); };
   L.querySelectorAll('[data-ab]').forEach(b => b.onclick = () => { const id = b.dataset.ab;
     if (abSlot != null) { S.hot = S.hot.map(x => x === id ? null : x); S.hot[abSlot] = id; abSlot = null; hotbar(true); save('now'); SND.fx.up(); render(); return; }
     abSel = abSel === id ? null : id; render(); });
@@ -2947,6 +2947,7 @@ function cleanSave() {
     S.augQ = Math.max(1, S.p - (1 + 2 * WP('skip')) + 1); if (S.p > 1 || back) S.augMsg = back; } // Skills sind jetzt Augmente
   for (const h of ['x_frostblitz', 'x_rail', 'x_schwer', 'x_bohrsturm', 'x_saegenring', 'x_novamine']) if (S.w && S.w[h]) { const P = { x_frostblitz: ['chain', 'frost'], x_rail: ['sniper', 'line'], x_schwer: ['meteor', 'grav'], x_bohrsturm: ['drill', 'tornado'], x_saegenring: ['saw', 'drones'], x_novamine: ['mine', 'nova'] }[h], l = S.w[h]; delete S.w[h];
     const i = S.wo.indexOf(h); S.wo[i] = P[0]; const j = S.wo.indexOf('_'); if (j >= 0) S.wo[j] = P[1]; else S.wo.push(P[1]); for (const p of P) S.w[p] = Math.max(S.w[p] || 0, l); } // Rezept gibt's nicht mehr
+  if (S.wp && S.wp.auto) { S.dm = (S.dm || 0) + 25; delete S.wp.auto; } if (S.wpu) S.wpu = S.wpu.filter(x => x !== 'auto'); // Autopilot ist jetzt für alle frei
   if (!S.slot1b) { S.slot1b = 1; if ((S.wpu || []).includes('slot') && WP('slot') < 8) S.wp.slot = WP('slot') + 1; } // Waffenslot-Warp: Stufe 1 jetzt gratis, alte Stände bekommen sie nach
   if (!S.wq5b) { S.wq5b = 1; if (S.wReq > 10) S.wReq = Math.max(10, S.wReq - (S.wReq >= 41 ? 15 : 5)); } // Hürde jetzt +5 statt +10/+20: alte Stände anpassen
   S.wo = (S.wo || ['line']).filter(id => id === '_' || WEAP.find(w => w.id === id)); hybSync(); if (!S.wo.length) S.wo = ['line'];
