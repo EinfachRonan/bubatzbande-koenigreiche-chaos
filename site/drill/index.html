@@ -981,7 +981,7 @@ function buildPlanet(removed) {
   if (innerWidth >= 900 && H >= 420) CELL = Math.max(12, Math.min(18, 2 * Math.round(H / 140))); // PC: Planet passt fast ganz ins Bild
   const Rc = boss ? 27 : (p <= 2 ? 11 + rnd() * 4 : 16 + rnd() * 10) + Math.min(4, p * .15); // die ersten Planeten kleiner, damit der Start (auch nach dem Warp) flott geht
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = 12 * .2 /* allgemein deutlich weniger Leben */ * (p === 1 ? .2 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) /* Universum-Sprung wie die CR (x1,8) */ * (boss ? 1.2 : 1) * (!S.pc && p > 5 ? Math.pow(.7, Math.min(5, p - 5)) * (p > 10 ? .7 : 1) : 1) /* erster Durchlauf: keine Wand vor dem ersten Warp */, v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = 12 * .2 /* allgemein deutlich weniger Leben */ * (p === 1 ? .2 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) /* Universum-Sprung wie die CR (x1,8) */ * (uniOf(p) <= 3 ? .6 : Math.pow(1.6, uniOf(p) - 4)) /* U1–U3 läuft locker durch, ab U4/U5 wird's richtig zäh */ * (boss ? 1.2 : 1) * (!S.pc && p > 5 ? Math.pow(.7, Math.min(5, p - 5)) * (p > 10 ? .7 : 1) : 1) /* erster Durchlauf: keine Wand vor dem ersten Warp */, v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
@@ -2087,7 +2087,7 @@ const NEWS = [
   ['💥', 'Waffen überarbeitet', 'Neue Plasma-Nova, die Plasmapeitsche wird ab Stufe 50 deutlich länger. Ab Stufe 100 bekommen Kettenblitz, Nova, Minen und Wirbelsturm deutlich mehr Reichweite.'],
   ['🔨', 'Schmiede-Plätze', 'Nach dem Schmieden landen neue Waffen ganz hinten – und sind damit stärker als alle davor.'],
   ['☁', 'Spielstand-Sync', 'Spielst du auf zwei Geräten, fragt das Spiel jetzt, welchen Stand du willst. In den Einstellungen kannst du den Stand hoch- oder runterladen.'],
-  ['🪐', 'Fairere Planeten', 'Alle Planeten haben 40 % weniger Leben, bis zum ersten Warp sind die Planeten 6–10 noch leichter.'],
+  ['🪐', 'Fairere Planeten', 'Universum 1–3 läuft jetzt locker durch, richtig zäh wird es erst ab Universum 4 und 5. Bis zum ersten Warp ist es nochmal leichter.'],
   ['🚀', 'Eigene Standardattacke', 'Jedes Raumschiff schießt anders: Pfeil-Laser, Blattsalve, Sternsplitter, Geisterfeuer, Goldmünzen, Königslanze, Drachenfeuer …'],
   ['⚖', 'Fähigkeiten ausbalanciert', 'Meteorschauer und Zeitsprung schwächer, Orbitalkanone, Supernova, Frostschock, Drohnen und Schwarzes Loch stärker. Der Kristallmagnet hat jetzt ein Limit pro Einsatz.'],
   ['◆', 'Kristalle sind wertvoller', 'Es gibt deutlich weniger ◆ – sie sind jetzt nur noch für Kisten und Fähigkeiten da.']
