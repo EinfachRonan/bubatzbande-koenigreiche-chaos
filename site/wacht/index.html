@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Höhlenwacht · v1.4</title>
+<title>Höhlenwacht · v1.5</title>
 <script src="../bb.js?v=20261120a"></script>
 <script>
 /* Geheim-Spiel (Testphase): nur spielbar, wenn über „Code eingeben“ auf der Startseite freigeschaltet. */
@@ -222,14 +222,14 @@ html,body{background:#0e0b08 var(--im-stone) repeat;background-size:180px 180px;
 <div id="app">
   <div id="top">
     <a id="home" href="../" aria-label="Zur Startseite">‹</a><div style="flex:1"><div id="gold" class="h"><i></i><span id="goldv">0</span></div><div id="cores"></div></div>
-    <button class="btn ib" id="bMus" title="Musik an/aus">🎵</button><button class="btn ib" id="bAud" title="Lautstärke">⚙</button><button class="btn" id="bFs" title="Vollbild (F)" aria-label="Vollbild">⛶</button><div id="stage"><b id="stv">Stufe 1-1</b><br><span id="bio">Burghalle · </span><span id="dps">0 Schaden/s</span></div>
+    <button class="btn ib" id="bMus" title="Musik an/aus">🎵</button><button class="btn ib" id="bAud" title="Lautstärke">⚙</button><button class="btn" id="bFs" title="Vollbild (F)" aria-label="Vollbild">⛶</button><div id="stage"><b id="stv">Stufe 1</b><br><span id="bio">Burghalle · </span><span id="dps">0 Schaden/s</span></div>
   </div>
   <div id="field"><canvas id="c"></canvas><div id="wtop"><div id="wave"></div><button class="btn" id="bAdv">☠ Boss</button></div><div id="banner" class="h"></div><div id="lootfx"><div class="ic"><img></div><div class="lt"><small>BEUTE</small><b></b><i></i></div></div><div id="ultfx"><div class="band"></div><img><div class="txt"><small>ULT</small><b></b></div></div></div>
   <div id="bar"><div id="stx"></div><button class="btn" id="bAuto">Auto-Ult</button><button class="btn" id="bSpd">x1</button></div>
   <div id="ults"></div>
   <div id="tabs"><button class="btn on" data-t="bande">Bande</button><button class="btn" data-t="ausbau">Ausbau</button><button class="btn" data-t="schmiede">Ausrüstung</button><button class="btn" data-t="taverne">Taverne</button></div>
   <div id="panel"></div>
-  <div id="ver">Höhlenwacht · v1.4 · Testphase<span id="sv"></span></div>
+  <div id="ver">Höhlenwacht · v1.5 · Testphase<span id="sv"></span></div>
 </div>
 <div id="sheet"><div class="in"></div></div>
 <div id="aud"><div class="in"></div></div>
@@ -501,7 +501,7 @@ const BIOMES=[
  {n:'Glutschmiede',lights:[[60,118,'l'],[170,120,'l'],[280,116,'l']]},
  {n:'Frostpass',lights:[]}];
 const biomeOf=s=>Math.floor((s-1)/5)%BIOMES.length;
-const areaOf=s=>Math.floor((s-1)/5)+1,subOf=s=>(s-1)%5+1,stName=s=>'Stufe '+areaOf(s)+'-'+subOf(s);
+const areaOf=s=>Math.floor((s-1)/5)+1,subOf=s=>(s-1)%5+1,stName=s=>'Stufe '+s;
 const BGC={};let BG=null,LIGHTS=[],BIO=-1,snow=[];
 function setBiome(i){if(i===BIO)return;BIO=i;if(!BGC[i])BGC[i]=makeBG(i);BG=BGC[i];LIGHTS=BIOMES[i].lights;}
 function makeBG(id){const c=document.createElement('canvas');c.width=W;c.height=H;const b=c.getContext('2d');
@@ -693,7 +693,7 @@ function castUlt(h){if(h.en<100||h.dead)return;const al=alive(enemies);if(!al.le
  renderUlts();}
 function waveDone(){state='next';stT=.6;
  for(const h of heroes){if(h.dead){h.dead=false;h.hp=h.mh*.4;}else h.hp=Math.min(h.mh,h.hp+h.mh*.25);}
- if(S.wave===WAVES){S.stage++;S.wave=1;S.wmax=1;S.farm=false;const nh=S.stage>S.max?HORDER.find(k=>HEROES[k].req===S.stage&&!S.heroes[k]):null;S.max=Math.max(S.max,S.stage);for(const h of heroes)h.hp=h.mh;if(nh)setTimeout(()=>{showBan('Neuer Held: '+HEROES[nh].n+'!');sfx('loot');},1400);if((S.stage-1)%5===0)showBan('Gebiet '+areaOf(S.stage)+': '+BIOMES[biomeOf(S.stage)].n);else showBan(stName(S.stage));sfx('stage');save();renderTab();}
+ if(S.wave===WAVES){S.stage++;S.wave=1;S.wmax=1;S.farm=false;const nh=S.stage>S.max?HORDER.find(k=>HEROES[k].req===S.stage&&!S.heroes[k]):null;S.max=Math.max(S.max,S.stage);for(const h of heroes)h.hp=h.mh;if(nh)setTimeout(()=>{showBan('Neuer Held: '+HEROES[nh].n+'!');sfx('loot');},1400);if((S.stage-1)%5===0)showBan(stName(S.stage)+' · Neues Gebiet: '+BIOMES[biomeOf(S.stage)].n);else showBan(stName(S.stage));sfx('stage');save();renderTab();}
  else if(S.farm)S.wave=WAVES-1;
  else S.wave++;
  renderTop();}
@@ -733,7 +733,7 @@ cv.addEventListener('pointerdown',()=>{ac();if(AC&&AC.state==='suspended')AC.res
 /* ============ UI ============ */
 const $=id=>document.getElementById(id);let tab='bande',buyN=1;
 function renderTop(){$('goldv').textContent=fmt(S.gold);$('cores').textContent=S.cores?'✦ '+S.cores+' Kräuterkerne (+'+S.cores*10+' %)':'';$('stv').textContent=stName(S.stage);$('bio').textContent=BIOMES[biomeOf(S.stage)].n+' · ';$('dps').textContent=fmt(teamDps())+' Schaden/s';
- $('bAdv').style.display=S.farm?'':'none';$('stx').textContent=BIOMES[biomeOf(S.stage)].n+' · '+subOf(S.stage)+' von 5 · '+(S.farm?'Boss offen – Welle '+(WAVES-1)+' läuft':'Welle '+S.wave+' von '+WAVES);$('bAuto').classList.toggle('on',S.auto);$('bSpd').textContent='x'+S.spd;$('bSpd').classList.toggle('on',S.spd>1);renderWave();}
+ $('bAdv').style.display=S.farm?'':'none';$('stx').textContent=BIOMES[biomeOf(S.stage)].n+' · '+(S.farm?'Boss offen – Welle '+(WAVES-1)+' läuft':'Welle '+S.wave+' von '+WAVES);$('bAuto').classList.toggle('on',S.auto);$('bSpd').textContent='x'+S.spd;$('bSpd').classList.toggle('on',S.spd>1);renderWave();}
 function renderWave(){let h='';for(let i=1;i<=WAVES;i++){const b=i===WAVES,done=i<S.wave,ok=!S.farm&&!b&&i!==S.wave&&i<=S.wmax;
   h+=`<span data-w="${i}" class="${done?'d':''} ${i===S.wave?'c':''} ${b?'b':''} ${b&&S.farm?'lost':''} ${ok?'ok':''}" title="${b?'Boss':'Welle '+i}">${b?'☠':''}</span>`;}
  $('wave').innerHTML=h;$('wave').querySelectorAll('span.ok').forEach(el=>el.onclick=()=>goWave(+el.dataset.w));}
@@ -757,7 +757,7 @@ function renderTab(){const P=$('panel');let h='';
    h+=`<div class="card"><div class="t"><div class="n">${u.n}<small>Stufe ${l}</small></div><div class="d">${u.d(l)} → ${u.d(l+1)}</div></div><button class="btn buy" data-g="${u.id}">Ausbauen<small>${fmt(upgCost(u))}</small></button></div>`;}}
  else if(tab==='schmiede'){h+=renderSchmiede();}
  else{const cg=coreGain();
-  h+=`<div class="box"><span class="t1">🍺 Rückzug in die Taverne</span>Die Bande zieht sich zurück, feiert durch und kommt stärker wieder. Gold, Stufen, Helden und Ausbau werden zurückgesetzt, Ausrüstung bleibt – du bekommst <b style="color:#2f6a12">Kräuterkerne</b>. Jeder Kern gibt dauerhaft +10 % Schaden und Gold.<br><br>Höchste Stufe: <b>${stName(S.max)}</b> · ${S.max<25?'Rückzug ab Stufe 5-5':'Jetzt: <b style="color:#2f6a12">+'+cg+' Kerne</b>'}</div>
+  h+=`<div class="box"><span class="t1">🍺 Rückzug in die Taverne</span>Die Bande zieht sich zurück, feiert durch und kommt stärker wieder. Gold, Stufen, Helden und Ausbau werden zurückgesetzt, Ausrüstung bleibt – du bekommst <b style="color:#2f6a12">Kräuterkerne</b>. Jeder Kern gibt dauerhaft +10 % Schaden und Gold.<br><br>Höchste Stufe: <b>${stName(S.max)}</b> · ${S.max<25?'Rückzug ab Stufe 25':'Jetzt: <b style="color:#2f6a12">+'+cg+' Kerne</b>'}</div>
   <button class="btn go" id="bPre" style="width:100%;padding:12px;font-size:15px;margin-bottom:6px" ${cg?'':'disabled'}>🍺 Rückzug (+${cg} ✦)</button>
   <div class="sec">Kern-Talente · ✦ ${S.cores}</div>`;
   for(const t of TAL){const l=tl(t.id),mx=l>=t.max;h+=`<div class="card"><div class="t"><div class="n">${t.n}<small>${l}/${t.max}</small></div><div class="d">${t.d(l)}${mx?'':' → '+t.d(l+1)}</div></div><button class="btn buy" data-tal="${t.id}" ${mx?'disabled':''}>${mx?'Max':'Lernen'}<small>${mx?'':'✦ '+t.c(l)}</small></button></div>`;}
