@@ -9,7 +9,7 @@ bubatzbande.de zeigt eine Spielauswahl mit sieben Spielen:
 - **Bubatz-Quiz** (`site/quiz/`): Party-Quiz mit Raum-Code (Host am TV, Antworten am Handy über `room.php`), Solo, Ein-Gerät-Modus, eigene Fragen.
 - **Kobold-Runner** (`site/runner/`): Endlos-Runner in der Kräuterhöhle (Canvas, 3 Spuren).
 - **Bandenhof** (`site/hof/`): Idle-Aufbau mit Offline-Ertrag, Spielstand auch im Konto.
-- **Erntezeit** (`site/ernte/`, Testphase, noch nicht auf der Startseite): Zombie-Shooter auf dem Bauernhof und Friedhof, Klassenwahl, Nahkampfwaffen, Shop zwischen den Wellen, Traktor-Boss. Three.js über CDN.
+- **Erntezeit** (`site/ernte/`, seit 20.11.2026 wieder für alle auf der Startseite): Zombie-Shooter auf dem Bauernhof und Friedhof, Klassenwahl, Nahkampfwaffen, Shop zwischen den Wellen, Traktor-Boss. Three.js über CDN.
 - **Kneipen-Duell** (`site/duell/`): 1 gegen 1 an einem Handy oder gegen den Wirt: Bier zapfen, Krug schieben, Prost-Duell, Armdrücken.
 
 - **Die Legenden der Kräuterhöhle** (`site/kraeuterhoehle/`, Geheim-Testphase v0.6, von Mario): Höhlenverteidigung mit Paketen, Bande-Helden und Skilltree. Nur spielbar nach „Code eingeben“ in den Einstellungen der Startseite. Mit Konto liegt die Freischaltung im Profil (nur bei diesem Konto), ohne Konto nur auf dem Gerät. Codes stehen als Hash in `site/api/bb.php` (`$SECRET`).

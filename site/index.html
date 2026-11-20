@@ -152,7 +152,7 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 <div class="app">
   <header class="top" id="top"></header>
   <main class="main">
-    <div class="intro"><h1>3 Spiele.<br><span>1 Bande.</span></h1><small id="nG">Auswahl der Bande</small></div>
+    <div class="intro"><h1>4 Spiele.<br><span>1 Bande.</span></h1><small id="nG">Auswahl der Bande</small></div>
     <section class="bento" id="games" aria-label="Spiele"></section>
     <div class="sec"><h2>Deine Bestwerte</h2><small id="bsN"></small></div>
     <div class="stats" id="stats"></div>
@@ -189,15 +189,15 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 <script>
 'use strict';
 const IMG = k => 'krieg/img/' + k + '.jpg';
-// Aktive Spiele (Erntezeit ist in der Testphase → SECRET, Code 421). Archiv (vorerst raus, Code bleibt): Bandenkrieg, Kräuter-Match, Bandenhof, Kneipen-Duell, Bubatz-Quiz
+// Aktive Spiele (Erntezeit seit 20.11.2026 wieder für alle). Archiv (vorerst raus, Code bleibt): Bandenkrieg, Kräuter-Match, Bandenhof, Kneipen-Duell, Bubatz-Quiz
 const GAMES = [
   { k: 'drill', url: 'drill/', name: 'Galaxie-Bohrer', img: 'drill/key.jpg', pos: '50% 40%', text: 'Dein Schiff bohrt Planeten, auch offline.', tag: 'Idle', neu: 1, cls: 'big' },
   { k: 'runner', url: 'runner/', name: 'Kobold-Runner', img: 'krieg/img/kobold.jpg', pos: '50% 25%', text: 'Springen, rutschen, Gold sammeln.', tag: 'Endlos', cls: 'tall' },
-  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', img: 'krieg/img/koenig.jpg', pos: '50% 25%', text: '3D-Schach mit Ego-Duellen.', tag: 'Online', cls: 'tall' }
+  { k: 'schach', url: 'schach/', name: 'Schlagabtausch', img: 'krieg/img/koenig.jpg', pos: '50% 25%', text: '3D-Schach mit Ego-Duellen.', tag: 'Online', cls: 'tall' },
+  { k: 'ernte', url: 'ernte/', name: 'Erntezeit', img: 'ernte/key.jpg', pos: '50% 40%', text: 'Zombie-Bauern, Traktor-Boss – auch zu zweit im Koop.', tag: 'Shooter · Koop', neu: 1, cls: 'xl' }
 ];
 // Geheim-Spiele: erscheinen nur, wenn per „Code eingeben“ freigeschaltet (mit Konto im Profil, sonst auf diesem Gerät)
 const SECRET = [
-  { k: 'ernte', url: 'ernte/', name: 'Erntezeit', img: 'ernte/key.jpg', pos: '50% 40%', text: 'Zombie-Bauern, Traktor-Boss – auch zu zweit im Koop.', tag: 'Testphase · v1.0', sec: 1, cls: 'xl' },
   { k: 'hl', url: 'hoehlenlauf/', name: 'Höhlenlauf', img: 'hoehlenlauf/key.jpg', pos: '50% 45%', text: 'Taverne, Begleiter, Energiekerne – kämpf dich durch die Höhle.', tag: 'Testphase · v0.1', sec: 1, cls: 'xl' },
   { k: 'hw', url: 'wacht/', name: 'Höhlenwacht', img: 'wacht/key.jpg', pos: '50% 60%', text: 'Idle-Auto-Battler: die Bande kämpft allein, du grindest Beute, schmiedest und ziehst dich in die Taverne zurück.', tag: 'Testphase · v0.6', sec: 1, cls: 'xl' },
   { k: 'ks', url: 'schenke/', name: 'Kräuterschenke', img: 'schenke/key.jpg', pos: '50% 40%', text: 'Goblins jagen, grillen, brauen, die Bande bewirten – bau Garten, Braustube und Team aus.', tag: 'Testphase · v0.6', sec: 1, cls: 'xl' },
