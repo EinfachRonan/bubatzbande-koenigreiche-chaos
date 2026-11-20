@@ -838,6 +838,7 @@ function makeGround(ch){
   return big;
 }
 
+const HEAL_MUL = 0.7; // alle Heilung der Spielerseite −30%
 
 /* ===================== SPRITES ===================== */
 function packGrid(col, box){
@@ -1925,7 +1926,7 @@ function spawnEnemy(boss, forceId, px, py){
     range:T.range || 0, ecd:T.cd || 1.8, healer:!!T.healer, summoner:!!T.summoner, graveSummoner:!!T.graveSummoner, legion:!!T.legion, banner:!!T.banner, phase2:boss && T.phase2, healCd:3, jump:boss && T.jump ? T.jump : null, jumpCd:boss && T.jump ? T.jump.first || 9 : 0, lift:0,
     minionSummon: T.summon ? {id:T.summon.id, every:T.summon.every, max:T.summon.max, cd:T.summon.every * 0.5} : null,
     abilityRot: (boss && T.abilityRot) ? {every:T.abilityRot.every, cd:T.abilityRot.every * 0.5, last:-1} : null,
-    poison: (boss && T.poison) ? T.poison : null, poisonCd: boss && T.poison ? T.poison.every * 0.3 : 0};
+    poisonAb: (boss && T.poison) ? T.poison : null, poisonCd: boss && T.poison ? T.poison.every * 0.3 : 0, fakedie: !!(boss && T.fakedie)};
   if(T.invis){ e.invis = true; B.hidden.push(e); return; }
   B.enemies.push(e);
   if(boss){ B.boss = e; B.shake = 0.6; addText(0, -150, (T.n + ' kommt!').toUpperCase(), '#ff6b5a', 30, 2.5); }
@@ -1938,22 +1939,20 @@ function sparks(x, y, n, pw, cols){ for(let i = 0; i < n; i++){ const a = Math.r
 function addSlash(x, y, face){ B.fx.push({t:'slash', x, y, face, life:0.15, max:0.15}); }
 
 function hurt(e, amt, crit, src){
-  if(e.dead) return;
+  if(e.dead || !(amt > 0)) return;
   if(e.armor) amt *= 1 - e.armor;
   e.hp -= amt; e.hit = 0.1;
   if(src === 'mouse'){ B.mouse.dmg += amt; S.q.click += amt; } else if(src) stat(src.id).dmg += amt;
-  if(src && src !== 'mouse' && src.st && src.st.artLs && !src.dead) src.hp = Math.min(src.max, src.hp + amt * src.st.artLs);
-  if(src && src !== 'mouse' && isWolf(src)) src.hp = Math.min(src.max, src.hp + amt * ((src.st.lifesteal || 0) + 0.1));
-  if(src && src !== 'mouse' && src.st.selfheal) src.hp = Math.min(src.max, src.hp + src.st.selfheal);
+  if(src && src !== 'mouse' && src.st && src.st.artLs && !src.dead) src.hp = Math.min(src.max, src.hp + amt * src.st.artLs * HEAL_MUL);
+  if(src && src !== 'mouse' && isWolf(src)) src.hp = Math.min(src.max, src.hp + amt * ((src.st.lifesteal || 0) + 0.1) * HEAL_MUL);
+  if(src && src !== 'mouse' && src.st.selfheal) src.hp = Math.min(src.max, src.hp + src.st.selfheal * HEAL_MUL);
   addText(e.x + (Math.random()-.5)*10, e.y - e.h - 4, Math.round(amt) + (crit ? '!' : ''), crit ? '#ffd84d' : src === 'mouse' ? '#ffffff' : '#c8d0c8', crit ? 15 : src === 'mouse' ? 14 : 11, 0.6);
   if(e.hp <= 0){
     // Phase-2-Boss: nie durch hurt() töten, Phase-2-Check im Update-Loop übernimmt
     // Phase-2-Boss: nicht sterben solange fakeDying
     if(e.boss && e.fakeDying){ e.hp = 1; return; }
     // Phase-2-Boss: unter 0 auf 49% clippen → Update-Loop triggert Transition
-    if(e.boss && e.phase2 && !e.trans && !e.fakeDying && e.hp <= 0){
-      e.hp = e.max * 0.49;
-    }
+    if(e.boss && e.phase2 && !e.trans){ e.hp = e.max * 0.49; return; }
     // GIF-only Enemies (bat, skeleton) spielen Sterbeanimation
     if(!e.boss && e.spr && e.spr.dieR && e.spr.dieR.length && !e.dying){
       e.dying = true; e.hp = 0.001; e.dieAnim = 0; e.stunT = 999; return; // Animation läuft, wird später dead
@@ -1971,8 +1970,8 @@ function hurt(e, amt, crit, src){
         B.fx.push({t:'poof', x:e.x, y:e.y - 10, r:8, life:0.4, max:0.4}); addText(e.x, e.y - 30, 'Erhebe dich!', '#cfe8ff', 11, 0.8);
       }
       if(src.st.berserk && !src.berserk && src.kills >= src.st.berserk) mollyBerserk(src);
-      if(src.st.killHeal) src.hp = Math.min(src.max, src.hp + src.max * src.st.killHeal);
-      if(src.st.caveHealKill) B.hp = Math.min(B.maxHp, B.hp + src.st.caveHealKill);
+      if(src.st.killHeal) src.hp = Math.min(src.max, src.hp + src.max * src.st.killHeal * HEAL_MUL);
+      if(src.st.caveHealKill) B.hp = Math.min(B.maxHp, B.hp + src.st.caveHealKill * HEAL_MUL);
       src.killedNow = true;
       if(src.st.train2 && src.promoted === 1 && src.kills >= 5){ src.promoted = 2; src.max *= 1.5; src.hp = Math.min(src.max, src.hp * 1.5); addText(src.x, src.y - 50, 'Meisterknappe!', '#ffcc4d', 15, 1.2); addRing(src.x, src.y - 20, 36, '#ffcc4d', 0.5); }
       if(src.st.train && !src.promoted && src.kills >= 2){ src.promoted = 1; src.max *= 1.5; src.hp = Math.min(src.max, src.hp * 1.5); addText(src.x, src.y - 50, 'Aufgewertet!', '#e8d870', 14, 1.2); addRing(src.x, src.y - 20, 30, '#e8d870', 0.5); }
@@ -2072,7 +2071,7 @@ function enemyStrike(e, dt, hit){
   e.atkCd -= dt; if(e.atkCd <= 0){ e.atkCd = 1; e.lunge = 0.15; hit(); }
 }
 function hurtQuiet(e, amt, src){
-  if(e.dead) return;
+  if(e.dead || !(amt > 0)) return;
   e.hp -= amt; if(src && src.id) stat(src.id).dmg += amt;
   if(e.hp <= 0){ e.hp = 0.0001; hurt(e, 0.001, false, src); }
 }
@@ -2086,7 +2085,7 @@ function heroHurt(u, amt, src){
   if(u.st.dodge && Math.random() < u.st.dodge){ addText(u.x, u.y - 45, 'Ausgewichen', '#cfe8ff', 11, 0.6); return; }
   if(u.st.block && Math.random() < u.st.block){
     addText(u.x, u.y - 45, 'Block!', '#c8d8ff', 12, 0.6);
-    if(u.st.blockHeal) u.hp = Math.min(u.max, u.hp + u.max * u.st.blockHeal);
+    if(u.st.blockHeal) u.hp = Math.min(u.max, u.hp + u.max * u.st.blockHeal * HEAL_MUL);
     if(u.st.blockStun){ for(const e of B.enemies) if(!e.dead && Math.hypot(e.x - u.x, e.y - u.y) < 70) e.stunT = Math.max(e.stunT, 1); addRing(u.x, u.y - 10, 70, '#c8d8ff', 0.4); }
     if(u.st.blockBolt){ const live = B.enemies.filter(e => !e.dead); if(live.length){ const t = live[Math.floor(Math.random()*live.length)]; hurt(t, unitDmg(u) * 3, false, u); addLine([{x:t.x, y:t.y - 200}, {x:t.x + 10, y:t.y - 120}, {x:t.x - 6, y:t.y - 60}, {x:t.x, y:t.y - t.h/2}], '#fff8a0'); } }
     return;
@@ -2259,7 +2258,7 @@ function update(dt){
   if(!legionActive) B.t += dt;
   tickHeroReveal(dt);
   if(B.flashShiny) B.flashShiny = Math.max(0, B.flashShiny - dt);
-  if(MD.regen) B.hp = Math.min(B.maxHp, B.hp + MD.regen*dt);
+  if(MD.regen) B.hp = Math.min(B.maxHp, B.hp + MD.regen*dt*HEAL_MUL);
 
   // Vollmond
   const wolves = B.units.some(u => !u.dead && u.c.ww);
@@ -2303,9 +2302,9 @@ function update(dt){
     u.anim = Math.max(0, u.anim - dt); u.hit = Math.max(0, u.hit - dt); u.moving = false;
     if(u.poisonT > 0){ u.poisonT -= dt; if(u.poisonT > 0){ u.poisonDot = (u.poisonDot||0) + dt; if(u.poisonDot >= 1){ u.poisonDot -= 1; heroHurt(u, 4, null); addText(u.x, u.y - 40, '-4 ☠', '#44ff44', 10, 0.5); B.fx.push({t:'poof', x:u.x + (Math.random()-.5)*16, y:u.y - 15, r:7, life:0.3, max:0.3}); } } else u.poisonT = 0; }
     const st = u.st, wolf = isWolf(u), sp = st.ms * (wolf ? 4 : 2);
-    if(st.heal){ for(const o of B.units) if(!o.dead && o !== u && Math.hypot(o.x-u.x, o.y-u.y) < 120) o.hp = Math.min(o.max, o.hp + st.heal*dt); }
-    if(st.healCave) B.hp = Math.min(B.maxHp, B.hp + st.healCave*dt);
-    if(st.healAura){ const R = st.healAura > 4 ? 140 : 110; for(const o of B.units) if(!o.dead && Math.hypot(o.x-u.x, o.y-u.y) < R) o.hp = Math.min(o.max, o.hp + st.healAura*dt); }
+    if(st.heal){ for(const o of B.units) if(!o.dead && o !== u && Math.hypot(o.x-u.x, o.y-u.y) < 120) o.hp = Math.min(o.max, o.hp + st.heal*dt*HEAL_MUL); }
+    if(st.healCave) B.hp = Math.min(B.maxHp, B.hp + st.healCave*dt*HEAL_MUL);
+    if(st.healAura){ const R = st.healAura > 4 ? 140 : 110; for(const o of B.units) if(!o.dead && Math.hypot(o.x-u.x, o.y-u.y) < R) o.hp = Math.min(o.max, o.hp + st.healAura*dt*HEAL_MUL); }
     if(u.wcBuff > 0) u.wcBuff -= dt;
     if(st.warcry){ u.wcT = (u.wcT === undefined ? 2 : u.wcT) - dt;
       if(u.wcT <= 0){ const near = B.enemies.filter(e => !e.dead && !e.boss && Math.hypot(e.x - u.x, e.y - u.y) < 170);
@@ -2732,16 +2731,16 @@ function update(dt){
           addText(e.x, e.y - e.h - 14, 'SPRUNG!', '#aaff44', 18, 1.0);
         } else {
           // Giftwolke: Vergiftungs-AOE
-          const pr = (e.poison && e.poison.rad) || 90;
+          const pr = (e.poisonAb && e.poisonAb.rad) || 90;
           addRing(e.x, e.y, pr, '#44ff44', 0.9); addRing(e.x, e.y, pr*0.6, '#22cc22', 0.6);
           B.fx.push({t:'poof', x:e.x, y:e.y-e.h*0.3, r:pr*0.7, life:0.9, max:0.9});
           sparks(e.x, e.y - e.h*0.4, 20, 1.5, ['#44ff44','#88ff88','#22aa22','#aaffaa']);
           addText(e.x, e.y - e.h - 14, 'GIFTWOLKE!', '#44ff44', 18, 1.0); B.shake = 0.25;
           for(const u of heroes) if(!u.dead && Math.hypot(u.x-e.x, u.y-e.y) < pr){
-            heroHurt(u, (e.poison && e.poison.dmg) || 15, e);
-            u.poisonT = (u.poisonT||0) + ((e.poison && e.poison.dur) || 5);
+            heroHurt(u, (e.poisonAb && e.poisonAb.dmg) || 15, e);
+            u.poisonT = (u.poisonT||0) + ((e.poisonAb && e.poisonAb.dur) || 5);
           }
-          if(caveDist(e) < pr*0.7){ B.hp -= (e.poison && e.poison.dmg) || 15; addText(0, -40, '-'+ ((e.poison&&e.poison.dmg)||15), '#44ff44', 13, 0.6); }
+          if(caveDist(e) < pr*0.7){ B.hp -= (e.poisonAb && e.poisonAb.dmg) || 15; addText(0, -40, '-'+ ((e.poisonAb&&e.poisonAb.dmg)||15), '#44ff44', 13, 0.6); }
         }
       }
     }
