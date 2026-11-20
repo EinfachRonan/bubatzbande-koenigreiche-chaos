@@ -3172,7 +3172,7 @@ function drawRoulette(R){
   ctx.save(); ctx.font = `700 22px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#e0c8ff'; ctx.fillText(R.done ? HERO[R.pick].n : 'PORTAL', 0, cy - 56); ctx.restore();
 }
 function drawUnit(u){
-  const wolf = isWolf(u), alt = u.st.dual ? (SPR[u.id].custom ? null : SPRA[u.id + '2']) : (HERO[u.id].armorNode && S.owned[HERO[u.id].armorNode] ? SPRA[u.id] : null);
+  const wolf = isWolf(u), alt = u.st.dual ? (SPRA[u.id + '2'] || (SPR[u.id].custom ? null : null)) : (HERO[u.id].armorNode && S.owned[HERO[u.id].armorNode] ? SPRA[u.id] : null);
   const sp = u.berserk ? (BERS_C || {r:BERS.r[Math.floor(B.t*5) % 2], l:BERS.l[Math.floor(B.t*5) % 2]}) : wolf ? SPRW[u.id] : (alt || SPR[u.id]), img = u.face > 0 ? sp.r : sp.l, sc = (sp.custom ? sp.sc : u.berserk ? 4.4 : wolf ? 2.7 : 2.3) * (u.st.dual ? 1.3 : 1) * (u.promoted ? 1.08 : 1) * (u.st.giant ? 1.25 : 1);
   const bob = u.moving ? Math.round(Math.abs(Math.sin(B.t*10 + u.ph))*2) : 0;
   const lunge = u.anim > 0 && u.c.melee ? u.face * 4 : 0;
