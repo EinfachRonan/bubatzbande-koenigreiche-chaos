@@ -583,6 +583,8 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 
 .rst{display:block;width:100%;margin-top:12px;padding:10px;border-radius:9px;background:#2a0c12;border:1.5px solid #ff4a62;color:#ffb3bf;font:700 13px var(--mono);cursor:pointer}.rst:hover{background:#3a1018}
 .elwf .elw{background:rgba(24,3,8,.96);padding:14px 20px}.elwf .elw b{font-size:clamp(18px,5.6vw,40px);white-space:nowrap}.elwf .elw span{font-size:clamp(12px,3.4vw,16px)}
+
+.augo-l span.mx{border-color:#ffd23f;color:#ffd23f}.augo-l span.mx b{color:#ffd23f}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -2051,7 +2053,7 @@ function augRoll(not) { // neue Skills zuerst, wenn alles gezogen ist nur noch U
   if (!pool.length) return { id: '_cry', t: augTier() };
   return { id: pool[(Math.random() * pool.length) | 0].id, t: augTier() };
 }
-function augOffer() { const o = []; for (let k = 0; k < 3; k++) o.push(augRoll(o.map(x => x.id))); return o.map(x => ({ ...x, rr: 0 })); }
+function augOffer() { const n = Math.min(3, SKILLS.filter(s => SK(s.id) < s.max).length), o = []; for (let k = 0; k < n; k++) o.push(augRoll(o.map(x => x.id))); return o.map(x => ({ ...x, rr: 0 })); }
 function augCard(c, k) { const T = AUGT[c.t];
   if (c.id === '_cry') return `<button class="augc t${c.t}" data-ag="${k}" style="--ac:${T.c}"><i class="tier">${T.n}</i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 7-8 13L4 9z"/></svg><b>Kristall-Fund</b><span>Alle Skills sind voll</span><em>+◆${10 + 10 * c.t}</em></button>`;
   const s = SKILLS.find(x => x.id === c.id), l = SK(c.id), nl = Math.min(s.max, l + T.lv);
@@ -2078,16 +2080,16 @@ function showNews(done) {
   d.querySelector('#nwgo').onclick = () => { S.newsV = NEWSV; save('now'); d.classList.add('out'); setTimeout(() => { d.remove(); done && done(); }, 250); };
 }
 function augBoot() { if (!$('ov').classList.contains('hide') || $('aug') || $('news') || travel > 0) return setTimeout(augBoot, 1000); if (S.newsV !== NEWSV) return showNews(augBoot); if (S.augMsg != null) { const b = S.augMsg; delete S.augMsg; save('now'); overlay(`<h2>Neu: Augmente!</h2><p>Skills kaufst du nicht mehr mit ◆. Nach jedem Planeten wählst du 1 von 3 Augmenten, jedes kannst du einmal neu würfeln.<br><br>${b ? `Deine Skills wurden zurückgesetzt, dafür bekommst du <b style="color:#fff">◆${b}</b> zurück.<br>` : ''}Für deinen aktuellen Lauf darfst du jetzt <b style="color:#ffe94d">${S.augQ} Augmente</b> nachwählen.</p>`, [['Los geht\'s', () => { render(); setTimeout(augShow, 60); }]]); } else if (S.augQ) augShow(); }
-const augDone = () => SKILLS.every(s => SK(s.id) > 0); // alle Skills freigeschaltet → vorerst keine Augmente mehr
+const augDone = () => SKILLS.every(s => SK(s.id) >= s.max); // erst wenn alle Skills voll sind, kommen keine Augmente mehr
 function augOwned() { const own = SKILLS.filter(s => SK(s.id));
-  return `<div class="augo"><div class="augo-h">Deine Skills · ${own.length}/${SKILLS.length}</div>${own.length ? `<div class="augo-l">${own.map(s => `<span title="${s.n}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg><em>${s.n}</em><b>${SK(s.id)}</b><i>/${s.max}</i></span>`).join('')}</div>` : '<div class="augo-e">Noch keine – das ist dein erster!</div>'}</div>`; }
+  return `<div class="augo"><div class="augo-h">Deine Skills · ${own.length}/${SKILLS.length}</div>${own.length ? `<div class="augo-l">${own.map(s => `<span title="${s.n}"${SK(s.id) >= s.max ? ' class="mx"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg><em>${s.n}</em><b>${SK(s.id)}</b><i>/${s.max}</i></span>`).join('')}</div>` : '<div class="augo-e">Noch keine – das ist dein erster!</div>'}</div>`; }
 function augShow() {
   if (S.augQ && augDone()) { S.augQ = 0; S.augO = null; save('now'); render(); } if (!S.augQ || $('aug') || BON) return; if ($('elc')) return setTimeout(augShow, 1200); if (!$('ov').classList.contains('hide')) return setTimeout(augShow, 1200);
-  if (!S.augO) { S.augO = augOffer(); save('now'); }
+  if (S.augO) S.augO = S.augO.filter(c => c.id !== '_cry' && SK(c.id) < (SKILLS.find(x => x.id === c.id) || { max: 0 }).max); if (!S.augO || !S.augO.length) { S.augO = augOffer(); save('now'); }
   const d = document.createElement('div'); d.id = 'aug';
-  const draw = () => { d.innerHTML = `<div class="augw"><h2>Augment wählen</h2><p>Planet geschafft! Such dir eins aus.${S.augQ > 1 ? ` <b>Noch ${S.augQ - 1} weitere</b>` : ''}</p><div class="augr">${S.augO.map((c, k) => `<div class="augs">${augCard(c, k)}<button class="augrr" data-rr="${k}" ${c.rr ? 'disabled' : ''}>${c.rr ? 'Neu gewürfelt' : '↻ Neu würfeln'}</button></div>`).join('')}</div>${augOwned()}<button class="augl" id="augl">Später</button></div>`;
+  const draw = () => { d.innerHTML = `<div class="augw"><h2>Augment wählen</h2><p>Planet geschafft! Such dir eins aus.${S.augQ > 1 ? ` <b>Noch ${S.augQ - 1} weitere</b>` : ''}</p><div class="augr" style="grid-template-columns:repeat(${S.augO.length},minmax(0,${S.augO.length < 3 ? '210px' : '1fr'}));justify-content:center">${S.augO.map((c, k) => `<div class="augs">${augCard(c, k)}<button class="augrr" data-rr="${k}" ${c.rr ? 'disabled' : ''}>${c.rr ? 'Neu gewürfelt' : '↻ Neu würfeln'}</button></div>`).join('')}</div>${augOwned()}<button class="augl" id="augl">Später</button></div>`;
     d.querySelectorAll('[data-ag]').forEach(b => b.onclick = () => augPick(+b.dataset.ag));
-    d.querySelectorAll('[data-rr]').forEach(b => b.onclick = () => { const k = +b.dataset.rr, c = S.augO[k]; if (c.rr) return; const n = augRoll(S.augO.filter((_, j) => j !== k).map(x => x.id).concat(c.id)); S.augO[k] = { ...n, rr: 1 }; SND.fx.up(); save('now'); draw(); d.querySelectorAll('.augs')[k].classList.add('spin'); });
+    d.querySelectorAll('[data-rr]').forEach(b => b.onclick = () => { const k = +b.dataset.rr, c = S.augO[k]; if (c.rr) return; let n = augRoll(S.augO.filter((_, j) => j !== k).map(x => x.id).concat(c.id)); if (n.id === '_cry') n = augRoll(S.augO.filter((_, j) => j !== k).map(x => x.id)); /* nichts anderes mehr da → gleicher Skill, neue Stufe */ S.augO[k] = { ...n, rr: 1 }; SND.fx.up(); save('now'); draw(); d.querySelectorAll('.augs')[k].classList.add('spin'); });
     d.querySelector('#augl').onclick = () => { d.remove(); render(); }; };
   draw(); $('app').appendChild(d); SND.fx.up();
 }
@@ -2096,7 +2098,7 @@ function augPick(k) { const c = S.augO[k], T = AUGT[c.t];
   else { const s = SKILLS.find(x => x.id === c.id); S.sk[c.id] = Math.min(s.max, SK(c.id) + T.lv); toast(`${T.n}-Augment: ${s.n} Stufe ${S.sk[c.id]}`); }
   if (c.t === 2) { lflash(); vib([60, 40, 120]); } else vib(30);
   S.augQ = Math.max(0, (S.augQ || 1) - 1); S.augO = null; save('now'); const d = $('aug'); if (d) d.remove(); render(); ui();
-  if (augDone()) { S.augQ = 0; toast('Alle Skills freigeschaltet! 🎉'); } if (S.augQ) setTimeout(augShow, 350); }
+  if (augDone()) { S.augQ = 0; toast('Alle Skills auf Max! 🎉'); } if (S.augQ) setTimeout(augShow, 350); }
 
 // ================== Elite-Planeten: Warnung beim Ankommen, 3 verdeckte Karten als Belohnung ==================
 function eliteWarn() { if ($('elw')) return; const d = document.createElement('div'); d.id = 'elw'; d.className = 'elwf';
