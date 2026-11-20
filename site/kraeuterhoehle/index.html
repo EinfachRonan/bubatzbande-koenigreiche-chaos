@@ -243,59 +243,59 @@ document.addEventListener('MSFullscreenChange',updateFSBtn);
    ===================================================================== */
 const HEROES = [
   {id:'nille', klasse:'Krieger', n:'Knappe Nille', r:'C', cls:'Krieger', desc:'Die grundlegende Einheit.',
-   hp:40, atk:15, cd:0.9, ms:80, range:22, melee:true,
+   hp:55, atk:19, cd:0.9, ms:80, range:22, melee:true,
    look:{skin:'#d9a070',hair:'#2a1a10',top:'curly',cloth:'#5e4630',acc:'#a8834e',pants:'#3a2a1e',boots:'#1e150e',weapon:'sword'},
    armorLook:{skin:'#d9a070',hair:'#2a1a10',top:'kettle',cloth:'#a8b0bc',mail:true,acc:'#e0e4ea',pants:'#3a2a1e',boots:'#1e150e',weapon:'sword'}, armorNode:'nille_u0',
    shiny:{txt:'+100% LP, +50% Schaden', hp:1, dmg:.5}},
   {id:'marwin', klasse:'Jäger', n:'Marwin der Waldläufer', r:'C', cls:'Waldläufer', desc:'Elfischer Bogenschütze mit großer Reichweite. Lernt Feuerpfeile und den Pfeilsturm (12 Pfeile im Kegel).',
-   hp:25, atk:11, cd:1.0, ms:70, range:200, pc:'#d8f080',
+   hp:35, atk:15, cd:1.0, ms:70, range:200, pc:'#d8f080',
    look:{skin:'#f0d0b0',hair:'#e8d890',top:'elf',cloth:'#3a6a3a',acc:'#c9a040',pants:'#4a3a2a',boots:'#2a1e14',weapon:'bow'},
    shiny:{txt:'+50% Schaden, +1 Ziel', dmg:.5, multi:1}},
   {id:'foku', klasse:'Mönch', n:'Fokuhila-Mönch', r:'C', cls:'Mönch', desc:'Schlag-Kombo links, rechts, rechts: der dritte Schlag stößt Gegner mit einer Schallwelle zurück. Nach 5 Kills: ULTRA-MODUS, er blitzt zu 10 Gegnern und trifft jeden hart. Heilt sich bei jedem Treffer.',
-   hp:55, atk:7, cd:0.45, ms:85, range:20, melee:true, selfheal:1.5,
+   hp:70, atk:9, cd:0.42, ms:88, range:20, melee:true, selfheal:2.5,
    look:{skin:'#e6b48a',hair:'#d9b45a',top:'monk',cloth:'#d8822a',acc:'#7a3a1a',robe:true,bareArms:true,wraps:true,beads:true},
    shiny:{txt:'+100% LP, Schläge treffen Fläche', hp:1, splashAdd:30}},
   {id:'lg3', klasse:'Magier', n:'LG3', r:'U', cls:'Schamane', desc:'Naturmagie: Ranken brechen aus dem Boden und breiten sich über bis zu 3 Gegner aus, verlangsamen sie. Heilt Helden in der Nähe.',
-   hp:35, atk:9, cd:1.3, ms:60, range:170, slow:0.35, heal:2, vines:3, pc:'#7fd04a',
+   hp:50, atk:12, cd:1.2, ms:65, range:170, slow:0.45, heal:3.5, vines:4, pc:'#7fd04a',
    look:{skin:'#8a5a3a',hair:'#1a1210',top:'curly',cloth:'#2f5a2a',acc:'#c9a040',robe:true,weapon:'tree'},
    shiny:{txt:'+100% Heilung, +50% Verlangsamung', heal:1, slow:.5}},
   {id:'kobold', klasse:'Jäger', n:'Kobold-Speerwerfer', r:'U', cls:'Speerwerfer', desc:'Grüner Kobold, wirft Speere, die 2 Gegner durchbohren. Getroffene Gegner bluten: 1% ihrer LP über 2,5 Sek. (stapelbar). Kann Explosivspeere lernen.',
-   hp:30, atk:16, cd:1.4, ms:75, range:180, multi:2, bleed:0.01, pc:'#c8b080',
+   hp:45, atk:20, cd:1.3, ms:78, range:180, multi:2, bleed:0.015, pc:'#c8b080',
    look:{skin:'#6aa04a',top:'ears',cloth:'#5a4a2a',acc:'#8a6a3a',pants:'#3a2a1a',boots:'#2a1a10',weapon:'spear'},
    shiny:{txt:'+50% Schaden, doppelte Blutung', dmg:.5, bleed:1}},
   {id:'don', klasse:'Krieger', n:'Paladin Patron', r:'R', cls:'Paladin', desc:'Majestätischer Paladin mit riesigem Schild. Schwer gepanzert, zieht Gegner in der Nähe auf sich und blockt 15% aller Angriffe.',
-   hp:150, atk:14, cd:1.1, ms:60, range:24, melee:true, taunt:90, armor:0.3, block:0.15,
+   hp:200, atk:18, cd:1.0, ms:62, range:24, melee:true, taunt:110, armor:0.35, block:0.2,
    look:{skin:'#d9a880',top:'helm',cloth:'#5a6a80',acc:'#d4a040',pants:'#4a5260',boots:'#22262e',weapon:'sword',shield:true},
    shiny:{txt:'+100% LP, +50% Spott-Radius', hp:1, taunt:.5}},
   {id:'geist', klasse:'Bestie', n:'Der Graue Geist', r:'R', cls:'Seelenschnitter', desc:'Magischer Nahkämpfer mit Seelensense: Flächenschaden, getötete Gegner können zu Skeletten werden, die für dich kämpfen.',
-   hp:70, atk:14, cd:1.0, ms:70, range:30, melee:true, splash:40, reap:0.3, dodge:0.15,
+   hp:90, atk:18, cd:0.95, ms:72, range:30, melee:true, splash:50, reap:0.4, dodge:0.2,
    look:{top:'hood',hood:'#5a5a62',cloth:'#3e3e46',robe:true,weapon:'scythe'},
    look2:{top:'hood',hood:'#6a6a78',cloth:'#2e2e3a',robe:true,weapon:'scythe',scythe2:true,blade:'#a8f0ff'}, look2Node:'geist_u4',
    shiny:{txt:'+100% LP, jeder Kill wird zum Skelett', hp:1, reap:1}},
   {id:'dino', klasse:'Krieger', n:'Dino der Barbar', r:'R', cls:'Barbar', desc:'Wilder Höhlenmensch mit riesiger Zweihandaxt. Haut in einem weiten Bogen um sich – Flächenschaden.',
-   hp:120, atk:24, cd:1.5, ms:75, range:30, melee:true, splash:40,
+   hp:150, atk:30, cd:1.4, ms:77, range:30, melee:true, splash:50,
    look:{skin:'#c8906a',hair:'#3a2210',top:'curly',beard:true,cloth:'#c8906a',acc:'#a87050',bareArms:true,pants:'#7a5a3a',boots:'#c8906a',weapon:'axe2'},
    shiny:{txt:'+100% LP, +50% Flächenangriff', hp:1, splash:.5}},
   {id:'allan', klasse:'Bestie', n:'Allan King Kebap', r:'R', cls:'Werwolf', desc:'Flink und wild. Bei Vollmond wird er zum Jagdwolf: doppelt so schnell, 2,5× Schaden, Klauenhieb trifft bis zu 4 Gegner, +10% Lebensraub.',
-   hp:70, atk:12, cd:0.7, ms:100, range:22, melee:true, ww:true, lifesteal:0.2,
+   hp:90, atk:16, cd:0.65, ms:105, range:22, melee:true, ww:true, lifesteal:0.25,
    look:{skin:'#c8906a',hair:'#2a2a2e',top:'slick',cape:'#1e1e22',cloth:'#2a2a2e',acc:'#c9a040',pants:'#1e1e22',boots:'#111',weapon:'spit'},
    wolf:{wolf:'#6e6e76',cape:'#1e1e22',cloth:'#2a2a2e',acc:'#c9a040',pants:'#1e1e22',boots:'#111',weapon:'spit'},
    shiny:{txt:'Bleibt immer in Wolfsgestalt', alwaysWolf:true}},
   {id:'artur', klasse:'Bestie', n:'Artur King Kebap', r:'E', cls:'Alpha-Werwolf', desc:'Der Rudelführer. Bei Vollmond riesig: doppelt so schnell, 2,5× Schaden, Klauenhieb gegen bis zu 4 Gegner und starker Lebensraub.',
-   hp:110, atk:20, cd:0.9, ms:90, range:24, melee:true, ww:true, lifesteal:0.35, wolfSplash:35,
+   hp:140, atk:26, cd:0.85, ms:95, range:24, melee:true, ww:true, lifesteal:0.4, wolfSplash:45,
    look:{skin:'#d8a078',hair:'#5a3a20',top:'curly',beard:true,cape:'#8a1e1e',cloth:'#2a2a30',acc:'#d4a040',pants:'#222228',boots:'#141418',weapon:'spit'},
    wolf:{wolf:'#8d8d95',cape:'#8a1e1e',cloth:'#2a2a30',acc:'#d4a040',pants:'#222228',boots:'#141418',weapon:'spit'},
    shiny:{txt:'+100% LP, +50% Lebensraub', hp:1, lifesteal:.5}},
   {id:'molde', klasse:'Magier', n:'Molly Magier', r:'E', cls:'Magier', desc:'Mächtiger Magier: Kristallblitze springen weit verteilt auf mehrere Gegner über. Kann Feuerbälle lernen.',
-   hp:60, atk:16, cd:1.4, ms:60, range:190, chain:3, pc:'#ff6ac8',
+   hp:75, atk:21, cd:1.3, ms:63, range:190, chain:4, pc:'#ff6ac8',
    look:{skin:'#e8c0a0',hair:'#c89a50',top:'wizard',hatc:'#2a3a8a',cloth:'#1e2a5a',acc:'#c9a040',robe:true,weapon:'staff',glow:'#c8a0ff'},
    shiny:{txt:'+50% Schaden, +2 Kettensprünge', dmg:.5, chain:2}},
   {id:'koenig', klasse:'Krieger', n:'Der König von Deutschland', r:'L', cls:'König', desc:'Mächtige Hiebe mit Flächenschaden. Aura: +20% Schaden für alle Helden.',
-   hp:200, atk:40, cd:1.0, ms:75, range:28, melee:true, splash:45, aura:0.2,
+   hp:260, atk:48, cd:0.95, ms:77, range:28, melee:true, splash:55, aura:0.25,
    look:{skin:'#e0b088',hair:'#6a4020',top:'crown',beard:true,cape:'#e8e8e8',cloth:'#1e1e24',acc:'#d4a040',pants:'#1e1e24',boots:'#111',weapon:'sword'},
    shiny:{txt:'+100% LP, +50% Flächenangriff', hp:1, splash:.5}},
   {id:'kraeuter', klasse:'Magier', n:'Der KräuterKönig', r:'L', cls:'Krötenzauberer', desc:'Beschwört kleine Kröten (bis zu 2 gleichzeitig), die Säurepfützen spucken. Schießt mit seinem Stab und heilt Helden in seiner Nähe (Heilaura).',
-   hp:120, atk:22, cd:1.1, ms:50, range:200, summon:{every:6, max:2}, healAura:3, pc:'#9aff4a',
+   hp:150, atk:26, cd:1.0, ms:55, range:200, summon:{every:5, max:3}, healAura:5, pc:'#9aff4a',
    look:{skin:'#a8c890',hair:'#d8c070',top:'elfcrown',cloth:'#2e5a2e',acc:'#d4a040',robe:true,weapon:'goldstaff'},
    shiny:{txt:'+2 Kröten, +50% Schaden', toadMax:2, dmg:.5}},
   // KRÄUTER-HEXER — Sprite ausstehend, dann r/l/f laden und auskommentierung entfernen
@@ -305,7 +305,7 @@ const HEROES = [
 ];
 
 /* Säurekröte – wird vom KräuterKönig beschworen (nicht aus Paketen) */
-const TOAD = {id:'kroete', n:'Säurekröte', r:'U', cls:'Beschwörung', desc:'Spuckt Säure, die als ätzende Pfütze ein paar Sekunden liegen bleibt.', hp:30, atk:7, cd:1.3, ms:70, range:9999, splash:25, acid:1, pc:'#9aff3a', summoned:true};
+const TOAD = {id:'kroete', n:'Säurekröte', r:'U', cls:'Beschwörung', desc:'Spuckt Säure, die als ätzende Pfütze ein paar Sekunden liegen bleibt.', hp:30, atk:14, cd:1.3, ms:70, range:9999, splash:25, acid:1, pc:'#9aff3a', summoned:true};
 const BIGTOAD = {id:'riesenkroete', n:'Riesenkröte', r:'E', cls:'Beschwörung', desc:'Gigantische Kröte des KräuterKönigs. Spuckt riesige Säurepfützen.', hp:260, atk:22, cd:1.6, ms:45, range:9999, splash:45, acid:2.2, pc:'#9aff3a', summoned:true};
 const SKEL = {id:'skelett', n:'Skelett', r:'C', cls:'Beschwörung', desc:'Vom Grauen Geist erweckt.', hp:28, atk:8, cd:1.0, ms:75, range:22, melee:true, summoned:true};
 const GHUL = {id:'ghul', n:'Ghul', r:'C', cls:'Beschwörung', desc:'Vom Grabwächter beschworen.', hp:18, atk:5, cd:0.9, ms:80, range:18, melee:true, summoned:true};
@@ -366,7 +366,7 @@ const ENEMIES = [
 /* BOSSE – einer am Ende jedes Kapitels */
 const BOSSES = [
   {n:'Bergtroll', desc:'Riesiger Bergtroll mit Baumstamm – und Fokuhila.', sprite:'troll', hp:950, spd:13, dmg:20, cd:2.8, g:120, sc:3.4, r:20, slam:{every:4, rad:75, dmg:35}, jump:{every:11, first:14, rad:110, dmg:70}},
-  {n:'Mutierter Rattentroll', desc:'Riesiger mutierter Rattentroll. Er täuscht seinen Tod vor – und erwacht als dämonische Bestie wieder.', phase2:1, fakedie:1, hp:28000, spd:15, dmg:65, g:250, sc:4.2, pal:{G:'#8aa83a',E:'#ff2a2a',M:'#1a0a0a',B:'#5a1a6a'}, slam:{every:5, rad:70, dmg:90}, jump:{every:10, first:12, rad:105, dmg:180}, poison:{every:3, rad:90, dmg:18, dur:5}, abilityRot:{every:3}},
+  {n:'Mutierter Rattentroll', desc:'Riesiger mutierter Rattentroll. Er täuscht seinen Tod vor – und erwacht als dämonische Bestie wieder.', phase2:1, fakedie:1, hp:14000, spd:15, dmg:45, g:250, sc:4.2, pal:{G:'#8aa83a',E:'#ff2a2a',M:'#1a0a0a',B:'#5a1a6a'}, slam:{every:5, rad:70, dmg:60}, jump:{every:10, first:12, rad:105, dmg:120}, poison:{every:3, rad:90, dmg:12, dur:5}, abilityRot:{every:3}},
   {n:'Grabsumpf-Hexe', id:'hexe', desc:'Eine uralte Hexe aus dem Grabsumpf. Ihre Magie beschwört die Toten.', sprite:'hexe', hp:22000, spd:12, dmg:70, g:450, sc:4.4, pal:{G:'#2a2a5a',E:'#ff3a3a',M:'#0a0a1a',B:'#1a1a4a',W:'#8080c0'}, slam:{every:4.5, rad:80, dmg:80}, jump:{every:9, first:12, rad:115, dmg:180}},
   {n:'Dämonenschmied Morgraak', id:'morgraak', desc:'Riesiger Dämonenschmied. Seine Lava-Rüstung macht ihn nahezu unverwundbar – bis sie bricht.', sprite:'morgraak', phase2:1, fakedie:1, hp:55000, spd:14, dmg:115, g:800, sc:4.8, pal:{G:'#2a1a0a',E:'#ff5a1a',M:'#0a0808',B:'#1a0808',W:'#ff8040'}, slam:{every:4, rad:90, dmg:120}, jump:{every:8, first:10, rad:125, dmg:280}},
   // Phase 2 — wird automatisch nach fakedie geladen (wie boss2b)
@@ -374,15 +374,15 @@ const BOSSES = [
 ];
 /* Schwierigkeit – hier wird das Balancing eingestellt */
 const DIFF = {
-  bossT: [150, 180, 200, 220], // Sekunden bis der Boss kommt (je Kapitel)
+  bossT: [150, 170, 185, 200], // Sekunden bis der Boss kommt (je Kapitel)
   spawnStart: 1.75,     // Sekunden zwischen Gegnern am Anfang
-  spawnMin: 0.2,
-  spawnRamp: 0.011,    // wie schnell es enger wird
-  hpRamp: 100,          // alle X Sekunden +100% Gegner-Leben
-  dmgRamp: 180,
-  chHp: [0.52, 1.4, 6.0, 6.8],   // Gegner-Leben je Kapitel
-  chDmg: [0.75, 1.3, 3.0, 3.6],   // Gegner-Schaden je Kapitel
-  chSpawn: [1, 1.12, 1.4, 1.5],  // Spawnrate je Kapitel
+  spawnMin: 0.22,
+  spawnRamp: 0.009,    // wie schnell es enger wird
+  hpRamp: 120,          // alle X Sekunden +100% Gegner-Leben
+  dmgRamp: 200,
+  chHp: [0.52, 0.95, 2.2, 3.2],   // Gegner-Leben je Kapitel
+  chDmg: [0.75, 1.05, 1.9, 2.5],   // Gegner-Schaden je Kapitel
+  chSpawn: [1, 1.08, 1.25, 1.35],  // Spawnrate je Kapitel
 };
 const CHAPTERS = ['Magische Wiese','Katakomben','Der Friedhof','Schicksals Vulkan'];
 const MAX_CH = CHAPTERS.length;
@@ -893,7 +893,15 @@ Object.entries(CUSTOM_SPRITES).forEach(([id, c]) => { const r = _preImg(c.r), l 
   if(c.atk){ o.atkR = []; o.atkL = []; o.atkAx = c.atkAx; o.atkAy = c.atkAy; o.atkW = c.atkW; o.hitFrame = c.hitFrame; o.animDur = c.animDur; o.nFrames = c.atk.length;
     c.atk.forEach((u, i) => { const im = _preImg(u); im.onload = () => { o.atkL[i] = flip(im); }; o.atkR[i] = im; }); } });
 let BERS_C = null; if(SPR.bers){ BERS_C = SPR.bers; delete SPR.bers; }
-if(SPR.kroete && !SPR.riesenkroete) SPR.riesenkroete = Object.assign({}, SPR.kroete, {sc:(SPR.kroete.sc || 1) * 2.1});
+// Riesenkröte aus CUSTOM_ENEMIES laden (hat eigenes Sprite)
+if(typeof CUSTOM_ENEMIES !== 'undefined' && CUSTOM_ENEMIES.riesenkroete){
+  const _ck = CUSTOM_ENEMIES.riesenkroete;
+  const _ckr = new Image(), _ckl = new Image(); _ckr.src = _ck.r; _ckl.src = _ck.l;
+  SPR.riesenkroete = {r:_ckr, l:_ckl, url:_ck.r, custom:true, sc:_ck.sc,
+    atkR:[], atkL:[], atkAx:_ck.atkAx, atkAy:_ck.atkAy, atkW:_ck.atkW,
+    hitFrame:_ck.hitFrame, frameT:_ck.frameT, nFrames:_ck.nFrames};
+  _ck.atk.forEach((u,i)=>{ const im=new Image(); im.onload=()=>{SPR.riesenkroete.atkL[i]=flip(im);}; im.src=u; SPR.riesenkroete.atkR[i]=im; });
+} else if(SPR.kroete && !SPR.riesenkroete) SPR.riesenkroete = Object.assign({}, SPR.kroete, {sc:(SPR.kroete.sc || 1) * 2.1});
 if(SPR.wolf){ SPRW.allan = SPR.wolf; SPRW.artur = Object.assign({}, SPR.wolf, {sc:SPR.wolf.sc * 1.2}); delete SPR.wolf; }
 if(SPR.wking){ SPR.allan = SPR.wking; SPR.artur = Object.assign({}, SPR.wking, {sc:SPR.wking.sc * 1.1}); delete SPR.wking; }
 { const sk = strGrid(['...WWWW.....','..WWWWWW....','..WDWWDW....','..WWWWWW....','...WDWD.....','....WW......','..WWWWWW..S.','.W.WDWD.W.S.','.W.WWWW.WS..','...WDWD..W..','....WW......','...W..W.....','...W..W.....','..WW..WW....'], {W:'#e8e4d0', D:'#3a342e', S:'#a8b0b8'});
@@ -2980,7 +2988,7 @@ function draw(){
   if(B.flashShiny > 0){ ctx.fillStyle = `rgba(255,255,255,${B.flashShiny})`; ctx.fillRect(-VW/2 - 10, -VH/2 - 10, VW + 20, VH + 20); }
   if(B.blackout > 0){ ctx.fillStyle = `rgba(10,0,20,${Math.min(0.92, B.blackout * 0.95)})`; ctx.fillRect(-VW/2 - 10, -VH/2 - 10, VW + 20, VH + 20); if(B.blackout > 0.5){ ctx.fillStyle = `rgba(80,0,120,${(B.blackout - 0.5) * 0.3})`; ctx.fillRect(-VW/2 - 10, -VH/2 - 10, VW + 20, VH + 20); } }
   if(B.boss && !B.boss.dead){
-    const bw = Math.min(420, VW - 40), x0 = -bw/2, y0 = -VH/2 + 18, p = Math.max(0, B.boss.hp / B.boss.max);
+    const bw = Math.min(420, VW - 40), x0 = -bw/2, y0 = -VH/2 + 18, p = Math.max(0, Math.min(1, (B.boss.hp||0) / (B.boss.max||1)));
     const isP2 = B.boss.trans && B.boss.origMaxHp;
     const barColor = isP2 ? '#c030f0' : '#d03020';
     const barBg = isP2 ? '#3a0060' : '#601010';
@@ -3220,7 +3228,7 @@ function drawUnit(u){
 function updateHud(){
   if(!B) return;
   $('#htime').textContent = `K${B.ch} · ${mmss(B.t)}`;
-  $('#hboss').textContent = B.bossSpawned ? (B.boss && !B.boss.dead ? `👹 BOSS ${Math.ceil(Math.max(0,B.boss.hp)/B.boss.max*100)}%` : '') : `👹 in ${mmss(Math.max(0, DIFF.bossT[B.ch-1] - B.t))}`;
+  $('#hboss').textContent = B.bossSpawned ? (B.boss && !B.boss.dead ? `👹 BOSS ${Math.ceil(Math.max(0,(B.boss.hp||0))/(B.boss.max||1)*100)}%` : '') : `👹 in ${mmss(Math.max(0, DIFF.bossT[B.ch-1] - B.t))}`;
   $('#hhp').style.width = (B.hp / B.maxHp * 100) + '%';
   $('#hhpt').textContent = `Kräuterhöhle ${Math.ceil(B.hp)} / ${B.maxHp}`;
   const wolves = B.units.some(u => !u.dead && u.c.ww);
