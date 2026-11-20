@@ -246,6 +246,7 @@ $SECRET = [
   hash('sha256', 'bbcode:7878') => ['g' => 'hl', 'name' => 'Höhlenlauf', 'v' => '0.1', 'url' => 'hoehlenlauf/'],
   hash('sha256', 'bbcode:0811') => ['g' => 'ks', 'name' => 'Kräuterschenke', 'v' => '0.6', 'url' => 'schenke/'],
   hash('sha256', 'bbcode:422') => ['g' => 'hw', 'name' => 'Höhlenwacht', 'v' => '0.6', 'url' => 'wacht/'],
+  hash('sha256', 'bbcode:424') => ['g' => 'hw', 'name' => 'Höhlenwacht', 'v' => '0.6', 'url' => 'wacht/'],
   hash('sha256', 'bbcode:423') => ['g' => 'kt', 'name' => 'Kräuter-Titanen', 'v' => '0.3', 'url' => 'titanen/'],
 ];
 if ($a === 'code') {
