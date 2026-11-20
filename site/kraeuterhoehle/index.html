@@ -2517,12 +2517,12 @@ function update(dt){
       addText(e.x, e.y - e.h - 25, 'DÄMONEN-ERWACHEN!', '#c060ff', 28, 2.5);
       for(const u of B.units) if(!u.dead) heroHurt(u, 35, e);
     }
-    // Spawn-Anim abschließen
-    if(B.boss && B.boss.spawning){
-      B.boss.spawnAnim += dt;
-      const sp = B.boss.spr, dur = sp.spawnNFrames ? sp.spawnFrameT * sp.spawnNFrames : 1.4;
-      if(B.boss.spawnAnim >= dur) B.boss.spawning = false;
-    }
+  }
+  // Spawn-Anim Phase 2 abschließen (läuft NACH dem Fake-Tod, darum außerhalb)
+  if(B.boss && B.boss.spawning){
+    B.boss.spawnAnim = (B.boss.spawnAnim || 0) + dt;
+    const sp = B.boss.spr, dur = sp.spawnNFrames ? sp.spawnFrameT * sp.spawnNFrames : 1.4;
+    if(B.boss.spawnAnim >= dur) B.boss.spawning = false;
   }
 
   // Säurepfützen
