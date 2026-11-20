@@ -1414,18 +1414,19 @@ function toggleEquip(artId){
   if(S.artEquip.length >= slots){ toast('Kein freier Ausrüstungs-Slot! Zerstöre ein Artefakt um einen 2. Slot freizuschalten.'); return; }
   S.artEquip.push(artId); save(); renderColl();
 }
-function equipSlots(){ return 1 + (S.artSlot2 ? 1 : 0); }
+function equipSlots(){ return 1 + (S.artSlot2 ? 1 : 0) + (S.artSlot3 ? 1 : 0); }
 function destroyArtForSlot(){
-  // Öffnet Auswahl-Dialog zum Zerstören
   const owned = (S.arts || []).filter(id => !(S.artEquip||[]).includes(id));
   if(!owned.length){ toast('Kein Artefakt zum Zerstören vorhanden.'); return; }
-  if(S.artSlot2){ toast('Zweiter Slot ist bereits freigeschaltet.'); return; }
-  const names = owned.map(id => ART[id].n).join(', ');
-  const pick = owned[0]; // Für jetzt: erstes nehmen — TODO: echtes Auswahl-UI
-  if(!confirm(`Artefakt "${ART[pick].n}" für immer zerstören und 2. Slot freischalten?`)) return;
+  const slots = equipSlots();
+  if(slots >= 3){ toast('Bereits alle 3 Slots freigeschaltet.'); return; }
+  const slotNum = slots + 1;
+  const pick = owned[0];
+  if(!confirm(`Artefakt "${ART[pick].n}" für immer zerstören und Slot ${slotNum} freischalten?`)) return;
   S.arts = (S.arts||[]).filter(id => id !== pick);
-  S.artSlot2 = true; save(); renderColl();
-  toast(`💥 ${ART[pick].n} zerstört. Zweiter Ausrüstungs-Slot freigeschaltet!`);
+  if(slotNum === 2) S.artSlot2 = true; else S.artSlot3 = true;
+  save(); renderColl();
+  toast(`💥 ${ART[pick].n} zerstört. Ausrüstungs-Slot ${slotNum} freigeschaltet!`);
 }
 
 function renderColl(){
@@ -1459,8 +1460,8 @@ function renderColl(){
       </div>
     </div>`;
   }).join('');
-  const slot2Btn = !S.artSlot2 && ownedArts.size > equipped.size
-    ? `<div style="font-size:11px;color:#9a7a6a;cursor:pointer;padding:5px 10px;border:1px solid #4a2a2a;border-radius:6px;white-space:nowrap;line-height:1.5" onclick="destroyArtForSlot()">🔓 Slot 2<br><span style="color:#a06a5a">Artefakt opfern</span></div>` : '';
+  const slot2Btn = slots < 3 && ownedArts.size > equipped.size
+    ? `<div style="font-size:11px;color:#9a7a6a;cursor:pointer;padding:5px 10px;border:1px solid #4a2a2a;border-radius:6px;white-space:nowrap;line-height:1.5" onclick="destroyArtForSlot()">🔓 Slot ${slots+1}<br><span style="color:#a06a5a">Artefakt opfern</span></div>` : '';
   const equipRow = `<div class="art-equip-row">
     <span class="art-equip-label">Ausgerüstet</span>
     ${equipHexes}${slot2Btn}
