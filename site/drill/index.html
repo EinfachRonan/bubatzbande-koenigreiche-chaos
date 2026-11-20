@@ -977,7 +977,7 @@ function buildPlanet(removed) {
   if (innerWidth >= 900 && H >= 420) CELL = Math.max(12, Math.min(18, 2 * Math.round(H / 140))); // PC: Planet passt fast ganz ins Bild
   const Rc = boss ? 27 : (p <= 2 ? 11 + rnd() * 4 : 16 + rnd() * 10) + Math.min(4, p * .15); // die ersten Planeten kleiner, damit der Start (auch nach dem Warp) flott geht
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = 12 * .6 /* allgemein 40 % weniger Leben */ * (p === 1 ? .4 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (boss ? 1.6 : 1) * (!S.pc && p > 5 && p <= 10 ? Math.pow(.7, p - 5) : 1) /* erster Durchlauf: keine Wand vor dem ersten Warp */, v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = 12 * .6 /* allgemein 40 % weniger Leben */ * (p === 1 ? .4 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (boss ? .8 : 1) * (!S.pc && p > 5 && p <= 10 ? Math.pow(.7, p - 5) : 1) /* erster Durchlauf: keine Wand vor dem ersten Warp */, v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
