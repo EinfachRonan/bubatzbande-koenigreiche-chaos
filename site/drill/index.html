@@ -1252,7 +1252,7 @@ function step(dt) {
   // 12) Plasmapeitsche: fegt im Bogen über die Oberfläche, jeder Block wird pro Hieb einmal getroffen
   curW = 'whip';
   const dWh = WD('whip') * Rd;
-  if (dWh && (cdWh -= dt * Rv * sp75('whip')) <= 0) { cdWh = 1.8; const a0 = aimNear() ?? face; whips.push({ t: 0, a0, sg: Math.random() < .5 ? -1 : 1, L: (80 + 9 * Math.min(6, ST('whip'))) * (1 + .15 * ML('whip')), seen: new Set(), d: dWh * 1.8 * critMul() / 28 }); }
+  if (dWh && (cdWh -= dt * Rv * sp75('whip')) <= 0) { cdWh = 1.8; const a0 = aimNear() ?? face; const wl = WL('whip'), wf = wl >= 50 ? Math.min(2.4, 1.6 + (wl - 50) * .008) : 1 + wl * .004; /* ab Stufe 50 deutlich länger, damit sie auch bei Abstand noch rankommt */ whips.push({ t: 0, a0, sg: Math.random() < .5 ? -1 : 1, L: (80 + 9 * Math.min(6, ST('whip'))) * (1 + .15 * ML('whip')) * wf, seen: new Set(), d: dWh * 1.8 * critMul() / 28 / Math.pow(wf, 2.4) }); }
   for (let k = whips.length - 1; k >= 0; k--) { const w = whips[k]; w.t += dt / .42; if (w.t >= 1.25) { whips.splice(k, 1); continue; }
     if (w.t > 1) { if (!w.zp && HY('x_sturm') && w.pts) { w.zp = 1; const [tx, ty] = w.pts[w.pts.length - 1], tg2 = nearList(tx, ty, 4); for (const j of tg2) { const [x2, y2] = cellXY(j); hit(j, w.d * 6); fx.push({ k: 'zap', x: tx, y: ty, x2, y2, t: .55, t0: .55, lv: WL('chain') }); } } continue; }
     w.pts = whipPts(w, w.t); for (const [x, y] of w.pts) { const i = cellAt(x, y); if (i >= 0 && G.alive[i] && !w.seen.has(i)) { w.seen.add(i); hit(i, w.d); } } }
