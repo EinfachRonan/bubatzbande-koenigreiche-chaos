@@ -18,6 +18,8 @@ bubatzbande.de zeigt eine Spielauswahl mit sieben Spielen:
 
 - **Höhlenwacht** (`site/wacht/`, Geheim-Testphase v0.6, Code 422): Idle-Auto-Battler im Mittelalter-Stil (am PC Vollbild-Layout: Kampf links, Menü rechts, ⛶-Knopf bzw. Taste F) mit Marios Pixel-Figuren. Die Bande kämpft automatisch (10 Wellen pro Stufe, Boss mit Timer), Helden leveln, Ultimates mit kurzer Einblendung (Held + Ult-Name, kurze Zeitlupe), Ausbau, Beute mit 5 Seltenheiten und 3 Slots pro Held, Schmiede (Schmiedesteine, Verbessern bis +15 mit Risiko), Rückzug in die Taverne ab Stufe 25 (Kräuterkerne + Kern-Talente), Offline-Ertrag. Eigene Angriffs- und Ult-Sounds pro Held, Lofi-Fightbeat in D-Moll per Web Audio (kein Copyright), 🎵 Musik an/aus, ⚙ Musik- und Sound-Lautstärke mit Stumm (über `BB.setVol` für alle Spiele). Spielstand im Konto (`g = hw`), ohne Konto auf dem Gerät.
 
+- **Kräuter-Titanen** (`site/titanen/`, Geheim-Testphase v0.3, Code 423): Tap-Kampf im Stil von Tap Titans mit Marios Pixel-Figuren im Höhlenwacht-Look. Tippen = Kobold-Speerangriff, Bande (Grauer Geist, LG3, Marwin, Fokuhilamann) als Auto-Schaden mit eigenen Animationen, 10 Gegner pro Stufe + Boss mit Timer, 4 Skills, Rückzug in die Taverne ab Stufe 40 (Kräuterkerne + Talente), Offline-Gold. Spielstand im Konto (`g = kt`), ohne Konto auf dem Gerät.
+
 **Lofi-Radio (Startseite):** `site/lofi.js` erzeugt Lofi-Hintergrundmusik live per Web Audio (keine Audiodatei, kein Copyright). Startet beim ersten Antippen, 🎵-Knopf oben zum An/Aus (`bb_lofi`), Lautstärke = Musik-Regler.
 
 **Einstellungen (Zahnrad auf der Startseite):** Sound- und Musik-Lautstärke für alle Spiele (`BB.vol()` / `BB.setVol()`, gespeichert in `bb_vol`, Event `bb-vol`), dazu „Code eingeben“.
