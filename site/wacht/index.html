@@ -205,8 +205,8 @@ const IMG={};for(const [k,v] of Object.entries(SPR)){const o={r:new Image(),atk:
 const HEROES={
  kobold:{n:'Kobold',hp:90,dmg:6,cd:.7,range:22,spd:55,c0:5,unlock:0,melee:1,d:'Speer-Nahkämpfer, schnell und günstig',ult:{n:'Speerhagel',d:'Speere auf ALLE Gegner (14× Schaden)'}},
  geist:{n:'Grauer Geist',hp:85,dmg:11,cd:1,range:26,spd:48,c0:40,unlock:150,melee:1,steal:.15,d:'Sense, heilt sich bei jedem Treffer',ult:{n:'Seelenernte',d:'Sensenwirbel (20×), heilt die Bande um 60 %'}},
- lg3:{n:'LG3',hp:45,dmg:17,cd:1.3,range:150,c0:300,unlock:1500,orb:1,d:'Kräuterkugeln mit Flächenschaden',ult:{n:'Kräutersturm',d:'8 explodierende Kräuterkugeln (je 9×)'}},
- marwin:{n:'Marwin',hp:40,dmg:12,cd:.55,range:175,c0:2500,unlock:12000,arrow:1,d:'Bogenschütze, schießt sehr schnell',ult:{n:'Pfeilregen',d:'Pfeilhagel auf jeden Gegner (17×)'}},
+ lg3:{n:'LG3',hp:45,dmg:17,cd:1.3,range:175,c0:300,unlock:1500,orb:1,d:'Kräuterkugeln mit Flächenschaden',ult:{n:'Kräutersturm',d:'8 explodierende Kräuterkugeln (je 9×)'}},
+ marwin:{n:'Marwin',hp:40,dmg:12,cd:.55,range:190,c0:2500,unlock:12000,arrow:1,d:'Bogenschütze, schießt sehr schnell',ult:{n:'Pfeilregen',d:'Pfeilhagel auf jeden Gegner (17×)'}},
  foku:{n:'Fokuhilamann',hp:120,dmg:20,cd:1.1,range:30,spd:44,c0:20000,unlock:90000,melee:1,frost:1,d:'Eiskegel trifft mehrere und verlangsamt',ult:{n:'Eiszeit',d:'Friert alle Gegner 4 s ein (12×)'}}
 };
 const HORDER=['kobold','geist','lg3','marwin','foku'];
@@ -554,7 +554,7 @@ function update(dt){
   if(h.anim>=0){h.anim+=dt;const n=IMG[h.k].atk.length||6,dur=n*.05;if(!h.hit&&h.anim>=dur*.55){h.hit=true;doAttack(h);}if(h.anim>=dur)h.anim=-1;continue;}
   if(!t||state!=='fight'){const hx=HOME[h.k][0],hy=HOME[h.k][1];h.x+=Math.sign(hx-h.x)*Math.min(Math.abs(hx-h.x),60*dt);h.y+=Math.sign(hy-h.y)*Math.min(Math.abs(hy-h.y),40*dt);continue;}
   const dx=t.x-h.x;
-  if(Math.abs(dx)>H0.range||(H0.melee&&Math.abs(t.y-h.y)>14)){if(H0.melee&&t.x>225){const hx=HOME[h.k][0]+40;h.x+=Math.sign(hx-h.x)*Math.min(Math.abs(hx-h.x),H0.spd*dt);}else if(H0.melee){h.x+=Math.sign(dx)*H0.spd*dt;h.y+=Math.sign(t.y-h.y)*Math.min(Math.abs(t.y-h.y),30*dt);}else{const hx=HOME[h.k][0];if(h.x<hx)h.x+=Math.min(hx-h.x,60*dt);}continue;}
+  if(Math.abs(dx)>H0.range||(H0.melee&&Math.abs(t.y-h.y)>14)){if(H0.melee&&t.x>225){const hx=HOME[h.k][0]+40;h.x+=Math.sign(hx-h.x)*Math.min(Math.abs(hx-h.x),H0.spd*dt);}else if(H0.melee){h.x+=Math.sign(dx)*H0.spd*dt;h.y+=Math.sign(t.y-h.y)*Math.min(Math.abs(t.y-h.y),30*dt);}else{let fx=HOME[h.k][0]+70;for(const o of heroes)if(!o.dead&&HEROES[o.k].melee)fx=Math.min(fx,o.x-14);const tx=Math.max(HOME[h.k][0],Math.min(fx,t.x-H0.range*.85));h.x+=Math.sign(tx-h.x)*Math.min(Math.abs(tx-h.x),50*dt);}continue;}
   if(h.cd<=0){h.cd=H0.cd/(1+eqv(h.k,'spd')/100);h.anim=0;h.hit=false;h.tgt=t;}}
  // Gegner
  for(const e of enemies){e.flash=Math.max(0,e.flash-dt);if(e.hp<=0)continue;if(e.frz>0){e.frz-=dt;continue;}e.slow=Math.max(0,e.slow-dt);const sm=e.slow>0?.6:1;
