@@ -1040,7 +1040,7 @@ function kill(i, reward) {
   else if (G.ore[i] === 4) { mis('dm'); S.dm = (S.dm || 0) + 2; floats.push({ x, y: y - 10, t: 1.8, s: '+✦2', c: '#c9a2ff' }); toast('Dunkle Materie gefunden! +✦2'); }
   else if (G.ore[i]) floats.push({ x, y: y - 10, t: 1.2, s: '+' + fmt(val) + ' CR', c: '#ffe36a' });
 }
-const SPC = 2; // ◆ pro Kristall-Block
+const SPC = 1; // ◆ pro Kristall-Block
 
 // ================== Zufalls-Ereignisse: Weltraum-Händler & Wurmloch ==================
 var BON = null; // aktiver Bonus-Planet (Wurmloch)
@@ -2066,7 +2066,7 @@ const NEWS = [
   ['💥', 'Waffen überarbeitet', 'Neue Plasma-Nova, die Plasmapeitsche wird ab Stufe 50 deutlich länger. Ab Stufe 100 bekommen Kettenblitz, Nova, Minen und Wirbelsturm deutlich mehr Reichweite.'],
   ['🔨', 'Schmiede-Plätze', 'Nach dem Schmieden landen neue Waffen ganz hinten – und sind damit stärker als alle davor.'],
   ['🪐', 'Fairerer Start', 'Bis zum ersten Warp sind die Planeten 6–10 deutlich leichter.'],
-  ['◆', 'Kristalle sind wertvoller', 'Es gibt etwas weniger ◆ – sie sind jetzt nur noch für Kisten und Fähigkeiten da.']
+  ['◆', 'Kristalle sind wertvoller', 'Es gibt deutlich weniger ◆ – sie sind jetzt nur noch für Kisten und Fähigkeiten da.']
 ];
 function showNews(done) {
   const d = document.createElement('div'); d.id = 'news';
@@ -2077,10 +2077,11 @@ function showNews(done) {
   d.querySelector('#nwgo').onclick = () => { S.newsV = NEWSV; save('now'); d.classList.add('out'); setTimeout(() => { d.remove(); done && done(); }, 250); };
 }
 function augBoot() { if (!$('ov').classList.contains('hide') || $('aug') || $('news') || travel > 0) return setTimeout(augBoot, 1000); if (S.newsV !== NEWSV) return showNews(augBoot); if (S.augMsg != null) { const b = S.augMsg; delete S.augMsg; save('now'); overlay(`<h2>Neu: Augmente!</h2><p>Skills kaufst du nicht mehr mit ◆. Nach jedem Planeten wählst du 1 von 3 Augmenten, jedes kannst du einmal neu würfeln.<br><br>${b ? `Deine Skills wurden zurückgesetzt, dafür bekommst du <b style="color:#fff">◆${b}</b> zurück.<br>` : ''}Für deinen aktuellen Lauf darfst du jetzt <b style="color:#ffe94d">${S.augQ} Augmente</b> nachwählen.</p>`, [['Los geht\'s', () => { render(); setTimeout(augShow, 60); }]]); } else if (S.augQ) augShow(); }
+const augDone = () => SKILLS.every(s => SK(s.id) > 0); // alle Skills freigeschaltet → vorerst keine Augmente mehr
 function augOwned() { const own = SKILLS.filter(s => SK(s.id));
   return `<div class="augo"><div class="augo-h">Deine Skills · ${own.length}/${SKILLS.length}</div>${own.length ? `<div class="augo-l">${own.map(s => `<span title="${s.n}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg><em>${s.n}</em><b>${SK(s.id)}</b><i>/${s.max}</i></span>`).join('')}</div>` : '<div class="augo-e">Noch keine – das ist dein erster!</div>'}</div>`; }
 function augShow() {
-  if (!S.augQ || $('aug') || BON) return; if ($('elc')) return setTimeout(augShow, 1200); if (!$('ov').classList.contains('hide')) return setTimeout(augShow, 1200);
+  if (S.augQ && augDone()) { S.augQ = 0; S.augO = null; save('now'); render(); } if (!S.augQ || $('aug') || BON) return; if ($('elc')) return setTimeout(augShow, 1200); if (!$('ov').classList.contains('hide')) return setTimeout(augShow, 1200);
   if (!S.augO) { S.augO = augOffer(); save('now'); }
   const d = document.createElement('div'); d.id = 'aug';
   const draw = () => { d.innerHTML = `<div class="augw"><h2>Augment wählen</h2><p>Planet geschafft! Such dir eins aus.${S.augQ > 1 ? ` <b>Noch ${S.augQ - 1} weitere</b>` : ''}</p><div class="augr">${S.augO.map((c, k) => `<div class="augs">${augCard(c, k)}<button class="augrr" data-rr="${k}" ${c.rr ? 'disabled' : ''}>${c.rr ? 'Neu gewürfelt' : '↻ Neu würfeln'}</button></div>`).join('')}</div>${augOwned()}<button class="augl" id="augl">Später</button></div>`;
@@ -2094,7 +2095,7 @@ function augPick(k) { const c = S.augO[k], T = AUGT[c.t];
   else { const s = SKILLS.find(x => x.id === c.id); S.sk[c.id] = Math.min(s.max, SK(c.id) + T.lv); toast(`${T.n}-Augment: ${s.n} Stufe ${S.sk[c.id]}`); }
   if (c.t === 2) { lflash(); vib([60, 40, 120]); } else vib(30);
   S.augQ = Math.max(0, (S.augQ || 1) - 1); S.augO = null; save('now'); const d = $('aug'); if (d) d.remove(); render(); ui();
-  if (S.augQ) setTimeout(augShow, 350); }
+  if (augDone()) { S.augQ = 0; toast('Alle Skills freigeschaltet! 🎉'); } if (S.augQ) setTimeout(augShow, 350); }
 
 // ================== Elite-Planeten: Warnung beim Ankommen, 3 verdeckte Karten als Belohnung ==================
 function eliteWarn() { if ($('elw')) return; const d = document.createElement('div'); d.id = 'elw'; d.className = 'elw';
@@ -2115,10 +2116,10 @@ function eliteReward() {
       t.querySelector('#eleq').onclick = () => { S.eq[c.it.s] = c.it.id; save('now'); d.remove(); render(); }; t.querySelector('#elok').onclick = () => { d.remove(); render(); }; }, 900); }); }
 function planetDone() {
   SND.fx.win();
-  const gain = Math.ceil((2 + S.p * .6 + 2 * WP('kris')) * (G.boss ? 3 : 1)), old = G.name; // Prototyp: ◆ nur noch für Kisten & Fähigkeiten → weniger
+  const gain = Math.ceil((1 + S.p * .3 + WP('kris')) * (G.boss ? 2 : 1)), old = G.name; // Prototyp: ◆ nur noch für Kisten & Fähigkeiten → weniger
   if (G.elite) setTimeout(eliteReward, 1900);
   mis('planets'); if (G.boss) { mis('boss'); vib([90, 60, 90, 60, 160]); } else vib(30);
-  S.cry += gain; S.p++; S.best = Math.max(S.best, S.p); S.augQ = (S.augQ || 0) + 1; setTimeout(augShow, 2500);
+  S.cry += gain; S.p++; S.best = Math.max(S.best, S.p); if (!augDone()) { S.augQ = (S.augQ || 0) + 1; setTimeout(augShow, 2500); }
   S.pAll = (S.pAll || 0) + 1; let chipT = ''; if (S.pAll % 5 === 0) { const cg = 1 + WP('chips'); S.chip = (S.chip || 0) + cg; chipT = ' · +⬢' + cg + ' Chip!'; setTimeout(() => toast('⬢ Waffen-Chip bekommen! Im Waffen-Tab bei „Waffen-Mods“ einsetzen.'), 2600); }
   let bgN = 0;
   if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); bgN = (BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut', true)) || 0; if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
