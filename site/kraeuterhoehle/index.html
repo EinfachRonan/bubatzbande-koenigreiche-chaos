@@ -1263,13 +1263,20 @@ if(!S.day) newDay();
 
 function renderShop(){
   const D = S.day;
-  // Sicherstellen: fehlende Slots auffüllen (Paket-Slots zuerst, dann Hero-Slots)
+  // Sicherstellen: Slots korrekt auffüllen ohne Index-Bugs
   const hCount = heroSlotsCount(MD.slots);
   const packCount = MD.slots - hCount;
   const pw2 = {basis:60, gross:30, magie:15, box:10}, av2 = MD.packs, tot2 = av2.reduce((a,p) => a + pw2[p], 0);
   const pick2 = () => { let x = Math.random()*tot2; for(const p of av2){ if(x < pw2[p]) return p; x -= pw2[p]; } return 'basis'; };
-  while(D.offers.filter(o => !o.type).length < packCount) D.offers.splice(D.offers.findLastIndex(o => o.type === 'hero') + 0, 0, {p:pick2(), sold:false});
-  while(D.offers.filter(o => o.type === 'hero').length < hCount) D.offers.push({hero:pickHeroOffer(), sold:false, type:'hero'});
+  // Bestehende Slots nach Typ aufteilen
+  const existingPacks = D.offers.filter(o => !o.type);
+  const existingHeroes = D.offers.filter(o => o.type === 'hero');
+  // Fehlende Pack-Slots hinzufügen
+  while(existingPacks.length < packCount) existingPacks.push({p:pick2(), sold:false});
+  // Fehlende Hero-Slots hinzufügen
+  while(existingHeroes.length < hCount) existingHeroes.push({hero:pickHeroOffer(), sold:false, type:'hero'});
+  // Neu zusammensetzen: Pakete zuerst, dann Helden — Indices immer konsistent
+  D.offers = [...existingPacks.slice(0, packCount), ...existingHeroes.slice(0, hCount)];
   $('#coins').innerHTML = `${D.coins} 🪙 <span style="font-size:17px;color:#a89a50">(+${MD.income}/Tag)</span>`;
   $('#offers').innerHTML = D.offers.map((o, i) => {
     if(o.type === 'hero'){
