@@ -245,7 +245,7 @@ $SECRET = [
   hash('sha256', 'bbcode:421') => ['g' => 'ernte', 'name' => 'Erntezeit', 'v' => '1.0', 'url' => 'ernte/'],
   hash('sha256', 'bbcode:7878') => ['g' => 'hl', 'name' => 'Höhlenlauf', 'v' => '0.1', 'url' => 'hoehlenlauf/'],
   hash('sha256', 'bbcode:0811') => ['g' => 'ks', 'name' => 'Kräuterschenke', 'v' => '0.6', 'url' => 'schenke/'],
-  hash('sha256', 'bbcode:422') => ['g' => 'hw', 'name' => 'Höhlenwacht', 'v' => '0.5', 'url' => 'wacht/'],
+  hash('sha256', 'bbcode:422') => ['g' => 'hw', 'name' => 'Höhlenwacht', 'v' => '0.6', 'url' => 'wacht/'],
 ];
 if ($a === 'code') {
   $n = 0; foreach ($rl as $x) if ($x['ip'] === $ip) $n++;
