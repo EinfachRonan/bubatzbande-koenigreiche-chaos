@@ -1234,7 +1234,7 @@ const heroImg = id => `<img src="${SPR[id].url}" alt="">`;
 function luckless(w){ return w; }
 function oddsHTML(w){ return RORD.map((r,i) => w[i] > 0 ? `<i style="color:${RAR[r].c}">■${w[i]}%</i>` : '').join(''); }
 // Held-im-Laden: Preis nach Rarität in 🪙 (Gold)
-const HERO_SHOP_COST = {C:8, U:18, R:35, E:70, L:150};
+const HERO_SHOP_COST = {C:2, U:3, R:5, E:8, L:15};
 // Wie viele Hero-Slots gibt es bei n Pack-Slots?
 function heroSlotsCount(n){ return n >= 8 ? 2 : n >= 4 ? 1 : 0; }
 // Zufälligen käuflichen Helden würfeln (bevorzugt C/U, aber alle möglich)
@@ -1618,6 +1618,8 @@ function renderColl(){
 
 /* ===================== HUB ===================== */
 function renderHub(){
+  // Sicherheit: Im Hub darf kein heroReveal aktiv sein
+  if(!B){ heroRevealQ = []; heroRevealActive = null; _heroRevealPendingDismiss = false; }
   S.sel = Math.min(Math.max(1, S.sel), Math.min(S.chapter, MAX_CH));
   $('#chNum').textContent = 'KAPITEL ' + S.sel; $('#chName').textContent = chName(S.sel);
   $('#chPrev').disabled = S.sel <= 1; $('#chNext').disabled = S.sel >= Math.min(S.chapter, MAX_CH);
