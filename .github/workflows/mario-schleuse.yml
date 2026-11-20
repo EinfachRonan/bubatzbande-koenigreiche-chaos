@@ -1,0 +1,51 @@
+name: Mario-Schleuse
+
+# Mario pusht NUR auf den Branch „mario“. Diese Action übernimmt davon ausschließlich
+# seinen Spiele-Ordner nach master (→ danach läuft automatisch der Deploy).
+# Änderungen an allen anderen Dateien werden ignoriert und kommen nie auf die Seite.
+on:
+  push:
+    branches: [mario]
+
+permissions:
+  contents: write
+
+concurrency: mario-schleuse
+
+env:
+  ERLAUBT: site/kraeuterhoehle   # Marios Ordner (mehrere mit Leerzeichen trennen)
+
+jobs:
+  uebernehmen:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Nur Marios Ordner übernehmen
+        run: |
+          set -e
+          git fetch -q origin mario
+          git config user.name "Mario (Schleuse)"
+          git config user.email "actions@users.noreply.github.com"
+          base=$(git merge-base origin/master origin/mario || git rev-parse origin/master)
+          alle=$(git diff --name-only "$base" origin/mario)
+          verboten=""
+          for f in $alle; do
+            ok=0; for d in $ERLAUBT; do case "$f" in "$d"/*) ok=1;; esac; done
+            [ $ok = 1 ] || verboten="$verboten $f"
+          done
+          if [ -n "$verboten" ]; then
+            echo "::warning title=Mario-Schleuse::Diese Dateien liegen außerhalb von Marios Ordner und werden NICHT übernommen:$verboten"
+          fi
+          for d in $ERLAUBT; do
+            git rm -rq --ignore-unmatch "$d"
+            if git cat-file -e "origin/mario:$d" 2>/dev/null; then git checkout origin/mario -- "$d"; fi
+          done
+          if git diff --cached --quiet; then echo "Keine Änderungen in Marios Ordner."; exit 0; fi
+          msg=$(git log -1 --format=%s origin/mario)
+          git commit -qm "Mario: $msg"
+          git push origin HEAD:master
+          echo "Übernommen: $(git diff --name-only HEAD~1 | wc -l) Datei(en)"

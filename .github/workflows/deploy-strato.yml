@@ -6,15 +6,21 @@ on:
       - main
       - master
   workflow_dispatch:
+  # Pushes der Mario-Schleuse (mit GITHUB_TOKEN) lösen keinen Push-Trigger aus → danach extra deployen
+  workflow_run:
+    workflows: [Mario-Schleuse]
+    types: [completed]
 
 jobs:
   deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: master
           fetch-depth: 0
 
       - name: Update-Zeiten der Spiele (für die Startseite)

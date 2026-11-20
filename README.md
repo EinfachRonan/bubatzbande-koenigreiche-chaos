@@ -20,6 +20,8 @@ bubatzbande.de zeigt eine Spielauswahl mit sieben Spielen:
 
 - **Kräuter-Titanen** (`site/titanen/`, Geheim-Testphase v0.3, Code 423): Tap-Kampf im Stil von Tap Titans mit Marios Pixel-Figuren im Höhlenwacht-Look. Tippen = Kobold-Speerangriff, Bande (Grauer Geist, LG3, Marwin, Fokuhilamann) als Auto-Schaden mit eigenen Animationen, 10 Gegner pro Stufe + Boss mit Timer, 4 Skills, Rückzug in die Taverne ab Stufe 40 (Kräuterkerne + Talente), Offline-Gold. Spielstand im Konto (`g = kt`), ohne Konto auf dem Gerät.
 
+**Mario-Schleuse:** Mario pusht nur auf den Branch `mario`; `.github/workflows/mario-schleuse.yml` übernimmt davon ausschließlich `site/kraeuterhoehle/` nach master (Regeln in `CLAUDE.md`).
+
 **Lofi-Radio (Startseite):** `site/lofi.js` erzeugt Lofi-Hintergrundmusik live per Web Audio (keine Audiodatei, kein Copyright). Startet beim ersten Antippen, 🎵-Knopf oben zum An/Aus (`bb_lofi`), Lautstärke = Musik-Regler.
 
 **Einstellungen (Zahnrad auf der Startseite):** Sound- und Musik-Lautstärke für alle Spiele (`BB.vol()` / `BB.setVol()`, gespeichert in `bb_vol`, Event `bb-vol`), dazu „Code eingeben“.
