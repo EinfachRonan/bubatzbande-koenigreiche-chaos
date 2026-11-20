@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ERNTEZEIT – Zombie-Shooter (v1.0)</title>
 <meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Erntezeit">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="../icon-180.png">
 <script src="../bb.js?v=20261118a"></script>
 <script>
 /* Testphase: nur spielbar, wenn über „Code eingeben“ auf der Startseite freigeschaltet. */
@@ -68,6 +75,14 @@ canvas{display:block}
 .pop{position:absolute;transform:translateX(-50%);font-family:Oswald;font-weight:600;font-size:17px;white-space:nowrap;animation:up 1.1s ease-out forwards}
 .pop.hs{color:#ff4b3e}.pop.mn{color:#f3c64b}
 #coopBox{margin:4px 0 14px}.coopr{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;font-size:14px}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:none}
+.fsB{margin-top:12px}body.fsx .fsB,body.fsx #tFs{display:none}
+#fsHint{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:20px}
+#fsHint[hidden]{display:none}
+#fsHint .card{max-width:440px;background:#15110b;border:1px solid #6b5a3a;padding:22px 24px;text-align:left;font-size:15px;line-height:1.45}
+#fsHint h3{font-family:Oswald;letter-spacing:3px;font-size:22px;margin-bottom:8px;color:#f3c64b}
+#fsHint ol{margin:10px 0 10px 20px}#fsHint li{margin:4px 0}#fsHint small{opacity:.7;display:block;margin-bottom:14px}
+#tFs{right:30px;top:112px;width:44px;height:44px;font-size:18px}
 .btn2{pointer-events:auto;font-family:Oswald;letter-spacing:2px;font-size:14px;padding:8px 18px;border:1px solid #e8e2d0;background:rgba(232,226,208,.08);color:#fff;cursor:pointer}.btn2:hover{background:rgba(232,226,208,.2)}.btn2.sm{font-size:12px;padding:5px 12px}
 #coopCode{width:90px;font-family:Oswald;font-size:18px;letter-spacing:4px;text-transform:uppercase;text-align:center;padding:6px;background:rgba(0,0,0,.4);border:1px solid rgba(232,226,208,.4);color:#fff}
 .coopr .or{opacity:.6}.coopr .code{font-family:Oswald;font-size:22px;letter-spacing:5px;color:#f3c64b}#coopMsg{font-size:13px;color:#f3c64b;margin-top:6px;min-height:16px}
@@ -172,7 +187,7 @@ body.touch #joy{left:26px;bottom:24px;width:130px;height:130px}body.touch #knob{
 body.touch #tSpr{left:170px;bottom:28px}
 body.touch #tJump{right:24px;bottom:16px}body.touch #tSw{right:90px;bottom:16px}body.touch #tUse{right:156px;bottom:16px}
 body.touch #tFire{right:22px;bottom:86px;width:84px;height:84px;font-size:13px}body.touch #tAim{right:118px;bottom:118px}body.touch #tRel{right:184px;bottom:84px}
-body.touch #tPause{right:14px;top:8px;width:40px;height:40px;bottom:auto}body.touch #tShop{right:62px;top:8px;width:40px;height:40px}
+body.touch #tFs{right:206px;top:8px;width:40px;height:40px;bottom:auto;font-size:16px}body.touch #tPause{right:14px;top:8px;width:40px;height:40px;bottom:auto}body.touch #tShop{right:62px;top:8px;width:40px;height:40px}
 body.touch #tTrap{right:110px;top:8px;width:40px;height:40px}body.touch #tBuild{right:158px;top:8px;width:40px;height:40px}
 body.touch #ammo{top:56px}
 
@@ -204,7 +219,7 @@ body.touch #ammo{top:56px}
   <div class="tb" id="tFire" data-b="fire">FEUER</div><div class="tb" id="tAim" data-b="aim">ZIELEN</div><div class="tb" id="tRel" data-b="reload">LADEN</div>
   <div class="tb" id="tJump" data-b="jump">SPRUNG</div><div class="tb" id="tSw" data-b="switch">WAFFE</div><div class="tb" id="tUse" data-b="use">NUTZEN</div>
   <div class="tb" id="tSpr" data-b="sprint">SPRINT</div><div class="tb" id="tBuild" data-b="build">🪵</div><div class="tb" id="tTrap" data-b="trap">🪤</div>
-  <div class="tb" id="tShop" data-b="shop">🪙</div><div class="tb" id="tPause" data-b="pause">II</div>
+  <div class="tb" id="tShop" data-b="shop">🪙</div><div class="tb" id="tPause" data-b="pause">II</div><div class="tb" id="tFs" data-b="fs">⛶</div>
 </div>
 
 <div id="start" class="screen"><div class="card">
@@ -217,6 +232,7 @@ body.touch #ammo{top:56px}
     <div id="coopRoom" class="coopr" hidden><span>Raum-Code <b id="coopShow" class="code">----</b></span><span id="coopRole"></span><span id="coopStat"></span><button class="btn2 sm" id="coopLeaveB">VERLASSEN</button></div>
     <div id="coopMsg"></div></div>
   <button class="btn" id="go">LOS GEHT'S</button>
+  <div><button class="btn2 fsB" type="button">⛶ VOLLBILD</button></div>
   <div class="ctrl">
     <b>WASD</b><span>Laufen</span><b>SHIFT</b><span>Sprinten</span><b>LEERTASTE</b><span>Springen</span>
     <b>LINKS</b><span>Schießen</span><b>RECHTS</b><span>Zielen</span><b>R</b><span>Nachladen</span>
@@ -226,7 +242,12 @@ body.touch #ammo{top:56px}
   </div>
   <div id="note"></div>
 </div></div>
-<div id="pause" class="screen hide"><div class="card"><div class="big" id="pauseT">PAUSE</div><div id="pauseN" style="opacity:.75;margin:4px 0 6px"></div><br><button class="btn" id="resume">WEITER</button><br><br><button class="btn" id="quit" style="background:#444;font-size:15px;padding:10px 30px">ZUM MENÜ</button></div></div>
+<div id="pause" class="screen hide"><div class="card"><div class="big" id="pauseT">PAUSE</div><div id="pauseN" style="opacity:.75;margin:4px 0 6px"></div><br><button class="btn" id="resume">WEITER</button><br><button class="btn2 fsB" type="button">⛶ VOLLBILD</button><br><br><button class="btn" id="quit" style="background:#444;font-size:15px;padding:10px 30px">ZUM MENÜ</button></div></div>
+<div id="fsHint" hidden><div class="card"><h3>VOLLBILD AUFS IPHONE</h3>
+  Safari lässt auf dem iPhone kein echtes Vollbild zu. Als App vom Home-Bildschirm läuft Erntezeit aber komplett ohne Leisten:
+  <ol><li>Unten auf <b>Teilen</b> tippen (Kästchen mit Pfeil ⬆)</li><li><b>„Zum Home-Bildschirm“</b> wählen</li><li>Erntezeit über das neue Symbol starten</li></ol>
+  <small>In der App einmal anmelden bzw. den Code nochmal eingeben – die App hat einen eigenen Speicher.</small>
+  <button class="btn2" id="fsHintX" type="button">ALLES KLAR</button></div></div>
 <div id="over" class="screen hide"><div class="card">
   <div class="title" style="font-size:60px">DU BIST <span>GEFALLEN</span></div>
   <div class="stats"><div>WELLE<b id="ow">1</b></div><div>KILLS<b id="ok">0</b></div><div>KOPFSCHÜSSE<b id="oh">0</b></div><div>PUNKTE<b id="os">0</b></div></div>
@@ -866,7 +887,7 @@ function lock(){if(!useLock)return;try{const r=renderer.domElement.requestPointe
 const T={jx:0,jy:0,joyId:null,lookId:null,lx:0,ly:0,sprint:false,use:false};
 if(IS_TOUCH){$('touch').classList.add('on');document.body.classList.add('touch');
   const joy=$('joy'),knob=$('knob');
-  const btn=(b,down)=>{if(b==='use')T.use=down;if(state!=='play')return;const el=document.querySelector(`[data-b="${b}"]`);
+  const btn=(b,down)=>{if(b==='fs'){if(!down)toggleFS();return;}if(b==='use')T.use=down;if(state!=='play')return;const el=document.querySelector(`[data-b="${b}"]`);
     if(b==='fire'){mouseL=down;if(down&&!shopOpen)attack(true);el.classList.toggle('on',down);return;}
     if(!down)return;
     if(b==='aim'){mouseR=!mouseR;el.classList.toggle('on',mouseR);}if(b==='reload')startReload();if(b==='jump')jumpQ=true;if(b==='switch')cycleWeapon(1);if(b==='use')interact();
@@ -1914,6 +1935,30 @@ function loop(){requestAnimationFrame(loop);const dt=Math.min(.05,clock.getDelta
   lensMat.uniforms.dark.value=1-clamp((P.ads-.55)/.4,0,1);
   sky.position.copy(camera.position);pMat.uniforms.scale.value=innerHeight*.6*(72/camera.fov);
   renderer.render(scene,camera);}
+// ---------- Vollbild + kein Reinzoomen ----------
+const IOS=/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isApp=()=>!!(navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches);
+const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
+const DE=document.documentElement,canFS=!!(DE.requestFullscreen||DE.webkitRequestFullscreen);
+function fsUI(){const on=!!fsEl()||isApp();document.body.classList.toggle('fsx',isApp());
+  document.querySelectorAll('.fsB').forEach(b=>b.textContent=fsEl()?'⛶ VOLLBILD AUS':'⛶ VOLLBILD');
+  setTimeout(()=>dispatchEvent(new Event('resize')),120);}
+async function toggleFS(){
+  if(fsEl()){try{await(document.exitFullscreen||document.webkitExitFullscreen).call(document);}catch(e){}return;}
+  if(!canFS){if(!isApp())$('fsHint').hidden=false;return;}
+  try{await(DE.requestFullscreen?DE.requestFullscreen({navigationUI:'hide'}):DE.webkitRequestFullscreen());
+    try{if(IS_TOUCH&&screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape');}catch(e){}}
+  catch(e){if(IOS&&!isApp())$('fsHint').hidden=false;}}
+document.querySelectorAll('.fsB').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();toggleFS();}));
+$('fsHintX').addEventListener('click',()=>{$('fsHint').hidden=true;});
+document.addEventListener('fullscreenchange',fsUI);document.addEventListener('webkitfullscreenchange',fsUI);
+// iOS ignoriert user-scalable=no → Zoom-Gesten selbst abfangen
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{if(e.touches.length>1||(e.scale!==undefined&&e.scale!==1))e.preventDefault();},{passive:false});
+let lastTap=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastTap<350&&!(e.target.closest&&e.target.closest('input,select,textarea')))e.preventDefault();lastTap=n;},{passive:false});
+addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault();},{passive:false});
+addEventListener('orientationchange',()=>{setTimeout(()=>{scrollTo(0,0);dispatchEvent(new Event('resize'));},250);});
+fsUI();
 loop();
 })();
 
