@@ -132,7 +132,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;displa
   </div>
   <div id="right">
     <div class="tabs"><button data-t="tree" class="on">AUFWERTEN</button><button data-t="coll">SAMMLUNG</button><span class="krc" id="krc">0 💎</span><button class="hb" id="bblogin" style="margin-left:6px;font-size:16px;padding:4px 10px;background:#1a2a1a;border:1px solid #3a5a3a;color:#8aba8a" onclick="window.BB&&BB.open('login')">🔑</button></div>
-    <div id="treebox"><div id="tree"></div><div id="tip"></div></div>
+    <div id="treebox"><div id="tree"></div><div id="tip"></div><canvas id="treeBeam" style="position:absolute;inset:0;pointer-events:none;z-index:10"></canvas></div>
     <div id="coll"></div>
     <button class="btn" id="fight">KÄMPFEN</button>
   </div>
@@ -1309,6 +1309,89 @@ function renderHub(){
   $('#coll').style.display = curTab === 'coll' ? 'block' : 'none';
   if(curTab === 'tree') renderTree(); else renderColl();
   document.querySelector('.tabs button[data-t="coll"]').innerHTML = 'SAMMLUNG' + (Object.keys(S.newSeen).length && curTab !== 'coll' ? ' <span style="color:#e84a3a">●</span>' : '');
+  // Goldener Strahl zu neuem Helden-Node
+  const newIds = Object.keys(S.newSeen);
+  if(newIds.length && curTab === 'tree') setTimeout(() => playTreeBeam(newIds[0]), 300);
+}
+
+function playTreeBeam(heroId){
+  const nodeId = 'h_' + heroId;
+  const n = NODE[nodeId]; if(!n) return;
+  const cv = $('#treeBeam'); if(!cv) return;
+  const box = $('#treebox').getBoundingClientRect();
+  cv.width = box.width; cv.height = box.height;
+  const ctx2 = cv.getContext('2d');
+  // Ziel-Position des Nodes im treebox-Koordinatensystem
+  const nx = OX + n.x * GRID + pan.x, ny = OY + n.y * GRID + pan.y;
+  // Start: Mitte des treebox
+  const cx = box.width / 2, cy = box.height / 2;
+  const totalDur = 2200; // ms
+  const start = performance.now();
+  // Zoom: pan zu Node hin
+  const startPan = {x: pan.x, y: pan.y};
+  const targetPan = {x: box.width/2 - (OX + n.x*GRID), y: box.height/2 - (OY + n.y*GRID)};
+  let beamDone = false;
+  function frame(now){
+    const elapsed = now - start;
+    const p = Math.min(1, elapsed / totalDur);
+    const ease = p < 0.5 ? 2*p*p : -1+(4-2*p)*p; // ease in-out
+    // Sanfter Zoom (Pan bewegen)
+    if(p < 0.85){
+      pan.x = startPan.x + (targetPan.x - startPan.x) * ease;
+      pan.y = startPan.y + (targetPan.y - startPan.y) * ease;
+      $('#tree').style.transform = `translate(${pan.x}px,${pan.y}px)`;
+    }
+    // Beam zeichnen
+    ctx2.clearRect(0, 0, cv.width, cv.height);
+    const beamP = Math.min(1, elapsed / (totalDur * 0.7));
+    if(beamP < 1){
+      // Aktueller Beam-Endpunkt (zieht von Mitte zum Node)
+      const bx = cx + (nx + (targetPan.x - startPan.x)*ease - cx) * beamP;
+      const by = cy + (ny + (targetPan.y - startPan.y)*ease - cy) * beamP;
+      // Haupt-Beam
+      const grad = ctx2.createLinearGradient(cx, cy, bx, by);
+      grad.addColorStop(0, 'rgba(255,220,60,0)');
+      grad.addColorStop(0.4, 'rgba(255,220,60,0.5)');
+      grad.addColorStop(1, 'rgba(255,255,180,0.9)');
+      ctx2.save();
+      ctx2.strokeStyle = grad; ctx2.lineWidth = 3; ctx2.shadowColor = '#ffd84d'; ctx2.shadowBlur = 18;
+      ctx2.beginPath(); ctx2.moveTo(cx, cy); ctx2.lineTo(bx, by); ctx2.stroke();
+      // Glühender Kopf
+      const hg = ctx2.createRadialGradient(bx, by, 0, bx, by, 18);
+      hg.addColorStop(0, 'rgba(255,255,200,0.95)'); hg.addColorStop(0.4, 'rgba(255,210,40,0.6)'); hg.addColorStop(1, 'rgba(255,180,0,0)');
+      ctx2.fillStyle = hg; ctx2.beginPath(); ctx2.arc(bx, by, 18, 0, 7); ctx2.fill();
+      ctx2.restore();
+      // Kleine Funken entlang des Strahls
+      for(let i = 0; i < 4; i++){
+        const sp = (beamP * 0.6 + i * 0.1) % 1;
+        const sx = cx + (bx-cx)*sp + (Math.random()-.5)*8, sy = cy + (by-cy)*sp + (Math.random()-.5)*8;
+        ctx2.save(); ctx2.fillStyle = 'rgba(255,240,100,0.7)'; ctx2.beginPath(); ctx2.arc(sx, sy, 2, 0, 7); ctx2.fill(); ctx2.restore();
+      }
+    } else if(!beamDone){
+      beamDone = true;
+      // Node aufleuchten lassen
+      const nodeEl = $('#tree').querySelector(`.node[data-id="${nodeId}"]`);
+      if(nodeEl){ nodeEl.style.transition = 'box-shadow 0.3s'; nodeEl.style.boxShadow = '0 0 28px 10px #ffd84d, 0 0 60px 20px rgba(255,210,40,0.5)'; setTimeout(() => { nodeEl.style.boxShadow = ''; }, 1200); }
+    }
+    // Fade-out am Ende
+    if(p > 0.75){
+      const fade = 1 - (p - 0.75) / 0.25;
+      ctx2.clearRect(0, 0, cv.width, cv.height);
+      if(fade > 0 && beamP >= 1){
+        // Nur noch Glow am Ziel
+        const ex = cx + (nx + (targetPan.x - startPan.x) - cx);
+        const ey = cy + (ny + (targetPan.y - startPan.y) - cy);
+        ctx2.save();
+        const fg = ctx2.createRadialGradient(ex, ey, 0, ex, ey, 30*fade);
+        fg.addColorStop(0, `rgba(255,255,180,${0.8*fade})`); fg.addColorStop(1, 'rgba(255,180,0,0)');
+        ctx2.fillStyle = fg; ctx2.beginPath(); ctx2.arc(ex, ey, 30*fade, 0, 7); ctx2.fill();
+        ctx2.restore();
+      }
+    }
+    if(p < 1) requestAnimationFrame(frame);
+    else ctx2.clearRect(0, 0, cv.width, cv.height);
+  }
+  requestAnimationFrame(frame);
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { curTab = b.dataset.t; selNode = null; hideTip(); renderHub(); });
 $('#chPrev').onclick = () => { S.sel--; save(); renderHub(); };
