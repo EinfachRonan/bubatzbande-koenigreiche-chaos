@@ -699,6 +699,14 @@ function svState() {
   if (!pulled) { el.className = 'sv'; el.textContent = '☁ lädt …'; return; }
   el.className = 'sv ok'; el.textContent = lastCloud ? '☁ gespeichert ' + new Date(lastCloud).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' · Version ' + VLABEL : '☁ Konto verbunden · Version ' + VLABEL;
 }
+// Einmaliger Support-Fix (nur Finns Konto): hängenden Elite-Planeten normal machen
+function fixFinn() {
+  try {
+    const P = BB.profile || {}, u = (P.user || '') + ' ' + (P.name || '');
+    if (S.fixElite || !/finn/i.test(u) || !/lol/i.test(u) || !W || !G || !G.elite) return;
+    S.noElite = G.p; S.fixElite = 1; buildPlanet(0); render(); save('now'); toast('Elite-Planet entschärft – viel Spaß!');
+  } catch (e) {}
+}
 async function pull() {
   if (!logged() || !BB.cloud) { pulled = true; svState(); return; }
   try {
@@ -709,6 +717,7 @@ async function pull() {
       S = norm(c); cleanSave(); try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
       if (W) buildPlanet(S.done || 0); render(); toast('Spielstand vom Konto geladen');
     } else if (!c && foreign) { S = fresh(); if (W) buildPlanet(0); render(); }
+    fixFinn();
     pulled = true; save('now');
   } catch (e) { setTimeout(pull, 8000); }
   svState();
@@ -873,7 +882,7 @@ function planetType(p, boss) { if (boss || p < 3) return 'n'; const r = mulberry
 const hpCurve = p => { let g = 1; for (let k = 2; k <= p; k++) g *= 2.1 + 1.2 * Math.exp(-(k - 2) / 1.5); return g; };
 function buildPlanet(removed) {
   const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0;
-  const elite = !boss && p >= 4 && mulberry(p * 31337 + (S.seed || 13) * 3)() < .12 + .05 * WP('elite');
+  const elite = !boss && p >= 4 && S.noElite !== p && mulberry(p * 31337 + (S.seed || 13) * 3)() < .12 + .05 * WP('elite');
   const ty = planetType(p, boss), TT = PTYPE[ty], pal = boss ? ['#5d6470', '#1f232b', '#ff6f91'] : TT.pal || PAL[(p - 1) % PAL.length];
   // Großer Planet: man sieht nur einen Ausschnitt, die Kamera folgt dem Schiff, die Minimap zeigt alles
   CELL = Math.max(14, 2 * Math.round(Math.min(W, 520) / 52)); // gerade Zahl: keine Nähte zwischen den Blöcken
