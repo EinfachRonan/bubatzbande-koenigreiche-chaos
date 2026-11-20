@@ -253,21 +253,22 @@ const BUILDINGS = {
 /* GEGNER – Platzhalter (m = ab Sekunde) */
 const ENEMIES = [
   // Kapitel 1 – Goblins
-  {id:'gob',   ch:[1,3,4], n:'Goblin',          hp:26,  spd:30, dmg:3,  g:1, sc:2,   m:0,  w:1,   v:'base',  pal:{G:'#b5b83c',E:'#c0302a',M:'#3a1a10',B:'#6a4a2a'}},
-  {id:'flitz', ch:[1,3,4], n:'Goblin-Flitzer',  hp:15,  spd:56, dmg:2,  g:1, sc:1.6, m:20, w:.6,  v:'base',  pal:{G:'#c9963a',E:'#2a1a10',M:'#3a1a10',B:'#4a2a1a'}},
-  {id:'krieger', ch:[1,3,4], n:'Goblin-Krieger', hp:110, spd:22, dmg:11, g:4, sc:2.6, m:70, w:.2, v:'axe', armor:.15, pal:{G:'#8a8e88',E:'#ff3a2a',M:'#1a1a1a',B:'#5a5e66'}},
-  {id:'axe',   ch:[1,3,4], n:'Axt-Goblin',      hp:340, spd:15, dmg:6,  g:7, sc:2.9, m:80, w:.1,  v:'axe',   armor:.3, pal:{G:'#3a3a42',E:'#ff3a2a',M:'#1a1a10',B:'#1e1e24'}},
+  {id:'gob',   ch:[1], n:'Goblin',          hp:26,  spd:30, dmg:3,  g:1, sc:2,   m:0,  w:1,   v:'base',  pal:{G:'#b5b83c',E:'#c0302a',M:'#3a1a10',B:'#6a4a2a'}},
+  {id:'flitz', ch:[1], n:'Goblin-Flitzer',  hp:15,  spd:56, dmg:2,  g:1, sc:1.6, m:20, w:.6,  v:'base',  pal:{G:'#c9963a',E:'#2a1a10',M:'#3a1a10',B:'#4a2a1a'}},
+  {id:'krieger', ch:[1], n:'Goblin-Krieger', hp:110, spd:22, dmg:11, g:4, sc:2.6, m:70, w:.2, v:'axe', armor:.15, pal:{G:'#8a8e88',E:'#ff3a2a',M:'#1a1a1a',B:'#5a5e66'}},
+  {id:'axe',   ch:[1], n:'Axt-Goblin',      hp:340, spd:15, dmg:6,  g:7, sc:2.9, m:80, w:.1,  v:'axe',   armor:.3, pal:{G:'#3a3a42',E:'#ff3a2a',M:'#1a1a10',B:'#1e1e24'}},
   // Kapitel 2 – nur Ratten-Einheiten
-  {id:'rat',   ch:[2,3,4], n:'Ratte',           hp:12,  spd:70, dmg:2,  g:1, sc:2,   m:0,  w:1,   v:'rat',   pal:{R:'#7a6a62',p:'#d89a9a',E:'#ff3a2a',N:'#e88a9a',L:'#4a3a32'}},
-  {id:'ratork',ch:[2,3,4], n:'Ratten-Krieger',  hp:55,  spd:40, dmg:5,  g:2, sc:2.3, m:30, w:.5,  v:'ratork',pal:{G:'#8a7a70',E:'#ff3a2a',M:'#1a0a0a',B:'#3a3a2a',W:'#f0ece0'}},
-  {id:'pest',  ch:[2,3,4], n:'Pestpriester',    hp:60,  spd:22, dmg:0,  g:4, sc:2,   m:40, w:.3,  v:'base', range:150, cd:7, summoner:1, pal:{G:'#8a7a70',E:'#ff3a2a',M:'#1a0a0a',B:'#3a3a2a'}},
-  {id:'wolfratte', ch:[2,3,4], n:'Wolfsratte',  hp:110, spd:48, dmg:9,  g:4, sc:2,   m:50, w:.25, v:'brute', r:12},
-  {id:'rkoenig',   ch:[2,3,4], n:'Rattenkönig', hp:420, spd:14, dmg:12, g:10,sc:2,   m:90, w:.08, v:'brute', armor:.2, r:18},
-  // Kapitel 3 – Friedhof: Skelette + Fledermäuse + Orks/Goblins
-  {id:'skeleton', ch:[3,4], n:'Friedhofs-Skelett', hp:55, spd:24, dmg:7, g:3, sc:1.3, m:0, w:1, v:'brute', gif_only:true},
-  {id:'bat',      ch:[3,4], n:'Knochen-Fledermaus', hp:30, spd:40, dmg:6, g:2, sc:1.4, m:15, w:.5, v:'brute', flying:true, range:140, cd:2.2, gif_only:true},
-  {id:'grabwaechter', ch:[3,4], n:'Grabwächter',  hp:95, spd:16, dmg:0, g:5, sc:1.8, m:35, w:.2, v:'base', range:140, cd:9, summoner:1, graveSummoner:1, pal:{G:'#5a4a6a',E:'#4a8aff',M:'#0a0a1a',B:'#2a1a3a',W:'#c0b0d0'}},
-  {id:'grabkrokodil', ch:[3,4], n:'Grabkrokodil', hp:130, spd:22, dmg:16, g:6, sc:1.4, m:50, w:.12, v:'brute', armor:.1, melee:true, r:20, pal:{G:'#2a4a2a',E:'#8aff4a',M:'#0a1a0a',B:'#1a3a1a',W:'#c0d8b0'}},
+  {id:'rat',   ch:[2], n:'Ratte',           hp:12,  spd:70, dmg:2,  g:1, sc:2,   m:0,  w:1,   v:'rat',   pal:{R:'#7a6a62',p:'#d89a9a',E:'#ff3a2a',N:'#e88a9a',L:'#4a3a32'}},
+  {id:'ratork',ch:[2], n:'Ratten-Krieger',  hp:55,  spd:40, dmg:5,  g:2, sc:2.3, m:30, w:.5,  v:'ratork',pal:{G:'#8a7a70',E:'#ff3a2a',M:'#1a0a0a',B:'#3a3a2a',W:'#f0ece0'}},
+  {id:'pest',  ch:[2], n:'Pestpriester',    hp:60,  spd:22, dmg:0,  g:4, sc:2,   m:40, w:.3,  v:'base', range:150, cd:7, summoner:1, pal:{G:'#8a7a70',E:'#ff3a2a',M:'#1a0a0a',B:'#3a3a2a'}},
+  {id:'wolfratte', ch:[2], n:'Wolfsratte',  hp:110, spd:48, dmg:9,  g:4, sc:2,   m:50, w:.25, v:'brute', r:12},
+  {id:'rkoenig',   ch:[2], n:'Rattenkönig', hp:420, spd:14, dmg:12, g:10,sc:2,   m:90, w:.08, v:'brute', armor:.2, r:18},
+  // Kapitel 3 – Grabsumpf: NUR Graveyard-Monster
+  {id:'ghul',     ch:[3],   n:'Ghul',               hp:28,  spd:46, dmg:6,  g:2, sc:1.1, m:0,  w:1,   v:'brute', melee:true, gif_only:true},
+  {id:'skeleton', ch:[3,4], n:'Friedhofs-Skelett',  hp:55,  spd:24, dmg:7,  g:3, sc:1.3, m:15, w:.8,  v:'brute', gif_only:true},
+  {id:'bat',      ch:[3,4], n:'Knochen-Fledermaus', hp:30,  spd:40, dmg:6,  g:2, sc:1.4, m:25, w:.5,  v:'brute', flying:true, range:140, cd:2.2, gif_only:true},
+  {id:'grabwaechter', ch:[3,4], n:'Grabwächter',    hp:95,  spd:16, dmg:0,  g:5, sc:1.8, m:50, w:.18, v:'base', range:140, cd:9, summoner:1, graveSummoner:1, pal:{G:'#5a4a6a',E:'#4a8aff',M:'#0a0a1a',B:'#2a1a3a',W:'#c0b0d0'}},
+  {id:'grabkrokodil', ch:[3,4], n:'Grabkrokodil',   hp:130, spd:22, dmg:16, g:6, sc:1.4, m:70, w:.12, v:'brute', armor:.1, melee:true, r:20, pal:{G:'#2a4a2a',E:'#8aff4a',M:'#0a1a0a',B:'#1a3a1a',W:'#c0d8b0'}},
   // ── Vulkangebirge (Kapitel 4) ─────────────────────────────────────────
   {id:'salamander',    ch:[4],   n:'Lavasalamander',   hp:55,  spd:30, dmg:9,  g:3,  sc:1.1, m:0,  w:1,   v:'brute', melee:true, r:16, pal:{G:'#1a1a1a',E:'#ff6a1a',M:'#0a0808',B:'#2a0808',W:'#ff9050'}},
   {id:'ascheschleicher',ch:[4],  n:'Ascheschleicher',  hp:35,  spd:50, dmg:7,  g:2,  sc:1.2, m:20, w:.4,  v:'base',  melee:true, r:14, pal:{G:'#8a8a8a',E:'#ff2a2a',M:'#1a1a1a',B:'#4a4a4a',W:'#e0e0e0'}},
@@ -275,18 +276,18 @@ const ENEMIES = [
   {id:'daemonsgolem',  ch:[4],   n:'Dämonsgolem',      hp:280, spd:14, dmg:22, g:8,  sc:1.5, m:60, w:.08, v:'brute', melee:true, r:22, armor:.2, pal:{G:'#2a2a3a',E:'#ff4a1a',M:'#0a0808',B:'#1a1818',W:'#ff7040'}},
   {id:'vulkanschamane',ch:[4],   n:'Vulkan-Schamane',  hp:120, spd:20, dmg:18, g:6,  sc:1.3, m:55, w:.12, v:'base',  range:160, cd:2.5, healer:1, summon:{id:'lavahound', every:8, max:2}, pal:{G:'#5a1a2a',E:'#ff3a1a',M:'#1a0808',B:'#3a1010',W:'#ffa060'}},
   {id:'lavahound',     ch:[4],   n:'Lavahund',         hp:45,  spd:38, dmg:11, g:3,  sc:1.1, m:0,  w:1,   v:'brute', melee:true, r:14, summoned:true, pal:{G:'#2a0808',E:'#ff4a00',M:'#0a0404',B:'#1a0808',W:'#ff8040'}},
-  {id:'ork',   ch:[3,4], n:'Ork-Speerträger', hp:40,  spd:28, dmg:5,  g:2, sc:2.3, m:0,  w:1,   v:'ork',   pal:{G:'#4f8a3a',E:'#ffe02a',M:'#1a0a0a',B:'#5a4a2a',W:'#f0ece0'}},
-  {id:'bogen', ch:[3,4], n:'Goblin-Bogenschütze', hp:30, spd:26, dmg:6, g:2, sc:2, m:15, w:.35, v:'base', range:150, cd:1.8, pal:{G:'#7a9a3a',E:'#ffe02a',M:'#2a1a10',B:'#3a5a2a'}},
-  {id:'schamane', ch:[3,4], n:'Ork-Schamane', hp:80, spd:20, dmg:9, g:4, sc:2.3, m:45, w:.15, v:'ork', range:130, cd:2.2, healer:1, pal:{G:'#6a5a9a',E:'#c8ff3a',M:'#1a0a1a',B:'#3a1a4a',W:'#e0d0ff'}},
-  {id:'bandit', ch:[3,4], n:'Schatten-Bandit', hp:45, spd:32, dmg:9, g:4, sc:2.1, m:60, w:.18, v:'base', invis:1, pal:{G:'#4a4a5a',E:'#ff3a8a',M:'#0a0a10',B:'#1a1a24'}},
-  {id:'brute', ch:[3,4], n:'Grauer Brocken',  hp:220, spd:15, dmg:14, g:6, sc:2.1, m:70, w:.15, v:'brute', armor:.15, r:14},
+  {id:'ork',   ch:[4], n:'Ork-Speerträger', hp:40,  spd:28, dmg:5,  g:2, sc:2.3, m:0,  w:1,   v:'ork',   pal:{G:'#4f8a3a',E:'#ffe02a',M:'#1a0a0a',B:'#5a4a2a',W:'#f0ece0'}},
+  {id:'bogen', ch:[4], n:'Goblin-Bogenschütze', hp:30, spd:26, dmg:6, g:2, sc:2, m:15, w:.35, v:'base', range:150, cd:1.8, pal:{G:'#7a9a3a',E:'#ffe02a',M:'#2a1a10',B:'#3a5a2a'}},
+  {id:'schamane', ch:[4], n:'Ork-Schamane', hp:80, spd:20, dmg:9, g:4, sc:2.3, m:45, w:.15, v:'ork', range:130, cd:2.2, healer:1, pal:{G:'#6a5a9a',E:'#c8ff3a',M:'#1a0a1a',B:'#3a1a4a',W:'#e0d0ff'}},
+  {id:'bandit', ch:[4], n:'Schatten-Bandit', hp:45, spd:32, dmg:9, g:4, sc:2.1, m:60, w:.18, v:'base', invis:1, pal:{G:'#4a4a5a',E:'#ff3a8a',M:'#0a0a10',B:'#1a1a24'}},
+  {id:'brute', ch:[4], n:'Grauer Brocken',  hp:220, spd:15, dmg:14, g:6, sc:2.1, m:70, w:.15, v:'brute', armor:.15, r:14},
   {id:'legion', ch:[], n:'Eiserner Legionär', hp:370, spd:24, dmg:18, g:8, sc:2, m:9999, w:0, v:'brute', armor:.45, r:13, legion:1},
   {id:'banner', ch:[], n:'Legions-Bannerträger', hp:620, spd:20, dmg:20, g:15, sc:2, m:9999, w:0, v:'brute', armor:.4, r:15, legion:1, banner:1},
 ];
 /* BOSSE – einer am Ende jedes Kapitels */
 const BOSSES = [
   {n:'Bergtroll', desc:'Riesiger Bergtroll mit Baumstamm – und Fokuhila.', sprite:'troll', hp:950, spd:13, dmg:20, g:120, sc:3.4, r:20, slam:{every:4, rad:75, dmg:35}, jump:{every:11, first:14, rad:110, dmg:70}},
-  {n:'Mutierter Rattentroll', desc:'Riesiger mutierter Rattentroll. Er täuscht seinen Tod vor – und erwacht als dämonische Bestie wieder.', phase2:1, fakedie:1, hp:9500, spd:15, dmg:35, g:250, sc:4.2, pal:{G:'#8aa83a',E:'#ff2a2a',M:'#1a0a0a',B:'#5a1a6a'}, slam:{every:5, rad:70, dmg:50}, jump:{every:10, first:12, rad:105, dmg:110}},
+  {n:'Mutierter Rattentroll', desc:'Riesiger mutierter Rattentroll. Er täuscht seinen Tod vor – und erwacht als dämonische Bestie wieder.', phase2:1, fakedie:1, hp:28000, spd:15, dmg:65, g:250, sc:4.2, pal:{G:'#8aa83a',E:'#ff2a2a',M:'#1a0a0a',B:'#5a1a6a'}, slam:{every:5, rad:70, dmg:90}, jump:{every:10, first:12, rad:105, dmg:180}, poison:{every:3, rad:90, dmg:18, dur:5}, abilityRot:{every:3}},
   {n:'Grabsumpf-Hexe', id:'hexe', desc:'Eine uralte Hexe aus dem Grabsumpf. Ihre Magie beschwört die Toten.', sprite:'hexe', hp:22000, spd:12, dmg:70, g:450, sc:4.4, pal:{G:'#2a2a5a',E:'#ff3a3a',M:'#0a0a1a',B:'#1a1a4a',W:'#8080c0'}, slam:{every:4.5, rad:80, dmg:80}, jump:{every:9, first:12, rad:115, dmg:180}},
   {n:'Dämonenschmied Morgraak', id:'morgraak', desc:'Riesiger Dämonenschmied. Seine Lava-Rüstung macht ihn nahezu unverwundbar – bis sie bricht.', sprite:'morgraak', phase2:1, fakedie:1, hp:55000, spd:14, dmg:115, g:800, sc:4.8, pal:{G:'#2a1a0a',E:'#ff5a1a',M:'#0a0808',B:'#1a0808',W:'#ff8040'}, slam:{every:4, rad:90, dmg:120}, jump:{every:8, first:10, rad:125, dmg:280}},
   // Phase 2 — wird automatisch nach fakedie geladen (wie boss2b)
@@ -704,17 +705,42 @@ function makeCave(){
   return gridCanvas(outline(g));
 }
 
-function makeDecor(){
-  const twig = strGrid(['..k..k.','...k.k.','k..kk..','.k.k...','..kk..k','...k.k.','...kk..','...k...','..kkk..'], {k:'#4a3a30'});
+function makeDecor(ch){
+  const twig   = strGrid(['..k..k.','...k.k.','k..kk..','.k.k...','..kk..k','...k.k.','...kk..','...k...','..kkk..'], {k:'#4a3a30'});
   const pebble = strGrid(['.ab.','abbc','.cc.'], {a:'#5a5a62',b:'#3e3e46',c:'#2a2a30'});
-  const tuft = strGrid(['g..g.g','.g.gg.','.ggg..'], {g:'#1f3a22'});
-  const herb = strGrid(['g.g.g','.ggg.','..s..'], {g:'#3f7a2e',s:'#2a5420'});
-  const bones = strGrid(['w...w','.www.','w...w'], {w:'#8a8a80'});
+  const tuft   = strGrid(['g..g.g','.g.gg.','.ggg..'], {g:'#1f3a22'});
+  const herb   = strGrid(['g.g.g','.ggg.','..s..'], {g:'#3f7a2e',s:'#2a5420'});
+  const bones  = strGrid(['w...w','.www.','w...w'], {w:'#8a8a80'});
+  // ch2 Nebelwald – Moos, dunkle Steine, Pilze
+  const moss   = strGrid(['mm.m.','m.mmm','.mm.m'], {m:'#1a4a28'});
+  const shroom = strGrid(['.aaa.','.bbb.','.b.b.'], {a:'#8a2a2a',b:'#c0c0aa'});
+  const fern   = strGrid(['f..f.f','.ff.ff','..fff.'], {f:'#0f4a1a'});
+  // ch3 Grabsumpf – Schlamm, Knochen, Schilf
+  const mud    = strGrid(['.mm.','mmmm','.mm.'], {m:'#2a1a0a'});
+  const reed   = strGrid(['r..r.r','.r.rr.','.rr..r'], {r:'#3a3a1a'});
+  const skull  = strGrid(['.aaa.','.aba.','.c.c.'], {a:'#8a8070',b:'#6a6060',c:'#8a8070'});
+  // ch4 Vulkan – Lavastein, Asche, Funken-Dekor
+  const lava   = strGrid(['.ll.','llll','.ll.'], {l:'#4a1a0a'});
+  const ash    = strGrid(['aaa.a','.aaa.','a.a.a'], {a:'#2a2020'});
+  const rock   = strGrid(['.rr.','.rr.'], {r:'#3a2010'});
+
+  if(ch === 2) return [moss, pebble, fern, fern, shroom, moss, pebble].map(g => gridCanvas(outline(g, '#040606')));
+  if(ch === 3) return [mud, reed, skull, bones, mud, reed, pebble].map(g => gridCanvas(outline(g, '#040408')));
+  if(ch === 4) return [lava, ash, rock, rock, ash, lava, pebble].map(g => gridCanvas(outline(g, '#080402')));
   return [twig, pebble, tuft, tuft, herb, pebble, bones].map(g => gridCanvas(outline(g, '#050806')));
 }
-function makeGround(){
-  const R = rng(3), c = mkCanvas(32, 32), x = c.getContext('2d');
-  const cols = ['#0f1814','#101a15','#0e1612','#111c16','#0d1511'];
+function makeGround(ch){
+  const R = rng(3 + (ch||1)), c = mkCanvas(32, 32), x = c.getContext('2d');
+  // ch1 Kräuterwiese – dunkelgrün
+  const cols1 = ['#0f1814','#101a15','#0e1612','#111c16','#0d1511'];
+  // ch2 Nebelwald – sehr dunkles Tannengrün
+  const cols2 = ['#0a1210','#0c1512','#091110','#0d1613','#0a1311'];
+  // ch3 Grabsumpf – dunkelblau-grau, morastig
+  const cols3 = ['#0a0c14','#0c0e18','#09091210','#0b0d16','#080b12'];
+  // ch4 Vulkan – dunkelrot, Asche schwarz
+  const cols4 = ['#180a08','#1a0c08','#160808','#1c0e0a','#140808'];
+  const colMap = {1:cols1,2:cols2,3:cols3,4:cols4};
+  const cols = colMap[ch] || cols1;
   for(let y = 0; y < 32; y++) for(let i = 0; i < 32; i++){ x.fillStyle = cols[Math.floor(R()*cols.length)]; x.fillRect(i, y, 1, 1); }
   const big = mkCanvas(128, 128), bx = big.getContext('2d'); bx.imageSmoothingEnabled = false; bx.drawImage(c, 0, 0, 128, 128);
   return big;
@@ -946,9 +972,10 @@ if(typeof CHEST_SPR !== 'undefined'){
   const ci = new Image(); ci.src = CHEST_SPR.spr; CHEST_IMG = ci; CHEST_W = CHEST_SPR.w; CHEST_H = CHEST_SPR.h;
   CHEST_OPEN_IMGS = CHEST_SPR.open.map(u => { const i = new Image(); i.src = u; return i; });
 }
-const DECOR_SPR = makeDecor();
-const GROUND = makeGround();
-const DECOR = (() => { const R = rng(11), out = []; for(let i = 0; i < 70; i++){ const x = (R()-.5)*1800, y = (R()-.5)*1200; if(Math.hypot(x, y*1.3) < 150) continue; out.push({x, y, s:Math.floor(R()*DECOR_SPR.length)}); } return out; })();
+let DECOR_SPR = makeDecor(1);
+let GROUND = makeGround(1);
+let DECOR = (() => { const R = rng(11), out = []; for(let i = 0; i < 70; i++){ const x = (R()-.5)*1800, y = (R()-.5)*1200; if(Math.hypot(x, y*1.3) < 150) continue; out.push({x, y, s:Math.floor(R()*DECOR_SPR.length)}); } return out; })();
+function rebuildGround(ch){ DECOR_SPR = makeDecor(ch); GROUND = makeGround(ch); const R = rng(10+ch), out = []; for(let i = 0; i < 70; i++){ const x = (R()-.5)*1800, y = (R()-.5)*1200; if(Math.hypot(x, y*1.3) < 150) continue; out.push({x, y, s:Math.floor(R()*DECOR_SPR.length)}); } DECOR = out; }
 
 /* ===================== ZUSTAND ===================== */
 const RAR = {C:{n:'Gewöhnlich',c:'#a0a8a0'},U:{n:'Ungewöhnlich',c:'#5ecb4a'},R:{n:'Selten',c:'#4da3ff'},E:{n:'Episch',c:'#b26bff'},L:{n:'Legendär',c:'#ffb020'}};
@@ -1334,6 +1361,7 @@ function startFight(ch){
   hideTip(); selNode = null;
   if(ch >= S.chapter) S.tries[ch] = (S.tries[ch] || 0) + 1;
   $('#hub').style.display = 'none'; $('#battle').style.display = 'flex';
+  rebuildGround(ch);
   resize();
   B = {ch, t:0, enemies:[], units:[], proj:[], fx:[], packs:[], hp:MD.cave, maxHp:MD.cave, earned:0, kills:0, opened:0,
        spawnT:1.5, legionAt:legionTime(), legionSpawned:false, chest:null, chestDone:false, pools:[], eproj:[], hidden:[], portal:null, portalT:MD.portal ? 45 : 1e9, roulette:null, boss:null, bossSpawned:false, over:false, held:false, holdT:0, lastClick:-1, aura:0, moonOn:false,
@@ -1515,7 +1543,9 @@ function spawnEnemy(boss, forceId, px, py){
   const e = {born:B.t, x, y, spr, sc:T.sc,  type:T.id || 'boss', armor:T.armor || 0, stunT:0, poison:null, w:spr.w*T.sc, h:spr.h*T.sc, r:T.r || T.sc*5, slam:boss ? T.slam : null, slamCd:2, bname:T.n, hp, max:hp, spd:T.spd*(boss?1:(0.9+Math.random()*0.2)*1.5), n:T.n,
     dmg:boss ? T.dmg : T.dmg*dMul, g:boss ? T.g : T.g*gMul, boss, slowT:0, slowF:1, atkCd:0, hit:0, ph:Math.random()*6, face:x < 0 ? 1 : -1, tgt:null,
     range:T.range || 0, ecd:T.cd || 1.8, healer:!!T.healer, summoner:!!T.summoner, graveSummoner:!!T.graveSummoner, legion:!!T.legion, banner:!!T.banner, phase2:boss && T.phase2, healCd:3, jump:boss && T.jump ? T.jump : null, jumpCd:boss && T.jump ? T.jump.first || 9 : 0, lift:0,
-    minionSummon: T.summon ? {id:T.summon.id, every:T.summon.every, max:T.summon.max, cd:T.summon.every * 0.5} : null};
+    minionSummon: T.summon ? {id:T.summon.id, every:T.summon.every, max:T.summon.max, cd:T.summon.every * 0.5} : null,
+    abilityRot: (boss && T.abilityRot) ? {every:T.abilityRot.every, cd:T.abilityRot.every * 0.5, last:-1} : null,
+    poison: (boss && T.poison) ? T.poison : null, poisonCd: boss && T.poison ? T.poison.every * 0.3 : 0};
   if(T.invis){ e.invis = true; B.hidden.push(e); return; }
   B.enemies.push(e);
   if(boss){ B.boss = e; B.shake = 0.6; addText(0, -150, (T.n + ' kommt!').toUpperCase(), '#ff6b5a', 30, 2.5); }
@@ -1873,6 +1903,7 @@ function update(dt){
   for(const u of B.units){
     if(u.dead) continue;
     u.anim = Math.max(0, u.anim - dt); u.hit = Math.max(0, u.hit - dt); u.moving = false;
+    if(u.poisonT > 0){ u.poisonT -= dt; if(u.poisonT > 0){ u.poisonDot = (u.poisonDot||0) + dt; if(u.poisonDot >= 1){ u.poisonDot -= 1; heroHurt(u, 4, null); addText(u.x, u.y - 40, '-4 ☠', '#44ff44', 10, 0.5); B.fx.push({t:'poof', x:u.x + (Math.random()-.5)*16, y:u.y - 15, r:7, life:0.3, max:0.3}); } } else u.poisonT = 0; }
     const st = u.st, wolf = isWolf(u), sp = st.ms * (wolf ? 4 : 2);
     if(st.heal){ for(const o of B.units) if(!o.dead && o !== u && Math.hypot(o.x-u.x, o.y-u.y) < 120) o.hp = Math.min(o.max, o.hp + st.heal*dt); }
     if(st.healCave) B.hp = Math.min(B.maxHp, B.hp + st.healCave*dt);
@@ -2266,6 +2297,38 @@ function update(dt){
         addText(e.x, e.y - e.h - 14, 'STAMPF!', '#e8c070', 16, 0.8);
       }
     }
+    // Ability-Rotation: alle N Sekunden eine zufällige von 3 Fähigkeiten
+    if(e.abilityRot && !e.jumping){ e.abilityRot.cd -= dt;
+      if(e.abilityRot.cd <= 0){
+        e.abilityRot.cd = e.abilityRot.every;
+        const avail = [0,1,2].filter(i => i !== e.abilityRot.last);
+        const choice = avail[Math.floor(Math.random()*avail.length)]; e.abilityRot.last = choice;
+        if(choice === 0 && e.slam){
+          // Slam-Burst: sofort auslösen unabhängig von slamCd
+          e.slamCd = 0.05; e.lunge = 0.5; B.shake = 0.5;
+          for(const u of heroes) if(!u.dead && Math.hypot(u.x-e.x, u.y-e.y) < e.slam.rad*1.2) heroHurt(u, e.slam.dmg*1.3, e);
+          addRing(e.x, e.y, e.slam.rad*1.2, '#ff8800', 0.6); addRing(e.x, e.y, e.slam.rad*0.7, '#ff4400', 0.4);
+          addText(e.x, e.y - e.h - 14, 'RATZEN-STAMPF!', '#ff8822', 18, 1.0);
+          sparks(e.x, e.y - e.h*0.4, 14, 1.3, ['#ff8800','#ffcc00','#ff4400']);
+        } else if(choice === 1 && e.jump){
+          // Jump sofort triggern
+          e.jumpCd = 0.05;
+          addText(e.x, e.y - e.h - 14, 'SPRUNG!', '#aaff44', 18, 1.0);
+        } else {
+          // Giftwolke: Vergiftungs-AOE
+          const pr = (e.poison && e.poison.rad) || 90;
+          addRing(e.x, e.y, pr, '#44ff44', 0.9); addRing(e.x, e.y, pr*0.6, '#22cc22', 0.6);
+          B.fx.push({t:'poof', x:e.x, y:e.y-e.h*0.3, r:pr*0.7, life:0.9, max:0.9});
+          sparks(e.x, e.y - e.h*0.4, 20, 1.5, ['#44ff44','#88ff88','#22aa22','#aaffaa']);
+          addText(e.x, e.y - e.h - 14, 'GIFTWOLKE!', '#44ff44', 18, 1.0); B.shake = 0.25;
+          for(const u of heroes) if(!u.dead && Math.hypot(u.x-e.x, u.y-e.y) < pr){
+            heroHurt(u, (e.poison && e.poison.dmg) || 15, e);
+            u.poisonT = (u.poisonT||0) + ((e.poison && e.poison.dur) || 5);
+          }
+          if(caveDist(e) < pr*0.7){ B.hp -= (e.poison && e.poison.dmg) || 15; addText(0, -40, '-'+ ((e.poison&&e.poison.dmg)||15), '#44ff44', 13, 0.6); }
+        }
+      }
+    }
     const step = e.spd * e.slowF * dt;
     if(e.tgt){
       const u = e.tgt, dx = u.x - e.x, dy = u.y - e.y, d = Math.hypot(dx, dy), reach = e.r + 12;
@@ -2313,9 +2376,21 @@ function draw(){
     if(Math.abs(d.x) > VW/2 + 30 || Math.abs(d.y) > VH/2 + 30) continue;
     const s = DECOR_SPR[d.s]; ctx.drawImage(s, Math.round(d.x), Math.round(d.y), s.width*2, s.height*2);
   }
-  let g = ctx.createRadialGradient(0, 0, 20, 0, 0, 260);
-  g.addColorStop(0, 'rgba(150,200,110,0.13)'); g.addColorStop(1, 'rgba(150,200,110,0)');
-  ctx.fillStyle = g; ctx.fillRect(-VW/2, -VH/2, VW, VH);
+  // Stage-spezifischer Atmosphären-Overlay
+  { const ch = B.ch || 1;
+    let gc;
+    if(ch === 1){ gc = ctx.createRadialGradient(0,0,20,0,0,260); gc.addColorStop(0,'rgba(150,200,110,0.13)'); gc.addColorStop(1,'rgba(150,200,110,0)'); }
+    else if(ch === 2){ gc = ctx.createRadialGradient(0,0,30,0,0,300); gc.addColorStop(0,'rgba(180,220,180,0.08)'); gc.addColorStop(0.5,'rgba(80,120,80,0.18)'); gc.addColorStop(1,'rgba(20,40,20,0.28)'); }
+    else if(ch === 3){ gc = ctx.createRadialGradient(0,0,20,0,0,310); gc.addColorStop(0,'rgba(60,80,160,0.10)'); gc.addColorStop(0.6,'rgba(20,20,80,0.22)'); gc.addColorStop(1,'rgba(5,5,30,0.35)'); }
+    else if(ch === 4){ gc = ctx.createRadialGradient(0,0,20,0,0,290); gc.addColorStop(0,'rgba(255,120,20,0.12)'); gc.addColorStop(0.5,'rgba(180,40,10,0.18)'); gc.addColorStop(1,'rgba(60,10,0,0.28)'); }
+    ctx.fillStyle = gc; ctx.fillRect(-VW/2,-VH/2,VW,VH);
+    // ch2 Nebel-Schleier
+    if(ch === 2){ const fog = ctx.createRadialGradient(0,-VH*0.1,10,0,-VH*0.1,VH*0.7); fog.addColorStop(0,'rgba(140,180,140,0)'); fog.addColorStop(0.7,'rgba(140,180,140,0.07)'); fog.addColorStop(1,'rgba(100,140,100,0.18)'); ctx.fillStyle=fog; ctx.fillRect(-VW/2,-VH/2,VW,VH); }
+    // ch3 Sumpfnebel unten
+    if(ch === 3){ const fog = ctx.createLinearGradient(0,-VH*0.5,0,VH*0.5); fog.addColorStop(0,'rgba(20,20,60,0)'); fog.addColorStop(0.6,'rgba(20,20,60,0.05)'); fog.addColorStop(1,'rgba(30,20,80,0.22)'); ctx.fillStyle=fog; ctx.fillRect(-VW/2,-VH/2,VW,VH); }
+    // ch4 Lavaleuchten
+    if(ch === 4){ const lv = ctx.createRadialGradient(0,VH*0.3,10,0,VH*0.3,VH*0.6); lv.addColorStop(0,'rgba(255,80,0,0.14)'); lv.addColorStop(1,'rgba(255,80,0,0)'); ctx.fillStyle=lv; ctx.fillRect(-VW/2,-VH/2,VW,VH); }
+  }
 
   // Säurepfützen am Boden
   for(const P of B.pools){ const a = Math.min(1, P.t / 0.6, (P.max - P.t) / 0.3 + 0.2);
