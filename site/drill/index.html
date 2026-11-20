@@ -971,7 +971,7 @@ const PTYPE = {
   kris: { n: 'Kristall', ico: '💎', d: '9 Kristall-Blöcke ◆', pal: ['#b48cff', '#3d1d6d', '#b06bff'], crM: 1, hpM: 1, kris: 9 }
 };
 function planetType(p, boss) { if (boss || p < 3) return 'n'; const r = mulberry(p * 104729 + (S.seed || 13) * 7)(); return r < .45 ? 'n' : r < .6 ? 'lava' : r < .75 ? 'eis' : r < .88 ? 'gold' : 'kris'; }
-const hpCurve = p => { let g = 1; for (let k = 2; k <= p; k++) g *= 2.1 + 1.2 * Math.exp(-(k - 2) / 1.5); return g; };
+const hpCurve = p => { let g = 1; for (let k = 2; k <= p; k++) g *= 1.9 + 1.2 * Math.exp(-(k - 2) / 1.5); return g; }; // flacheres Wachstum pro Planet
 function buildPlanet(removed) {
   const p = S.p, rnd = mulberry(p * 7919 + (S.seed || 13)), boss = p % 10 === 0;
   const elite = !boss && p >= 4 && S.noElite !== p && mulberry(p * 31337 + (S.seed || 13) * 3)() < .12 + .05 * WP('elite');
@@ -981,7 +981,7 @@ function buildPlanet(removed) {
   if (innerWidth >= 900 && H >= 420) CELL = Math.max(12, Math.min(18, 2 * Math.round(H / 140))); // PC: Planet passt fast ganz ins Bild
   const Rc = boss ? 27 : (p <= 2 ? 11 + rnd() * 4 : 16 + rnd() * 10) + Math.min(4, p * .15); // die ersten Planeten kleiner, damit der Start (auch nach dem Warp) flott geht
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = 12 * .39 /* allgemein deutlich weniger Leben (Bot-Test: jeder Planet ≲ 15 min) */ * (p === 1 ? .2 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) /* Universum-Sprung wie die CR (x1,8) */ * (boss ? 1.2 : 1) * (!S.pc && p > 5 ? Math.pow(.7, Math.min(5, p - 5)) * (p > 10 ? .7 : 1) : 1) /* erster Durchlauf: keine Wand vor dem ersten Warp */, v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = 12 * .2 /* allgemein deutlich weniger Leben */ * (p === 1 ? .2 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) /* Universum-Sprung wie die CR (x1,8) */ * (boss ? 1.2 : 1) * (!S.pc && p > 5 ? Math.pow(.7, Math.min(5, p - 5)) * (p > 10 ? .7 : 1) : 1) /* erster Durchlauf: keine Wand vor dem ersten Warp */, v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
