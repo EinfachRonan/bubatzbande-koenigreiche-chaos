@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Höhlenwacht · v1.2</title>
+<title>Höhlenwacht · v1.3</title>
 <script src="../bb.js?v=20261120a"></script>
 <script>
 /* Geheim-Spiel (Testphase): nur spielbar, wenn über „Code eingeben“ auf der Startseite freigeschaltet. */
@@ -212,7 +212,7 @@ html,body{background:#0d0906 var(--tx-stone) repeat;background-size:96px 96px;im
 .ult{height:46px}.ult img{height:34px}
 .sec{color:#f3d27a;text-shadow:0 2px 0 #000}
 .sec:before,.sec:after{height:4px;background:var(--tx-wood);background-size:64px 32px;border-top:1px solid #1a0f06;border-bottom:1px solid #1a0f06}
-#wave{border-radius:0;border:6px solid transparent;border-image:var(--tx-fwood) 3 fill / 6px stretch;background:transparent}
+#wave{border:0;border-image:none;background:none;box-shadow:none;padding:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.8))}
 #ver{background:#120a04 var(--tx-wood);background-size:64px 32px}
 #gold i{border-radius:0;width:16px;height:16px;background:none;box-shadow:none;
  background-image:linear-gradient(#ffe08a,#ffe08a),linear-gradient(#d9a948,#d9a948),linear-gradient(#8a5a00,#8a5a00);background-size:8px 12px,12px 8px,16px 16px;background-position:4px 2px,2px 4px,0 0;background-repeat:no-repeat;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%)}
@@ -230,7 +230,7 @@ html,body{background:#0d0906 var(--tx-stone) repeat;background-size:96px 96px;im
   <div id="ults"></div>
   <div id="tabs"><button class="btn on" data-t="bande">Bande</button><button class="btn" data-t="ausbau">Ausbau</button><button class="btn" data-t="schmiede">Ausrüstung</button><button class="btn" data-t="taverne">Taverne</button></div>
   <div id="panel"></div>
-  <div id="ver">Höhlenwacht · v1.2 · Testphase<span id="sv"></span></div>
+  <div id="ver">Höhlenwacht · v1.3 · Testphase<span id="sv"></span></div>
 </div>
 <div id="sheet"><div class="in"></div></div>
 <div id="aud"><div class="in"></div></div>
@@ -261,17 +261,17 @@ const imgH=k=>{const v=SPR[k];return (IMG[k].r.height||45);};
 const HEROES={
  kobold:{n:'Kobold',hp:90,dmg:6,cd:.7,range:22,spd:55,c0:5,unlock:0,req:1,melee:1,d:'Speer-Nahkämpfer, schnell und günstig',ult:{n:'Speerhagel',d:'Speere auf ALLE Gegner (14× Schaden)'}},
  nille:{n:'Knappe Nille',hp:120,dmg:7,cd:.9,range:22,spd:50,c0:20,unlock:400,req:2,melee:1,d:'Kleiner Knappe mit großem Herz – hält vorne dicht',ult:{n:'Schildwall',d:'Bande nimmt 6 s lang 70 % weniger Schaden'}},
- geist:{n:'Grauer Geist',hp:85,dmg:11,cd:1,range:26,spd:48,c0:60,unlock:2500,req:4,melee:1,steal:.15,d:'Sense, heilt sich bei jedem Treffer',ult:{n:'Seelenernte',d:'Sensenwirbel (20×), heilt die Bande um 60 %'}},
- lg3:{n:'LG3',hp:45,dmg:17,cd:1.3,range:175,c0:400,unlock:12000,req:6,orb:1,d:'Kräuterkugeln mit Flächenschaden',ult:{n:'Kräutersturm',d:'8 explodierende Kräuterkugeln (je 9×)'}},
- marwin:{n:'Marwin',hp:40,dmg:12,cd:.55,range:190,c0:3000,unlock:60000,req:8,arrow:1,d:'Bogenschütze, schießt sehr schnell',ult:{n:'Pfeilregen',d:'Pfeilhagel auf jeden Gegner (17×)'}},
- don:{n:'Paladin Patron',hp:240,dmg:12,cd:1.1,range:24,spd:42,c0:12000,unlock:300000,req:11,melee:1,block:.15,d:'Schwer gepanzert, blockt 15 % aller Treffer',ult:{n:'Heiliges Licht',d:'Heilt die ganze Bande voll, 12× Schaden in der Nähe'}},
- foku:{n:'Fokuhilamann',hp:120,dmg:20,cd:1.1,range:30,spd:44,c0:40000,unlock:1.2e6,req:14,melee:1,frost:1,d:'Eiskegel trifft mehrere und verlangsamt',ult:{n:'Eiszeit',d:'Friert alle Gegner 4 s ein (12×)'}},
- dino:{n:'Dino der Barbar',hp:170,dmg:34,cd:1.5,range:28,spd:46,c0:150000,unlock:6e6,req:17,melee:1,splash:34,d:'Riesige Axt, trifft alle Gegner im Bogen',ult:{n:'Erdbeben',d:'Alle Gegner 16× Schaden und kurz betäubt'}},
- allan:{spr:'wking',n:'Allan King Kebap',hp:150,dmg:26,cd:.65,range:24,spd:62,c0:6e5,unlock:4e7,req:21,melee:1,steal:.12,d:'Werwolf – rasend schnelle Klauen, heilt sich',ult:{n:'Blutrausch',d:'6 rasende Klauenhiebe (je 6×), heilt sich'}},
- molde:{n:'Molly Magier',hp:65,dmg:48,cd:1.4,range:185,c0:3e6,unlock:3e8,req:25,chain:3,d:'Kristallblitze springen auf 3 Gegner über',ult:{n:'Kristallsturm',d:'10 Kristallblitze (je 10×)'}},
- artur:{spr:'wking',big:1.12,n:'Artur King Kebap',hp:220,dmg:44,cd:.65,range:24,spd:64,c0:1.5e7,unlock:2.5e9,req:30,melee:1,steal:.15,d:'Alpha-Werwolf – der Stärkste der Rudels',ult:{n:'Alphaheulen',d:'Bande 6 s lang +50 % Schaden, 15× auf alle'}},
- kraeuter:{n:'Der KräuterKönig',hp:130,dmg:70,cd:1.1,range:170,c0:8e7,unlock:2e10,req:36,orb:1,heal:.03,d:'Krötenstab mit Flächenschaden, heilt die Bande bei jedem Treffer',ult:{n:'Krötenregen',d:'10 Kröten-Bomben (je 9×), heilt die Bande um 40 %'}},
- koenig:{n:'Der König von Deutschland',hp:300,dmg:140,cd:1,range:30,spd:50,c0:5e8,unlock:2e11,req:42,melee:1,splash:40,aura:.2,d:'Hiebe mit Flächenschaden, Aura: +20 % Schaden für die Bande',ult:{n:'Königsbefehl',d:'25× auf alle Gegner, Bande 6 s lang +40 % Tempo'}}
+ geist:{n:'Grauer Geist',hp:85,dmg:11,cd:1,range:26,spd:48,c0:60,unlock:750,req:4,melee:1,steal:.15,d:'Sense, heilt sich bei jedem Treffer',ult:{n:'Seelenernte',d:'Sensenwirbel (20×), heilt die Bande um 60 %'}},
+ lg3:{n:'LG3',hp:45,dmg:17,cd:1.3,range:175,c0:400,unlock:1300,req:6,orb:1,d:'Kräuterkugeln mit Flächenschaden',ult:{n:'Kräutersturm',d:'8 explodierende Kräuterkugeln (je 9×)'}},
+ marwin:{n:'Marwin',hp:40,dmg:12,cd:.55,range:190,c0:3000,unlock:2000,req:8,arrow:1,d:'Bogenschütze, schießt sehr schnell',ult:{n:'Pfeilregen',d:'Pfeilhagel auf jeden Gegner (17×)'}},
+ don:{n:'Paladin Patron',hp:240,dmg:12,cd:1.1,range:24,spd:42,c0:12000,unlock:4000,req:11,melee:1,block:.15,d:'Schwer gepanzert, blockt 15 % aller Treffer',ult:{n:'Heiliges Licht',d:'Heilt die ganze Bande voll, 12× Schaden in der Nähe'}},
+ foku:{n:'Fokuhilamann',hp:120,dmg:20,cd:1.1,range:30,spd:44,c0:40000,unlock:7500,req:14,melee:1,frost:1,d:'Eiskegel trifft mehrere und verlangsamt',ult:{n:'Eiszeit',d:'Friert alle Gegner 4 s ein (12×)'}},
+ dino:{n:'Dino der Barbar',hp:170,dmg:34,cd:1.5,range:28,spd:46,c0:150000,unlock:13000,req:17,melee:1,splash:34,d:'Riesige Axt, trifft alle Gegner im Bogen',ult:{n:'Erdbeben',d:'Alle Gegner 16× Schaden und kurz betäubt'}},
+ allan:{spr:'wking',n:'Allan King Kebap',hp:150,dmg:26,cd:.65,range:24,spd:62,c0:6e5,unlock:29000,req:21,melee:1,steal:.12,d:'Werwolf – rasend schnelle Klauen, heilt sich',ult:{n:'Blutrausch',d:'6 rasende Klauenhiebe (je 6×), heilt sich'}},
+ molde:{n:'Molly Magier',hp:65,dmg:48,cd:1.4,range:185,c0:3e6,unlock:63000,req:25,chain:3,d:'Kristallblitze springen auf 3 Gegner über',ult:{n:'Kristallsturm',d:'10 Kristallblitze (je 10×)'}},
+ artur:{spr:'wking',big:1.12,n:'Artur King Kebap',hp:1400,dmg:260,cd:.65,range:24,spd:64,c0:7e5,unlock:1.5e+07,req:60,melee:1,steal:.15,d:'Alpha-Werwolf – der Stärkste der Rudels',ult:{n:'Alphaheulen',d:'Bande 6 s lang +50 % Schaden, 15× auf alle'}},
+ kraeuter:{n:'Der KräuterKönig',hp:2500,dmg:900,cd:1.1,range:170,c0:2e7,unlock:3.7e+08,req:80,orb:1,heal:.03,d:'Krötenstab mit Flächenschaden, heilt die Bande bei jedem Treffer',ult:{n:'Krötenregen',d:'10 Kröten-Bomben (je 9×), heilt die Bande um 40 %'}},
+ koenig:{n:'Der König von Deutschland',hp:6000,dmg:3500,cd:1,range:30,spd:50,c0:4e8,unlock:8.8e+09,req:100,melee:1,splash:40,aura:.2,d:'Hiebe mit Flächenschaden, Aura: +20 % Schaden für die Bande',ult:{n:'Königsbefehl',d:'25× auf alle Gegner, Bande 6 s lang +40 % Tempo'}}
 };
 const HORDER=Object.keys(HEROES),TEAMMAX=HORDER.length;const sprOf=k=>HEROES[k].spr||k;
 const WAVES=5;
@@ -708,7 +708,7 @@ function castUlt(h){if(h.en<100||h.dead)return;const al=alive(enemies);if(!al.le
  renderUlts();}
 function waveDone(){state='next';stT=.6;
  for(const h of heroes){if(h.dead){h.dead=false;h.hp=h.mh*.4;}else h.hp=Math.min(h.mh,h.hp+h.mh*.25);}
- if(S.wave===WAVES){S.stage++;S.wave=1;S.wmax=1;S.farm=false;S.max=Math.max(S.max,S.stage);for(const h of heroes)h.hp=h.mh;if((S.stage-1)%5===0)showBan('Gebiet '+areaOf(S.stage)+': '+BIOMES[biomeOf(S.stage)].n);else showBan(stName(S.stage));sfx('stage');save();renderTab();}
+ if(S.wave===WAVES){S.stage++;S.wave=1;S.wmax=1;S.farm=false;const nh=S.stage>S.max?HORDER.find(k=>HEROES[k].req===S.stage&&!S.heroes[k]):null;S.max=Math.max(S.max,S.stage);for(const h of heroes)h.hp=h.mh;if(nh)setTimeout(()=>{showBan('Neuer Held: '+HEROES[nh].n+'!');sfx('loot');},1400);if((S.stage-1)%5===0)showBan('Gebiet '+areaOf(S.stage)+': '+BIOMES[biomeOf(S.stage)].n);else showBan(stName(S.stage));sfx('stage');save();renderTab();}
  else if(S.farm)S.wave=WAVES-1;
  else S.wave++;
  renderTop();}
@@ -762,7 +762,7 @@ document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{tab=b.datase
 function maxBuy(k){let l=S.heroes[k],g0=S.gold,n=0,c=0;while(n<500){const cc=lvlCost(k,l+n);if(c+cc>g0)break;c+=cc;n++;}return{n,c};}
 function bulk(k){const l=S.heroes[k];if(buyN==='max'){const m=maxBuy(k);return m.n?m:{n:1,c:lvlCost(k,l)};}let c=0;for(let i=0;i<buyN;i++)c+=lvlCost(k,l+i);return{n:buyN,c};}
 function renderTab(){const P=$('panel');let h='';
- if(tab==='bande'){h+=`<div class="box tmh">Im Kampf: <b>${team().length}</b> Helden · Mit „Im Team“ kannst du Helden auch auf die Bank setzen. Neue Helden tauchen erst ab höheren Stufen auf.</div><div style="display:flex;gap:6px;margin-bottom:8px">${[1,10,'max'].map(n=>`<button class="btn ${buyN===n?'on':''}" data-n="${n}" style="flex:1">${n==='max'?'Max':'x'+n}</button>`).join('')}</div>`;
+ if(tab==='bande'){h+=`<div class="box tmh">Im Kampf: <b>${team().length}</b> Helden${(n=>n?` · Nächster Held: <b>ab ${stName(HEROES[n].req)}</b>`:' · Alle Helden entdeckt')(HORDER.find(k=>!S.heroes[k]&&S.max<HEROES[k].req))}</div><div style="display:flex;gap:6px;margin-bottom:8px">${[1,10,'max'].map(n=>`<button class="btn ${buyN===n?'on':''}" data-n="${n}" style="flex:1">${n==='max'?'Max':'x'+n}</button>`).join('')}</div>`;
   for(const k of HORDER){const H0=HEROES[k],l=S.heroes[k];
    if(!l){const ok=S.max>=H0.req;h+=`<div class="card locked"><div class="pic"><img src="${SPR[sprOf(k)].r}"></div><div class="t"><div class="n">${ok?H0.n:'???'}</div><div class="d">${ok?H0.d:'Taucht ab Stufe '+stName(H0.req)+' auf'}</div></div>${ok?`<button class="btn buy go" data-u="${k}">Anheuern<small>${fmt(H0.unlock)}</small></button>`:''}</div>`;continue;}
    const inT=team().includes(k);
