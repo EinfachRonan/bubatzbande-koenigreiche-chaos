@@ -104,6 +104,7 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 @keyframes eq{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1)}}
 /* Geheim-Kachel (nur nach Code) */
 .tile.xl{grid-column:1/-1;min-height:170px}
+.tile .up{font-size:11.5px;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:5px}.tile .up::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
 .tile .kk .sc{color:#0e1110;background:var(--gold);border-radius:99px;padding:2px 7px}
 /* Einstellungen */
 .set{position:fixed;inset:0;z-index:9000;background:rgba(5,7,6,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
@@ -210,6 +211,15 @@ const B = () => window.BB;
 const pic = g => g.art || IMG(g.who);
 // Lofi-Radio (selbst erzeugt, kein Copyright) – Knopf im Kopf
 const musB = () => { const o = window.BBLofi ? BBLofi.on() : 0; return `<button class="ib mu ${o ? 'on' : ''}" data-mu aria-pressed="${o ? 'true' : 'false'}" aria-label="Lofi-Musik ${o ? 'aus' : 'an'}" title="Lofi-Radio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">${o ? '<path class="eq" d="M6 19V9"/><path class="eq" d="M12 19V5"/><path class="eq" d="M18 19V11"/>' : '<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>'}</svg></button>`; };
+// Update-Zeiten der Spiele-Ordner (Unix-Sekunden)
+let UPD = {};
+const upT = g => UPD[g.url.replace(/\/.*$/, '')] || 0;
+function upF(t) {
+  const d = new Date(t * 1000), n = new Date(), hm = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+  const day = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime(), diff = Math.round((day(n) - day(d)) / 864e5);
+  return diff === 0 ? 'heute, ' + hm : diff === 1 ? 'gestern, ' + hm : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ', ' + hm;
+}
+fetch('updates.json?' + Math.floor(Date.now() / 60000), { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(j => { UPD = j || {}; draw(); }).catch(() => {});
 const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 function draw() {
   const b = B(), P = b ? b.profile : null, bg = b && b.meta ? b.meta.bg || 0 : 0;
@@ -226,9 +236,10 @@ function draw() {
   $('top').querySelectorAll('[data-mu]').forEach(x => x.onclick = () => window.BBLofi && BBLofi.toggle());
   // Spiele-Kacheln
   const go = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
-  const sec = SECRET.filter(g => b && b.secret && b.secret(g.k));
+  // Testspiele: zuletzt gepatchtes zuerst (Zeiten aus updates.json, wird beim Deploy erzeugt)
+  const sec = SECRET.filter(g => b && b.secret && b.secret(g.k)).sort((x, y) => upT(y) - upT(x));
   $('games').innerHTML = GAMES.concat(sec).map(g => { const bs = b && b.best(g.k);
-    return `<a class="tile ${g.cls}" href="${g.url}"><img src="${g.img}" alt="" style="object-position:${g.pos}"><div class="in"><div class="kk">${g.neu ? '<span class="nw">Neu</span>' : ''}${g.sec ? '<span class="sc">Geheim</span>' : ''}${esc(g.tag)}</div><h3>${esc(g.name)}</h3>${g.cls === 'big' || g.cls === 'tall' || g.cls === 'xl' ? `<p>${esc(g.text)}</p>` : ''}<div class="ft">${bs ? `<span class="bs">${g.cls === 'big' ? 'Bestwert ' : '🏆 '}${b.fmt(g.k, bs.s)}</span>` : '<span></span>'}<span class="go">${g.cls === 'big' ? 'Spielen' : go}</span></div></div></a>`; }).join('');
+    return `<a class="tile ${g.cls}" href="${g.url}"><img src="${g.img}" alt="" style="object-position:${g.pos}"><div class="in"><div class="kk">${g.neu ? '<span class="nw">Neu</span>' : ''}${g.sec ? '<span class="sc">Geheim</span>' : ''}${esc(g.tag)}</div><h3>${esc(g.name)}</h3>${g.sec && upT(g) ? `<span class="up">Zuletzt geupdatet: ${upF(upT(g))}</span>` : ''}${g.cls === 'big' || g.cls === 'tall' || g.cls === 'xl' ? `<p>${esc(g.text)}</p>` : ''}<div class="ft">${bs ? `<span class="bs">${g.cls === 'big' ? 'Bestwert ' : '🏆 '}${b.fmt(g.k, bs.s)}</span>` : '<span></span>'}<span class="go">${g.cls === 'big' ? 'Spielen' : go}</span></div></div></a>`; }).join('');
   // Deine Bestwerte
   const nb = b ? GAMES.filter(g => b.best(g.k)).length : 0; $('bsN').textContent = nb + ' von ' + GAMES.length;
   $('stats').innerHTML = GAMES.map(g => { const bs = b && b.best(g.k), G = b && b.GAMES ? b.GAMES[g.k] : null;

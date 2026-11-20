@@ -3,3 +3,4 @@ node_modules/
 site/quiz/rooms/
 site/schach/rooms/
 site/api/data/
+site/updates.json

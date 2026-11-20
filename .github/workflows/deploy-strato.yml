@@ -14,6 +14,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update-Zeiten der Spiele (für die Startseite)
+        run: python3 scripts/updates.py
 
       - name: Verify site
         run: test -f site/index.html
