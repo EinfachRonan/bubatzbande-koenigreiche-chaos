@@ -465,9 +465,9 @@ NODES.push(
   {id:'q_schamane', x:-8, y:8, p:'q_bogen', t:'quest', icon:'🔮', n:'Quest', d:'Besiege 20 Ork-Schamanen.', q:{key:'k_schamane', goal:20}, rew:'+15% LP aller Helden', eff:{allHp:.15}},
   {id:'q_bandit', x:-8, y:10, p:'q_schamane', t:'quest', icon:'🗡️', n:'Quest', d:'Erwische 20 Schatten-Banditen mit dem Mauszeiger.', q:{key:'k_bandit', goal:20}, rew:'+1 🪙 Einkommen', eff:{income:1}},
   // Laden Slots 6–8
-  {id:'slot6', x:6, y:3, p:'slot5', cur:'sm', t:'up', icon:'🛒', n:'Marktgasse', d:'+1 Platz im Laden. Ab 4 Plätzen erscheint auch ein Held zum Kauf.', cost:8, eff:{slots:1}},
+  {id:'slot6', x:6, y:3, p:'slot5', cur:'sm', t:'up', icon:'🛒', n:'Marktgasse', d:'+1 Platz im Laden.', cost:8, eff:{slots:1}},
   {id:'q_packs200', x:6, y:5, p:'slot6', t:'quest', icon:'📦', n:'Quest', d:'Öffne insgesamt 200 Pakete.', q:{key:'packs', goal:200}, rew:'+1 Platz im Laden', eff:{slots:1}},
-  {id:'slot8', x:8, y:3, p:'slot6', cur:'sm', t:'up', icon:'🛒', n:'Großmarkt', d:'+1 Platz im Laden. Jetzt erscheinen bis zu 2 Helden zum Kauf.', cost:18, eff:{slots:1}},
+  {id:'slot8', x:8, y:3, p:'slot6', cur:'sm', t:'up', icon:'🛒', n:'Großmarkt', d:'+1 Platz im Laden.', cost:18, eff:{slots:1}},
 );
 
 /* Helden-Äste: je Held 5 Upgrades + Quest + Veteranen (Positionen werden automatisch gesetzt) */
@@ -1234,92 +1234,36 @@ const heroImg = id => `<img src="${SPR[id].url}" alt="">`;
 function luckless(w){ return w; }
 function oddsHTML(w){ return RORD.map((r,i) => w[i] > 0 ? `<i style="color:${RAR[r].c}">■${w[i]}%</i>` : '').join(''); }
 // Held-im-Laden: Preis nach Rarität in 🪙 (Gold)
-const HERO_SHOP_COST = {C:2, U:3, R:5, E:8, L:15};
-// Wie viele Hero-Slots gibt es bei n Pack-Slots?
-function heroSlotsCount(n){ return n >= 8 ? 2 : n >= 4 ? 1 : 0; }
-// Zufälligen käuflichen Helden würfeln (bevorzugt C/U, aber alle möglich)
-function pickHeroOffer(){
-  const w = {C:50, U:30, R:15, E:4, L:1};
-  const pool = HEROES.filter(h => !HERO[h.id].summoned); // noch nicht besessen → interessanter
-  const full = HEROES; // falls alle besessen: trotzdem anbieten
-  const src = pool.length > 0 ? pool : full;
-  const tot = src.reduce((a,h) => a + (w[h.r]||1), 0);
-  let x = Math.random() * tot;
-  for(const h of src){ x -= (w[h.r]||1); if(x <= 0) return h.id; }
-  return src[0].id;
-}
 function rollOffers(){
   const pw = {basis:60, gross:30, magie:15, box:10}, av = MD.packs, tot = av.reduce((a,p) => a + pw[p], 0);
   const pick = () => { let x = Math.random()*tot; for(const p of av){ if(x < pw[p]) return p; x -= pw[p]; } return 'basis'; };
-  const packSlots = MD.slots - heroSlotsCount(MD.slots);
-  const offers = Array.from({length:packSlots}, () => ({p:pick(), sold:false, sale:Math.random() < MD.sale}));
-  // Hero-Slots ans Ende
-  for(let i = 0; i < heroSlotsCount(MD.slots); i++) offers.push({hero:pickHeroOffer(), sold:false, type:'hero'});
-  return offers;
+  return Array.from({length:MD.slots}, () => ({p:pick(), sold:false, sale:Math.random() < MD.sale}));
 }
-function newDay(){ S.day = {coins:MD.income, offers:rollOffers(), bag:[], free:MD.freeroll}; save(); } // übriges Gold verfällt (kein Farmen durch Abbrechen)
-const offerCost = o => o.type === 'hero' ? HERO_SHOP_COST[HERO[o.hero].r] : o.sale ? Math.max(1, Math.round(PACKS[o.p].cost * 0.7)) : PACKS[o.p].cost;
+function newDay(){ S.day = {coins:MD.income, offers:rollOffers(), bag:[], free:MD.freeroll}; save(); }
+const offerCost = o => o.sale ? Math.max(1, Math.round(PACKS[o.p].cost * 0.7)) : PACKS[o.p].cost;
 if(!S.day) newDay();
 
 function renderShop(){
   const D = S.day;
-  // Sicherstellen: Slots korrekt auffüllen ohne Index-Bugs
-  const hCount = heroSlotsCount(MD.slots);
-  const packCount = MD.slots - hCount;
+  // Fehlende Pack-Slots auffüllen (z.B. nach Laden-Upgrade)
   const pw2 = {basis:60, gross:30, magie:15, box:10}, av2 = MD.packs, tot2 = av2.reduce((a,p) => a + pw2[p], 0);
   const pick2 = () => { let x = Math.random()*tot2; for(const p of av2){ if(x < pw2[p]) return p; x -= pw2[p]; } return 'basis'; };
-  // Bestehende Slots nach Typ aufteilen
-  const existingPacks = D.offers.filter(o => !o.type);
-  const existingHeroes = D.offers.filter(o => o.type === 'hero');
-  // Fehlende Pack-Slots hinzufügen
-  while(existingPacks.length < packCount) existingPacks.push({p:pick2(), sold:false});
-  // Fehlende Hero-Slots hinzufügen
-  while(existingHeroes.length < hCount) existingHeroes.push({hero:pickHeroOffer(), sold:false, type:'hero'});
-  // Neu zusammensetzen: Pakete zuerst, dann Helden — Indices immer konsistent
-  D.offers = [...existingPacks.slice(0, packCount), ...existingHeroes.slice(0, hCount)];
+  // Alte Hero-Einträge entfernen (Migration), fehlende Pack-Slots hinzufügen
+  D.offers = D.offers.filter(o => !o.type);
+  while(D.offers.length < MD.slots) D.offers.push({p:pick2(), sold:false});
   $('#coins').innerHTML = `${D.coins} 🪙 <span style="font-size:17px;color:#a89a50">(+${MD.income}/Tag)</span>`;
   $('#offers').innerHTML = D.offers.map((o, i) => {
-    if(o.type === 'hero'){
-      const h = HERO[o.hero], cst = offerCost(o), no = o.sold || D.coins < cst;
-      const rc = RAR[h.r].c;
-      return `<div class="of hero-of ${no ? 'no' : ''}" data-i="${i}" title="${h.n} kaufen: sofort dauerhaft in deinem Team. Preis: ${cst} 🪙">
-        <div class="pr" style="${o.sold ? '' : 'border-color:'+rc}">${o.sold ? '—' : cst + ' 🪙'}</div>
-        <div class="pb" style="display:flex;align-items:center;justify-content:center;height:80px">
-          <canvas id="hshop${i}" width="64" height="64" style="${o.sold ? 'opacity:.2' : ''}"></canvas>
-        </div>
-        <div class="sn" style="color:${rc}">${o.sold ? '✓ Gekauft' : h.n}</div>
-        <div class="odds"><span style="color:${rc}">${RAR[h.r].n}</span></div>
-      </div>`;
-    }
     const P = PACKS[o.p], no = o.sold || D.coins < offerCost(o);
     return `<div class="of ${no ? 'no' : ''}" data-i="${i}" title="${P.n}: enthält ${P.cards} Karte${P.cards>1?'n':''} und ${P.kr} 💎 · ${Math.max(1, P.hits - (o.p === 'basis' ? MD.hitsBasis : MD.hitsAdv))} Treffer zum Öffnen"><div class="pr" style="${o.sale && !o.sold ? 'background:#6a1a1a;border-color:#e86a5a' : ''}">${o.sold ? '—' : (o.sale ? '<s style=\"opacity:.5;font-size:17px\">' + P.cost + '</s> ' : '') + offerCost(o) + ' 🪙'}</div>
       <div class="pb"><img src="${PACK_SPR[o.p].url}" style="${o.sold ? 'opacity:.15' : ''}"></div>
       <div class="sn">${P.n}</div><div class="odds">${oddsHTML(P.w)}</div></div>`;
   }).join('');
-  // Hero-Sprites in Shop-Canvas zeichnen
-  D.offers.forEach((o, i) => {
-    if(o.type !== 'hero' || o.sold) return;
-    const cv = document.getElementById('hshop' + i); if(!cv) return;
-    const ctx = cv.getContext('2d'), spr = HERO[o.hero];
-    if(spr && spr.imgs && spr.imgs.r){ const img = spr.imgs.r; ctx.drawImage(img, 0, 0, img.naturalWidth||img.width, img.naturalHeight||img.height, 2, 4, 60, 56); }
-  });
   $('#bag').innerHTML = D.bag.length ? `Im Rucksack (fliegen im Kampf raus):<br>${D.bag.map(p => `<img src="${PACK_SPR[p].url}">`).join('')}` : 'Nicht ausgegebenes Gold verfällt nach dem Kampf. Kaufe Pakete. Sie fliegen im Kampf aus der Höhle und du sammelst sie per Klick ein.';
   if(!S.rerollUnlocked){ $('#reroll').disabled = true; $('#reroll').textContent = '🔒 AUFFRISCHEN'; }
   else { $('#reroll').disabled = D.coins < 1 && !D.free; $('#reroll').textContent = D.free ? 'AUFFRISCHEN (GRATIS)' : 'AUFFRISCHEN 1 🪙'; }
   document.querySelectorAll('#offers .of').forEach(el => el.onclick = () => {
     const o = D.offers[+el.dataset.i], cst = offerCost(o);
-    if(o.sold) return;
-    if(o.type === 'hero'){
-      if(D.coins < cst) return;
-      D.coins -= cst; o.sold = true;
-      // Held sofort dauerhaft freischalten + Erstzug tracken
-      if(!HERO[o.hero].summoned){ HERO[o.hero].summoned = true; S.q = S.q || {}; S.q['found_' + o.hero] = (S.q['found_' + o.hero] || 0); }
-      S.hperm = S.hperm || {}; S.hperm[o.hero] = true;
-      save(); checkQuests(); renderShop();
-      toast(`🛒 ${HERO[o.hero].n} für ${cst} 🪙 gekauft! Er kämpft ab dem nächsten Kampf mit.`);
-      return;
-    }
-    if(D.coins < cst) return;
+    if(o.sold || D.coins < cst) return;
     D.coins -= cst; o.sold = true; D.bag.push(o.p); save(); renderShop();
   });
 }
@@ -1329,7 +1273,7 @@ $('#reroll').onclick = () => {
   // Nur nicht-gekaufte Paket-Slots neu würfeln — Hero-Slots auch tauschen
   const pw = {basis:60, gross:30, magie:15, box:10}, av = MD.packs, tot = av.reduce((a,p) => a + pw[p], 0);
   const pick = () => { let x = Math.random()*tot; for(const p of av){ if(x < pw[p]) return p; x -= pw[p]; } return 'basis'; };
-  D.offers = D.offers.map(o => o.sold ? o : o.type === 'hero' ? {hero:pickHeroOffer(), sold:false, type:'hero'} : {p:pick(), sold:false, sale:Math.random() < MD.sale});
+  D.offers = D.offers.map(o => o.sold ? o : {p:pick(), sold:false, sale:Math.random() < MD.sale});
   save(); renderShop();
 };
 
@@ -1789,11 +1733,6 @@ function startFight(ch){
        stat:{}, mouse:{dmg:0}, blds:MD.blds.map(id => ({id, t:0}))};
   S.day.bag.forEach((p, i) => throwPack(p, 0.8 + i*0.45));
   S.day.bag = [];
-  // Dauerhaft gekaufte Helden beim Kampfstart spawnen
-  if(S.hperm) Object.keys(S.hperm).forEach((id, i) => {
-    const a = -Math.PI*0.3 + i*0.4, r = 100 + i*30;
-    spawnUnit(id, Math.cos(a)*r, Math.sin(a)*r*0.6 - 20, false, false);
-  });
   save();
   updateHud();
   // Sprites vorab auf 1×1px zeichnen → Browser dekodiert sie jetzt, nicht beim ersten echten drawImage
