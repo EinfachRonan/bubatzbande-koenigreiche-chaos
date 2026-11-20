@@ -1168,7 +1168,15 @@ function renderShop(){
     D.coins -= cst; o.sold = true; D.bag.push(o.p); save(); renderShop();
   });
 }
-$('#reroll').onclick = () => { const D = S.day; if(D.free){ D.free--; } else { if(D.coins < 1) return; D.coins--; } D.offers = rollOffers(); save(); renderShop(); };
+$('#reroll').onclick = () => {
+  const D = S.day;
+  if(D.free){ D.free--; } else { if(D.coins < 1) return; D.coins--; }
+  // Nur nicht-gekaufte Slots neu würfeln — gekaufte (sold:true) bleiben leer
+  const pw = {basis:60, gross:30, magie:15, box:10}, av = MD.packs, tot = av.reduce((a,p) => a + pw[p], 0);
+  const pick = () => { let x = Math.random()*tot; for(const p of av){ if(x < pw[p]) return p; x -= pw[p]; } return 'basis'; };
+  D.offers = D.offers.map(o => o.sold ? o : {p:pick(), sold:false, sale:Math.random() < MD.sale});
+  save(); renderShop();
+};
 
 /* ===================== SKILLTREE ===================== */
 const GRID = 56, OX = 2200, OY = 1300;
