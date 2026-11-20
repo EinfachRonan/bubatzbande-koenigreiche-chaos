@@ -768,7 +768,7 @@ function save(cloud) {
 }
 async function cloudSave(now) {
   if (Date.now() - chkT > 15000) { chkT = Date.now();
-    try { const c = await BB.cloud.get('drill'); if (c && c.v === VER && c.dev && c.dev !== DEV && (c.sn || 0) !== lastSn) { showConflict(c); return; } } catch (e) {} }
+    try { const c = await BB.cloud.get('drill'); if (c && c.v === VER && (c.rst || 0) > (S.rst || 0)) { S = norm(c); cleanSave(); lastSn = c.sn || 0; try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {} if (W) buildPlanet(S.done || 0); render(); toast('Spielstand wurde zurückgesetzt'); return; } if (c && c.v === VER && c.dev && c.dev !== DEV && (c.sn || 0) !== lastSn) { showConflict(c); return; } } catch (e) {} }
   if (conflict) return;
   S.dev = DEV; S.sn = lastSn + 1; lastSn = S.sn; BB.cloud.put('drill', S, now); lastCloud = Date.now();
 }
@@ -801,7 +801,8 @@ async function pull() {
     let c = await BB.cloud.get('drill'); if (c && c.v !== VER) c = null; // alter Stand vom Konto: weg damit
     if (c) lastSn = c.sn || 0; chkT = Date.now();
     const foreign = S.own && S.own !== myId();
-    if (c && typeof c.cr === 'number' && (foreign || score(c) > score(S) || (score(c) === score(S) && (c.t || 0) > (S.t || 0)))) {
+    const rc = (c && c.rst) || 0, rs = S.rst || 0; // Zurücksetzen: der neuere Reset gewinnt, egal welcher Stand weiter ist
+    if (c && typeof c.cr === 'number' && (foreign || rc > rs || (rc === rs && (score(c) > score(S) || (score(c) === score(S) && (c.t || 0) > (S.t || 0)))))) {
       S = norm(c); cleanSave(); try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
       if (W) buildPlanet(S.done || 0); render(); toast('Spielstand vom Konto geladen');
     } else if (!c && foreign) { S = fresh(); if (W) buildPlanet(0); render(); }
@@ -2853,9 +2854,12 @@ const SND = (() => {
 // Vibration am Handy (geht auf Android; iPhones unterstützen das im Browser nicht)
 let vibOn = true; try { vibOn = localStorage.getItem('gb_vib') !== '0'; } catch (e) {}
 const vib = pat => { try { if (vibOn && navigator.vibrate) navigator.vibrate(pat); } catch (e) {} };
-function resetGame() { const keep = S.newsV; S = fresh(); S.newsV = keep; S.augQ = 1; if (logged()) S.own = myId(); hybSync(); cleanSave();
-  try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {} save('now'); try { window.BB && BB.cloud && BB.cloud.flush && BB.cloud.flush(); } catch (e) {}
-  toast('Spielstand zurückgesetzt – viel Spaß beim Neustart!'); setTimeout(() => location.reload(), 1500); }
+async function resetGame() { const keep = S.newsV; S = fresh(); S.newsV = keep; S.augQ = 1; S.rst = Date.now(); if (logged()) S.own = myId(); hybSync(); cleanSave();
+  try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
+  toast('Spielstand wird zurückgesetzt …');
+  if (logged() && window.BB && BB.cloud) { // direkt ins Konto schreiben und prüfen, sonst lädt der Neustart den alten Stand
+    for (let k = 0; k < 3; k++) { try { S.dev = DEV; S.sn = lastSn + 1; lastSn = S.sn; await BB.cloud.put('drill', S, true); const c = await BB.cloud.get('drill'); if (c && c.rst === S.rst) break; } catch (e) {} await new Promise(r => setTimeout(r, 800)); } }
+  toast('Spielstand zurückgesetzt – viel Spaß beim Neustart!'); setTimeout(() => location.reload(), 900); }
 function openSettings() {
   const v = SND.vol;
   overlay(`<h2>Einstellungen</h2>
