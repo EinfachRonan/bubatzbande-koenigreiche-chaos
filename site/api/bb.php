@@ -94,6 +94,33 @@ if ($a === 'img') {
   readfile("$dir/img/$id.jpg"); exit;
 }
 
+// Spielaufrufe zählen (für „Meistgespielt“ auf der Startseite). Eigene Datei, max. 1 Zählung pro Person und Spiel je 30 Min.
+if ($a === 'play' || $a === 'plays') {
+  $ph = fopen("$dir/plays.json", 'c+'); if (!$ph) fail('io', 500);
+  flock($ph, $a === 'play' ? LOCK_EX : LOCK_SH); rewind($ph);
+  $p = json_decode(stream_get_contents($ph), true); if (!is_array($p)) $p = [];
+  $p += ['g' => [], 's' => []];
+  if ($a === 'play') {
+    $g = (string) ($_GET['g'] ?? ''); $now = time();
+    if (!preg_match('/^[a-z0-9_-]{2,20}$/', $g) || !is_dir(__DIR__ . "/../$g")) { flock($ph, LOCK_UN); fclose($ph); fail('game'); }
+    $p['s'] = array_filter($p['s'], fn($t) => $t > $now - 1800);
+    $key = substr(hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . '|' . $g), 0, 16);
+    if (!isset($p['s'][$key])) {
+      $p['s'][$key] = $now; $day = date('Ymd', $now); $old = (int) date('Ymd', $now - 35 * 86400);
+      $G = $p['g'][$g] ?? ['n' => 0, 'd' => []];
+      $G['n'] = ($G['n'] ?? 0) + 1; $G['d'][$day] = ($G['d'][$day] ?? 0) + 1;
+      foreach (array_keys($G['d']) as $k) if ((int) $k < $old) unset($G['d'][$k]);
+      $p['g'][$g] = $G;
+      ftruncate($ph, 0); rewind($ph); fwrite($ph, json_encode($p)); fflush($ph);
+    }
+    flock($ph, LOCK_UN); fclose($ph); out(['ok' => 1]);
+  }
+  flock($ph, LOCK_UN); fclose($ph);
+  $from = (int) date('Ymd', time() - 6 * 86400); $r = [];
+  foreach ($p['g'] as $g => $G) { $w = 0; foreach (($G['d'] ?? []) as $k => $v) if ((int) $k >= $from) $w += $v; $r[$g] = ['n' => (int) ($G['n'] ?? 0), 'w' => $w]; }
+  out(['g' => (object) $r]);
+}
+
 $h = fopen($file, 'c+'); if (!$h) fail('io', 500);
 
 // Einmaliger Neustart (Epoche 2): Bestenlisten, Erfolge, Statistiken und Rahmen auf 0. Vorher wird eine Sicherung angelegt.

@@ -267,6 +267,10 @@ function upF(t) {
   const day = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime(), diff = Math.round((day(n) - day(d)) / 864e5);
   return diff === 0 ? 'heute, ' + hm : diff === 1 ? 'gestern, ' + hm : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ', ' + hm;
 }
+// Wie oft gespielt (letzte 7 Tage = w, gesamt = n)
+let PLAYS = {};
+fetch('api/bb.php?a=plays', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(j => { PLAYS = (j && j.g) || {}; draw(); }).catch(() => {});
+const plW = g => (PLAYS[g.url.replace(/\/.*$/, '')] || {}).w || 0, plN = g => (PLAYS[g.url.replace(/\/.*$/, '')] || {}).n || 0;
 fetch('updates.json?' + Math.floor(Date.now() / 60000), { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(j => { UPD = j || {}; draw(); }).catch(() => {});
 const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 function draw() {
@@ -286,10 +290,13 @@ function draw() {
   const go = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
   const sec = SECRET.filter(g => b && b.secret && b.secret(g.k));
   const all = GAMES.concat(sec).map((g, i) => ({ g, i })).sort((x, y) => (upT(y.g) - upT(x.g)) || (x.i - y.i)).map(x => x.g);
-  const top = all[0], rest = all.slice(1);
+  // Ganz oben: meistgespieltes Spiel der letzten 7 Tage (sonst gesamt, sonst das neueste Update)
+  const hot = all.slice().sort((x, y) => (plW(y) - plW(x)) || (plN(y) - plN(x)))[0];
+  const isHot = hot && (plW(hot) || plN(hot));
+  const top = isHot ? hot : all[0], rest = all.filter(g => g !== top);
   const bsOf = g => { const bs = b && b.best(g.k); return bs ? b.fmt(g.k, bs.s) : ''; };
   const tb = bsOf(top);
-  $('topG').innerHTML = `<a class="top1" href="${top.url}"><div class="pic"><img src="${top.img}" alt="" style="object-position:${top.pos}"><div class="badge"><span>${upT(top) ? 'Neuestes Update' : 'Top-Spiel'}</span>${top.sec ? '<span class="sc">Geheim</span>' : ''}</div></div><div class="bd"><div class="kk">${esc(top.tag)}</div><h3>${esc(top.name)}</h3><p>${esc(top.text)}</p>${upT(top) ? `<span class="up">Zuletzt geupdatet: ${upF(upT(top))}</span>` : ''}<div class="ft"><span class="btn">${go.replace('<svg', '<svg width="16" height="16"')} Jetzt spielen</span>${tb ? `<span class="bsx">🏆 ${tb}</span>` : ''}</div></div></a>`;
+  $('topG').innerHTML = `<a class="top1" href="${top.url}"><div class="pic"><img src="${top.img}" alt="" style="object-position:${top.pos}"><div class="badge"><span>${isHot ? '🔥 Meistgespielt' : upT(top) ? 'Neuestes Update' : 'Top-Spiel'}</span>${top.sec ? '<span class="sc">Geheim</span>' : ''}</div></div><div class="bd"><div class="kk">${esc(top.tag)}</div><h3>${esc(top.name)}</h3><p>${esc(top.text)}</p>${upT(top) ? `<span class="up">Zuletzt geupdatet: ${upF(upT(top))}</span>` : ''}<div class="ft"><span class="btn">${go.replace('<svg', '<svg width="16" height="16"')} Jetzt spielen</span>${isHot ? `<span class="bsx">${plW(top) ? plW(top) + '× gespielt diese Woche' : plN(top) + '× gespielt'}</span>` : ''}${tb ? `<span class="bsx">🏆 ${tb}</span>` : ''}</div></div></a>`;
   $('games').innerHTML = rest.map(g => { const bs = bsOf(g);
     return `<a class="gc" href="${g.url}"><div class="pic"><img src="${g.img}" alt="" loading="lazy" style="object-position:${g.pos}"><div class="tg">${g.sec ? '<span class="sc">Geheim</span>' : ''}<span>${esc(g.tag.replace(/^Testphase · /, 'Test · '))}</span></div></div><div class="bd"><h3>${esc(g.name)}</h3><p>${esc(g.text)}</p><div class="ft">${bs ? `<span class="bst">🏆 ${bs}</span>` : upT(g) ? `<span class="up">${upF(upT(g))}</span>` : '<span></span>'}<span class="go">${go}</span></div></div></a>`; }).join('');
   $('nH').innerHTML = `${all.length} Spiele.<br><span>1 Bande.</span>`;

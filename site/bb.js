@@ -984,6 +984,13 @@
     FRAMES, avH, home: () => { addCss(); return `<a class="bb-home" href="${ROOT}">🏠 Zur Startseite</a>`; }, record, unlock, stat, open, close, chip, showUser: id => { open('board'); showUser(id); }, invite, roomReady, gate, toast, fmt, avatar: () => avUrl(P), onChange: f => listeners.push(f),
     best: g => P.best[g] || null, has: id => !!P.ach[id]
   };
+  // Spiel als „gespielt“ zählen (für Meistgespielt auf der Startseite): erst nach 15 Sek., einmal pro Sitzung
+  try {
+    const g = location.href.slice(ROOT.length).split(/[/?#]/)[0];
+    if (/^[a-z0-9_-]{2,20}$/.test(g) && g !== 'bande' && g !== 'api' && !sessionStorage.getItem('bb_play_' + g)) setTimeout(() => {
+      try { sessionStorage.setItem('bb_play_' + g, '1'); fetch(API + '?a=play&g=' + g, { keepalive: true }).catch(() => {}); } catch (e) {}
+    }, 15000);
+  } catch (e) {}
   // Beim Laden Profil vom Server holen (anderes Gerät könnte etwas geändert haben)
   if (logged()) setTimeout(async () => { try { const j = await post('me'); applyMe(j.me); sync(); } catch (e) {} inbox(); }, 400);
   setInterval(inbox, 9000);
