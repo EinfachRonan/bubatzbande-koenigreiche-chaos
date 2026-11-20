@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Höhlenwacht · v0.3</title>
+<title>Höhlenwacht · v0.4</title>
 <script src="../bb.js?v=20261120a"></script>
 <script>
 /* Geheim-Spiel (Testphase): nur spielbar, wenn über „Code eingeben“ auf der Startseite freigeschaltet. */
@@ -32,7 +32,7 @@ html,body{height:100%;color:var(--parch);font-family:'Alegreya Sans','Nunito',sy
 #stage b{font-family:'MedievalSharp',serif;font-weight:400;font-size:21px;color:var(--parch);text-shadow:0 2px 0 #1a0f06}
 /* Spielfeld mit Eisenrahmen */
 #field{position:relative;width:100%;aspect-ratio:16/10;background:#000;border-top:4px solid #1a0f06;border-bottom:4px solid #1a0f06;box-shadow:inset 0 0 0 2px #5a4a36,0 0 0 1px #8a6a3a}
-canvas{width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:manipulation}
+canvas{width:100%;height:100%;display:block;object-fit:contain;image-rendering:pixelated;touch-action:manipulation}
 #banner{position:absolute;left:50%;top:36%;transform:translateX(-50%) scale(.9);font-size:24px;color:#2a1608;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;
  padding:6px 34px 8px;background:linear-gradient(#f4e4bb,#d9bf86);border-top:2px solid #8a6a3a;border-bottom:2px solid #8a6a3a;box-shadow:0 4px 0 rgba(0,0,0,.45),inset 0 0 14px rgba(120,80,30,.35)}
 #banner:before,#banner:after{content:'';position:absolute;top:6px;width:20px;height:100%;background:#b8935a;z-index:-1}
@@ -96,6 +96,26 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated;touch-acti
 .melt{display:flex;gap:5px;margin-bottom:8px}.melt .btn{flex:1;font-size:12px;padding:6px 4px}
 .eqs{display:flex;gap:4px;margin-top:5px}.eqs img,.eqs i{width:22px;height:22px;image-rendering:pixelated;border:1.5px solid #8a6a3a;border-radius:2px;background:#2a1a0d;display:block}
 #tabs button{font-size:14px!important;padding:7px 4px}
+#sv{margin-left:8px;color:#9a8460}#sv.ok{color:#9ad84a}
+#bFs{margin-left:auto;font-family:system-ui,sans-serif;font-size:18px;padding:3px 9px;margin-right:4px}
+@media (hover:none),(max-width:899px){#bFs{display:none}}
+/* ===== PC / Querformat: Kampf groß links, Menü rechts ===== */
+@media (min-width:900px) and (min-aspect-ratio:5/4){
+ #app{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) clamp(380px,30vw,520px);grid-template-rows:auto minmax(0,1fr) auto auto;
+  grid-template-areas:"top tabs" "field panel" "bar panel" "ults ver"}
+ #top{grid-area:top;padding:10px 18px}#tabs{grid-area:tabs;align-items:flex-end;padding:10px 12px 0;background:linear-gradient(#4a2f18,#2c1b0d);border-bottom:3px solid #1a0f06}
+ #tabs button{font-size:17px!important}
+ #field{grid-area:field;aspect-ratio:auto;width:100%;height:100%;background:#0b0705;border-left:0}
+ #bar{grid-area:bar;padding:10px 18px 6px}#bar .btn{font-size:16px;padding:8px 16px}#wave span{height:14px}
+ #ults{grid-area:ults;padding:0 18px 14px;gap:10px}.ult{height:74px}.ult img{height:64px}
+ #panel{grid-area:panel;border-top:0;border-left:4px solid #1a0f06;box-shadow:inset 3px 0 0 #6b4a22;padding:14px}
+ #ver{grid-area:ver;border-left:4px solid #1a0f06;display:flex;align-items:center;justify-content:center}
+ #gold{font-size:30px}#stage b{font-size:26px}#stage{font-size:15px}
+ #banner{font-size:34px;padding:8px 48px 10px}
+ .card .n{font-size:21px}.card .d{font-size:14.5px}.card .buy{min-width:104px}.btn{font-size:15px}.card .buy small{font-size:13px}.card .pic,.icon{width:56px;height:56px}.card .pic img{max-height:52px;max-width:52px}
+ #ver{font-size:13px}
+}
+@media (min-width:1500px) and (min-aspect-ratio:5/4){#app{grid-template-columns:minmax(0,1fr) 540px}}
 #modal{position:fixed;inset:0;background:rgba(5,3,1,.75);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
 #modal.on{display:flex}
 #modal .in{max-width:340px;width:100%;text-align:center;padding:22px 20px;color:#3a1c08;border-radius:3px;
@@ -110,14 +130,14 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated;touch-acti
 <div id="app">
   <div id="top">
     <a id="home" href="../" aria-label="Zur Startseite">‹</a><div style="flex:1"><div id="gold" class="h"><i></i><span id="goldv">0</span></div><div id="cores"></div></div>
-    <div id="stage"><b id="stv">Stufe 1</b><br><span id="dps">0 Schaden/s</span></div>
+    <button class="btn" id="bFs" title="Vollbild (F)" aria-label="Vollbild">⛶</button><div id="stage"><b id="stv">Stufe 1</b><br><span id="dps">0 Schaden/s</span></div>
   </div>
   <div id="field"><canvas id="c"></canvas><div id="banner" class="h"></div></div>
   <div id="bar"><div id="wave"></div><button class="btn" id="bAdv">▶ Vorrücken</button><button class="btn" id="bAuto">Auto-Ult</button><button class="btn" id="bSpd">x1</button></div>
   <div id="ults"></div>
   <div id="tabs"><button class="btn on" data-t="bande">Bande</button><button class="btn" data-t="ausbau">Ausbau</button><button class="btn" data-t="schmiede">Schmiede</button><button class="btn" data-t="taverne">Taverne</button></div>
   <div id="panel"></div>
-  <div id="ver">Höhlenwacht · v0.3 · Testphase</div>
+  <div id="ver">Höhlenwacht · v0.4 · Testphase<span id="sv"></span></div>
 </div>
 <div id="modal"><div class="in"><h2 id="mh"></h2><p id="mp"></p><div class="row" id="mr"></div></div></div>
 <script>
@@ -165,8 +185,9 @@ const KEY='bb_hoehlenwacht_v1';
 function fresh(){return{items:[],eq:{},stones:0,autoMelt:0,gold:0,stage:1,wave:1,max:1,farm:false,heroes:{kobold:1},upg:{},cores:0,tal:{},auto:true,spd:1,last:Date.now(),gps:0,total:0,runs:0};}
 let S=fresh();
 try{const t=JSON.parse(localStorage.getItem(KEY)||'null');if(t&&!(t.own&&t.own!==myId()))S=Object.assign(fresh(),t);}catch(e){}
-const myId=()=>{try{return window.BB&&BB.loggedIn&&BB.profile?BB.profile.id:null;}catch(e){return null;}};
-function save(now){S.last=Date.now();S.own=myId();try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}try{if(myId()&&BB.cloud)BB.cloud.put('hw',S,now);}catch(e){}}
+function svInfo(){const e=document.getElementById('sv');if(!e)return;const t=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});e.className='';e.textContent=' · Gespeichert auf diesem Gerät '+t;}
+let cloudReady=false;const myId=()=>{try{return window.BB&&BB.loggedIn&&BB.profile?BB.profile.id:null;}catch(e){return null;}};
+function save(now){S.last=Date.now();S.own=myId();try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}let ok=0;try{if(myId()&&BB.cloud&&cloudReady){BB.cloud.put('hw',S,now);ok=1;}}catch(e){}const el=document.getElementById('sv');if(el){const t=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});el.className=ok?'ok':'';el.textContent=ok?' · ☁ Im Konto gespeichert '+t:' · Nur auf diesem Gerät – melde dich an, dann speichert es im Konto';}}
 setInterval(save,5000);addEventListener('visibilitychange',()=>{if(document.hidden)save();});addEventListener('pagehide',()=>save(true));
 
 /* ============ Beute & Schmiede ============ */
@@ -246,8 +267,11 @@ let lastHitSnd=0;
 
 /* ============ Canvas ============ */
 const W=320,H=200,cv=document.getElementById('c'),g=cv.getContext('2d');let SC=3;
-function rs(){const r=cv.getBoundingClientRect();SC=Math.max(2,Math.min(4,Math.round(r.width*devicePixelRatio/W)));cv.width=W*SC;cv.height=H*SC;}
-addEventListener('resize',rs);rs();
+function rs(){const r=cv.getBoundingClientRect();SC=Math.max(2,Math.min(6,Math.ceil(Math.min(r.width/W,r.height/H)*devicePixelRatio)));cv.width=W*SC;cv.height=H*SC;}
+addEventListener('resize',rs);addEventListener('fullscreenchange',()=>setTimeout(rs,50));rs();
+(function(){const b=document.getElementById('bFs'),d=document.documentElement,can=d.requestFullscreen||d.webkitRequestFullscreen;if(!can){b.style.display='none';return;}
+ const tog=()=>{try{if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);else{const p=can.call(d);if(p&&p.catch)p.catch(()=>{});}}catch(e){}};
+ b.onclick=tog;addEventListener('keydown',e=>{if((e.key==='f'||e.key==='F')&&!e.ctrlKey&&!e.metaKey)tog();});})();
 const BG=document.createElement('canvas');BG.width=W;BG.height=H;const TORCH=[[22,96],[160,70],[298,96]];(function(){const b=BG.getContext('2d');
  let seed=11;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;const px=(x,y,w,h,c)=>{b.fillStyle=c;b.fillRect(x|0,y|0,w|0,h|0);};
  // Grundton
@@ -385,7 +409,7 @@ function castUlt(h){if(h.en<100||h.dead)return;const al=alive(enemies);if(!al.le
  renderUlts();}
 function waveDone(){state='next';stT=.6;
  for(const h of heroes){if(h.dead){h.dead=false;h.hp=h.mh*.4;}else h.hp=Math.min(h.mh,h.hp+h.mh*.25);}
- if(S.wave===10){S.stage++;S.wave=1;S.max=Math.max(S.max,S.stage);for(const h of heroes)h.hp=h.mh;showBan('Stufe '+S.stage);if(S.stage%5===0)save();renderTab();}
+ if(S.wave===10){S.stage++;S.wave=1;S.max=Math.max(S.max,S.stage);for(const h of heroes)h.hp=h.mh;showBan('Stufe '+S.stage);save();renderTab();}
  else if(!S.farm)S.wave++;
  renderTop();}
 function fail(why){showBan(why);state='next';stT=1.6;enemies=[];shots=[];spawnQ=[];
@@ -457,7 +481,7 @@ function renderTab(){const P=$('panel');let h='';
 function tickBtns(){const P=$('panel');P.querySelectorAll('[data-u]').forEach(b=>b.disabled=S.gold<HEROES[b.dataset.u].unlock);
  P.querySelectorAll('[data-l]').forEach(b=>{const x=bulk(b.dataset.l);b.disabled=S.gold<x.c;if(buyN==='max')b.innerHTML=`+${x.n} Lv<small>${fmt(x.c)}</small>`;});
  P.querySelectorAll('[data-g]').forEach(b=>b.disabled=S.gold<upgCost(UPG.find(u=>u.id===b.dataset.g)));}
-function renderAll(){renderTop();renderTab();renderUlts();}
+function renderAll(){renderTop();renderTab();renderUlts();save();}
 function prestige(){const c=coreGain();S.cores+=c;S.runs++;const keep={items:S.items,eq:S.eq,stones:S.stones,autoMelt:S.autoMelt,cores:S.cores,tal:S.tal,runs:S.runs,total:S.total,auto:S.auto,spd:S.spd,max:S.max};S=Object.assign(fresh(),keep);S.stage=1+tl('start')*3;S.max=Math.max(S.max,S.stage);heroes=[];syncHeroes();startWave();save();renderAll();showBan('Prost! +'+c+' ✦');}
 function modal(t,p,btns){$('mh').textContent=t;$('mp').textContent=p;const r=$('mr');r.innerHTML='';btns.forEach(([txt,fn,go])=>{const b=document.createElement('button');b.className='btn'+(go?' go':'');b.textContent=txt;b.onclick=()=>{$('modal').classList.remove('on');fn&&fn();};r.appendChild(b);});$('modal').classList.add('on');}
 
@@ -467,8 +491,9 @@ function modal(t,p,btns){$('mh').textContent=t;$('mp').textContent=p;const r=$('
 
 /* ============ Loop ============ */
 syncHeroes();if(S.stage<1)S.stage=1;startWave();renderAll();
-(async function(){const id=myId();if(!id||!window.BB||!BB.cloud)return;let c=null;try{c=await Promise.race([BB.cloud.get('hw'),new Promise(r=>setTimeout(()=>r(null),3500))]);}catch(e){}
- if(c&&(c.total||0)>(S.total||0)){S=Object.assign(fresh(),c);heroes=[];enemies=[];syncHeroes();startWave();renderAll();save();}})();
+(async function(){const id=myId();if(!id||!window.BB||!BB.cloud){save();return;}let c=null,ok=false;try{c=await Promise.race([BB.cloud.get('hw').then(x=>{ok=true;return x;}),new Promise(r=>setTimeout(()=>r(null),6000))]);}catch(e){}
+ cloudReady=ok;if(!ok){setTimeout(()=>{if(!cloudReady)BB.cloud.get('hw').then(x=>{cloudReady=true;if(x&&(x.total||0)>(S.total||0)){S=Object.assign(fresh(),x);heroes=[];enemies=[];syncHeroes();startWave();renderAll();}save(true);}).catch(()=>{});},8000);}
+ if(c&&(c.total||0)>(S.total||0)){S=Object.assign(fresh(),c);heroes=[];enemies=[];syncHeroes();startWave();renderAll();}save(true);})();
 let lt=performance.now(),acc=0,gpsT=0;
 function loop(now){let dt=Math.min(.1,(now-lt)/1000);lt=now;dt*=S.spd;
  const steps=Math.ceil(dt/.034);for(let i=0;i<steps;i++)update(dt/steps);
