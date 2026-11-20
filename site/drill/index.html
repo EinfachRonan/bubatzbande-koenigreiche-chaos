@@ -658,7 +658,7 @@ let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
 const VER = 14; // interne Stand-Nummer (höher = einmaliger Reset)
 const VLABEL = '0.7'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
-const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
+const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, wq5: 1, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
 const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: (o && o.inv && Object.keys(o.inv).length) ? o.inv : { h_pfeil: 1, r_basis: 1, t_basis: 1 }, /* Start-Teile nur bei neuem Spielstand, sonst kämen eingeschmolzene Teile beim Laden zurück */ eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
 if (S && S.v !== VER) { try { localStorage.removeItem('gb_intro'); } catch (e) {} } // neuer Start: Intro nochmal zeigen
@@ -733,7 +733,7 @@ const boosting = () => S.boostEnd > Date.now();
 // Warp-Multiplikator: startet bei x1.00, +0.02 pro Warp, +0.02 extra für jedes geschaffte Universum (alle 10 Planeten) in dem Lauf
 // Warp-Multiplikator: +0.01 pro ✦, das der Warp bringt (mindestens +0.02)
 // Warp-Hürde: der nächste Warp geht erst 10 Planeten weiter als der letzte, ab Universum 4 erst 2 Universen (20 Planeten) weiter
-const reqStep = at => uniOf(at + 10) >= 4 ? 20 : 10;
+const reqStep = at => 5, wLbl = n => 'Universum ' + uniOf(n) + ' · Planet ' + pInU(n);
 const wReq = () => S.wReq || 10, canWarp = () => S.p >= wReq() && dmGain() > 0;
 const wmGain = () => Math.round(Math.max(.02, .01 * dmGain()) * 100) / 100;
 const dmBonus = () => (S.wm || 1) * (1 + WP('kraft'));
@@ -1887,10 +1887,10 @@ function render() {
   else if (tab === 'p') {
     const g0 = dmGain();
     L.innerHTML = `<button class="br unl" id="stopen" style="margin:0 0 9px">📊 STATISTIK · WELCHE WAFFE MACHT WIE VIEL</button><div class="wh wbox"><div class="wrow"><div><small>Warp bringt</small><b id="wgain">✦${fmt(g0)}</b></div><div><small>Multiplikator</small><b class="wm">x${(S.wm || 1).toFixed(2)} → <span id="wmto">x${((S.wm || 1) + wmGain()).toFixed(2)}</span></b></div></div>
-      <div class="wreq"><span>Nächster Warp ab <b>Planet ${wReq()}</b>${S.p >= wReq() ? ' ✔' : ` · noch ${wReq() - S.p}`}</span><small>danach ab Planet ${Math.max(S.p, wReq()) + reqStep(Math.max(S.p, wReq()))}${uniOf(Math.max(S.p, wReq()) + 10) >= 4 ? ' (ab Universum 4: +2 Universen)' : ' (+10 Planeten)'}</small><i style="width:${Math.min(100, S.p / wReq() * 100)}%"></i></div>
+      <div class="wreq"><span>Warp möglich ab <b>${wLbl(wReq())}</b>${S.p >= wReq() ? ' ✔' : ''}</span><small>Danach ab ${wLbl(Math.max(S.p, wReq()) + reqStep(Math.max(S.p, wReq())))} · Warp alle 5 Planeten</small><i style="width:${Math.min(100, S.p / wReq() * 100)}%"></i></div>
       <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR, Waffen und Skills sind weg, von deinen ◆ behältst du ${keepPct()} % (mehr mit „Kristallspeicher“). Fähigkeiten, Hangar und Werkstatt bleiben. ✦: ab Planet 3 bringt jeder Planet ✦, und alle 2 Planeten gibt's 1 mehr pro Planet (gerade +${String(dmPer(Math.max(1, S.p - 1))).replace('.', ',')} pro Planet). Multiplikator: +0.01 pro ✦, das der Warp bringt. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'} · Spielzeit ${(S.play || 0) >= 3600 ? ((S.play || 0) / 3600).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' Std.' : Math.floor((S.play || 0) / 60) + ' Min.'}.</p>
       
-      <button class="br" id="wgo" ${canWarp() ? '' : 'disabled'}>${canWarp() ? 'WARP-SPRUNG' : 'Warp ab Planet ' + wReq() + ' (noch ' + Math.max(0, wReq() - S.p) + ')'}</button></div>
+      <button class="br" id="wgo" ${canWarp() ? '' : 'disabled'}>${canWarp() ? 'WARP-SPRUNG' : 'Warp ab ' + wLbl(wReq())}</button></div>
       <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${fmt(S.dm || 0)}</b></div>
       <div class="sk wp6">${WARP.map(w => { const l = WP(w.id), mx = l >= w.max;
         if (!wpOpen(w.id)) return `<button disabled class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>???</button>`;
@@ -2662,6 +2662,7 @@ function cleanSave() {
   if (S.offer) S.offer = S.offer.filter(x => x !== 'turret');
   if (S.dmgRun) { delete S.dmgRun.pulse; delete S.dmgRun.turret; } if (S.offer) S.offer = S.offer.filter(x => x !== 'pulse');
   if (S.wReq == null) S.wReq = S.pc ? Math.max(10, Math.ceil((S.p + 1) / 10) * 10) : 10;
+  if (!S.wq5) { S.wq5 = 1; if (S.wReq > 10) S.wReq = Math.max(10, S.wReq - (S.wReq >= 41 ? 15 : 5)); } // Hürde jetzt +5 statt +10/+20: alte Stände anpassen
   S.wo = (S.wo || ['line']).filter(id => id === '_' || WEAP.find(w => w.id === id)); hybSync(); if (!S.wo.length) S.wo = ['line'];
   for (const k in (S.mod || {})) if (!MODS[k]) delete S.mod[k];
 }
