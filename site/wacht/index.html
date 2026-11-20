@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Höhlenwacht · v1.5</title>
+<title>Höhlenwacht · v1.6</title>
 <script src="../bb.js?v=20261120a"></script>
 <script>
 /* Geheim-Spiel (Testphase): nur spielbar, wenn über „Code eingeben“ auf der Startseite freigeschaltet. */
@@ -27,7 +27,7 @@ html,body{height:100%;color:var(--parch);font-family:'Alegreya Sans','Nunito',sy
 #home{font-family:'MedievalSharp',serif;font-size:30px;line-height:1;color:var(--parch);text-decoration:none;padding:0 6px 4px 4px;text-shadow:0 2px 0 #1a0f06}
 #gold{white-space:nowrap;font-size:25px;color:var(--gold2);display:flex;align-items:center;gap:7px;text-shadow:0 2px 0 #1a0f06,0 0 10px rgba(243,210,122,.3)}
 #gold i{display:inline-block;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff3a0 0 18%,#e6b52a 22% 62%,#8a5a00 66%);box-shadow:0 0 0 1.5px #5a3a00,inset 0 0 0 3px rgba(255,240,180,.25)}
-#cores{font-size:14px;color:var(--herb);text-shadow:0 1px 0 #000}
+#cores{white-space:nowrap;font-size:14px;color:var(--herb);text-shadow:0 1px 0 #000}
 #stage{text-align:right;font-size:13px;color:#cdb68a;line-height:1.15}
 #bio{display:none}#stage{white-space:nowrap}
 #stage b{font-family:'MedievalSharp',serif;font-weight:400;font-size:21px;color:var(--parch);text-shadow:0 2px 0 #1a0f06}
@@ -128,6 +128,15 @@ canvas{width:100%;height:100%;display:block;object-fit:contain;image-rendering:p
  #ver{font-size:13px}
 }
 @media (min-width:1500px) and (min-aspect-ratio:5/4){#app{grid-template-columns:minmax(0,1fr) 540px}}
+#ko{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:0 8%;text-align:center;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(60,0,0,.55),rgba(0,0,0,.85))}
+#ko.on{animation:kofx 3s ease forwards}
+#ko b{font-family:'MedievalSharp',serif;font-weight:400;font-size:clamp(26px,7vw,60px);color:#ff4a3a;text-shadow:0 3px 0 #000,0 0 22px rgba(255,40,20,.8);letter-spacing:.04em}
+#ko p{font-size:clamp(13px,2.6vw,18px);color:#f3e3b8;text-shadow:0 2px 0 #000;max-width:520px;line-height:1.35}
+#ko i{display:block;width:min(60%,300px);height:4px;background:#3a1010;border-radius:2px;overflow:hidden;position:relative}
+#ko i:after{content:'';position:absolute;inset:0;background:#f3d27a;transform-origin:left;animation:kobar 2.6s linear forwards}
+#ko.on i:after{animation:kobar 2.6s linear forwards}
+@keyframes kofx{0%{opacity:0}8%{opacity:1}88%{opacity:1}100%{opacity:0}}
+@keyframes kobar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 #lootfx{position:absolute;right:3%;bottom:14%;display:flex;align-items:center;gap:10px;padding:8px 16px 8px 10px;pointer-events:none;z-index:4;opacity:0;--rc:#f3d27a;
  background:linear-gradient(90deg,rgba(10,6,3,0),rgba(10,6,3,.9) 22%,rgba(10,6,3,.92));border-top:2px solid var(--rc);border-bottom:2px solid var(--rc);box-shadow:0 0 18px var(--rc);transform:skewX(-8deg)}
 #lootfx.go{animation:lfx 1.6s cubic-bezier(.2,.9,.3,1) forwards}
@@ -193,7 +202,7 @@ html,body{background:#0e0b08 var(--im-stone) repeat;background-size:180px 180px;
 .btn.go small{color:#ffd24a!important}
 .btn:disabled{filter:grayscale(.8) brightness(.55)}
 #tabs{background:linear-gradient(#1a120b,#120c07);border-bottom:2px solid #c9952e;padding:8px 8px 6px;gap:4px;box-shadow:none}
-#tabs button{background:transparent;clip-path:none;border-top:0;padding:4px 2px;transform:none;color:#e8d6ae;font-size:15px!important}
+#tabs button{background:transparent;clip-path:none;border-width:9px 13px;padding:2px 2px;transform:none;color:#e8d6ae;font-size:15px!important}
 #tabs button:before{display:none}
 #tabs button.on{background:transparent;color:#ffe9a8;transform:none}
 #panel{background:transparent}
@@ -208,6 +217,10 @@ html,body{background:#0e0b08 var(--im-stone) repeat;background-size:180px 180px;
 .ult{border:2px solid #b8862e;border-image:none;border-radius:4px;background:radial-gradient(ellipse at 50% 80%,#3a2a1a,#120b06);box-shadow:inset 0 0 10px rgba(0,0,0,.8),0 2px 4px rgba(0,0,0,.6)}
 .ult.rdy{border-color:#ffe08a;box-shadow:0 0 12px rgba(255,210,100,.8)}
 #wave{border:0;border-image:none;background:none;padding:0}
+.btn{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-align:center;min-height:38px}
+.btn.ib{min-height:0;padding:1px 4px}
+.card .buy{line-height:1.05}.card .buy small{margin-top:3px}
+.h,.btn,#tabs button{font-variant-numeric:lining-nums}
 .btn,.btn.on,.btn.go,#tabs button,#tabs button.on{box-shadow:none!important}
 .hbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:4px}.hb{border-width:7px 9px!important;border-image-width:7px 9px!important}
 .hb.best{filter:drop-shadow(0 0 5px rgba(140,230,80,.95)) drop-shadow(0 3px 2px rgba(0,0,0,.6))}
@@ -224,12 +237,12 @@ html,body{background:#0e0b08 var(--im-stone) repeat;background-size:180px 180px;
     <a id="home" href="../" aria-label="Zur Startseite">‹</a><div style="flex:1"><div id="gold" class="h"><i></i><span id="goldv">0</span></div><div id="cores"></div></div>
     <button class="btn ib" id="bMus" title="Musik an/aus">🎵</button><button class="btn ib" id="bAud" title="Lautstärke">⚙</button><button class="btn" id="bFs" title="Vollbild (F)" aria-label="Vollbild">⛶</button><div id="stage"><b id="stv">Stufe 1</b><br><span id="bio">Burghalle · </span><span id="dps">0 Schaden/s</span></div>
   </div>
-  <div id="field"><canvas id="c"></canvas><div id="wtop"><div id="wave"></div><button class="btn" id="bAdv">☠ Boss</button></div><div id="banner" class="h"></div><div id="lootfx"><div class="ic"><img></div><div class="lt"><small>BEUTE</small><b></b><i></i></div></div><div id="ultfx"><div class="band"></div><img><div class="txt"><small>ULT</small><b></b></div></div></div>
+  <div id="field"><canvas id="c"></canvas><div id="wtop"><div id="wave"></div><button class="btn" id="bAdv">☠ Boss</button></div><div id="banner" class="h"></div><div id="ko"><b></b><p></p><i></i></div><div id="lootfx"><div class="ic"><img></div><div class="lt"><small>BEUTE</small><b></b><i></i></div></div><div id="ultfx"><div class="band"></div><img><div class="txt"><small>ULT</small><b></b></div></div></div>
   <div id="bar"><div id="stx"></div><button class="btn" id="bAuto">Auto-Ult</button><button class="btn" id="bSpd">x1</button></div>
   <div id="ults"></div>
   <div id="tabs"><button class="btn on" data-t="bande">Bande</button><button class="btn" data-t="ausbau">Ausbau</button><button class="btn" data-t="schmiede">Ausrüstung</button><button class="btn" data-t="taverne">Taverne</button></div>
   <div id="panel"></div>
-  <div id="ver">Höhlenwacht · v1.5 · Testphase<span id="sv"></span></div>
+  <div id="ver">Höhlenwacht · v1.6 · Testphase<span id="sv"></span></div>
 </div>
 <div id="sheet"><div class="in"></div></div>
 <div id="aud"><div class="in"></div></div>
@@ -281,7 +294,7 @@ const UPG=[
  {id:'regen',n:'Feldflasche',d:l=>'Bande heilt '+(l*1)+' % Leben pro Sekunde',c0:5000,g:2.5,min:9}
 ];
 const TAL=[
- {id:'start',n:'Abkürzung',d:l=>'Startet nach dem Rückzug auf Stufe '+stName(1+l*3),c:l=>4*(l+1),max:10},
+ {id:'start',n:'Abkürzung',d:l=>'Startet nach dem Rückzug auf '+stName(1+l*3),c:l=>4*(l+1),max:10},
  {id:'off',n:'Lange Pause',d:l=>'Offline-Ertrag bis '+(4+l*2)+' Std.',c:l=>3*(l+1),max:10},
  {id:'ug',n:'Ult-Fokus',d:l=>'+'+(l*15)+' % Ult-Ladung',c:l=>4*(l+1),max:10},
  {id:'gd',n:'Goldader',d:l=>'+'+(l*25)+' % Gold',c:l=>Math.ceil(2*Math.pow(l+1,1.5)),max:50},
@@ -630,10 +643,10 @@ function hurtHero(h,d){if(h.dead)return;d*=(BUF.def>0?.3:1)*(1-(HEROES[h.k].bloc
 function update(dt){
  // Spawnen
  if(state==='fight'){if(spawnQ.length){spawnT-=dt;if(spawnT<=0){spawn(spawnQ.shift());spawnT=.55;}}
-  if(S.wave===WAVES&&enemies.length){bossT-=dt;if(bossT<=0)return fail('Zeit abgelaufen');}
+  if(S.wave===WAVES&&enemies.length){bossT-=dt;if(bossT<=0)return fail('Zeit abgelaufen!');}
   if(!spawnQ.length&&!alive(enemies).length)waveDone();
-  if(!alive(heroes).length)return fail('Die Bande ist k.o.');}
- else{stT-=dt;if(stT<=0){if(state==='next')startWave();}}
+  if(!alive(heroes).length)return fail('Die Bande ist K.O.!');}
+ else{stT-=dt;if(stT<=0){if(state==='next'||state==='ko')startWave();}}
  for(const b in BUF)BUF[b]=Math.max(0,BUF[b]-dt);
  const regen=ul('regen')*.01;
  // Helden
@@ -697,10 +710,11 @@ function waveDone(){state='next';stT=.6;
  else if(S.farm)S.wave=WAVES-1;
  else S.wave++;
  renderTop();}
-function fail(why){sfx('fail');showBan(why);state='next';stT=1.6;enemies=[];shots=[];spawnQ=[];
+function fail(why){sfx('fail');const boss=S.wave===WAVES;koFx(why,boss?'Boss nicht geschafft – die Bande übt jetzt Welle '+(WAVES-1)+'. Drück oben auf ☠ Boss, wenn du bereit bist.':'Die Bande rappelt sich auf und startet wieder bei Welle 1 dieser Stufe.');state='ko';stT=3;enemies=[];shots=[];spawnQ=[];
  if(S.wave===WAVES){S.farm=true;S.wmax=WAVES;}S.wave=S.farm?WAVES-1:1;for(const h of heroes){h.dead=false;h.hp=h.mh;h.x=HOME[h.k][0]-50;}renderTop();}
 const UCOL={kobold:'#d8dce4',geist:'#b48cff',lg3:'#9ad84a',marwin:'#f0c060',foku:'#8fe6ff',nille:'#c8d8f0',don:'#fff0a0',dino:'#e09050',allan:'#ff5a4a',artur:'#ff3020',molde:'#ff6ac8',kraeuter:'#8dff3a',koenig:'#ffd24a'};let slowT=0;
 function ultFx(k){const el=document.getElementById('ultfx');el.style.setProperty('--uc',UCOL[k]||'#f3d27a');el.querySelector('img').src=SPR[sprOf(k)].r;el.querySelector('b').textContent=HEROES[k].ult.n;el.classList.remove('go');void el.offsetWidth;el.classList.add('go');slowT=.3;}
+function koFx(t,p){const el=document.getElementById('ko');el.querySelector('b').textContent=t;el.querySelector('p').textContent=p;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');}
 function showBan(t,short){const b=document.getElementById('banner');b.textContent=t;b.classList.add('on');clearTimeout(banT);banT=setTimeout(()=>b.classList.remove('on'),short?700:1300);}
 
 /* ============ Zeichnen ============ */
@@ -749,11 +763,11 @@ function bulk(k){const l=S.heroes[k];if(buyN==='max'){const m=maxBuy(k);return m
 function renderTab(){const P=$('panel');let h='';
  if(tab==='bande'){h+=`<div class="box tmh">Im Kampf: <b>${team().length}</b> Helden${(n=>n?` · Nächster Held: <b>ab ${stName(HEROES[n].req)}</b>`:' · Alle Helden entdeckt')(HORDER.find(k=>!S.heroes[k]&&S.max<HEROES[k].req))}</div><div style="display:flex;gap:6px;margin-bottom:8px">${[1,10,'max'].map(n=>`<button class="btn ${buyN===n?'on':''}" data-n="${n}" style="flex:1">${n==='max'?'Max':'x'+n}</button>`).join('')}</div>`;
   for(const k of HORDER){const H0=HEROES[k],l=S.heroes[k];
-   if(!l){const ok=S.max>=H0.req;h+=`<div class="card locked"><div class="pic"><img src="${SPR[sprOf(k)].r}"></div><div class="t"><div class="n">${ok?H0.n:'???'}</div><div class="d">${ok?H0.d:'Taucht ab Stufe '+stName(H0.req)+' auf'}</div></div>${ok?`<button class="btn buy go" data-u="${k}">Anheuern<small>${fmt(H0.unlock)}</small></button>`:''}</div>`;continue;}
+   if(!l){const ok=S.max>=H0.req;h+=`<div class="card locked"><div class="pic"><img src="${SPR[sprOf(k)].r}"></div><div class="t"><div class="n">${ok?H0.n:'???'}</div><div class="d">${ok?H0.d:'Taucht ab '+stName(H0.req)+' auf'}</div></div>${ok?`<button class="btn buy go" data-u="${k}">Anheuern<small>${fmt(H0.unlock)}</small></button>`:''}</div>`;continue;}
    const inT=team().includes(k);
    const b=bulk(k),ms=25-(l%25);
    h+=`<div class="card ${inT?'inteam':''}"><div class="pic"><img src="${SPR[sprOf(k)].r}"></div><div class="t"><div class="n">${H0.n}<small>Lv ${l}</small></div><div class="d">${fmt(heroDmg(k,l))} Schaden · ${fmt(heroHp(k,l))} ♥<br>Ult: <b style="color:#2f6a12">${H0.ult.n}</b> – ${H0.ult.d}<br><span class="ms">in ${ms} Lv: Schaden ×2</span>${eqStrip(k)}</div></div><div class="col"><button class="btn buy" data-l="${k}">+${b.n} Lv<small>${fmt(b.c)}</small></button><button class="btn tm ${inT?'on':''}" data-tm="${k}">${inT?'✓ Im Team':'Ins Team'}</button></div></div>`;}}
- else if(tab==='ausbau'){for(const u of UPG){const l=ul(u.id);if(S.max<u.min){h+=`<div class="card locked"><div class="t"><div class="n">???</div><div class="d">Ab Stufe ${stName(u.min)}</div></div></div>`;continue;}
+ else if(tab==='ausbau'){for(const u of UPG){const l=ul(u.id);if(S.max<u.min){h+=`<div class="card locked"><div class="t"><div class="n">???</div><div class="d">Ab ${stName(u.min)}</div></div></div>`;continue;}
    h+=`<div class="card"><div class="t"><div class="n">${u.n}<small>Stufe ${l}</small></div><div class="d">${u.d(l)} → ${u.d(l+1)}</div></div><button class="btn buy" data-g="${u.id}">Ausbauen<small>${fmt(upgCost(u))}</small></button></div>`;}}
  else if(tab==='schmiede'){h+=renderSchmiede();}
  else{const cg=coreGain();
