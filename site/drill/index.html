@@ -585,6 +585,8 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 .elwf .elw{background:rgba(24,3,8,.96);padding:14px 20px}.elwf .elw b{font-size:clamp(18px,5.6vw,40px);white-space:nowrap}.elwf .elw span{font-size:clamp(12px,3.4vw,16px)}
 
 .augo-l span.mx{border-color:#ffd23f;color:#ffd23f}.augo-l span.mx b{color:#ffd23f}
+
+.sync{display:flex;gap:6px;margin-top:10px}.sync button{flex:1;padding:9px 4px;border-radius:9px;background:#0d1a24;border:1.5px solid #5ce8f0;color:#cfefff;font:700 11.5px var(--mono);cursor:pointer}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -802,7 +804,10 @@ async function pull() {
     if (c) lastSn = c.sn || 0; chkT = Date.now();
     const foreign = S.own && S.own !== myId();
     const rc = (c && c.rst) || 0, rs = S.rst || 0; // Zurücksetzen: der neuere Reset gewinnt, egal welcher Stand weiter ist
-    if (c && typeof c.cr === 'number' && (foreign || rc > rs || (rc === rs && (score(c) > score(S) || (score(c) === score(S) && (c.t || 0) > (S.t || 0)))))) {
+    const fr = !S.pc && (S.p || 1) <= 1 && !S.pAll; // frisches Gerät ohne Fortschritt
+    const other = c && typeof c.cr === 'number' && c.dev && c.dev !== DEV && (c.sn || 0) !== (S.sn || 0) && rc === rs && !fr && !foreign && score(c) !== score(S);
+    if (other) { lastSn = c.sn || 0; pulled = true; svState(); showConflict(c); return; } // zwei Geräte mit verschiedenem Stand → selbst auswählen lassen
+    if (c && typeof c.cr === 'number' && (foreign || rc > rs || (rc === rs && (fr || score(c) > score(S) || (score(c) === score(S) && (c.t || 0) > (S.t || 0)))))) {
       S = norm(c); cleanSave(); try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {}
       if (W) buildPlanet(S.done || 0); render(); toast('Spielstand vom Konto geladen');
     } else if (!c && foreign) { S = fresh(); if (W) buildPlanet(0); render(); }
@@ -2869,7 +2874,14 @@ function openSettings() {
     <label class="vrow" style="cursor:pointer"><span>📳 Vibration</span><input type="checkbox" id="vvib" ${vibOn ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">${navigator.vibrate ? '' : 'geht auf diesem Gerät nicht'}</b></label>
     <label class="vrow" style="cursor:pointer"><span>👾 Pixel-Art-Grafik</span><input type="checkbox" id="vretro" ${RETRO ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">scharfe Pixel wie im Titelbild (aus = weicher, höhere Auflösung)</b></label>
     <p style="margin-top:8px">${logged() ? '☁ Dein Stand wird auf deinem Konto gespeichert.' : '💾 Ohne Konto wird nur auf diesem Gerät gespeichert.'} · Version ${VLABEL}</p>
+    ${logged() ? `<div class="sync"><button id="vup">⬆ Diesen Stand ins Konto</button><button id="vdn">⬇ Stand vom Konto laden</button></div>` : ''}
     <button class="rst" id="vrst">🗑 Spielstand zurücksetzen</button>`, [['Fertig', null]]);
+  const sum = o => `Planet ${o.p || 1} (U${uniOf(o.p || 1)}) · ${o.pc || 0} Warps · ✦${fmt(o.dmAll || 0)}`;
+  if ($('vup')) $('vup').onclick = () => overlay(`<h2>Diesen Stand hochladen?</h2><p>Dein Konto bekommt den Stand von <b>diesem Gerät</b>:<br>${sum(S)}<br><br>Andere Geräte laden ihn beim nächsten Start.</p>`,
+    [['Hochladen', async () => { try { S.t = Date.now(); S.dev = DEV; S.sn = lastSn + 1; lastSn = S.sn; conflict = false; chkT = Date.now(); localStorage.setItem('gb_save', JSON.stringify(S)); await BB.cloud.put('drill', S, true); const c = await BB.cloud.get('drill'); toast(c && c.sn === S.sn ? '☁ Stand ist im Konto' : 'Hochladen hat nicht geklappt – nochmal versuchen'); } catch (e) { toast('Hochladen hat nicht geklappt'); } }], ['Abbrechen', null]]);
+  if ($('vdn')) $('vdn').onclick = async () => { let c = null; try { c = await BB.cloud.get('drill'); } catch (e) {} if (!c || c.v !== VER) return toast('Im Konto ist kein Stand gespeichert');
+    overlay(`<h2>Stand vom Konto laden?</h2><p>Im Konto: <b>${sum(c)}</b><br>Auf diesem Gerät: ${sum(S)}<br><br>Der Stand auf diesem Gerät wird ersetzt.</p>`,
+      [['Laden', () => { S = norm(c); cleanSave(); lastSn = c.sn || 0; conflict = false; S.t = Date.now(); try { localStorage.setItem('gb_save', JSON.stringify(S)); } catch (e) {} buildPlanet(S.done || 0); render(); toast('☁ Stand vom Konto geladen'); }], ['Abbrechen', null]]); };
   $('vrst').onclick = () => overlay(`<h2>Spielstand zurücksetzen?</h2><p>Bist du dir sicher? Dein ganzer Fortschritt im Galaxie-Bohrer wird gelöscht: Planeten, Waffen, Warps, ✦, ◆, Hangar und Fähigkeiten.</p>`,
     [['Ja, zurücksetzen', () => setTimeout(() => overlay(`<h2 style="color:#ff4a62">Wirklich sicher?</h2><p>Das kann man <b>nicht rückgängig</b> machen. Du fängst komplett bei Planet 1 an.</p>`,
       [['Ja, alles löschen', () => resetGame()], ['Nein, doch nicht', null]]), 60)], ['Abbrechen', null]]);
