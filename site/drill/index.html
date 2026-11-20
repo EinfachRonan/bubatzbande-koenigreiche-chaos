@@ -576,6 +576,8 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 .augo-l svg{width:16px;height:16px}.augo-l em{font:11px var(--mono);color:#c3d3da;font-style:normal;margin-right:2px}.augo-l b{font:700 12px var(--mono);color:#fff}.augo-l i{font:10px var(--mono);color:#7f9196;font-style:normal}
 .augo-e{font:12px var(--mono);color:#9fb3bb}
 @media (min-width:900px){.augo-l svg{width:20px;height:20px}.augo-l b{font-size:14px}}
+
+.fg-r.tri{gap:3px;justify-content:space-between}.fg-r.tri>*{flex:0 0 auto!important}.fg-r.tri>.pl{width:auto!important;min-width:0!important;padding:0!important;margin:0 1px!important}.fg-r.tri>.fg-ic:not(.big){width:28px!important;height:28px!important}.fg-r.tri>.fg-ic.big{width:44px!important;height:44px!important}.fg-r.tri small{font-size:9px}.fg-r.tri .pl{margin:0 1px}.fg-r.tri .fg-ic:not(.big){width:26px;height:26px}.fg-r.tri .fg-ic:not(.big) svg{width:18px;height:18px}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -656,16 +658,10 @@ const HYB = {
   x_traeger: { n: 'Drohnenträger', p: ['drones', 'rockets'], d: 'Die Drohnen feuern selbst Zielsuch-Raketen, +2 Raketen pro Salve', c: '#ffb07a' },
   x_sturm: { n: 'Sturmpeitsche', p: ['whip', 'chain'], d: 'Jeder Peitschenhieb entlädt am Ende Kettenblitze', c: '#7af0ff' },
   x_malstrom: { n: 'Mahlstrom', p: ['grav', 'tornado'], d: 'Tornados mit Schwerkraftkern – doppelt so breit', c: '#d68cff' },
-  x_prisma: { n: 'Prisma-Blaster', p: ['line', 'scatter'], d: 'Blaster-Schüsse zersplittern beim Aufprall in einen Funkenregen', c: '#fff07a' },
+  x_prisma: { n: 'Prisma-Railgun', p: ['line', 'scatter', 'sniper'], d: 'Dreier-Fusion aller Schusswaffen: Blaster-Schüsse zersplittern in Funken, Scharfschüsse +35 % Krit', c: '#fff07a' },
   x_geist: { n: 'Nova-Säge', p: ['saw', 'nova'], d: 'Die Sägeblätter zünden kleine Nova-Explosionen', c: '#b8ffb0' },
   x_minen: { n: 'Bohrminen', p: ['drill', 'mine'], d: 'Bohrlanze und Minen im Doppelpack: +4 Minen pro Salve', c: '#ff8a5c' },
-  x_bum: { n: 'Sternbumerang', p: ['star', 'boomer'], d: 'Kristall-Bumerangs: +2 Bumerangs pro Wurf', c: '#ff9ad8' },
-  x_frostblitz: { n: 'Frostblitz', p: ['chain', 'frost'], d: 'Kettenblitze frieren jeden Block ein, den sie treffen (+30 % Schaden)', c: '#bfe9ff' },
-  x_rail: { n: 'Railgun', p: ['sniper', 'line'], d: 'Scharfschuss mit Blaster-Kern: +35 % Krit-Chance', c: '#fff3a0' },
-  x_schwer: { n: 'Schwerkraft-Meteor', p: ['meteor', 'grav'], d: 'Meteore mit Gravitonkern: viel größere Krater', c: '#ffb36b' },
-  x_bohrsturm: { n: 'Bohrsturm', p: ['drill', 'tornado'], d: 'Bohrende Wirbelstürme: +1 Tornado', c: '#8fd8ff' },
-  x_saegenring: { n: 'Sägenring', p: ['saw', 'drones'], d: 'Drohnen tragen Sägeblätter: +3 Sägen ums Schiff', c: '#e6ff9a' },
-  x_novamine: { n: 'Nova-Minen', p: ['mine', 'nova'], d: 'Minen zünden als kleine Nova: größerer Explosionsradius', c: '#a8ffcf' }
+  x_bum: { n: 'Sternbumerang', p: ['star', 'boomer'], d: 'Kristall-Bumerangs: +2 Bumerangs pro Wurf', c: '#ff9ad8' }
 };
 const HYBM = 2.2, HYBLV = 100, HYBCOST = 30;
 let HP = {}; // Eltern-Waffe -> aktive Hybrid-Waffe
@@ -829,7 +825,7 @@ const dmGain = () => { let t = 0; for (let j = 1; j <= S.p - 2; j++) t += dmPer(
 const mult = () => (G && (G.boss || G.elite) ? 1 + .15 * SK('boss') : 1) * (1 + .08 * SK('core')) * (1 + HA('dmg')) * (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 2 : 1);
 const crMult = () => (1 + .1 * SK('gold')) * (1 + HA('cr')) * (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('r') * (buf('cr') ? 2 : 1);
 const totalDps = () => WEAP.reduce((a, w) => a + wDps(w), 0);
-const WD = id => (HP[id] && !S.w[id]) ? wDps(WEAP.find(x => x.id === HP[id])) / 2 : wDps(WEAP.find(x => x.id === id));
+const WD = id => (HP[id] && !S.w[id]) ? wDps(WEAP.find(x => x.id === HP[id])) / HYB[HP[id]].p.length : wDps(WEAP.find(x => x.id === id));
 const fmtX = v => v < 100 ? v.toFixed(v < 10 ? 2 : 1) : fmt(v);
 // Aufschlüsselung des Multiplikators (oben antippen)
 function mulInfo() {
@@ -897,7 +893,7 @@ const PERKS = {
   t: [[3, 'Kühlung', 'Fähigkeiten laden 10 % schneller'], [6, 'Warp-Gleiter', 'Schiff fliegt 30 % schneller um den Planeten'], [10, 'Turbo-Kern', '+25 % Feuerrate für alle Waffen']]
 };
 const PK = (sl, lv) => !!S && !!S.eq && ILV(eqItem(sl).id) >= lv;
-const critCh = () => .04 * SK('crit') + HA('crit') + (PK('r', 3) ? .1 : 0) + (curW === 'sniper' && HY('x_rail') ? .35 : 0);
+const critCh = () => .04 * SK('crit') + HA('crit') + (PK('r', 3) ? .1 : 0) + (curW === 'sniper' && HY('x_prisma') ? .35 : 0);
 const rate = () => (1 + .1 * SK('spd')) * itemBonus('t') * (PK('t', 10) ? 1.25 : 1) * (1 + .08 * WP('tempo'));
 const MS = [10, 25, 50, 100];
 const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100) / 100) : 0);
@@ -905,7 +901,7 @@ const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(2
 const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l >= 200 ? Math.floor(l / 100) * 100 : p; };
 const ST = id => msN(WL(id));
 const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', whip: 'längere Peitsche', x_komet: 'stärkerer Hagel', x_traeger: 'mehr Raketen', x_sturm: 'mehr Blitze', x_malstrom: 'stärkerer Sog', x_prisma: 'mehr Funken', x_geist: 'mehr Nova-Explosionen', x_minen: 'stärkere Bohrminen', x_bum: 'stärkere Sternbumerangs', x_frostblitz: 'stärkerer Frostblitz', x_rail: 'stärkere Railgun', x_schwer: 'stärkere Meteore', x_bohrsturm: 'stärkere Bohrstürme', x_saegenring: 'schärfere Sägen', x_novamine: 'stärkere Nova-Minen', rockets: 'eine Rakete mehr', grav: 'größerer Sog', tornado: 'ein Wirbel mehr', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
-const wDps = w => { const l = S.w[w.id] || 0; return l ? (w.hyb ? HYBM : 1) * T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() * (1 + HAw(w.id)) * (1 + .5 * ML(w.id)) : 0; };
+const wDps = w => { const l = S.w[w.id] || 0; return l ? (w.hyb ? HYBM * (HYB[w.id].p.length > 2 ? 1.5 : 1) : 1) * T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() * (1 + HAw(w.id)) * (1 + .5 * ML(w.id)) : 0; };
 // ================== Waffen-Mods: mit ⬢ Chips (1 Chip pro 5 geschaffte Planeten), bleiben für immer ==================
 const ML = id => HYB[id] ? Math.max(...HYB[id].p.map(p => (S.mod || {})[p] || 0)) : (S.mod || {})[id] || 0;
 const MOD_MAX = 5;
@@ -2060,7 +2056,7 @@ function augCard(c, k) { const T = AUGT[c.t];
 const NEWS = [
   ['🃏', 'Augmente statt Skills', 'Nach jedem Planeten wählst du 1 von 3 Augmenten. Jede Karte kannst du einmal neu würfeln. Gewöhnlich +1 Stufe, Silber +2, Gold +3.'],
   ['✨', '3 neue Skills', 'Riesentöter (mehr Schaden auf Boss & Elite), Abrissbirne (fast kaputte Blöcke zerbröseln) und Krit-Wucht (härtere Krits).'],
-  ['⚒', '8 neue Hybrid-Waffen', 'Bohrminen, Sternbumerang, Frostblitz, Railgun, Schwerkraft-Meteor, Bohrsturm, Sägenring und Nova-Minen. Jede Waffe passt nur in einen Hybrid – plan deinen Build!'],
+  ['⚒', 'Schmiede komplett', 'Neu: Bohrminen, Sternbumerang und die Dreier-Fusion Prisma-Railgun. Jede Waffe gehört zu genau einem Rezept – wer alle Waffen hat, kann alle verschmelzen.'],
   ['🎯', '8 Fähigkeiten-Plätze', 'Deine Hotbar hat jetzt 8 statt 5 Plätze.'],
   ['🌀', 'Warp alle 5 Planeten', 'Der nächste Warp braucht nur 5 Planeten mehr. Der Waffenslot-Warp startet direkt mit +1 Slot.'],
   ['💥', 'Waffen überarbeitet', 'Neue Plasma-Nova, die Plasmapeitsche wird ab Stufe 50 deutlich länger. Ab Stufe 100 bekommen Kettenblitz, Nova, Minen und Wirbelsturm deutlich mehr Reichweite.'],
@@ -2574,16 +2570,16 @@ function loginCheck() {
 const hybReady = h => HYB[h].p.every(p => (S.w[p] || 0) >= HYBLV);
 function renderForge(L) {
   const ic = (id, big) => `<span class="fg-ic${big ? ' big' : ''}" style="color:${WCOL[id]};border-color:${WCOL[id]}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${WICO[id] || ''}</svg></span>`;
-  L.innerHTML = `<div class="hint" style="margin:0 2px 10px">Zwei Waffen auf <b>Stufe ${HYBLV}</b> verschmelzen zu einer Hybrid-Waffe: ×${HYBM} Schaden, ein Spezial-Effekt und ein freier Waffenslot. Gilt bis zum nächsten Warp. Jede Waffe kann nur in <b>einer</b> Hybrid-Waffe stecken – entscheide dich!</div>` +
+  L.innerHTML = `<div class="hint" style="margin:0 2px 10px">Zwei Waffen auf <b>Stufe ${HYBLV}</b> verschmelzen zu einer Hybrid-Waffe: ×${HYBM} Schaden, ein Spezial-Effekt und ein freier Waffenslot. Gilt bis zum nächsten Warp. Jede Waffe gehört zu genau einem Rezept – so kannst du am Ende <b>alle</b> Waffen verschmelzen.</div>` +
     Object.keys(HYB).map(h => { const H = HYB[h], on = HY(h), ok = hybReady(h), lv = H.p.map(p => S.w[p] || 0), gone = H.p.some(p => HP[p] && HP[p] !== h);
-      return `<div class="fg${on ? ' on' : ok ? ' rdy' : ''}" style="--hc:${H.c}"><div class="fg-r">${ic(H.p[0])}<small>${on ? '✔' : Math.min(lv[0], HYBLV) + '/' + HYBLV}</small><b class="pl">+</b>${ic(H.p[1])}<small>${on ? '✔' : Math.min(lv[1], HYBLV) + '/' + HYBLV}</small><b class="pl">=</b>${ic(h, 1)}</div>
-        <div class="fg-t"><b>${H.n}</b><span>${H.d}</span><em>${WEAP.find(w => w.id === H.p[0]).n} + ${WEAP.find(w => w.id === H.p[1]).n}</em></div>
-        ${on ? `<div class="fg-on">AKTIV · Stufe ${S.w[h]}</div>` : `<button class="br${ok ? ' again' : ''}" data-fg="${h}" ${ok && !gone && S.cry >= HYBCOST ? '' : 'disabled'}>${gone ? 'Waffe schon verschmolzen' : ok ? '⚒ SCHMIEDEN · ◆' + HYBCOST : 'Beide auf Stufe ' + HYBLV + ' bringen'}</button>`}</div>`; }).join('');
+      return `<div class="fg${on ? ' on' : ok ? ' rdy' : ''}" style="--hc:${H.c}"><div class="fg-r${H.p.length > 2 ? ' tri' : ''}">${H.p.map((p, k) => `${k ? '<b class="pl">+</b>' : ''}${ic(p)}<small>${on ? '✔' : Math.min(lv[k], HYBLV) + '/' + HYBLV}</small>`).join('')}<b class="pl">=</b>${ic(h, 1)}</div>
+        <div class="fg-t"><b>${H.n}</b><span>${H.d}</span><em>${H.p.map(p => WEAP.find(w => w.id === p).n).join(' + ')}</em></div>
+        ${on ? `<div class="fg-on">AKTIV · Stufe ${S.w[h]}</div>` : `<button class="br${ok ? ' again' : ''}" data-fg="${h}" ${ok && !gone && S.cry >= HYBCOST ? '' : 'disabled'}>${gone ? 'Waffe schon verschmolzen' : ok ? '⚒ SCHMIEDEN · ◆' + HYBCOST : (H.p.length > 2 ? 'Alle drei' : 'Beide') + ' auf Stufe ' + HYBLV + ' bringen'}</button>`}</div>`; }).join('');
   L.querySelectorAll('[data-fg]').forEach(b => b.onclick = () => forge(b.dataset.fg));
 }
 function forge(h) {
-  const H = HYB[h]; if (!hybReady(h) || S.cry < HYBCOST || HY(h)) return; const [a, b] = H.p, ia = S.wo.indexOf(a), ib = S.wo.indexOf(b); if (ia < 0 || ib < 0) return;
-  S.cry -= HYBCOST; const hi = Math.max(ia, ib), lo = Math.min(ia, ib); S.w[h] = Math.min(S.w[a], S.w[b]); delete S.w[a]; delete S.w[b]; S.wo[hi] = h; S.wo[lo] = '_'; S.offer = null; hybSync();
+  const H = HYB[h]; if (!hybReady(h) || S.cry < HYBCOST || HY(h)) return; const ix = H.p.map(p => S.wo.indexOf(p)); if (ix.some(i => i < 0)) return;
+  S.cry -= HYBCOST; const hi = Math.max(...ix); S.w[h] = Math.min(...H.p.map(p => S.w[p])); for (const p of H.p) delete S.w[p]; for (const i of ix) S.wo[i] = '_'; S.wo[hi] = h; S.offer = null; hybSync();
   save('now'); SND.fx.win(); vib([60, 40, 120]); shake = 10; lflash(); render(); cele('HYBRID GESCHMIEDET!', H.n + ' · ×' + HYBM + ' Schaden');
 }
 function renderStats(L) {
@@ -2886,6 +2882,8 @@ function cleanSave() {
   if (S.wReq == null) S.wReq = S.pc ? Math.max(10, Math.ceil((S.p + 1) / 10) * 10) : 10;
   if (!S.aug1) { S.aug1 = 1; let back = 0; for (const k in (S.sk || {})) for (let l = 0; l < S.sk[k]; l++) back += 1 + l; S.sk = {}; S.cry += back; S.augO = null;
     S.augQ = Math.max(1, S.p - (1 + 2 * WP('skip')) + 1); if (S.p > 1 || back) S.augMsg = back; } // Skills sind jetzt Augmente
+  for (const h of ['x_frostblitz', 'x_rail', 'x_schwer', 'x_bohrsturm', 'x_saegenring', 'x_novamine']) if (S.w && S.w[h]) { const P = { x_frostblitz: ['chain', 'frost'], x_rail: ['sniper', 'line'], x_schwer: ['meteor', 'grav'], x_bohrsturm: ['drill', 'tornado'], x_saegenring: ['saw', 'drones'], x_novamine: ['mine', 'nova'] }[h], l = S.w[h]; delete S.w[h];
+    const i = S.wo.indexOf(h); S.wo[i] = P[0]; const j = S.wo.indexOf('_'); if (j >= 0) S.wo[j] = P[1]; else S.wo.push(P[1]); for (const p of P) S.w[p] = Math.max(S.w[p] || 0, l); } // Rezept gibt's nicht mehr
   if (!S.slot1b) { S.slot1b = 1; if ((S.wpu || []).includes('slot') && WP('slot') < 8) S.wp.slot = WP('slot') + 1; } // Waffenslot-Warp: Stufe 1 jetzt gratis, alte Stände bekommen sie nach
   if (!S.wq5b) { S.wq5b = 1; if (S.wReq > 10) S.wReq = Math.max(10, S.wReq - (S.wReq >= 41 ? 15 : 5)); } // Hürde jetzt +5 statt +10/+20: alte Stände anpassen
   S.wo = (S.wo || ['line']).filter(id => id === '_' || WEAP.find(w => w.id === id)); hybSync(); if (!S.wo.length) S.wo = ['line'];
