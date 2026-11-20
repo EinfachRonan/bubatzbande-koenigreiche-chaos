@@ -2600,6 +2600,65 @@ const SND = (() => {
   }
   function apply() { if (!ctx) return; mus.gain.setTargetAtTime(curve(vol.m) * .55, ctx.currentTime, .1); sfx.gain.setTargetAtTime(curve(vol.s) * .7, ctx.currentTime, .05); }
   const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+  // Soundtrack-Wahl: 'space' (Weltraum, Standard) oder 'lofi' (alter Track)
+  let TRACK = 'space'; try { TRACK = localStorage.getItem('gb_track') || 'space'; } catch (e) {}
+  // ---------- Weltraum-Track „Sternenstaub“: D-Moll Synthwave · Dm – B♭ – F – C ----------
+  const SCH = [[50, 53, 57, 62, 65], [46, 50, 53, 58, 62], [53, 57, 60, 65, 69], [48, 52, 55, 60, 64]], SBASS = [38, 34, 41, 36];
+  const SMEL = [62, 64, 65, 67, 69, 72, 74, 76, 77];
+  const ARP = [0, 2, 1, 3, 2, 4, 3, 1];
+  let padBus = null;
+  function sInit() { if (padBus) return; padBus = ctx.createGain(); padBus.gain.value = 1; padBus.connect(mus); padBus.connect(verb); }
+  function sPad(t, notes, dur) {
+    for (const n of notes) { const o = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
+      o.type = 'sawtooth'; o2.type = 'sawtooth'; o.frequency.value = hz(n); o2.frequency.value = hz(n) * 1.006; o2.detune.value = -7;
+      f.type = 'lowpass'; f.frequency.setValueAtTime(700, t); f.frequency.linearRampToValueAtTime(1600, t + dur * .6); f.frequency.linearRampToValueAtTime(900, t + dur); f.Q.value = .7;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.018, t + .9); g.gain.setValueAtTime(.018, t + dur - .5); g.gain.linearRampToValueAtTime(0, t + dur + .8);
+      o.connect(f); o2.connect(f); f.connect(g); g.connect(padBus); o.start(t); o2.start(t); o.stop(t + dur + .9); o2.stop(t + dur + .9); }
+  }
+  function sPump(t, beat) { const g = padBus.gain; g.setValueAtTime(.35, t); g.linearRampToValueAtTime(1, t + beat * .8); }
+  function sArp(t, n, v, open) { const o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter(); o.type = 'sawtooth'; o.frequency.value = hz(n);
+    f.type = 'lowpass'; f.Q.value = 6; f.frequency.setValueAtTime(900 + open * 2600, t); f.frequency.exponentialRampToValueAtTime(380, t + .16);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .005); g.gain.exponentialRampToValueAtTime(.0006, t + .22);
+    o.connect(f); f.connect(g); g.connect(mus); g.connect(dly); o.start(t); o.stop(t + .25); }
+  function sSub(t, n, dur, v) { const o = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter(); o.type = 'sine'; o2.type = 'square'; o.frequency.value = hz(n); o2.frequency.value = hz(n);
+    f.type = 'lowpass'; f.frequency.value = 260; const g2 = ctx.createGain(); g2.gain.value = .25; o2.connect(g2); g2.connect(f); o.connect(f);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .015); g.gain.exponentialRampToValueAtTime(.002, t + dur); f.connect(g); g.connect(mus); o.start(t); o2.start(t); o.stop(t + dur + .05); o2.stop(t + dur + .05); }
+  function sSnare(t, v) { const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = noise(); f.type = 'bandpass'; f.frequency.value = 1900; f.Q.value = .6;
+    g.gain.setValueAtTime(v, t); g.gain.setValueAtTime(v * .6, t + .09); g.gain.linearRampToValueAtTime(0, t + .2); s.connect(f); f.connect(g); g.connect(mus); g.connect(verb); s.start(t); s.stop(t + .22);
+    const o = ctx.createOscillator(), og = ctx.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(140, t + .08); og.gain.setValueAtTime(v * .8, t); og.gain.exponentialRampToValueAtTime(.001, t + .1); o.connect(og); og.connect(mus); o.start(t); o.stop(t + .12); }
+  function sStar(t, n) { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = hz(n); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.03, t + .02); g.gain.exponentialRampToValueAtTime(.0005, t + 1.6); o.connect(g); g.connect(verb); g.connect(dly); o.start(t); o.stop(t + 1.7); }
+  function sLead(t, n, dur) { const o = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter(), lfo = ctx.createOscillator(), lg = ctx.createGain();
+    o.type = 'square'; o2.type = 'sawtooth'; o.frequency.value = hz(n); o2.frequency.value = hz(n) * 1.003; lfo.frequency.value = 5.2; lg.gain.value = 9; lfo.connect(lg); lg.connect(o.detune); lg.connect(o2.detune);
+    f.type = 'lowpass'; f.frequency.value = 2200; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.03, t + .04); g.gain.setValueAtTime(.03, t + dur * .7); g.gain.linearRampToValueAtTime(0, t + dur);
+    o.connect(f); o2.connect(f); f.connect(g); g.connect(mus); g.connect(dly); g.connect(verb); [o, o2, lfo].forEach(x => { x.start(t); x.stop(t + dur + .05); }); }
+  let sMel = 4;
+  function tickSpace(lv) {
+    sInit();
+    const x = 60 / (92 + 10 * lv) / 4; // Sechzehntel
+    while (nextT < ctx.currentTime + .4) {
+      const t = nextT, bar = Math.floor(step / 16), s16 = step % 16, ci = Math.floor(bar / 2) % 4, ch = SCH[ci], beat = x * 4;
+      const sec = Math.floor(bar / 16) % 4, brk = sec === 3 && !lv; // alle 64 Takte: 16 Takte ruhiger Break
+      if (s16 === 0 && bar % 2 === 0) sPad(t, ch, x * 32);
+      if (s16 % 4 === 0 && (bar >= 4 || lv) && !brk) sPump(t, beat);
+      // Arpeggio: Sechzehntel, Filter öffnet sich über 8 Takte
+      if (bar >= 2 || lv) { const n = ch[ARP[step % 8] % ch.length] + 12 + (s16 >= 12 && bar % 2 ? 12 : 0); const open = ((bar % 8) + s16 / 16) / 8;
+        if (!brk || s16 % 2 === 0) sArp(t, n, brk ? .018 : .03, brk ? .1 : open); }
+      // Bass: Achtel-Puls
+      if ((bar >= 4 || lv) && !brk && s16 % 2 === 0) sSub(t, SBASS[ci] + (s16 === 14 && bar % 2 ? 7 : 0), x * 1.8, s16 % 4 === 0 ? .14 : .09);
+      if (brk && s16 === 0) sSub(t, SBASS[ci], x * 14, .1);
+      // Drums ab Takt 8 (oder sofort bei Action)
+      if ((bar >= 8 || lv) && !brk) { if (s16 % 4 === 0) kick(t); if (s16 === 4 || s16 === 12) sSnare(t, lv >= 2 ? .11 : .08); if (s16 % 2 === 1 || lv >= 2) hat(t, s16 % 4 === 2 ? .024 : .014); }
+      // Sternen-Glitzern
+      if (s16 % 4 === 2 && Math.random() < .22) sStar(t, SMEL[(Math.random() * SMEL.length) | 0] + 12);
+      // Lead-Melodie in den vollen Teilen und bei Action
+      if ((sec === 2 || lv >= 2) && !brk && (s16 === 0 || s16 === 6 || s16 === 10) && Math.random() < .7) {
+        sMel = Math.max(0, Math.min(SMEL.length - 1, sMel + [-2, -1, 1, 2, 0][(Math.random() * 5) | 0]));
+        const tgt = SMEL.reduce((a, b) => ch.some(c => (b - c) % 12 === 0) && Math.abs(b - SMEL[sMel]) < Math.abs(a - SMEL[sMel]) ? b : a, SMEL[sMel]);
+        sLead(t, tgt, x * (s16 === 0 ? 5.5 : 3.5));
+      }
+      nextT += x; step++;
+    }
+  }
   // A-Moll Lo-Fi: Am9 – Fmaj7 – Cmaj7 – G6 · 76 BPM
   const CH = [[57, 60, 64, 67, 71], [53, 57, 60, 64, 67], [48, 55, 59, 64, 67], [55, 59, 62, 64, 69]], BASS = [45, 41, 36, 43];
   const SCALE = [69, 72, 74, 76, 79, 81, 84, 86];
@@ -2621,6 +2680,7 @@ const SND = (() => {
     if (!ctx) return;
     // Intensität 0–3: steigt mit Boost, Hyperschub/Goldrausch, frisch gezündeten Fähigkeiten und Bossen
     const hy = typeof window.gbHype === 'function' ? window.gbHype() : 0; hyS += (hy - hyS) * .25; const lv = Math.round(hyS);
+    if (TRACK === 'space') return tickSpace(lv);
     const e = 60 / (76 + 14 * lv) / 2;
     while (nextT < ctx.currentTime + .4) {
       const t = nextT, bar = Math.floor(step / 8), ci = bar % 4, s8 = step % 8, ch = CH[ci];
@@ -2654,7 +2714,9 @@ const SND = (() => {
   };
   ['pointerdown', 'keydown', 'touchstart'].forEach(ev => window.addEventListener(ev, start, { passive: true }));
   document.addEventListener('visibilitychange', () => { if (!ctx) return; if (document.hidden) ctx.suspend(); else if (started) ctx.resume(); });
-  return { fx, get vol() { return vol; }, set(k, v) { vol[k] = Math.max(0, Math.min(1, v)); try { if (window.BB && BB.setVol) BB.setVol(k, vol[k]); else localStorage.setItem('gb_vol', JSON.stringify(vol)); } catch (e) {} apply(); }, start };
+  function setTrack(k) { if (k === TRACK) return; TRACK = k; try { localStorage.setItem('gb_track', k); } catch (e) {}
+    if (ctx) { const t = ctx.currentTime; mus.gain.setTargetAtTime(0, t, .08); setTimeout(() => { step = 0; nextT = ctx.currentTime + .15; apply(); }, 450); } }
+  return { fx, get track() { return TRACK; }, setTrack, get vol() { return vol; }, set(k, v) { vol[k] = Math.max(0, Math.min(1, v)); try { if (window.BB && BB.setVol) BB.setVol(k, vol[k]); else localStorage.setItem('gb_vol', JSON.stringify(vol)); } catch (e) {} apply(); }, start };
 })();
 // Vibration am Handy (geht auf Android; iPhones unterstützen das im Browser nicht)
 let vibOn = true; try { vibOn = localStorage.getItem('gb_vib') !== '0'; } catch (e) {}
@@ -2663,12 +2725,14 @@ function openSettings() {
   const v = SND.vol;
   overlay(`<h2>Einstellungen</h2>
     <div class="vrow"><span>🎵 Musik</span><input type="range" min="0" max="100" value="${Math.round(v.m * 100)}" id="vm"><b id="vmv">${Math.round(v.m * 100)}</b></div>
+    <div class="vrow"><span>🎶 Soundtrack</span><select id="vtr" style="flex:1;min-width:0;background:#0d1a20;color:#e8f4f6;border:1px solid #2a4650;border-radius:8px;padding:7px 8px;font:inherit"><option value="space" ${SND.track === 'space' ? 'selected' : ''}>🌌 Sternenstaub (Weltraum)</option><option value="lofi" ${SND.track === 'lofi' ? 'selected' : ''}>☕ Lo-Fi (klassisch)</option></select></div>
     <div class="vrow"><span>💥 Effekte</span><input type="range" min="0" max="100" value="${Math.round(v.s * 100)}" id="vs"><b id="vsv">${Math.round(v.s * 100)}</b></div>
     <label class="vrow" style="cursor:pointer"><span>📳 Vibration</span><input type="checkbox" id="vvib" ${vibOn ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">${navigator.vibrate ? '' : 'geht auf diesem Gerät nicht'}</b></label>
     <label class="vrow" style="cursor:pointer"><span>👾 Pixel-Art-Grafik</span><input type="checkbox" id="vretro" ${RETRO ? 'checked' : ''} style="flex:none;width:22px;height:22px"><b style="width:auto;flex:1;text-align:left;font-size:11px;color:#8fa3a8">scharfe Pixel wie im Titelbild (aus = weicher, höhere Auflösung)</b></label>
     <p style="margin-top:8px">${logged() ? '☁ Dein Stand wird auf deinem Konto gespeichert.' : '💾 Ohne Konto wird nur auf diesem Gerät gespeichert.'} · Version ${VLABEL}</p>`, [['Fertig', null]]);
   const bind = (id, k) => { const el = $(id); el.oninput = () => { SND.set(k, el.value / 100); $(id + 'v').textContent = el.value; if (k === 's') SND.fx.up(); }; };
   bind('vm', 'm'); bind('vs', 's');
+  $('vtr').onchange = e => SND.setTrack(e.target.value);
   $('vretro').onchange = e => { RETRO = e.target.checked; try { localStorage.setItem('gb_retro', RETRO ? '1' : '0'); } catch (x) {} resize(); };
   $('vvib').onchange = e => { vibOn = e.target.checked; try { localStorage.setItem('gb_vib', vibOn ? '1' : '0'); } catch (x) {} if (vibOn) vib(60); };
 }
