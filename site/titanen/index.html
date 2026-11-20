@@ -42,13 +42,16 @@ html,body{height:100%;color:var(--parch);font-family:'Alegreya Sans',system-ui,s
 #banner{position:absolute;left:50%;top:40%;transform:translateX(-50%) scale(.9);font-family:'MedievalSharp',serif;font-size:21px;color:#2a1608;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;
  padding:5px 30px 7px;background:linear-gradient(#f4e4bb,#d9bf86);border-top:2px solid #8a6a3a;border-bottom:2px solid #8a6a3a;box-shadow:0 4px 0 rgba(0,0,0,.45),inset 0 0 14px rgba(120,80,30,.35)}
 #banner.on{opacity:1;transform:translateX(-50%) scale(1)}
-#bar{display:flex;gap:6px;padding:8px 12px 4px;align-items:center}
-#wave{flex:1;display:flex;gap:4px;align-items:center}
-#wave span{flex:1;height:10px;transform:skewX(-18deg);background:#2a1d12;border:1px solid #4a3520}
-#wave span.on{background:linear-gradient(#b8e46a,#5a9a24);border-color:#2a4a10}
-#wave span.b{flex:1.6;background:#3a1410;border-color:#5a2018}
-#wave span.b.on{background:linear-gradient(#ff7a5a,#a02a18)}
-#farm{font-size:13px;color:#cdb68a;flex:1;display:none}
+#lvl{font-family:'MedievalSharp',serif;font-size:12px;color:var(--gold2);letter-spacing:1px;text-shadow:0 2px 0 #000}
+#wave{display:flex;gap:4px;align-items:center;margin-top:5px}
+#wave span{width:9px;height:9px;transform:rotate(45deg);background:#2a1d12;border:1px solid #6b5236;box-shadow:0 1px 0 #000}
+#wave span.on{background:linear-gradient(#f3d27a,#c99a3a);border-color:#5a3a14}
+#wave span.cur{background:#ead8ad;border-color:#fff3c0;box-shadow:0 0 6px rgba(243,210,122,.8)}
+#wave b{font-size:15px;line-height:1;margin-left:3px;filter:grayscale(1) brightness(.6);text-shadow:0 1px 0 #000}
+#wave b.on{filter:none;animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.25)}}
+#farm{font-size:12px;color:#cdb68a;margin-top:4px;display:none;text-shadow:0 1px 0 #000}
+#skills{padding-top:10px!important}
 .btn{font-family:'MedievalSharp',serif;font-size:15px;color:#2a1608;cursor:pointer;border:2px solid #5a3a14;padding:6px 12px;background:linear-gradient(#f3d27a,#c99a3a);box-shadow:0 3px 0 #5a3a14,inset 0 1px 0 #fff3c0;border-radius:4px}
 .btn:active{transform:translateY(2px);box-shadow:0 1px 0 #5a3a14}
 .btn.no{background:linear-gradient(#7a6a52,#54473a);color:#2a2018;box-shadow:0 3px 0 #2a2018;border-color:#2a2018}
@@ -99,16 +102,15 @@ html,body{height:100%;color:var(--parch);font-family:'Alegreya Sans',system-ui,s
   <div id="top">
     <a id="home" href="../" aria-label="Zur Startseite">‹</a><div id="gold" style="flex:1"><i class="coin"></i><span id="g">0</span></div>
     <button id="mute">🔊</button>
-    <div id="stage"><b id="stT">Stufe 1</b><br><span id="biome">Kräuterhöhle</span></div>
+    <div id="stage"><b id="stT" style="display:none"></b><span id="biome" style="font-family:'MedievalSharp',serif;font-size:17px;color:var(--parch)">Kräuterhöhle</span></div>
   </div>
   <div id="field">
     <canvas id="c" width="320" height="200"></canvas>
-    <div class="hud"><div id="mname">…</div><div id="hp"><i id="hpI"></i><span id="hpT"></span></div><div id="timer"><i id="timerI"></i></div></div>
+    <div class="hud"><div id="lvl">Stufe 1</div><div id="mname">…</div><div id="hp"><i id="hpI"></i><span id="hpT"></span></div><div id="timer"><i id="timerI"></i></div><div id="wave"></div><div id="farm">Farmen – Boss erneut fordern ↘</div></div>
     <div id="banner"></div>
     <button class="btn red" id="bossBtn">⚔ Boss</button>
     <div id="ver">v0.3</div>
   </div>
-  <div id="bar"><div id="wave"></div><div id="farm">Farmen… Boss erneut fordern ↘</div></div>
   <div id="skills"></div>
   <div id="tabs"><button class="tab on" data-t="held">Kobold</button><button class="tab" data-t="bande">Bande</button><button class="tab" data-t="taverne">Taverne</button></div>
   <div id="sheet">
@@ -415,7 +417,8 @@ function renderHud(){
   $('stT').textContent='Stufe '+S.stage;
   $('biome').textContent=BIOMES[Math.floor((S.stage-1)/5)%BIOMES.length][0];
   $('mname').textContent=mon.name;
-  let d='';for(let i=1;i<=10;i++)d+=`<span class="${i===10?'b':''} ${i<S.mi?'on':''}"></span>`;
+  $('lvl').textContent='STUFE '+S.stage;
+  let d='';for(let i=1;i<=9;i++)d+=`<span class="${i<S.mi?'on':i===S.mi&&!S.farm?'cur':''}"></span>`;d+=`<b class="${mon.boss?'on':''}">💀</b>`;
   $('wave').innerHTML=d;$('wave').style.display=S.farm?'none':'flex';$('farm').style.display=S.farm?'block':'none';
   $('bossBtn').style.display=S.farm?'block':'none';$('timer').style.display=mon.boss?'block':'none';
 }
