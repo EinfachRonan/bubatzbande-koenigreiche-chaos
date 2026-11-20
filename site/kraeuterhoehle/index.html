@@ -136,6 +136,12 @@ canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;displa
 .drow{display:flex;justify-content:space-between;padding:9px 4px;border-bottom:1px solid #2a2c30;font-size:25px}
 .mbtns{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000e;border:1px solid var(--gb);padding:10px 16px;border-radius:6px;font-size:21px;z-index:60;display:none;max-width:90vw;text-align:center;color:var(--gold)}
+/* Fake-Fullscreen für iOS und Browser ohne API */
+body.fs-mode{overflow:hidden!important}
+body.fs-mode #hub{position:fixed!important;inset:0!important;flex-direction:row!important;min-height:0!important;width:100vw!important;height:100vh!important}
+body.fs-mode #left{width:320px!important;flex:0 0 320px!important;border-right:2px solid var(--gb)!important;border-bottom:0!important;overflow:auto!important}
+body.fs-mode #right{flex:1!important;height:100vh!important;min-height:0!important}
+body.fs-mode #treebox{overflow:hidden!important}
 @media (max-width:820px){
   html,body{overflow:auto}
   #hub{position:static;flex-direction:column;min-height:100vh}
@@ -212,19 +218,27 @@ canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;displa
 <script>
 function toggleFS(){
   const el=document.documentElement;
-  if(!document.fullscreenElement&&!document.webkitFullscreenElement){
+  const inFS=document.fullscreenElement||document.webkitFullscreenElement;
+  if(!inFS){
     const req=el.requestFullscreen||el.webkitRequestFullscreen;
-    if(req) req.call(el);
+    if(req){ req.call(el); return; }
   } else {
     const ex=document.exitFullscreen||document.webkitExitFullscreen;
-    if(ex) ex.call(document);
+    if(ex){ ex.call(document); return; }
   }
+  // Fallback für iOS/Browser ohne Fullscreen API: CSS-Fake-Fullscreen
+  applyFakeFS(!document.body.classList.contains('fs-mode'));
+}
+function applyFakeFS(on){
+  document.body.classList.toggle('fs-mode',on);
+  updateFSBtn();
 }
 function updateFSBtn(){
   const btn=document.getElementById('fsbtn');
   if(!btn) return;
-  btn.textContent=(document.fullscreenElement||document.webkitFullscreenElement)?'✕':'⛶';
-  btn.title=(document.fullscreenElement||document.webkitFullscreenElement)?'Vollbild beenden':'Vollbild';
+  const inFS=document.fullscreenElement||document.webkitFullscreenElement||document.body.classList.contains('fs-mode');
+  btn.textContent=inFS?'✕':'⛶';
+  btn.title=inFS?'Vollbild beenden':'Vollbild';
 }
 document.addEventListener('fullscreenchange',updateFSBtn);
 document.addEventListener('webkitfullscreenchange',updateFSBtn);
