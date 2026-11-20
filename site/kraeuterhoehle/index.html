@@ -3148,7 +3148,7 @@ function updateHud(){
   $('#hkr').textContent = fmt(B.earned) + ' 💎';
   $('#hspeed').textContent = S.speed + '×';
   const hint = $('#hint');
-  const msg = B.packs.some(p => p.t >= p.dur) ? 'Klick die Pakete an, um sie zu öffnen!' : (B.t < 4 && !B.packs.length && !B.units.length ? 'Keine Pakete im Rucksack – kauf welche im Laden!' : '');
+  const msg = (B.t < 12 && B.packs.some(p => p.t >= p.dur)) ? 'Klick die Pakete an, um sie zu öffnen!' : (B.t < 4 && !B.packs.length && !B.units.length ? 'Keine Pakete im Rucksack – kauf welche im Laden!' : '');
   hint.textContent = msg; hint.style.display = msg ? 'block' : 'none';
 }
 
