@@ -66,6 +66,52 @@ h2{margin:0;font:700 17px/1.2 var(--hd);letter-spacing:-.1px}
 .tile.big{grid-column:1/3;min-height:330px}.tile.big h3{font-size:30px}.tile.big p{font-size:14px;max-width:80%}.tile.big .go{width:auto;border-radius:99px;padding:0 20px;font-weight:600;font-size:15px;height:44px}
 .tile.wide{grid-column:1/3;min-height:170px}
 .tile.tall{min-height:250px}
+
+/* Top-Vorschau: neuestes Spiel */
+#topG{margin:0 20px}
+.top1{display:grid;grid-template-columns:1fr;overflow:hidden;border-radius:24px;background:var(--card);border:1px solid var(--line);transition:transform .15s}
+.top1:active{transform:scale(.99)}
+.top1 .pic{position:relative;aspect-ratio:16/9;overflow:hidden}
+.top1 .pic img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
+.top1:hover .pic img{transform:scale(1.04)}
+.top1 .pic::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(23,27,25,.95))}
+.top1 .badge{position:absolute;left:14px;top:14px;z-index:1;display:flex;gap:6px}
+.top1 .badge span{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;border-radius:99px;padding:5px 10px;background:var(--ac);color:#0e1110}
+.top1 .badge span.sc{background:var(--gold)}
+.top1 .bd{padding:4px 18px 18px;display:flex;flex-direction:column;gap:8px;margin-top:-34px;position:relative}
+.top1 .kk{font-size:11.5px;font-weight:600;color:var(--ac);letter-spacing:.5px;text-transform:uppercase}
+.top1 h3{margin:0;font:700 30px/1.02 var(--hd);letter-spacing:-.4px}
+.top1 p{margin:0;color:#c9d0cb;font-size:14px;max-width:46ch}
+.top1 .ft{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px}
+.top1 .ft .btn{min-height:46px;padding:0 26px}
+.up{font-size:12px;color:var(--gold);font-weight:600;display:inline-flex;align-items:center;gap:6px}.up::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
+.bsx{font-size:12px;font-weight:600;color:var(--mu);background:var(--card2);border-radius:99px;padding:5px 11px}
+/* Alle Spiele als Kacheln */
+.gg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 20px}
+.gc{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:transform .15s,border-color .15s}
+.gc:hover{border-color:#2f3833}.gc:active{transform:scale(.98)}
+.gc .pic{position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--card2)}
+.gc .pic img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
+.gc:hover .pic img{transform:scale(1.05)}
+.gc .pic .tg{position:absolute;left:8px;top:8px;display:flex;gap:4px;flex-wrap:wrap}
+.gc .pic .tg span{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-radius:99px;padding:3px 7px;background:rgba(14,17,16,.72);color:var(--tx);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.gc .pic .tg span.sc{background:var(--gold);color:#0e1110}
+.gc .bd{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px;flex:1}
+.gc h3{margin:0;font:700 16px/1.15 var(--hd)}
+.gc p{margin:0;font-size:12.5px;color:var(--mu);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gc .ft{margin-top:auto;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:30px}
+.gc .ft .up{font-size:11px}
+.gc .ft .bst{font-size:11.5px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gc .go{flex:none;width:32px;height:32px;border-radius:50%;background:var(--ac);color:#0e1110;display:flex;align-items:center;justify-content:center}.gc .go svg{width:14px;height:14px}
+@media (min-width:600px){.gg{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:900px){
+  #topG,.gg{margin-left:0;margin-right:0}
+  .top1{grid-template-columns:1.35fr 1fr}
+  .top1 .pic{aspect-ratio:auto;min-height:320px}
+  .top1 .pic::after{background:linear-gradient(90deg,transparent 60%,rgba(23,27,25,.9))}
+  .top1 .bd{margin:0;padding:26px 24px;justify-content:center}
+  .top1 h3{font-size:36px}
+}
 /* Deine Bestwerte */
 .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 20px}
 .st{background:var(--card);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
@@ -153,8 +199,10 @@ footer{margin:30px 20px 10px;color:var(--mu2);font-size:12px;text-align:center}
 <div class="app">
   <header class="top" id="top"></header>
   <main class="main">
-    <div class="intro"><h1>4 Spiele.<br><span>1 Bande.</span></h1><small id="nG">Auswahl der Bande</small></div>
-    <section class="bento" id="games" aria-label="Spiele"></section>
+    <div class="intro"><h1 id="nH">4 Spiele.<br><span>1 Bande.</span></h1><small id="nG">Auswahl der Bande</small></div>
+    <section id="topG" aria-label="Neuestes Spiel"></section>
+    <div class="sec"><h2>Alle Spiele</h2><small id="allN"></small></div>
+    <section class="gg" id="games" aria-label="Alle Spiele"></section>
     <div class="sec"><h2>Deine Bestwerte</h2><small id="bsN"></small></div>
     <div class="stats" id="stats"></div>
   </main>
@@ -234,12 +282,18 @@ function draw() {
   $('top').querySelectorAll('[data-o]').forEach(x => x.onclick = () => b && b.open(x.dataset.o));
   $('top').querySelectorAll('[data-set]').forEach(x => x.onclick = openSet);
   $('top').querySelectorAll('[data-mu]').forEach(x => x.onclick = () => window.BBLofi && BBLofi.toggle());
-  // Spiele-Kacheln
+  // Spiele: neuestes (zuletzt geupdatet) als Top-Vorschau, alle anderen als Kacheln
   const go = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
-  // Testspiele: zuletzt gepatchtes zuerst (Zeiten aus updates.json, wird beim Deploy erzeugt)
-  const sec = SECRET.filter(g => b && b.secret && b.secret(g.k)).sort((x, y) => upT(y) - upT(x));
-  $('games').innerHTML = GAMES.concat(sec).map(g => { const bs = b && b.best(g.k);
-    return `<a class="tile ${g.cls}" href="${g.url}"><img src="${g.img}" alt="" style="object-position:${g.pos}"><div class="in"><div class="kk">${g.neu ? '<span class="nw">Neu</span>' : ''}${g.sec ? '<span class="sc">Geheim</span>' : ''}${esc(g.tag)}</div><h3>${esc(g.name)}</h3>${g.sec && upT(g) ? `<span class="up">Zuletzt geupdatet: ${upF(upT(g))}</span>` : ''}${g.cls === 'big' || g.cls === 'tall' || g.cls === 'xl' ? `<p>${esc(g.text)}</p>` : ''}<div class="ft">${bs ? `<span class="bs">${g.cls === 'big' ? 'Bestwert ' : '🏆 '}${b.fmt(g.k, bs.s)}</span>` : '<span></span>'}<span class="go">${g.cls === 'big' ? 'Spielen' : go}</span></div></div></a>`; }).join('');
+  const sec = SECRET.filter(g => b && b.secret && b.secret(g.k));
+  const all = GAMES.concat(sec).map((g, i) => ({ g, i })).sort((x, y) => (upT(y.g) - upT(x.g)) || (x.i - y.i)).map(x => x.g);
+  const top = all[0], rest = all.slice(1);
+  const bsOf = g => { const bs = b && b.best(g.k); return bs ? b.fmt(g.k, bs.s) : ''; };
+  const tb = bsOf(top);
+  $('topG').innerHTML = `<a class="top1" href="${top.url}"><div class="pic"><img src="${top.img}" alt="" style="object-position:${top.pos}"><div class="badge"><span>${upT(top) ? 'Neuestes Update' : 'Top-Spiel'}</span>${top.sec ? '<span class="sc">Geheim</span>' : ''}</div></div><div class="bd"><div class="kk">${esc(top.tag)}</div><h3>${esc(top.name)}</h3><p>${esc(top.text)}</p>${upT(top) ? `<span class="up">Zuletzt geupdatet: ${upF(upT(top))}</span>` : ''}<div class="ft"><span class="btn">${go.replace('<svg', '<svg width="16" height="16"')} Jetzt spielen</span>${tb ? `<span class="bsx">🏆 ${tb}</span>` : ''}</div></div></a>`;
+  $('games').innerHTML = rest.map(g => { const bs = bsOf(g);
+    return `<a class="gc" href="${g.url}"><div class="pic"><img src="${g.img}" alt="" loading="lazy" style="object-position:${g.pos}"><div class="tg">${g.sec ? '<span class="sc">Geheim</span>' : ''}<span>${esc(g.tag.replace(/^Testphase · /, 'Test · '))}</span></div></div><div class="bd"><h3>${esc(g.name)}</h3><p>${esc(g.text)}</p><div class="ft">${bs ? `<span class="bst">🏆 ${bs}</span>` : upT(g) ? `<span class="up">${upF(upT(g))}</span>` : '<span></span>'}<span class="go">${go}</span></div></div></a>`; }).join('');
+  $('nH').innerHTML = `${all.length} Spiele.<br><span>1 Bande.</span>`;
+  $('allN').textContent = rest.length + ' weitere';
   // Deine Bestwerte
   const nb = b ? GAMES.filter(g => b.best(g.k)).length : 0; $('bsN').textContent = nb + ' von ' + GAMES.length;
   $('stats').innerHTML = GAMES.map(g => { const bs = b && b.best(g.k), G = b && b.GAMES ? b.GAMES[g.k] : null;
