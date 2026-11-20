@@ -404,7 +404,7 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 
 /* ===== Vollbild-Seiten (Shop, Hangar, Fähigkeiten, Statistik) ===== */
 #app.full .panel{position:absolute;left:0;right:0;top:var(--hudh,96px);bottom:0;height:auto!important;max-height:none;z-index:6;animation:fullIn .22s ease-out}
-#app.full .hot{display:none}
+#app.full .hot{display:none!important}
 @keyframes fullIn{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
 .fhd{position:sticky;top:-8px;z-index:4;display:flex;align-items:center;gap:10px;margin:-8px -8px 12px;padding:12px 10px 11px 14px;background:linear-gradient(180deg,#16212c,#0d141b);border-bottom:2px solid #2c3d4b;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 16px rgba(0,0,0,.45)}
 .fhd b{flex:1;font:400 17px Silkscreen,var(--mono);color:#eaffff;text-shadow:0 0 10px rgba(92,232,240,.55)}
@@ -532,6 +532,39 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 .augl{margin-top:12px;background:none;border:0;color:#7f9196;font:12px var(--mono);text-decoration:underline;cursor:pointer}
 @media (min-width:900px){.augw{max-width:780px}.augw h2{font-size:30px}.augw>p{font-size:15px}.augr{gap:16px}.augc{min-height:270px;padding:28px 12px 14px;gap:8px}.augc svg{width:58px;height:58px}.augc b{font-size:17px}.augc span{font-size:13px}.augc em{font-size:16px}.augc small{font-size:12px}.augc .tier{font-size:12px;padding:3px 10px}.augrr{font-size:13px;padding:10px}}
 @media (max-width:420px){.augc{min-height:250px;padding:20px 4px 8px}.augc span{font-size:9.5px}}
+
+/* Was ist neu */
+#news{position:absolute;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:14px;background:radial-gradient(ellipse at 50% 0%,rgba(92,232,240,.25),transparent 60%),radial-gradient(circle at 50% 60%,rgba(40,20,80,.92),rgba(3,5,10,.97));animation:augIn .4s ease-out}
+#news.out{opacity:0;transition:opacity .25s}
+.nw{width:100%;max-width:560px;max-height:100%;display:flex;flex-direction:column;border:2.5px solid #5ce8f0;border-radius:16px;background:linear-gradient(180deg,#101b28,#070b12);box-shadow:0 0 0 2px #050912,0 0 40px rgba(92,232,240,.35);overflow:hidden}
+.nw-top{text-align:center;padding:18px 14px 12px;background:linear-gradient(180deg,rgba(92,232,240,.18),transparent);border-bottom:1px solid #1f3442}
+.nw-tag{display:inline-block;background:#ffe94d;color:#050912;font:400 11px Silkscreen,var(--mono);padding:3px 10px;border-radius:5px;letter-spacing:2px;animation:nwP 1.6s ease-in-out infinite}@keyframes nwP{50%{box-shadow:0 0 16px rgba(255,233,77,.8)}}
+.nw-top h2{font:400 26px Silkscreen,var(--mono);color:#fff;margin:8px 0 2px;text-shadow:0 0 14px rgba(92,232,240,.7),0 2px 0 #000}
+.nw-top small{color:#7f9196;font:11px var(--mono)}
+.nw-list{overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.nw-it{display:flex;gap:11px;align-items:flex-start;background:#0b131b;border:1.5px solid #213444;border-radius:10px;padding:10px 11px;text-align:left;animation:nwIn .4s ease-out both}@keyframes nwIn{from{opacity:0;transform:translateX(-12px)}}
+.nw-i{flex:none;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:19px;background:#132232;border:1.5px solid #2f4a5e;border-radius:8px;color:#fff}
+.nw-it b{display:block;color:#5ce8f0;font:700 14px var(--mono);margin-bottom:2px}.nw-it p{margin:0;color:#c3d3da;font:12px/1.4 var(--mono)}
+.nw-go{margin:10px 12px 14px!important;width:calc(100% - 24px)}
+@media (min-width:900px){.nw{max-width:640px}.nw-top h2{font-size:32px}.nw-it b{font-size:15px}.nw-it p{font-size:13px}}
+
+/* Elite: Warnung + Karten */
+.elw{position:absolute;left:50%;top:26%;transform:translateX(-50%);z-index:40;pointer-events:none;text-align:center;padding:10px 22px;border:2px solid #ff2a4a;border-radius:10px;background:rgba(30,4,10,.82);box-shadow:0 0 0 2px #050912,0 0 26px rgba(255,42,74,.55);animation:elwIn .35s ease-out,elwP .9s ease-in-out .35s 3,elwOut .4s ease-in 3s forwards;width:max-content;max-width:86%}
+.elw b{display:block;font:400 clamp(16px,5vw,22px) Silkscreen,var(--mono);color:#ff4a62;letter-spacing:2px;text-shadow:0 0 12px rgba(255,42,74,.8),0 2px 0 #000}.elw span{font:12px var(--mono);color:#ffc9d1}
+@keyframes elwIn{from{opacity:0;transform:translateX(-50%) scale(1.3)}}@keyframes elwP{50%{box-shadow:0 0 0 2px #050912,0 0 40px rgba(255,42,74,.85)}}@keyframes elwOut{to{opacity:0;transform:translateX(-50%) translateY(-10px)}}
+#elc{position:absolute;inset:0;z-index:62;display:flex;align-items:center;justify-content:center;padding:14px;background:radial-gradient(circle at 50% 40%,rgba(80,14,24,.85),rgba(3,5,10,.96));animation:augIn .35s ease-out}
+.elcw{width:100%;max-width:560px;text-align:center}.elcw h2{font:400 22px Silkscreen,var(--mono);color:#ffd23f;margin:0 0 4px;text-shadow:0 0 14px rgba(255,42,74,.7),0 2px 0 #000}.elcw>p{color:#d8c0c4;font:13px var(--mono);margin:0 0 16px}
+.elr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;perspective:800px}
+.elk{aspect-ratio:3/4.2;cursor:pointer}.elk-in{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.3,1.4,.5,1);transform-style:preserve-3d}
+.elk.on .elk-in{transform:rotateY(180deg)}.elk:not(.on):hover .elk-in{transform:translateY(-5px)}
+.elk-b,.elk-f{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.elk-b{background:repeating-linear-gradient(45deg,#3a2a08 0 8px,#2a1e06 8px 16px);border:2.5px solid #ffd23f;box-shadow:0 0 0 2px #050912,0 0 16px rgba(255,210,63,.4)}
+.elk-b span{font:400 40px Silkscreen,var(--mono);color:#ffd23f;text-shadow:0 0 12px rgba(255,210,63,.8)}
+.elk-f{transform:rotateY(180deg);background:linear-gradient(180deg,#152232,#090e16);border:2.5px solid var(--rc);box-shadow:0 0 0 2px #050912,0 0 20px color-mix(in srgb,var(--rc) 45%,transparent);padding:8px}
+.elk-f b{font:700 12px var(--mono);color:#fff;line-height:1.15}.elk-f small{font:400 9px Silkscreen,var(--mono);color:var(--rc)}
+.elk.pick .elk-in{transform:rotateY(180deg) scale(1.06)}.elk.dim{opacity:.45;filter:grayscale(.5)}
+.elt{min-height:70px;margin-top:14px;color:#e8f4f6;font:13px var(--mono)}.elbt{display:flex;gap:8px;margin-top:10px}.elbt .br{flex:1}
+@media (min-width:900px){.elcw{max-width:640px}.elcw h2{font-size:30px}.elk-f b{font-size:14px}}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -560,7 +593,7 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261120b"></script>
+<script src="../bb.js?v=20261120c"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -615,7 +648,13 @@ const HYB = {
   x_prisma: { n: 'Prisma-Blaster', p: ['line', 'scatter'], d: 'Blaster-Schüsse zersplittern beim Aufprall in einen Funkenregen', c: '#fff07a' },
   x_geist: { n: 'Nova-Säge', p: ['saw', 'nova'], d: 'Die Sägeblätter zünden kleine Nova-Explosionen', c: '#b8ffb0' },
   x_minen: { n: 'Bohrminen', p: ['drill', 'mine'], d: 'Bohrlanze und Minen im Doppelpack: +4 Minen pro Salve', c: '#ff8a5c' },
-  x_bum: { n: 'Sternbumerang', p: ['star', 'boomer'], d: 'Kristall-Bumerangs: +2 Bumerangs pro Wurf', c: '#ff9ad8' }
+  x_bum: { n: 'Sternbumerang', p: ['star', 'boomer'], d: 'Kristall-Bumerangs: +2 Bumerangs pro Wurf', c: '#ff9ad8' },
+  x_frostblitz: { n: 'Frostblitz', p: ['chain', 'frost'], d: 'Kettenblitze frieren jeden Block ein, den sie treffen (+30 % Schaden)', c: '#bfe9ff' },
+  x_rail: { n: 'Railgun', p: ['sniper', 'line'], d: 'Scharfschuss mit Blaster-Kern: +35 % Krit-Chance', c: '#fff3a0' },
+  x_schwer: { n: 'Schwerkraft-Meteor', p: ['meteor', 'grav'], d: 'Meteore mit Gravitonkern: viel größere Krater', c: '#ffb36b' },
+  x_bohrsturm: { n: 'Bohrsturm', p: ['drill', 'tornado'], d: 'Bohrende Wirbelstürme: +1 Tornado', c: '#8fd8ff' },
+  x_saegenring: { n: 'Sägenring', p: ['saw', 'drones'], d: 'Drohnen tragen Sägeblätter: +3 Sägen ums Schiff', c: '#e6ff9a' },
+  x_novamine: { n: 'Nova-Minen', p: ['mine', 'nova'], d: 'Minen zünden als kleine Nova: größerer Explosionsradius', c: '#a8ffcf' }
 };
 const HYBM = 2.2, HYBLV = 100, HYBCOST = 30;
 let HP = {}; // Eltern-Waffe -> aktive Hybrid-Waffe
@@ -691,8 +730,9 @@ let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
 const VER = 14; // interne Stand-Nummer (höher = einmaliger Reset)
 const VLABEL = '0.7'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
-const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, wq5b: 1, slot1b: 1, aug1: 1, augQ: 1, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
-const norm = o => Object.assign(fresh(), o || {}, { wq5b: o ? o.wq5b : 1, slot1b: o ? o.slot1b : 1, aug1: o ? o.aug1 : 1, augQ: o ? o.augQ || 0 : 1, w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: (o && o.inv && Object.keys(o.inv).length) ? o.inv : { h_pfeil: 1, r_basis: 1, t_basis: 1 }, /* Start-Teile nur bei neuem Spielstand, sonst kämen eingeschmolzene Teile beim Laden zurück */ eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
+const NEWSV = '2026-11-20'; // bei größerem Update hochsetzen → „Was ist neu“ erscheint einmal
+const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, newsV: NEWSV, wq5b: 1, slot1b: 1, aug1: 1, augQ: 1, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
+const norm = o => Object.assign(fresh(), o || {}, { wq5b: o ? o.wq5b : 1, slot1b: o ? o.slot1b : 1, aug1: o ? o.aug1 : 1, newsV: o ? o.newsV : NEWSV, augQ: o ? o.augQ || 0 : 1, w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: (o && o.inv && Object.keys(o.inv).length) ? o.inv : { h_pfeil: 1, r_basis: 1, t_basis: 1 }, /* Start-Teile nur bei neuem Spielstand, sonst kämen eingeschmolzene Teile beim Laden zurück */ eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
 if (S && S.v !== VER) { try { localStorage.removeItem('gb_intro'); } catch (e) {} } // neuer Start: Intro nochmal zeigen
 S = S && typeof S.cr === 'number' && S.v === VER ? norm(S) : fresh();
@@ -845,14 +885,14 @@ const PERKS = {
   t: [[3, 'Kühlung', 'Fähigkeiten laden 10 % schneller'], [6, 'Warp-Gleiter', 'Schiff fliegt 30 % schneller um den Planeten'], [10, 'Turbo-Kern', '+25 % Feuerrate für alle Waffen']]
 };
 const PK = (sl, lv) => !!S && !!S.eq && ILV(eqItem(sl).id) >= lv;
-const critCh = () => .04 * SK('crit') + HA('crit') + (PK('r', 3) ? .1 : 0);
+const critCh = () => .04 * SK('crit') + HA('crit') + (PK('r', 3) ? .1 : 0) + (curW === 'sniper' && HY('x_rail') ? .35 : 0);
 const rate = () => (1 + .1 * SK('spd')) * itemBonus('t') * (PK('t', 10) ? 1.25 : 1) * (1 + .08 * WP('tempo'));
 const MS = [10, 25, 50, 100];
 const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100) / 100) : 0);
 const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(200, (Math.floor(l / 100) + 1) * 100); };
 const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l >= 200 ? Math.floor(l / 100) * 100 : p; };
 const ST = id => msN(WL(id));
-const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', whip: 'längere Peitsche', x_komet: 'stärkerer Hagel', x_traeger: 'mehr Raketen', x_sturm: 'mehr Blitze', x_malstrom: 'stärkerer Sog', x_prisma: 'mehr Funken', x_geist: 'mehr Nova-Explosionen', x_minen: 'stärkere Bohrminen', x_bum: 'stärkere Sternbumerangs', rockets: 'eine Rakete mehr', grav: 'größerer Sog', tornado: 'ein Wirbel mehr', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
+const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', whip: 'längere Peitsche', x_komet: 'stärkerer Hagel', x_traeger: 'mehr Raketen', x_sturm: 'mehr Blitze', x_malstrom: 'stärkerer Sog', x_prisma: 'mehr Funken', x_geist: 'mehr Nova-Explosionen', x_minen: 'stärkere Bohrminen', x_bum: 'stärkere Sternbumerangs', x_frostblitz: 'stärkerer Frostblitz', x_rail: 'stärkere Railgun', x_schwer: 'stärkere Meteore', x_bohrsturm: 'stärkere Bohrstürme', x_saegenring: 'schärfere Sägen', x_novamine: 'stärkere Nova-Minen', rockets: 'eine Rakete mehr', grav: 'größerer Sog', tornado: 'ein Wirbel mehr', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
 const wDps = w => { const l = S.w[w.id] || 0; return l ? (w.hyb ? HYBM : 1) * T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() * (1 + HAw(w.id)) * (1 + .5 * ML(w.id)) : 0; };
 // ================== Waffen-Mods: mit ⬢ Chips (1 Chip pro 5 geschaffte Planeten), bleiben für immer ==================
 const ML = id => HYB[id] ? Math.max(...HYB[id].p.map(p => (S.mod || {})[p] || 0)) : (S.mod || {})[id] || 0;
@@ -897,7 +937,7 @@ function resize() {
   if (BON) exitBonus(null, 1);
   scanPat = null; W = r.width; H = r.height; cv.width = W * DPR; cv.height = H * DPR;
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
-  if (travel > 0 && !built) { built = true; buildPlanet(0); intro = 2.4; introName = G.name; }
+  if (travel > 0 && !built) { built = true; buildPlanet(0); intro = 2.4; introName = G.name; if (G.elite) eliteWarn(); }
   else buildPlanet(G ? G.total - G.left : S.done || 0);
   if (!isFinite(ship.x) || !ship.x) { ship.orb = -Math.PI / 2; ship.x = G.cx; ship.y = G.cy - G.R - 60; } surfaceBins(); cam.x = ship.x; cam.y = ship.y;
 }
@@ -1248,13 +1288,13 @@ function step(dt) {
   curW = 'chain';
   const dK = WD('chain') * Rd;
   if (dK && (cdChain -= dt * Rv * sp75('chain')) <= 0) { cdChain = 2; let i = front(CELL * 3), px = ship.x, py = ship.y; const pts = []; const used = new Set();
-    const nj = Math.min(24, 6 + 2 * ST('chain') + 2 * ML('chain')); for (let k = 0; k < nj && i >= 0; k++) { used.add(i); const [x, y] = cellXY(i); pts.push([px, py, x, y]); hit(i, dK * 2 / nj * critMul()); px = x; py = y;
+    const nj = Math.min(24, 6 + 2 * ST('chain') + 2 * ML('chain')); for (let k = 0; k < nj && i >= 0; k++) { used.add(i); const [x, y] = cellXY(i); pts.push([px, py, x, y]); if (HY('x_frostblitz')) freezeAt(i, 0); hit(i, dK * 2 / nj * critMul()); px = x; py = y;
       let nb = -1, bd = 1e9; const c = i % COLS, r = i / COLS | 0; for (let a = -3; a <= 3; a++) for (let b2 = -3; b2 <= 3; b2++) { const cc = c + a, rr = r + b2; if (cc < 0 || cc >= COLS || rr < 0 || rr >= ROWS) continue; const j = rr * COLS + cc; if (!G.alive[j] || used.has(j)) continue; const d = a * a + b2 * b2 + Math.random() * 3; if (d < bd) { bd = d; nb = j; } } i = nb; }
     SND.fx.zap(); pts.forEach((p, q) => fx.push({ k: 'zap', x: p[0], y: p[1], x2: p[2], y2: p[3], t: .55 + q * .02, t0: .55 + q * .02, lv: WL('chain') })); }
   // 8) Kräutersäge
   curW = 'saw';
   const dW = WD('saw') * Rd;
-  if (dW) { const sv = dt * Rv * sp75('saw'); sawA += sv * 1.2; const nsw = Math.min(8, 2 + ST('saw')); saws.length = nsw; // kleine Sägeblätter kreisen ums Schiff, mit jeder Meilenstein-Stufe kommt eins dazu
+  if (dW) { const sv = dt * Rv * sp75('saw'); sawA += sv * 1.2; const nsw = Math.min(HY('x_saegenring') ? 11 : 8, 2 + ST('saw') + (HY('x_saegenring') ? 3 : 0)); saws.length = nsw; // kleine Sägeblätter kreisen ums Schiff, mit jeder Meilenstein-Stufe kommt eins dazu
     for (let k = 0; k < nsw; k++) { const a = sawA + k * Math.PI * 2 / nsw, rk = SAWR, x = ship.x + Math.cos(a) * rk, y = ship.y + Math.sin(a) * rk; saws[k] = [x, y, rk, a];
     for (const [ox, oy] of sawPat()) hit(cellAt(x + ox, y + oy), dW / nsw / 2.5 * dt * 2 * (1 + 2 * critCh())); }
     if (HY('x_geist') && (geistT -= dt) <= 0) { geistT = .7; const [gx, gy] = saws[(Math.random() * nsw) | 0], c0 = cellAt(gx, gy); if (c0 >= 0) { const cc = c0 % COLS, rr = c0 / COLS | 0; for (let a = -1; a <= 1; a++) for (let b2 = -1; b2 <= 1; b2++) if (cc + a >= 0 && cc + a < COLS && rr + b2 >= 0 && rr + b2 < ROWS) hit((rr + b2) * COLS + cc + a, WD('nova') * .5 / 9); fx.push({ k: 'ring', x: gx, y: gy, r: CELL * 2.2, t: .45, c: '#b8ffb0', w: 2 }); } } }
@@ -1262,7 +1302,7 @@ function step(dt) {
   curW = 'mine';
   const dM = WD('mine') * Rd;
   if (dM && (cdMine -= dt * Rv * sp75('mine')) <= 0) { cdMine = 2.6; const nm = Math.min(HY('x_minen') ? 12 : 8, 3 + ST('mine') + (HY('x_minen') ? 4 : 0)); const tg = nearList(ship.x, ship.y, nm); for (const i of tg) { const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, i, t: 0, d: dM * 2.6 / nm * critMul() }); } }
-  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.i != null && !G.alive[m.i]) { const j = nearest(m.tx, m.ty); if (j >= 0) { m.i = j; [m.tx, m.ty] = cellXY(j); } } if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 7.5); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35 + lvTier(WL('mine')) * .05, c: lvTier(WL('mine')) >= 3 ? '255,90,122' : '255,58,92', thick: lvTier(WL('mine')) >= 2 }); if (lvTier(WL('mine')) >= 2) for (let q = 0; q < 6 + lvTier(WL('mine')) * 3; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, t: .5, c: lvTier(WL('mine')) >= 3 ? '#ffb0f0' : '#ffd23f' }); mines.splice(k, 1); } }
+  for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.i != null && !G.alive[m.i]) { const j = nearest(m.tx, m.ty); if (j >= 0) { m.i = j; [m.tx, m.ty] = cellXY(j); } } if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1) + (HY('x_novamine') ? 1 : 0); for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 7.5); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35 + lvTier(WL('mine')) * .05, c: lvTier(WL('mine')) >= 3 ? '255,90,122' : '255,58,92', thick: lvTier(WL('mine')) >= 2 }); if (lvTier(WL('mine')) >= 2) for (let q = 0; q < 6 + lvTier(WL('mine')) * 3; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, t: .5, c: lvTier(WL('mine')) >= 3 ? '#ffb0f0' : '#ffd23f' }); mines.splice(k, 1); } }
   // 10) Königsschuss
   curW = 'sniper';
   const dP = WD('sniper') * Rd;
@@ -1277,7 +1317,7 @@ function step(dt) {
     const tg = nearList(ship.x, ship.y, nm); for (let k = 0; k < tg.length; k++) { const i = tg[k]; const [x, y] = cellXY(i), oa = Math.atan2(y - G.cy, x - G.cx) + (Math.random() - .5) * .6, D = 260 + Math.random() * 120;
       mets.push({ x0: x + Math.cos(oa) * D, y0: y + Math.sin(oa) * D, tx: x, ty: y, i, t: -k * .22, z: 5 + Math.random() * 3, rot: Math.random() * 6, d: dMe * 3.2 / nm * critMul() }); } }
   for (let k = mets.length - 1; k >= 0; k--) { const m = mets[k]; m.t += dt * .75; m.rot += dt * 2.2; if (!G.alive[m.i]) { const j = nearest(m.tx, m.ty); if (j >= 0) { m.i = j; [m.tx, m.ty] = cellXY(j); } } if (m.t < 1) continue; mets.splice(k, 1);
-    const c0 = cellAt(m.tx, m.ty), mr = ML('meteor') ? (ML('meteor') >= 3 ? 3 : 2) : 1; if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0, nc = (2 * mr + 1) ** 2; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d * (a || b2 ? .5 / (nc - 1) : .5)); } }
+    const c0 = cellAt(m.tx, m.ty), mr = (ML('meteor') ? (ML('meteor') >= 3 ? 3 : 2) : 1) + (HY('x_schwer') ? 1 : 0); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0, nc = (2 * mr + 1) ** 2; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d * (a || b2 ? .5 / (nc - 1) : .5)); } }
     if (HY('x_komet') && c0 >= 0) freezeAt(c0, mr);
     const T = lvTier(WL('meteor')); fx.push({ k: 'ring', x: m.tx, y: m.ty, r: CELL * (mr + 1.2), t: .4, c: HY('x_komet') ? '#9fe8ff' : T >= 3 ? '#ffd23f' : WCOL.meteor, w: 3 + T });
     for (let q = 0; q < 4 + T * 2; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 200, vy: (Math.random() - .5) * 200, t: .45, c: q % 2 ? '#8a5a3a' : '#ffb04a' }); shake = Math.max(shake, 1.5); }
@@ -1311,7 +1351,7 @@ function step(dt) {
     if (gq.live >= 1.6) { fx.push({ k: 'ring', x: gq.tx, y: gq.ty, r: gq.rad * 1.1, t: .35, c: WCOL.grav, w: 3 }); gravs.splice(k, 1); } }
   // 15) Wirbelsturm: setzt auf der Oberfläche auf und wandert 3 s lang am Rand entlang
   curW = 'tornado';
-  const dTo = WD('tornado') * Rd, nTo = Math.min(3, 1 + Math.floor(ST('tornado') / 3));
+  const dTo = WD('tornado') * Rd, nTo = Math.min(HY('x_bohrsturm') ? 4 : 3, 1 + Math.floor(ST('tornado') / 3) + (HY('x_bohrsturm') ? 1 : 0));
   if (dTo && (cdTo -= dt * Rv * sp75('tornado')) <= 0) { cdTo = 3.5; const i = nearest(ship.x, ship.y); if (i >= 0) { const [x, y] = cellXY(i), a0 = Math.atan2(y - G.cy, x - G.cx);
       for (let k = 0; k < nTo; k++) tors.push({ a: a0 + (k - (nTo - 1) / 2) * .35, dir: Math.random() < .5 ? -1 : 1, t: 0, life: 3, r: CELL * 1.7 * (1 + .25 * ML('tornado')) * (HY('x_malstrom') ? 1.6 : 1), x, y, up: a0, d: dTo * 3.5 / nTo / 3 / 6 }); } }
   for (let k = tors.length - 1; k >= 0; k--) { const o = tors[k]; o.t += dt; if (o.t >= o.life + .35) { tors.splice(k, 1); continue; }
@@ -1966,7 +2006,7 @@ function travelStep(dt) {
   travel -= dt;
   if (travel > 1.5) { const tx = cam.x, ty = cam.y - H * .28; ship.vx += ((tx - ship.x) * 5 - ship.vx * 4) * dt; ship.vy += ((ty - ship.y) * 5 - ship.vy * 4) * dt; ship.x += ship.vx * dt; ship.y += ship.vy * dt; ship.ang += (0 - ship.ang) * .1; warpT = 1.4; }
   else {
-    if (!built) { const sx0 = ship.x - cam.x, sy0 = ship.y - cam.y; buildPlanet(0); built = true; intro = 2.4; introName = G.name; ship.orb = -Math.PI / 2; cam.x = G.cx; cam.y = G.cy - G.R + H * .2; ship.x = cam.x + sx0; ship.y = cam.y + sy0; save('now'); }
+    if (!built) { const sx0 = ship.x - cam.x, sy0 = ship.y - cam.y; buildPlanet(0); built = true; intro = 2.4; introName = G.name; if (G.elite) eliteWarn(); ship.orb = -Math.PI / 2; cam.x = G.cx; cam.y = G.cy - G.R + H * .2; ship.x = cam.x + sx0; ship.y = cam.y + sy0; save('now'); }
     const tx = G.cx + Math.cos(ship.orb) * (localR(ship.orb) + CELL * 2.2 + 16), ty = G.cy + Math.sin(ship.orb) * (localR(ship.orb) + CELL * 2.2 + 16);
     ship.vx += ((tx - ship.x) * 3 - ship.vx * 2.6) * dt; ship.vy += ((ty - ship.y) * 3 - ship.vy * 2.6) * dt; ship.x += ship.vx * dt; ship.y += ship.vy * dt;
   }
@@ -2001,9 +2041,29 @@ function augCard(c, k) { const T = AUGT[c.t];
   if (c.id === '_cry') return `<button class="augc t${c.t}" data-ag="${k}" style="--ac:${T.c}"><i class="tier">${T.n}</i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 7-8 13L4 9z"/></svg><b>Kristall-Fund</b><span>Alle Skills sind voll</span><em>+◆${10 + 10 * c.t}</em></button>`;
   const s = SKILLS.find(x => x.id === c.id), l = SK(c.id), nl = Math.min(s.max, l + T.lv);
   return `<button class="augc t${c.t}" data-ag="${k}" style="--ac:${T.c}"><i class="tier">${T.n}</i>${l ? '' : '<i class="neu">NEU</i>'}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg><b>${s.n}</b><span>${SKTXT[c.id] || s.d}</span><em>${l ? skVal(c.id, l) + ' → ' : ''}${skVal(c.id, nl)}</em><small>Stufe ${l} → ${nl}/${s.max}</small></button>`; }
-function augBoot() { if (!$('ov').classList.contains('hide') || $('aug') || travel > 0) return setTimeout(augBoot, 1000); if (S.augMsg != null) { const b = S.augMsg; delete S.augMsg; save('now'); overlay(`<h2>Neu: Augmente!</h2><p>Skills kaufst du nicht mehr mit ◆. Nach jedem Planeten wählst du 1 von 3 Augmenten, jedes kannst du einmal neu würfeln.<br><br>${b ? `Deine Skills wurden zurückgesetzt, dafür bekommst du <b style="color:#fff">◆${b}</b> zurück.<br>` : ''}Für deinen aktuellen Lauf darfst du jetzt <b style="color:#ffe94d">${S.augQ} Augmente</b> nachwählen.</p>`, [['Los geht\'s', () => { render(); setTimeout(augShow, 60); }]]); } else if (S.augQ) augShow(); }
+
+// ================== „Was ist neu“: einmal pro größerem Update beim Start, gut sichtbar ==================
+const NEWS = [
+  ['🃏', 'Augmente statt Skills', 'Nach jedem Planeten wählst du 1 von 3 Augmenten. Jede Karte kannst du einmal neu würfeln. Gewöhnlich +1 Stufe, Silber +2, Gold +3.'],
+  ['✨', '3 neue Skills', 'Riesentöter (mehr Schaden auf Boss & Elite), Abrissbirne (fast kaputte Blöcke zerbröseln) und Krit-Wucht (härtere Krits).'],
+  ['⚒', '8 neue Hybrid-Waffen', 'Bohrminen, Sternbumerang, Frostblitz, Railgun, Schwerkraft-Meteor, Bohrsturm, Sägenring und Nova-Minen. Jede Waffe passt nur in einen Hybrid – plan deinen Build!'],
+  ['🎯', '8 Fähigkeiten-Plätze', 'Deine Hotbar hat jetzt 8 statt 5 Plätze.'],
+  ['🌀', 'Warp alle 5 Planeten', 'Der nächste Warp braucht nur 5 Planeten mehr. Der Waffenslot-Warp startet direkt mit +1 Slot.'],
+  ['💥', 'Waffen überarbeitet', 'Neue Plasma-Nova, die Plasmapeitsche wird ab Stufe 50 deutlich länger.'],
+  ['🪐', 'Fairerer Start', 'Bis zum ersten Warp sind die Planeten 6–10 deutlich leichter.'],
+  ['◆', 'Kristalle sind wertvoller', 'Es gibt etwas weniger ◆ – sie sind jetzt nur noch für Kisten und Fähigkeiten da.']
+];
+function showNews(done) {
+  const d = document.createElement('div'); d.id = 'news';
+  d.innerHTML = `<div class="nw"><div class="nw-top"><span class="nw-tag">UPDATE</span><h2>Was ist neu?</h2><small>Galaxie-Bohrer · ${NEWSV.split('-').reverse().join('.')}</small></div>
+    <div class="nw-list">${NEWS.map(([i, t, x], k) => `<div class="nw-it" style="animation-delay:${.08 * k}s"><span class="nw-i">${i}</span><div><b>${t}</b><p>${x}</p></div></div>`).join('')}</div>
+    <button class="br nw-go" id="nwgo">LOS GEHT'S</button></div>`;
+  $('app').appendChild(d); SND.fx.up();
+  d.querySelector('#nwgo').onclick = () => { S.newsV = NEWSV; save('now'); d.classList.add('out'); setTimeout(() => { d.remove(); done && done(); }, 250); };
+}
+function augBoot() { if (!$('ov').classList.contains('hide') || $('aug') || $('news') || travel > 0) return setTimeout(augBoot, 1000); if (S.newsV !== NEWSV) return showNews(augBoot); if (S.augMsg != null) { const b = S.augMsg; delete S.augMsg; save('now'); overlay(`<h2>Neu: Augmente!</h2><p>Skills kaufst du nicht mehr mit ◆. Nach jedem Planeten wählst du 1 von 3 Augmenten, jedes kannst du einmal neu würfeln.<br><br>${b ? `Deine Skills wurden zurückgesetzt, dafür bekommst du <b style="color:#fff">◆${b}</b> zurück.<br>` : ''}Für deinen aktuellen Lauf darfst du jetzt <b style="color:#ffe94d">${S.augQ} Augmente</b> nachwählen.</p>`, [['Los geht\'s', () => { render(); setTimeout(augShow, 60); }]]); } else if (S.augQ) augShow(); }
 function augShow() {
-  if (!S.augQ || $('aug') || BON) return; if (!$('ov').classList.contains('hide')) return setTimeout(augShow, 1200);
+  if (!S.augQ || $('aug') || BON) return; if ($('elc')) return setTimeout(augShow, 1200); if (!$('ov').classList.contains('hide')) return setTimeout(augShow, 1200);
   if (!S.augO) { S.augO = augOffer(); save('now'); }
   const d = document.createElement('div'); d.id = 'aug';
   const draw = () => { d.innerHTML = `<div class="augw"><h2>Augment wählen</h2><p>Planet geschafft! Such dir eins aus.${S.augQ > 1 ? ` <b>Noch ${S.augQ - 1} weitere</b>` : ''}</p><div class="augr">${S.augO.map((c, k) => `<div class="augs">${augCard(c, k)}<button class="augrr" data-rr="${k}" ${c.rr ? 'disabled' : ''}>${c.rr ? 'Neu gewürfelt' : '↻ Neu würfeln'}</button></div>`).join('')}</div><button class="augl" id="augl">Später</button></div>`;
@@ -2018,10 +2078,28 @@ function augPick(k) { const c = S.augO[k], T = AUGT[c.t];
   if (c.t === 2) { lflash(); vib([60, 40, 120]); } else vib(30);
   S.augQ = Math.max(0, (S.augQ || 1) - 1); S.augO = null; save('now'); const d = $('aug'); if (d) d.remove(); render(); ui();
   if (S.augQ) setTimeout(augShow, 350); }
+
+// ================== Elite-Planeten: Warnung beim Ankommen, 3 verdeckte Karten als Belohnung ==================
+function eliteWarn() { if ($('elw')) return; const d = document.createElement('div'); d.id = 'elw'; d.className = 'elw';
+  d.innerHTML = `<b>⚠ ELITE-PLANET ⚠</b><span>Doppelte Lebenspunkte · Belohnung: Elite-Karten</span>`; $('app').appendChild(d); vib([40, 60, 40]); SND.fx.boom && SND.fx.boom(); setTimeout(() => d.remove(), 3400); }
+const ELW = () => CRATES.find(k => k.id === 'k3').w; // Gewichte wie die goldene (Ultimative) Kiste
+function elitePick() { const W8 = ELW(), tot = W8.g + W8.s + W8.e + W8.l; let x = Math.random() * tot, r = 's'; for (const [rr, w] of Object.entries(W8)) { if ((x -= w) < 0) { r = rr; break; } }
+  const pool = ITEMS.filter(i => i.r === r); return { it: pool[(Math.random() * pool.length) | 0], r }; }
+function eliteReward() {
+  if ($('elc')) return; const cards = [elitePick(), elitePick(), elitePick()];
+  const d = document.createElement('div'); d.id = 'elc'; let picked = -1;
+  d.innerHTML = `<div class="elcw"><h2>ELITE-PLANET BESIEGT!</h2><p>Such dir eine Karte aus</p><div class="elr">${cards.map((c, k) => `<div class="elk" data-ek="${k}" style="--rc:${RAR[c.r].c}"><div class="elk-in"><div class="elk-b"><span>?</span></div><div class="elk-f">${itemSvg(c.it, 64)}<b>${c.it.n}</b><small>${RAR[c.r].n}</small></div></div></div>`).join('')}</div><div class="elt" id="elt"></div></div>`;
+  $('app').appendChild(d); SND.fx.win(); vib([60, 40, 60]);
+  d.querySelectorAll('[data-ek]').forEach(el => el.onclick = () => { if (picked >= 0) return; picked = +el.dataset.ek; const c = cards[picked];
+    const had = S.inv[c.it.id] || 0; S.dup = S.dup || {}; if (had) S.dup[c.it.id] = (S.dup[c.it.id] || 0) + 1; else S.inv[c.it.id] = 1; save('now');
+    el.classList.add('on', 'pick'); SND.fx.up(); if (c.r === 'l' || c.r === 'e') { lflash(); vib([80, 50, 160]); }
+    setTimeout(() => d.querySelectorAll('.elk:not(.pick)').forEach(x => x.classList.add('on', 'dim')), 450);
+    setTimeout(() => { const t = d.querySelector('#elt'); t.innerHTML = `<span style="color:${RAR[c.r].c}">${c.it.n}</span> ${had ? `· Doppelt! ${S.dup[c.it.id]}/${DUPN} für die nächste Stufe` : '· Neu im Hangar!'}<div class="elbt"><button class="br" id="eleq">Ausrüsten</button><button class="br" id="elok">Weiter</button></div>`;
+      t.querySelector('#eleq').onclick = () => { S.eq[c.it.s] = c.it.id; save('now'); d.remove(); render(); }; t.querySelector('#elok').onclick = () => { d.remove(); render(); }; }, 900); }); }
 function planetDone() {
   SND.fx.win();
   const gain = Math.ceil((2 + S.p * .6 + 2 * WP('kris')) * (G.boss ? 3 : 1)), old = G.name; // Prototyp: ◆ nur noch für Kisten & Fähigkeiten → weniger
-  if (G.elite) setTimeout(() => { toast('⚠ Elite-Planet geschafft: Raketen-Kiste!'); giveRw({ crate: 'k1' }); }, 1800);
+  if (G.elite) setTimeout(eliteReward, 1900);
   mis('planets'); if (G.boss) { mis('boss'); vib([90, 60, 90, 60, 160]); } else vib(30);
   S.cry += gain; S.p++; S.best = Math.max(S.best, S.p); S.augQ = (S.augQ || 0) + 1; setTimeout(augShow, 2500);
   S.pAll = (S.pAll || 0) + 1; let chipT = ''; if (S.pAll % 5 === 0) { const cg = 1 + WP('chips'); S.chip = (S.chip || 0) + cg; chipT = ' · +⬢' + cg + ' Chip!'; setTimeout(() => toast('⬢ Waffen-Chip bekommen! Im Waffen-Tab bei „Waffen-Mods“ einsetzen.'), 2600); }
@@ -2478,7 +2556,7 @@ function loginCheck() {
 const hybReady = h => HYB[h].p.every(p => (S.w[p] || 0) >= HYBLV);
 function renderForge(L) {
   const ic = (id, big) => `<span class="fg-ic${big ? ' big' : ''}" style="color:${WCOL[id]};border-color:${WCOL[id]}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${WICO[id] || ''}</svg></span>`;
-  L.innerHTML = `<div class="hint" style="margin:0 2px 10px">Zwei Waffen auf <b>Stufe ${HYBLV}</b> verschmelzen zu einer Hybrid-Waffe: ×${HYBM} Schaden, ein Spezial-Effekt und ein freier Waffenslot. Gilt bis zum nächsten Warp.</div>` +
+  L.innerHTML = `<div class="hint" style="margin:0 2px 10px">Zwei Waffen auf <b>Stufe ${HYBLV}</b> verschmelzen zu einer Hybrid-Waffe: ×${HYBM} Schaden, ein Spezial-Effekt und ein freier Waffenslot. Gilt bis zum nächsten Warp. Jede Waffe kann nur in <b>einer</b> Hybrid-Waffe stecken – entscheide dich!</div>` +
     Object.keys(HYB).map(h => { const H = HYB[h], on = HY(h), ok = hybReady(h), lv = H.p.map(p => S.w[p] || 0), gone = H.p.some(p => HP[p] && HP[p] !== h);
       return `<div class="fg${on ? ' on' : ok ? ' rdy' : ''}" style="--hc:${H.c}"><div class="fg-r">${ic(H.p[0])}<small>${on ? '✔' : Math.min(lv[0], HYBLV) + '/' + HYBLV}</small><b class="pl">+</b>${ic(H.p[1])}<small>${on ? '✔' : Math.min(lv[1], HYBLV) + '/' + HYBLV}</small><b class="pl">=</b>${ic(h, 1)}</div>
         <div class="fg-t"><b>${H.n}</b><span>${H.d}</span><em>${WEAP.find(w => w.id === H.p[0]).n} + ${WEAP.find(w => w.id === H.p[1]).n}</em></div>
