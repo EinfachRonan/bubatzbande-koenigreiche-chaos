@@ -977,7 +977,7 @@ function buildPlanet(removed) {
   if (innerWidth >= 900 && H >= 420) CELL = Math.max(12, Math.min(18, 2 * Math.round(H / 140))); // PC: Planet passt fast ganz ins Bild
   const Rc = boss ? 27 : (p <= 2 ? 11 + rnd() * 4 : 16 + rnd() * 10) + Math.min(4, p * .15); // die ersten Planeten kleiner, damit der Start (auch nach dem Warp) flott geht
   COLS = ROWS = Math.ceil(Rc * 2.3 + 6);
-  const ox = 0, oy = 0, hp0 = 12 * .6 /* allgemein 40 % weniger Leben */ * (p === 1 ? .4 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (boss ? .8 : 1) * (!S.pc && p > 5 && p <= 10 ? Math.pow(.7, p - 5) : 1) /* erster Durchlauf: keine Wand vor dem ersten Warp */, v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
+  const ox = 0, oy = 0, hp0 = 12 * .39 /* allgemein deutlich weniger Leben (Bot-Test: jeder Planet ≲ 15 min) */ * (p === 1 ? .2 : p === 2 ? .65 : p === 3 ? .75 : 1) * hpCurve(p) * (1 + .2 * (p - 1)) * Math.pow(2.5, uniOf(p) - 1) * (boss ? 1.2 : 1) * (!S.pc && p > 5 && p <= 10 ? Math.pow(.7, p - 5) : 1) /* erster Durchlauf: keine Wand vor dem ersten Warp */, v0 = 2.5 * Math.pow(1.72, p - 1) * (1 + .1 * (p - 1)) * Math.pow(1.8, uniOf(p) - 1) * (boss ? 4 : 1);
   const N = COLS * ROWS, dst = new Uint8Array(N), alive = new Uint8Array(N), hp = new Float32Array(N), mx = new Float32Array(N), ore = new Uint8Array(N), dep = new Float32Array(N), lit = new Float32Array(N);
   // runder Pixel-Planet mit blockigem Rand und ein paar Kratern
   // Jeder Planet anders: Größe, Form, Krater. Immer klein genug, dass das Schiff drumrum fliegen kann
@@ -1231,6 +1231,7 @@ function step(dt) {
   ship.vx += ((tx - ship.x) * 3 - ship.vx * 2.6) * dt; ship.vy += ((ty - ship.y) * 3 - ship.vy * 2.6) * dt;
   ship.x += ship.vx * dt; ship.y += ship.vy * dt; camStep(dt);
   const toC = Math.atan2(G.cy - ship.y, G.cx - ship.x);
+  { const tA = lineTarget >= 0 ? cellXY(lineTarget) : [ship.x, ship.y + 50], a = Math.atan2(tA[1] - ship.y, tA[0] - ship.x) - Math.PI / 2; let d = a - ship.ang; d = Math.atan2(Math.sin(d), Math.cos(d)); ship.ang += d * (1 - Math.pow(.85, dt * 60)); }
   // Blickrichtung des Schiffs: alle Schüsse gehen dahin, wo die Spitze hinzeigt
   const face = ship.ang + Math.PI / 2, fcx = Math.cos(face), fcy = Math.sin(face);
   const front = (dist, r2, spread) => nearest(ship.x + fcx * dist + (spread ? (Math.random() - .5) * spread : 0), ship.y + fcy * dist + (spread ? (Math.random() - .5) * spread : 0), r2);
@@ -1285,7 +1286,7 @@ function step(dt) {
   const dC = WD('scatter') * Rd;
   if (dC && (cdScatter -= dt * Rv * sp75('scatter')) <= 0) { cdScatter = 1.4; const np = Math.min(15, 7 + 2 * ST('scatter')), aS = aimNear() ?? face; for (let k = 0; k < np; k++) { const a = aS + (k - (np - 1) / 2) * (.9 / np); proj.push({ x: ship.x, y: ship.y, vx: Math.cos(a) * 340, vy: Math.sin(a) * 340, d: dC * 1.4 / np * critMul(), t: 2, w: 'scatter', sc: WL('scatter'), boom: ML('scatter') ? (ML('scatter') >= 3 ? 2 : 1) : 0 }); } }
   for (let k = proj.length - 1; k >= 0; k--) {
-    const q = proj[k]; curW = q.w || 'x'; q.x += q.vx * dt; q.y += q.vy * dt; q.t -= dt; const i = cellAt(q.x, q.y);
+    const q = proj[k]; curW = q.w || 'x'; q.t -= dt; let i = -1; { const ns = Math.max(1, Math.ceil(Math.hypot(q.vx, q.vy) * dt / (CELL * .6))); for (let s3 = 0; s3 < ns; s3++) { q.x += q.vx * dt / ns; q.y += q.vy * dt / ns; i = cellAt(q.x, q.y); if (i >= 0 && G.alive[i] && i !== q.last) break; } } // in kleinen Schritten, damit schnelle Schüsse bei Ruckeln nicht durch Blöcke tunneln
     if (i >= 0 && G.alive[i] && i !== q.last) { hit(i, q.d * .6); if (!q.solo) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) hit(cellAt(q.x + dx * CELL, q.y + dy * CELL), q.d * .1);
       if (q.boom) { const n = q.boom; for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) if (a || b2) hit(cellAt(q.x + a * CELL, q.y + b2 * CELL), q.d * .25); fx.push({ k: 'nova', x: q.x, y: q.y, r: CELL * (n + .8), t: .3, c: '255,200,90' }); }
       if (q.fr != null) freezeAt(i, q.fr);
@@ -1780,8 +1781,7 @@ function draw(now) {
       g.restore();
       if (T >= 4) { g.strokeStyle = 'rgba(255,210,63,.4)'; g.lineWidth = 1; g.beginPath(); g.arc(d.x, d.y, z * 2, tq * 2, tq * 2 + 4); g.stroke(); } } }
   // Schiff
-  const tx = lineTarget >= 0 ? cellXY(lineTarget) : [ship.x, ship.y + 50];
-  const a = Math.atan2(tx[1] - ship.y, tx[0] - ship.x) - Math.PI / 2; { let d = a - ship.ang; d = Math.atan2(Math.sin(d), Math.cos(d)); ship.ang += d * .15; }
+  // (Ausrichtung des Schiffs passiert jetzt in step(), unabhängig von der Bildrate)
   // Auren für Hyperschub (Schaden) und Goldrausch (CR), werden mit der Stufe krasser
   for (const [bk, id] of [['dmg', 'over'], ['cr', 'gold']]) if (buf(bk)) { const tr = (S.bufT || {})[bk] || 0, [c, rgb] = ABCOL[id][tr], tn = performance.now() / 1000;
     g.strokeStyle = `rgba(${rgb},.55)`; g.lineWidth = 2 + tr; g.beginPath(); g.arc(ship.x, ship.y, 22 + tr * 4 + Math.sin(tn * 8) * 2, 0, 7); g.stroke();
