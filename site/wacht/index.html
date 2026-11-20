@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Höhlenwacht · v1.6</title>
+<title>Höhlenwacht · v1.7</title>
 <script src="../bb.js?v=20261120a"></script>
 <script>
 /* Geheim-Spiel (Testphase): nur spielbar, wenn über „Code eingeben“ auf der Startseite freigeschaltet. */
@@ -128,6 +128,7 @@ canvas{width:100%;height:100%;display:block;object-fit:contain;image-rendering:p
  #ver{font-size:13px}
 }
 @media (min-width:1500px) and (min-aspect-ratio:5/4){#app{grid-template-columns:minmax(0,1fr) 540px}}
+#banner{font-size:clamp(16px,5vw,34px)!important;white-space:normal!important;width:max-content;max-width:86%;text-align:center;line-height:1.15}
 #ko{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:0 8%;text-align:center;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(60,0,0,.55),rgba(0,0,0,.85))}
 #ko.on{animation:kofx 3s ease forwards}
 #ko b{font-family:'MedievalSharp',serif;font-weight:400;font-size:clamp(26px,7vw,60px);color:#ff4a3a;text-shadow:0 3px 0 #000,0 0 22px rgba(255,40,20,.8);letter-spacing:.04em}
@@ -242,7 +243,7 @@ html,body{background:#0e0b08 var(--im-stone) repeat;background-size:180px 180px;
   <div id="ults"></div>
   <div id="tabs"><button class="btn on" data-t="bande">Bande</button><button class="btn" data-t="ausbau">Ausbau</button><button class="btn" data-t="schmiede">Ausrüstung</button><button class="btn" data-t="taverne">Taverne</button></div>
   <div id="panel"></div>
-  <div id="ver">Höhlenwacht · v1.6 · Testphase<span id="sv"></span></div>
+  <div id="ver">Höhlenwacht · v1.7 · Testphase<span id="sv"></span></div>
 </div>
 <div id="sheet"><div class="in"></div></div>
 <div id="aud"><div class="in"></div></div>
@@ -612,6 +613,8 @@ function drawSpr(key,x,y,face,mode,frame,sc,alpha,flash,tint){const s=IMG[key];i
 const TINT=new Map();function tinted(im,c){let m=TINT.get(im);if(!m){m={};TINT.set(im,m);}if(m[c])return m[c];const cv2=document.createElement('canvas');cv2.width=im.width;cv2.height=im.height;const x=cv2.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-atop';x.fillStyle=c;x.fillRect(0,0,cv2.width,cv2.height);return m[c]=cv2;}
 const hScale=k=>{const s=IMG[sprOf(k)];return Math.min((s.sc||1)*.8*(HEROES[k].big||1),66/imgH(sprOf(k)));};
 const animDur=(k,cd)=>{const n=IMG[k].atk.length||6;return Math.min(n*(IMG[k].ft||.06),cd*.85,1.1);};
+const halfW=(k,sc)=>((IMG[k].r.width||30)*sc)/2;
+const gapOf=(a,as,b,bs)=>Math.max(14,(halfW(a,as)+halfW(b,bs))*.8+4);
 const hitAt=k=>{const n=IMG[k].atk.length;return n&&IMG[k].hf!=null?Math.min(.95,(IMG[k].hf+.5)/n):.55;};
 
 /* ============ Kampf ============ */
@@ -656,14 +659,15 @@ function update(dt){
   const t=nearest(h,enemies);h.cd-=dt;
   if(h.anim>=0){h.anim+=dt;const dur=animDur(h.s,H0.cd);if(!h.hit&&h.anim>=dur*hitAt(h.s)){h.hit=true;doAttack(h);}if(h.anim>=dur)h.anim=-1;continue;}
   if(!t||state!=='fight'){const hx=HOME[h.k][0],hy=HOME[h.k][1];h.x+=Math.sign(hx-h.x)*Math.min(Math.abs(hx-h.x),60*dt);h.y+=Math.sign(hy-h.y)*Math.min(Math.abs(hy-h.y),40*dt);continue;}
-  const dx=t.x-h.x;
-  if(Math.abs(dx)>H0.range||(H0.melee&&Math.abs(t.y-h.y)>14)){if(H0.melee&&t.x>225){const hx=HOME[h.k][0]+40;h.x+=Math.sign(hx-h.x)*Math.min(Math.abs(hx-h.x),H0.spd*dt);}else if(H0.melee){h.x+=Math.sign(dx)*H0.spd*dt;h.y+=Math.sign(t.y-h.y)*Math.min(Math.abs(t.y-h.y),30*dt);}else{let fx=HOME[h.k][0]+70;for(const o of heroes)if(!o.dead&&HEROES[o.k].melee)fx=Math.min(fx,o.x-14);const tx=Math.max(HOME[h.k][0],Math.min(fx,t.x-H0.range*.85));h.x+=Math.sign(tx-h.x)*Math.min(Math.abs(tx-h.x),50*dt);}continue;}
+  const dx=t.x-h.x,gp=H0.melee?Math.max(H0.range,gapOf(h.s,h.sc,t.k,t.sc)):H0.range;
+  if(H0.melee&&Math.abs(dx)<gp*.72&&h.anim<0){h.x-=Math.sign(dx||1)*30*dt;}
+  if(Math.abs(dx)>gp||(H0.melee&&Math.abs(t.y-h.y)>14)){if(H0.melee&&t.x>225){const hx=HOME[h.k][0]+40;h.x+=Math.sign(hx-h.x)*Math.min(Math.abs(hx-h.x),H0.spd*dt);}else if(H0.melee){h.x+=Math.sign(dx)*H0.spd*dt;h.y+=Math.sign(t.y-h.y)*Math.min(Math.abs(t.y-h.y),30*dt);}else{let fx=HOME[h.k][0]+70;for(const o of heroes)if(!o.dead&&HEROES[o.k].melee)fx=Math.min(fx,o.x-14);const tx=Math.max(HOME[h.k][0],Math.min(fx,t.x-H0.range*.85));h.x+=Math.sign(tx-h.x)*Math.min(Math.abs(tx-h.x),50*dt);}continue;}
   if(h.cd<=0){h.cd=H0.cd/(1+eqv(h.k,'spd')/100)/(BUF.spd>0?1.4:1);h.anim=0;h.hit=false;h.tgt=t;}}
  // Gegner
  for(const e of enemies){e.flash=Math.max(0,e.flash-dt);if(e.hp<=0)continue;if(e.frz>0){e.frz-=dt;continue;}e.slow=Math.max(0,e.slow-dt);const sm=e.slow>0?.6:1;
   const t=nearest(e,heroes);if(!t){e.x+=e.spd*dt*.5;continue;}e.c-=dt*sm;
   e.mv=0;if(e.anim>=0){e.anim+=dt;const n=IMG[e.k].atk.length,dur=n?Math.min(n*(IMG[e.k].ft||.1),e.cd*.9):.35;if(!e.hit&&e.anim>=dur*(n?hitAt(e.k):.5)){e.hit=true;if(e.ranged)shots.push({x:e.x-8,y:e.y-20,t:e.tgt,sp:150,d:e.dmg,en:1,c:'#9bd84a',r:2});else if(e.boss){for(const h of heroes)if(!h.dead&&Math.abs(h.x-e.x)<e.range+14)hurtHero(h,e.dmg);shake=.2;}else hurtHero(e.tgt,e.dmg);}if(e.anim>=dur)e.anim=-1;continue;}
-  const dx=t.x-e.x;if(Math.abs(dx)>e.range||e.x>222||(!e.ranged&&Math.abs(t.y-e.y)>12)){e.mv=1;e.wt+=dt*sm;e.x+=Math.sign(dx)*e.spd*sm*dt*(e.x>235?3:1);if(!e.ranged)e.y+=Math.sign(t.y-e.y)*Math.min(Math.abs(t.y-e.y),20*dt);continue;}
+  const dx=t.x-e.x,eg=e.ranged?e.range:Math.max(e.range,gapOf(e.k,e.sc,t.s,t.sc));if(Math.abs(dx)>eg||e.x>222||(!e.ranged&&Math.abs(t.y-e.y)>12)){e.mv=1;e.wt+=dt*sm;e.x+=Math.sign(dx)*e.spd*sm*dt*(e.x>235?3:1);if(!e.ranged)e.y+=Math.sign(t.y-e.y)*Math.min(Math.abs(t.y-e.y),20*dt);continue;}
   if(e.c<=0){e.c=e.cd;e.anim=0;e.hit=false;e.tgt=t;}}
  enemies=enemies.filter(e=>e.hp>0||e.dying);
  // Geschosse
