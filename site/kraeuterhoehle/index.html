@@ -2902,15 +2902,17 @@ function draw(){
   if(B.boss && !B.boss.dead){
     const bw = Math.min(420, VW - 40), x0 = -bw/2, y0 = -VH/2 + 18, p = Math.max(0, B.boss.hp / B.boss.max);
     const isP2 = B.boss.trans && B.boss.origMaxHp;
-    const barColor = isP2 ? '#a020c0' : '#c0302a';
-    const barBg = isP2 ? '#2a0040' : '#3a1010';
-    ctx.fillStyle = '#000'; ctx.fillRect(x0 - 2, y0 - 2, bw + 4, 16);
-    ctx.fillStyle = barBg; ctx.fillRect(x0, y0, bw, 12);
-    ctx.fillStyle = barColor; ctx.fillRect(x0, y0, bw*p, 12);
-    if(isP2){ ctx.fillStyle = 'rgba(200,80,255,0.18)'; ctx.fillRect(x0, y0, bw, 12); }
-    const label = (isP2 ? '💜 ' : '') + B.boss.bname.toUpperCase() + (isP2 ? ' — PHASE 2' : '');
-    ctx.font = `700 21px ${FONT}`; ctx.lineWidth = 3; ctx.strokeStyle = '#000';
-    ctx.strokeText(label, 0, y0 + 28); ctx.fillStyle = isP2 ? '#e080ff' : '#ffb0a0'; ctx.fillText(label, 0, y0 + 28);
+    const barColor = isP2 ? '#c030f0' : '#d03020';
+    const barBg = isP2 ? '#3a0060' : '#601010';
+    ctx.fillStyle = '#000'; ctx.fillRect(x0 - 3, y0 - 3, bw + 6, 20);
+    ctx.fillStyle = barBg; ctx.fillRect(x0, y0, bw, 14);
+    ctx.fillStyle = barColor; ctx.fillRect(x0, y0, bw*p, 14);
+    // Schimmer-Linie oben
+    ctx.fillStyle = `rgba(255,255,255,0.15)`; ctx.fillRect(x0, y0, bw*p, 3);
+    const hpPct = Math.ceil(p * 100);
+    const label = (isP2 ? '💜 ' : '💀 ') + B.boss.bname.toUpperCase() + (isP2 ? ' — PHASE 2' : '') + `  ${hpPct}%`;
+    ctx.font = `700 20px ${FONT}`; ctx.lineWidth = 3; ctx.strokeStyle = '#000';
+    ctx.strokeText(label, 0, y0 + 30); ctx.fillStyle = isP2 ? '#e080ff' : '#ffb0a0'; ctx.fillText(label, 0, y0 + 30);
   }
   if(mouse.in){
     ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(mouse.x, mouse.y, MD.crad, 0, 7); ctx.stroke();
