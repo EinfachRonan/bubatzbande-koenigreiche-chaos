@@ -1328,7 +1328,7 @@ $('#reroll').onclick = () => {
 
 /* ===================== SKILLTREE ===================== */
 const GRID = 56, OX = 2200, OY = 1300;
-let pan = {x:0, y:0}, selNode = null, curTab = 'tree';
+let pan = {x:0, y:0}, treeScale = 1, selNode = null, curTab = 'tree';
 const owned = id => !!S.owned[id];
 const lvlOf = id => S.owned[id] === true ? 1 : (S.owned[id] || 0);
 const maxed = n => n.max ? lvlOf(n.id) >= n.max : owned(n.id);
@@ -1381,7 +1381,7 @@ function renderTree(){
     html += `<div class="${cls.join(' ')}" style="left:${px-24}px;top:${py-24}px" data-id="${n.id}">${inner}</div>`;
   }
   T.innerHTML = svg + '</svg>' + html;
-  T.style.transform = `translate(${pan.x}px,${pan.y}px)`;
+  applyTreeTransform();
   T.querySelectorAll('.node[data-id]').forEach(el => {
     el.onpointerenter = () => { if(!selNode) showTip(el.dataset.id, el); };
     el.onpointerleave = () => { if(!selNode) hideTip(); };
@@ -1426,13 +1426,68 @@ function buyNode(id){
   if(n.t === 'hero') toast(`${HERO[n.hero].n} freigeschaltet!`);
   renderHub();
 }
-function centerTree(){ const b = $('#treebox').getBoundingClientRect(); pan.x = b.width/2 - OX - 120; pan.y = b.height/2 - OY + 20; }
+function applyTreeTransform(){ $('#tree').style.transform = `translate(${pan.x}px,${pan.y}px) scale(${treeScale})`; $('#tree').style.transformOrigin = '0 0'; }
+function centerTree(){ const b = $('#treebox').getBoundingClientRect(); pan.x = b.width/2 - OX - 120; pan.y = b.height/2 - OY + 20; applyTreeTransform(); }
 (function initPan(){
-  const tb = $('#treebox'); let drag = null;
-  tb.addEventListener('pointerdown', e => { if(e.target.closest('.node') || e.target.closest('#tip')) return; drag = {x:e.clientX, y:e.clientY, px:pan.x, py:pan.y, moved:false}; tb.classList.add('drag'); tb.setPointerCapture(e.pointerId); });
-  tb.addEventListener('pointermove', e => { if(!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if(Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true; pan.x = drag.px + dx; pan.y = drag.py + dy; $('#tree').style.transform = `translate(${pan.x}px,${pan.y}px)`; if(selNode){ selNode = null; hideTip(); } });
-  const up = () => { if(drag && !drag.moved){ selNode = null; hideTip(); } drag = null; tb.classList.remove('drag'); };
+  const tb = $('#treebox');
+  const pointers = new Map();
+  let drag = null, lastPinchDist = null;
+
+  function pinchDist(){ const pts = [...pointers.values()]; return Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y); }
+  function pinchCenter(){ const pts = [...pointers.values()]; return {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2}; }
+
+  tb.addEventListener('pointerdown', e => {
+    pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pointers.size === 2){ lastPinchDist = pinchDist(); drag = null; return; }
+    if(e.target.closest('.node') || e.target.closest('#tip')) return;
+    drag = {x:e.clientX, y:e.clientY, px:pan.x, py:pan.y, moved:false};
+    tb.classList.add('drag'); tb.setPointerCapture(e.pointerId);
+  });
+
+  tb.addEventListener('pointermove', e => {
+    if(pointers.has(e.pointerId)) pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pointers.size === 2 && lastPinchDist !== null){
+      const newDist = pinchDist();
+      const factor = newDist / lastPinchDist;
+      const c = pinchCenter();
+      const rect = tb.getBoundingClientRect();
+      const cx = c.x - rect.left, cy = c.y - rect.top;
+      const newScale = Math.max(0.3, Math.min(2.5, treeScale * factor));
+      pan.x = cx - (cx - pan.x) * (newScale / treeScale);
+      pan.y = cy - (cy - pan.y) * (newScale / treeScale);
+      treeScale = newScale;
+      lastPinchDist = newDist;
+      applyTreeTransform();
+      return;
+    }
+    if(!drag) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if(Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
+    pan.x = drag.px + dx; pan.y = drag.py + dy;
+    applyTreeTransform();
+    if(selNode){ selNode = null; hideTip(); }
+  });
+
+  const up = e => {
+    pointers.delete(e.pointerId);
+    if(pointers.size < 2) lastPinchDist = null;
+    if(drag && !drag.moved){ selNode = null; hideTip(); }
+    drag = null; tb.classList.remove('drag');
+  };
   tb.addEventListener('pointerup', up); tb.addEventListener('pointercancel', up);
+
+  // Mausrad Zoom
+  tb.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = tb.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    const factor = e.deltaY < 0 ? 1.1 : 0.9;
+    const newScale = Math.max(0.3, Math.min(2.5, treeScale * factor));
+    pan.x = cx - (cx - pan.x) * (newScale / treeScale);
+    pan.y = cy - (cy - pan.y) * (newScale / treeScale);
+    treeScale = newScale;
+    applyTreeTransform();
+  }, {passive:false});
 })();
 
 /* ===================== SAMMLUNG ===================== */
@@ -1609,7 +1664,7 @@ function playTreeBeam(heroId){
     if(p < 0.85){
       pan.x = startPan.x + (targetPan.x - startPan.x) * ease;
       pan.y = startPan.y + (targetPan.y - startPan.y) * ease;
-      $('#tree').style.transform = `translate(${pan.x}px,${pan.y}px)`;
+      applyTreeTransform();
     }
     // Beam zeichnen
     ctx2.clearRect(0, 0, cv.width, cv.height);
