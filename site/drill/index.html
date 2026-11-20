@@ -506,8 +506,8 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 .fg .br{margin-top:8px;width:100%}.fg-on{margin-top:8px;text-align:center;font:400 12px Silkscreen,var(--mono);color:var(--hc)}
 
 /* Prototyp: Hotbar mit 8 Plätzen (2 Reihen) */
-.hot{display:grid!important;grid-template-columns:repeat(5,minmax(0,56px));justify-content:center;gap:6px}.hot .hs{aspect-ratio:1;max-height:none;height:auto;width:100%}
-@media (min-width:900px){.hot{grid-template-columns:repeat(5,minmax(0,66px));gap:8px}}
+.hot{display:grid!important;grid-template-columns:repeat(6,minmax(0,54px));justify-content:center;gap:6px}.hs.tgl{font:700 18px var(--mono);color:#5ce8f0;flex-direction:column;gap:0}.hs.tgl small{font:700 10px var(--mono);color:#9fb3bb}.hot .hs{aspect-ratio:1;max-height:none;height:auto;width:100%}
+@media (min-width:900px){.hot{grid-template-columns:repeat(6,minmax(0,58px));gap:7px}}
 .hbe{display:grid;grid-template-columns:repeat(4,1fr)}
 /* Augmente */
 #aug{position:absolute;inset:0;z-index:60;background:radial-gradient(circle at 50% 40%,rgba(30,20,60,.88),rgba(3,5,10,.96));display:flex;align-items:center;justify-content:center;padding:14px;animation:augIn .35s ease-out}
@@ -2533,19 +2533,23 @@ function bestEquip() { const ch = []; for (const sl of ['h', 'r', 't']) { let be
   save('now'); render(); toast(ch.length ? '✓ Ausgerüstet: ' + ch.join(', ') : 'Du hast schon die besten Teile drin 👌'); if (ch.length) SND.fx.up(); }
 const better = it => { const e = eqItem(it.s); return S.eq[it.s] !== it.id && itemVal(it, ILV(it.id)) > itemVal(e, ILV(e.id)); };
 // ================== Hotbar ==================
-let hotSig = '';
+let hotSig = ''; let hotX = innerWidth >= 900; try { const v = localStorage.getItem('gb_hotx'); if (v != null) hotX = v === '1'; } catch (e) {} // Hotbar ausgeklappt?
 function hotbar(force) {
   const el = $('hot'); if (!el) return;
   const now = Date.now(), sig = S.hot.join() + '|' + Object.keys(S.ab).length;
   if (force || sig !== hotSig) {
     hotSig = sig;
-    el.innerHTML = [0, 1, 2, 3, 4, 5, 6, 7].map(k => { const id = S.hot[k], a = id && ABIL.find(x => x.id === id);
+    const ab = k => { const id = S.hot[k], a = id && ABIL.find(x => x.id === id);
       return a ? `<button class="hs" data-cast="${id}" aria-label="${a.n}">${abIco(a, ` viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"`)}<i class="cd"></i><span class="ct"></span></button>`
-        : `<button class="hs empty" data-goab="1" aria-label="Fähigkeit hinzufügen">+</button>`; }).join('') + `<button class="hs shp" data-goshop="1" aria-label="Shop"><span class="dot" id="shdot" hidden></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.4 11h10.2L20 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></button><button class="hs bst" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">x2</span></button>`;
+        : `<button class="hs empty" data-goab="1" aria-label="Fähigkeit hinzufügen">+</button>`; };
+    const tg = `<button class="hs tgl" id="hotx" aria-label="${hotX ? 'Hotbar einklappen' : 'Alle Fähigkeiten zeigen'}">${hotX ? '▴' : '▾<small>+' + S.hot.slice(3).filter(Boolean).length + '</small>'}</button>`;
+    el.classList.toggle('x', hotX);
+    el.innerHTML = (hotX ? [0, 1, 2, 3, 4].map(ab).join('') + tg + [5, 6, 7].map(ab).join('') : [0, 1, 2].map(ab).join('') + tg) + `<button class="hs shp" data-goshop="1" aria-label="Shop"><span class="dot" id="shdot" hidden></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.4 11h10.2L20 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></button><button class="hs bst" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">x2</span></button>`;
     el.querySelectorAll('[data-cast]').forEach(b => b.onclick = () => cast(b.dataset.cast));
     el.querySelectorAll('[data-goab]').forEach(b => b.onclick = () => goTab('a'));
     el.querySelectorAll('[data-goshop]').forEach(b => b.onclick = () => goTab('k'));
     $('boost').onclick = boostClick;
+    $('hotx').onclick = () => { hotX = !hotX; try { localStorage.setItem('gb_hotx', hotX ? '1' : '0'); } catch (e) {} hotbar(true); resize(); };
   }
   el.querySelectorAll('[data-cast]').forEach(b => { const a = ABIL.find(x => x.id === b.dataset.cast), left = (S.abT[a.id] || 0) - now, tot = abCd(a) * 1000;
     const f = left > 0 ? Math.min(1, left / tot) : 0; b.querySelector('.cd').style.background = f ? `conic-gradient(rgba(0,0,0,.72) ${f * 360}deg, transparent 0)` : 'none';
@@ -2917,7 +2921,7 @@ addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (k === 'escape') { const sh = document.querySelector('.hsheet'); if (sh) { sh.querySelector('.hsx').click(); return; } return; }
   if (!$('ov').classList.contains('hide')) return;
-  if (/^[1-8]$/.test(k)) { const b = $('hot').querySelectorAll('.hs')[+k - 1]; if (b && !b.disabled) b.click(); return; }
+  if (/^[1-8]$/.test(k)) { const id = S.hot[+k - 1]; if (id) cast(id); return; }
   if (k === 'b') { const b = $('boost'); if (b && !b.disabled) b.click(); return; }
   const t = { q: 'w', w: 's', e: 'a', r: 'h', t: 'p' }[k]; if (t) goTab(t);
 });
