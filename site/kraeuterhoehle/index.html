@@ -1723,7 +1723,9 @@ function enemyRanged(e, dt, heroes){
     if(before < hitT && e.animT >= hitT){ for(let k = 0; k < 2; k++) spawnEnemy(false, 'wolfratte', e.x + (k ? 18 : -18), e.y + 8); B.fx.push({t:'poof', x:e.x, y:e.y - 10, r:20, life:0.4, max:0.4}); addRing(e.x, e.y, 30, '#e0a040', 0.4); }
     if(e.animT >= per) e.animT = 0;
     return true; }
-  let tgt = null, bd = e.range;
+  // Beschwörte Fernkämpfer (Kröten etc.) brauchen größere Aggro-Range damit sie aktiv angreifen
+  const aggroR = (HERO[e.id] && HERO[e.id].summoned && !e.melee) ? Math.max(e.range, 280) : e.range;
+  let tgt = null, bd = aggroR;
   for(const u of heroes){ const d = Math.hypot(u.x - e.x, u.y - e.y); if(d < bd){ bd = d; tgt = u; } }
   const cd = caveDist(e);
   if(!tgt && cd > e.range){ // weiterlaufen Richtung Höhle
