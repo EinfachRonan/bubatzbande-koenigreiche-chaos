@@ -504,6 +504,31 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
 .fg-ic.big{width:42px;height:42px;margin-left:auto;box-shadow:0 0 12px currentColor}.fg-ic.big svg{width:26px;height:26px}
 .fg-t b{display:block;font:400 15px Silkscreen,var(--mono);color:var(--hc)}.fg-t span{display:block;font-size:12px;color:#cfd8da;margin:2px 0}.fg-t em{font-style:normal;font-size:10.5px;color:var(--mut)}
 .fg .br{margin-top:8px;width:100%}.fg-on{margin-top:8px;text-align:center;font:400 12px Silkscreen,var(--mono);color:var(--hc)}
+
+/* Prototyp: Hotbar mit 8 Plätzen (2 Reihen) */
+.hot{display:grid!important;grid-template-columns:repeat(5,1fr);gap:5px}.hot .hs{max-height:44px;width:100%}
+.hbe{display:grid;grid-template-columns:repeat(4,1fr)}
+/* Augmente */
+#aug{position:absolute;inset:0;z-index:60;background:radial-gradient(circle at 50% 40%,rgba(30,20,60,.88),rgba(3,5,10,.96));display:flex;align-items:center;justify-content:center;padding:14px;animation:augIn .35s ease-out}
+@keyframes augIn{from{opacity:0;transform:scale(1.04)}}
+.augw{width:100%;max-width:640px;text-align:center}.augw h2{font:400 22px Silkscreen,var(--mono);color:#ffe94d;margin:0 0 4px;letter-spacing:1px;text-shadow:0 2px 0 #000}
+.augw>p{color:#b9c8cf;font:13px var(--mono);margin:0 0 14px}.augw>p b{color:#ffe94d}
+.augr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.augs{display:flex;flex-direction:column;gap:6px}.augs.spin .augc{animation:augSp .45s ease-out}@keyframes augSp{from{transform:rotateY(90deg)}}
+.augc{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:22px 6px 10px;min-height:236px;border-radius:12px;cursor:pointer;color:#e8f4f6;font:12px var(--mono);
+ background:linear-gradient(180deg,#152232,#090e16);border:2.5px solid var(--ac);box-shadow:0 0 0 2px #050912,0 0 18px color-mix(in srgb,var(--ac) 40%,transparent),inset 0 0 22px color-mix(in srgb,var(--ac) 18%,transparent);transition:transform .15s}
+.augc:hover,.augc:active{transform:translateY(-3px)}
+.augc.t2{background:linear-gradient(160deg,#2a1640,#0c1830 55%,#12303a);animation:augPr 2.4s linear infinite}@keyframes augPr{50%{border-color:#7af0ff;box-shadow:0 0 0 2px #050912,0 0 24px rgba(122,240,255,.5)}}
+.augc .tier{position:absolute;top:-1px;left:50%;transform:translate(-50%,-50%);background:var(--ac);color:#050912;font:400 10px Silkscreen,var(--mono);padding:2px 8px;border-radius:5px;font-style:normal;white-space:nowrap}
+.augc .neu{position:absolute;top:6px;right:6px;font:400 9px Silkscreen,var(--mono);color:#8dff5a;font-style:normal}
+.augc svg{width:42px;height:42px;color:var(--ac);filter:drop-shadow(0 0 6px var(--ac))}
+.augc b{font:700 13px var(--mono);color:#fff;line-height:1.15}
+.augc span{font-size:10.5px;color:#9fb3bb;line-height:1.3;flex:1}
+.augc em{font-style:normal;font-weight:700;color:var(--ac);font-size:12px}
+.augc small{font-size:10px;color:#7f9196}
+.augrr{background:#0b131b;border:1.5px solid #36506a;color:#cfe6ea;border-radius:8px;padding:7px 4px;font:700 11px var(--mono);cursor:pointer}.augrr:disabled{opacity:.4;cursor:default}
+.augl{margin-top:12px;background:none;border:0;color:#7f9196;font:12px var(--mono);text-decoration:underline;cursor:pointer}
+@media (max-width:420px){.augc{min-height:250px;padding:20px 4px 8px}.augc span{font-size:9.5px}}
 </style>
 </head>
 <body data-bbtoast="top">
@@ -532,7 +557,7 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261120a"></script>
+<script src="../bb.js?v=20261120b"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -585,7 +610,9 @@ const HYB = {
   x_sturm: { n: 'Sturmpeitsche', p: ['whip', 'chain'], d: 'Jeder Peitschenhieb entlädt am Ende Kettenblitze', c: '#7af0ff' },
   x_malstrom: { n: 'Mahlstrom', p: ['grav', 'tornado'], d: 'Tornados mit Schwerkraftkern – doppelt so breit', c: '#d68cff' },
   x_prisma: { n: 'Prisma-Blaster', p: ['line', 'scatter'], d: 'Blaster-Schüsse zersplittern beim Aufprall in einen Funkenregen', c: '#fff07a' },
-  x_geist: { n: 'Nova-Säge', p: ['saw', 'nova'], d: 'Die Sägeblätter zünden kleine Nova-Explosionen', c: '#b8ffb0' }
+  x_geist: { n: 'Nova-Säge', p: ['saw', 'nova'], d: 'Die Sägeblätter zünden kleine Nova-Explosionen', c: '#b8ffb0' },
+  x_minen: { n: 'Bohrminen', p: ['drill', 'mine'], d: 'Bohrlanze und Minen im Doppelpack: +4 Minen pro Salve', c: '#ff8a5c' },
+  x_bum: { n: 'Sternbumerang', p: ['star', 'boomer'], d: 'Kristall-Bumerangs: +2 Bumerangs pro Wurf', c: '#ff9ad8' }
 };
 const HYBM = 2.2, HYBLV = 100, HYBCOST = 30;
 let HP = {}; // Eltern-Waffe -> aktive Hybrid-Waffe
@@ -613,7 +640,10 @@ const SKILLS = [
   { id: 'cr', n: 'Goldgier', d: '+15 % CR', max: 10, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
   { id: 'crit', n: 'Krit-Kern', d: '+4 % Krit (x3)', max: 10, ico: '<path d="M12 2v6M12 16v6M4 12h4M16 12h4M6 6l3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/>' },
   { id: 'spd', n: 'Turbo', d: '+10 % Feuerrate', max: 10, ico: '<path d="M4 20l16-16M9 4h11v11"/>' },
-  { id: 'ore', n: 'Erzader', d: '+1,5 % Erze', max: 8, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M12 7l4 2.5v5L12 17l-4-2.5v-5z"/>' }
+  { id: 'ore', n: 'Erzader', d: '+1,5 % Erze', max: 8, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M12 7l4 2.5v5L12 17l-4-2.5v-5z"/>' },
+  { id: 'boss', n: 'Riesentöter', d: '+15 % Schaden auf Boss & Elite', max: 10, ico: '<path d="M4 20l10-10M14 4l6 6-4 4-6-6z"/><path d="M3 15l6 6"/>' },
+  { id: 'exec', n: 'Abrissbirne', d: 'Blöcke unter 3 % Leben zerbröseln', max: 8, ico: '<circle cx="14" cy="15" r="6"/><path d="M14 9V3M14 3L5 6"/>' },
+  { id: 'kwucht', n: 'Krit-Wucht', d: '+0,5 Krit-Schaden', max: 10, ico: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' }
 ];
 const PAL = [
   ['#0e4c52', '#0a3439', '#38d6d8'], ['#e07b32', '#7a3613', '#ffb46a'], ['#8c4be0', '#3d1d6d', '#d9a8ff'],
@@ -658,8 +688,8 @@ let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
 const VER = 14; // interne Stand-Nummer (höher = einmaliger Reset)
 const VLABEL = '0.7'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
-const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, wq5: 1, slot1: 1, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
-const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: (o && o.inv && Object.keys(o.inv).length) ? o.inv : { h_pfeil: 1, r_basis: 1, t_basis: 1 }, /* Start-Teile nur bei neuem Spielstand, sonst kämen eingeschmolzene Teile beim Laden zurück */ eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
+const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, wq5b: 1, slot1b: 1, aug1: 1, augQ: 1, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
+const norm = o => Object.assign(fresh(), o || {}, { wq5b: o ? o.wq5b : 1, slot1b: o ? o.slot1b : 1, aug1: o ? o.aug1 : 1, augQ: o ? o.augQ || 0 : 1, w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: (o && o.inv && Object.keys(o.inv).length) ? o.inv : { h_pfeil: 1, r_basis: 1, t_basis: 1 }, /* Start-Teile nur bei neuem Spielstand, sonst kämen eingeschmolzene Teile beim Laden zurück */ eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
 if (S && S.v !== VER) { try { localStorage.removeItem('gb_intro'); } catch (e) {} } // neuer Start: Intro nochmal zeigen
 S = S && typeof S.cr === 'number' && S.v === VER ? norm(S) : fresh();
@@ -741,7 +771,7 @@ const dmBonus = () => (S.wm || 1) * (1 + WP('kraft'));
 // ✦ beim Warp: ab Planet 3 zählt jeder Planet. Erst 2 pro Planet, alle 2 Planeten 1 mehr (2, 2, 3, 3, 4, 4 …)
 const dmPer = j => 2 + Math.floor((j - 1) / 2); // 2, 2, 3, 3, 4, 4 … ✦ pro Planet
 const dmGain = () => { let t = 0; for (let j = 1; j <= S.p - 2; j++) t += dmPer(j); return Math.floor(t * (1 + .2 * WP('magnet'))); };
-const mult = () => (1 + .08 * SK('core')) * (1 + HA('dmg')) * (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 2 : 1);
+const mult = () => (G && (G.boss || G.elite) ? 1 + .15 * SK('boss') : 1) * (1 + .08 * SK('core')) * (1 + HA('dmg')) * (1 + .15 * SK('dmg')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('h') * (buf('dmg') ? 2 : 1);
 const crMult = () => (1 + .1 * SK('gold')) * (1 + HA('cr')) * (1 + .15 * SK('cr')) * (boosting() ? 2 : 1) * dmBonus() * itemBonus('r') * (buf('cr') ? 2 : 1);
 const totalDps = () => WEAP.reduce((a, w) => a + wDps(w), 0);
 const WD = id => (HP[id] && !S.w[id]) ? wDps(WEAP.find(x => x.id === HP[id])) / 2 : wDps(WEAP.find(x => x.id === id));
@@ -786,13 +816,12 @@ addEventListener('keydown', e => { if (!infNav || $('ov').classList.contains('hi
 const SKTXT = {
   gold: 'Dein Bohrer findet mehr: Jeder Block bringt mehr CR.', core: 'Verstärkt den Kern deines Schiffs: alle Waffen machen mehr Schaden.',
   dmg: 'Bündelt die Laser: noch mehr Schaden für alle Waffen.', cr: 'Mehr Gier, mehr Gold: noch mehr CR pro Block.',
-  crit: 'Chance, dass ein Treffer dreifachen Schaden macht.', spd: 'Alle Waffen schießen schneller.',
+  crit: 'Chance, dass ein Treffer dreifachen Schaden macht.', boss: 'Mehr Schaden gegen Spießer-Festungen und Elite-Planeten.', exec: 'Fast kaputte Blöcke zerfallen sofort, der Rest-Schaden wird gespart.', kwucht: 'Kritische Treffer hauen noch härter rein (Grundwert x3).', spd: 'Alle Waffen schießen schneller.',
   ore: 'Auf neuen Planeten gibt es mehr Erz-Blöcke (Erz bringt 10x bzw. 40x CR).', off: 'Wie lange dein Schiff weiter CR sammelt, wenn du nicht im Spiel bist.'
 };
-const skVal = (id, l) => ({ gold: '+' + 10 * l + ' % CR', core: '+' + 8 * l + ' % Schaden', dmg: '+' + 15 * l + ' % Schaden', cr: '+' + 15 * l + ' % CR', crit: 4 * l + ' % Krit', spd: '+' + 10 * l + ' % Feuerrate', ore: '+' + (1.5 * l).toFixed(1) + ' % Erze', off: offH(l) + ' h offline' })[id];
+const skVal = (id, l) => ({ gold: '+' + 10 * l + ' % CR', core: '+' + 8 * l + ' % Schaden', dmg: '+' + 15 * l + ' % Schaden', cr: '+' + 15 * l + ' % CR', crit: 4 * l + ' % Krit', spd: '+' + 10 * l + ' % Feuerrate', ore: '+' + (1.5 * l).toFixed(1) + ' % Erze', boss: '+' + 15 * l + ' % Boss-Schaden', exec: 'unter ' + 3 * l + ' % Leben', kwucht: 'Krit x' + (3 + .5 * l).toFixed(1).replace('.', ','), off: offH(l) + ' h offline' })[id];
 function skInfo(id, dir) { const s = SKILLS.find(x => x.id === id), l = SK(id), mx = l >= s.max, c = skCost(id);
-  infoSheet({ dir, nav: navOf('data-sk', id, skInfo), n: s.n, ico: s.ico, col: '#9dff6a', sub: 'Skill · Stufe ' + l + '/' + s.max + ' · gilt bis zum nächsten Warp', txt: SKTXT[id], rows: [['Wirkung', skVal(id, l), mx ? null : skVal(id, l + 1)], ['Kosten', mx ? 'MAX' : '◆' + c]],
-    buy: [mx ? 'MAX' : 'Leveln · ◆' + c, mx || S.cry < c, () => { if (SK(id) >= s.max || S.cry < skCost(id)) return; S.cry -= skCost(id); S.sk[id] = SK(id) + 1; save(true); render(); ui(); skInfo(id); }] }); }
+  infoSheet({ dir, nav: navOf('data-sk', id, skInfo), n: s.n, ico: s.ico, col: '#9dff6a', sub: 'Skill · Stufe ' + l + '/' + s.max + ' · gilt bis zum nächsten Warp', txt: SKTXT[id], rows: [['Wirkung', skVal(id, l) || '–', null], ['Bekommen', 'über Augmente nach jedem Planeten']] }); }
 const WPTXT = {
   kraft: 'Dunkle Materie verstärkt alles: mehr Schaden und mehr CR, für immer.', slot: 'Mehr Plätze im Waffen-Tab, damit du mehr Waffen gleichzeitig benutzen kannst.',
   start: 'Nach jedem Warp startest du direkt mit CR, um sofort Waffen zu kaufen.', keep: 'Wie viel Prozent deiner ◆ Kristalle du beim Warp behältst.',
@@ -820,7 +849,7 @@ const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100
 const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(200, (Math.floor(l / 100) + 1) * 100); };
 const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l >= 200 ? Math.floor(l / 100) * 100 : p; };
 const ST = id => msN(WL(id));
-const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', whip: 'längere Peitsche', x_komet: 'stärkerer Hagel', x_traeger: 'mehr Raketen', x_sturm: 'mehr Blitze', x_malstrom: 'stärkerer Sog', x_prisma: 'mehr Funken', x_geist: 'mehr Nova-Explosionen', rockets: 'eine Rakete mehr', grav: 'größerer Sog', tornado: 'ein Wirbel mehr', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
+const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', whip: 'längere Peitsche', x_komet: 'stärkerer Hagel', x_traeger: 'mehr Raketen', x_sturm: 'mehr Blitze', x_malstrom: 'stärkerer Sog', x_prisma: 'mehr Funken', x_geist: 'mehr Nova-Explosionen', x_minen: 'stärkere Bohrminen', x_bum: 'stärkere Sternbumerangs', rockets: 'eine Rakete mehr', grav: 'größerer Sog', tornado: 'ein Wirbel mehr', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
 const wDps = w => { const l = S.w[w.id] || 0; return l ? (w.hyb ? HYBM : 1) * T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() * (1 + HAw(w.id)) * (1 + .5 * ML(w.id)) : 0; };
 // ================== Waffen-Mods: mit ⬢ Chips (1 Chip pro 5 geschaffte Planeten), bleiben für immer ==================
 const ML = id => HYB[id] ? Math.max(...HYB[id].p.map(p => (S.mod || {})[p] || 0)) : (S.mod || {})[id] || 0;
@@ -935,7 +964,7 @@ function hit(i, d) {
   if (S.buf && S.buf.frz > Date.now()) d *= 2;
   if (G.frz && G.frz[i] > clk) d *= 1.3;
   { const dr = S.dmgRun || (S.dmgRun = {}), kk = HP[curW] || curW || 'x'; dr[kk] = (dr[kk] || 0) + Math.min(d, G.hp[i]); }
-  G.hp[i] -= d; if (G.hp[i] <= 0) { kill(i, true); return; }
+  G.hp[i] -= d; if (G.hp[i] <= 0 || (SK('exec') && G.hp[i] < G.mx[i] * .03 * SK('exec'))) { kill(i, true); return; }
   const st = Math.min(6, Math.floor((1 - G.hp[i] / G.mx[i]) * 7)); if (st !== G.dst[i]) { G.dst[i] = st; G.dirty.add(i); tDirty = true; }
 }
 function kill(i, reward) {
@@ -956,7 +985,7 @@ function kill(i, reward) {
   else if (G.ore[i] === 4) { mis('dm'); S.dm = (S.dm || 0) + 2; floats.push({ x, y: y - 10, t: 1.8, s: '+✦2', c: '#c9a2ff' }); toast('Dunkle Materie gefunden! +✦2'); }
   else if (G.ore[i]) floats.push({ x, y: y - 10, t: 1.2, s: '+' + fmt(val) + ' CR', c: '#ffe36a' });
 }
-const SPC = 3; // ◆ pro Kristall-Block
+const SPC = 2; // ◆ pro Kristall-Block
 
 // ================== Zufalls-Ereignisse: Weltraum-Händler & Wurmloch ==================
 var BON = null; // aktiver Bonus-Planet (Wurmloch)
@@ -1113,7 +1142,7 @@ function ray(x, y, a, maxL) {
   for (let l = 0; l < maxL; l += st) { const px = x + dx * l, py = y + dy * l; const i = cellAt(px, py); if (i >= 0 && G.alive[i]) return [i, px, py]; }
   return [-1, x + dx * maxL, y + dy * maxL];
 }
-const critMul = () => Math.random() < critCh() ? 3 + WP('dkrit') : 1;
+const critMul = () => Math.random() < critCh() ? 3 + WP('dkrit') + .5 * SK('kwucht') : 1;
 // äußerster Block in Richtung a (vom Planetenkern aus gesehen) – für Effekte, die über die Oberfläche wandern
 function surfAt(a) { const ca = Math.cos(a), sa = Math.sin(a); for (let d = G.R + CELL * 3; d > 0; d -= CELL * .5) { const x = G.cx + ca * d, y = G.cy + sa * d, i = cellAt(x, y); if (i >= 0 && G.alive[i]) return [x, y]; } return [G.cx, G.cy]; }
 function whipPts(w, p) { const ang = w.a0 + w.sg * (-.75 + 1.5 * Math.min(1, p)), o = [], n = 22; for (let q = 1; q <= n; q++) { const u = q / n, a = ang - w.sg * .9 * u * u, dd = w.L * u; o.push([ship.x + Math.cos(a) * dd, ship.y + Math.sin(a) * dd]); } return o; }
@@ -1229,7 +1258,7 @@ function step(dt) {
   // 9) Minenwerfer
   curW = 'mine';
   const dM = WD('mine') * Rd;
-  if (dM && (cdMine -= dt * Rv * sp75('mine')) <= 0) { cdMine = 2.6; const nm = Math.min(8, 3 + ST('mine')); const tg = nearList(ship.x, ship.y, nm); for (const i of tg) { const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, i, t: 0, d: dM * 2.6 / nm * critMul() }); } }
+  if (dM && (cdMine -= dt * Rv * sp75('mine')) <= 0) { cdMine = 2.6; const nm = Math.min(HY('x_minen') ? 12 : 8, 3 + ST('mine') + (HY('x_minen') ? 4 : 0)); const tg = nearList(ship.x, ship.y, nm); for (const i of tg) { const [x, y] = cellXY(i); mines.push({ x: ship.x, y: ship.y, tx: x, ty: y, i, t: 0, d: dM * 2.6 / nm * critMul() }); } }
   for (let k = mines.length - 1; k >= 0; k--) { const m = mines[k]; m.t += dt * 1.8; if (m.i != null && !G.alive[m.i]) { const j = nearest(m.tx, m.ty); if (j >= 0) { m.i = j; [m.tx, m.ty] = cellXY(j); } } if (m.t >= 1) { const c0 = cellAt(m.tx, m.ty); if (c0 >= 0) { const c = c0 % COLS, r = c0 / COLS | 0; const mr = ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1; for (let a = -mr; a <= mr; a++) for (let b2 = -mr; b2 <= mr; b2++) { const cc = c + a, rr = r + b2; if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) hit(rr * COLS + cc, m.d / 7.5); } } fx.push({ k: 'nova', x: m.tx, y: m.ty, r: CELL * (1 + (ML('mine') ? (ML('mine') >= 3 ? 3 : 2) : 1)), t: .35 + lvTier(WL('mine')) * .05, c: lvTier(WL('mine')) >= 3 ? '255,90,122' : '255,58,92', thick: lvTier(WL('mine')) >= 2 }); if (lvTier(WL('mine')) >= 2) for (let q = 0; q < 6 + lvTier(WL('mine')) * 3; q++) parts.push({ x: m.tx, y: m.ty, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, t: .5, c: lvTier(WL('mine')) >= 3 ? '#ffb0f0' : '#ffd23f' }); mines.splice(k, 1); } }
   // 10) Königsschuss
   curW = 'sniper';
@@ -1290,7 +1319,7 @@ function step(dt) {
   // 13) Sichelbumerang
   curW = 'boomer';
   const dBo = WD('boomer') * Rd;
-  if (dBo && (cdBoo -= dt * Rv * sp75('boomer')) <= 0) { cdBoo = 3; const nb = Math.min(4, 1 + Math.floor(ST('boomer') / 2)), aB = aimNear() ?? face; for (let k = 0; k < nb; k++) boos.push({ s: 0, a: aB + (k - (nb - 1) / 2) * .5, sg: k % 2 ? -1 : 1, D: 150 + k * 18, nb }); }
+  if (dBo && (cdBoo -= dt * Rv * sp75('boomer')) <= 0) { cdBoo = 3; const nb = Math.min(HY('x_bum') ? 6 : 4, 1 + Math.floor(ST('boomer') / 2) + (HY('x_bum') ? 2 : 0)), aB = aimNear() ?? face; for (let k = 0; k < nb; k++) boos.push({ s: 0, a: aB + (k - (nb - 1) / 2) * .5, sg: k % 2 ? -1 : 1, D: 150 + k * 18, nb }); }
   for (let k = boos.length - 1; k >= 0; k--) { const b = boos[k]; b.s += dt / 1.6 * Rv * sp75('boomer'); if (b.s >= 1) { boos.splice(k, 1); continue; }
     const f = Math.sin(Math.PI * b.s) * b.D, sd = Math.sin(2 * Math.PI * b.s) * b.D * .35 * b.sg, ca = Math.cos(b.a), sa = Math.sin(b.a); b.x = ship.x + ca * f - sa * sd; b.y = ship.y + sa * f + ca * sd;
     const rr = ML('boomer') ? (ML('boomer') >= 3 ? 2 : 1.5) : 1; for (let a = -2; a <= 2; a++) for (let c = -2; c <= 2; c++) if (Math.hypot(a, c) <= rr) hit(cellAt(b.x + a * CELL, b.y + c * CELL), dBo * 2.4 / b.nb / 5 * dt * Rv); }
@@ -1826,13 +1855,13 @@ function ui() {
   else if (S.boostCd > now) { b.classList.remove('act'); bl.textContent = mmss(S.boostCd - now); b.disabled = true; }
   else { b.classList.remove('act'); bl.textContent = 'Boost x2'; b.disabled = false; }
   // rote Punkte: neue Fähigkeit liegt noch nicht auf der Hotbar / doppelte Teile zum Einschmelzen
-  $('abdot').hidden = !(ABIL.some(a => AL(a.id) && !S.hot.includes(a.id)) && S.hot.filter(Boolean).length < 5);
+  $('abdot').hidden = !(ABIL.some(a => AL(a.id) && !S.hot.includes(a.id)) && S.hot.filter(Boolean).length < 8);
   // Roter Punkt im Hangar nur, wenn ein Teil leveln kann (5 Doppelte) oder ein besseres Teil nicht ausgerüstet ist
   $('hgdot').hidden = !ITEMS.some(it => S.inv[it.id] && ((ILV(it.id) < ITEM_MAX && ((S.dup || {})[it.id] || 0) >= DUPN) || better(it)));
   $('wpdot').hidden = !(canWarp() || WARP.some(w => WP(w.id) < w.max && S.dm >= w.cost(WP(w.id))));
   if (tab === 'p' && $('wgain')) { $('wgain').textContent = '✦' + fmt(dmGain()); $('wmto').textContent = 'x' + ((S.wm || 1) + wmGain()).toFixed(2); $('wgo').disabled = !canWarp(); }
   if ($('shdot')) $('shdot').hidden = !dlyOpen();
-  $('skdot').hidden = !SKILLS.some(s => SK(s.id) < s.max && S.cry >= skCost(s.id));
+  $('skdot').hidden = !S.augQ;
   // Knöpfe aktualisieren, ohne die Liste neu zu bauen
   document.querySelectorAll('[data-up]').forEach(el => { const w = WEAP.find(x => x.id === el.dataset.up), n = buyN === 'max' ? Math.max(1, maxBuy(w)) : buyN, c = wCost(w, n); el.disabled = S.cr < c; const l0 = WL(w.id), f = l => T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult(), gn = f(l0 + n) - f(l0); el.innerHTML = (n > 1 ? `x${n} · ` : '') + fmt(c) + ' CR' + `<small class="gn">+${fmt(gn)} DPS${msN(l0 + n) > msN(l0) ? ' ★' : ''}</small>`; });
   document.querySelectorAll('[data-unl]').forEach(el => { el.disabled = S.cr < nextUnl(); });
@@ -1901,9 +1930,9 @@ function render() {
     $('svnow').onclick = () => { if (!logged()) return BB.open && BB.open('login'); save('now'); toast('Gespeichert ☁'); };
     L.querySelectorAll('[data-wp]').forEach(b => b.onclick = () => wpInfo(b.dataset.wp));
   } else {
-    L.innerHTML = `<div class="skh"><span>Skills · mit ◆ leveln · gelten bis zum nächsten Warp</span><b>◆ ${fmt(S.cry)}</b></div><div class="sk">${SKILLS.map(s => { const l = SK(s.id), mx = l >= s.max;
-      return `<button data-sk="${s.id}" class="${mx ? 'max' : ''} ${mx || S.cry < skCost(s.id) ? 'cant' : ''}"><span class="q"></span><span class="c">${l}/${s.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg>${s.n}<small>${s.id === 'off' ? (mx ? 'Max · ' + offH(l) + ' h offline' : 'Offline ' + offH(l) + ' h → ' + offH(l + 1) + ' h · ◆' + skCost(s.id)) : mx ? 'Max' : s.d + ' · ◆' + skCost(s.id)}</small></button>`; }).join('')}</div>`;
-    L.querySelectorAll('[data-sk]').forEach(b => b.onclick = () => skInfo(b.dataset.sk));
+    L.innerHTML = `<div class="skh"><span>Skills kommen jetzt als Augment nach jedem Planeten · gelten bis zum nächsten Warp</span><b>${SKILLS.filter(s => SK(s.id)).length}/${SKILLS.length}</b></div>${S.augQ ? `<button class="br" id="augopen" style="width:100%;margin:0 0 10px">AUGMENT WÄHLEN (${S.augQ})</button>` : ''}<div class="sk">${SKILLS.map(s => { const l = SK(s.id), mx = l >= s.max;
+      return `<button data-sk="${s.id}" class="${mx ? 'max' : ''} ${l ? '' : 'cant'}"><span class="q"></span><span class="c">${l}/${s.max}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg>${s.n}<small>${s.id === 'off' ? (mx ? 'Max · ' + offH(l) + ' h offline' : 'Offline ' + offH(l) + ' h → ' + offH(l + 1) + ' h · ◆' + skCost(s.id)) : mx ? 'Max' : s.d + ' · ◆' + skCost(s.id)}</small></button>`; }).join('')}</div>`;
+    L.querySelectorAll('[data-sk]').forEach(b => b.onclick = () => skInfo(b.dataset.sk)); if ($('augopen')) $('augopen').onclick = augShow;
   }
   ui();
 }
@@ -1954,12 +1983,44 @@ const warpBonus = n => 5 + Math.ceil(n * .5);
 function cele(title, sub, uni) { document.querySelectorAll('.cele').forEach(x => x.remove()); const d = document.createElement('div'); d.className = 'cele' + (uni ? ' uni' : '');
   d.innerHTML = `<div class="cs">${itemSvg(eqItem('h'), 86)}</div><b>${title}</b><span>${sub}</span>`; $('app').appendChild(d); setTimeout(() => d.remove(), 2200); }
 function lflash() { const d = document.createElement('div'); d.className = 'lflash'; document.body.appendChild(d); setTimeout(() => d.remove(), 950); }
+
+// ================== Augmente: nach jedem Planeten 1 aus 3 wählen (statt Skills mit ◆ zu kaufen) ==================
+const AUGT = [{ n: 'Silber', c: '#c9d1d3', lv: 2, p: .6 }, { n: 'Gold', c: '#ffd23f', lv: 3, p: .32 }, { n: 'Prisma', c: '#ff7af0', lv: 5, p: .08 }];
+const augTier = () => { const x = Math.random(); return x < AUGT[2].p ? 2 : x < AUGT[2].p + AUGT[1].p ? 1 : 0; };
+function augRoll(not) { // neue Skills zuerst, wenn alles gezogen ist nur noch Upgrades
+  const open = SKILLS.filter(s => SK(s.id) < s.max && !(not || []).includes(s.id)), fresh = open.filter(s => !SK(s.id)), old = open.filter(s => SK(s.id));
+  const pool = fresh.length ? (Math.random() < .7 || !old.length ? fresh : old) : old;
+  if (!pool.length) return { id: '_cry', t: augTier() };
+  return { id: pool[(Math.random() * pool.length) | 0].id, t: augTier() };
+}
+function augOffer() { const o = []; for (let k = 0; k < 3; k++) o.push(augRoll(o.map(x => x.id))); return o.map(x => ({ ...x, rr: 0 })); }
+function augCard(c, k) { const T = AUGT[c.t];
+  if (c.id === '_cry') return `<button class="augc t${c.t}" data-ag="${k}" style="--ac:${T.c}"><i class="tier">${T.n}</i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 7-8 13L4 9z"/></svg><b>Kristall-Fund</b><span>Alle Skills sind voll</span><em>+◆${10 + 10 * c.t}</em></button>`;
+  const s = SKILLS.find(x => x.id === c.id), l = SK(c.id), nl = Math.min(s.max, l + T.lv);
+  return `<button class="augc t${c.t}" data-ag="${k}" style="--ac:${T.c}"><i class="tier">${T.n}</i>${l ? '' : '<i class="neu">NEU</i>'}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${s.ico}</svg><b>${s.n}</b><span>${SKTXT[c.id] || s.d}</span><em>${l ? skVal(c.id, l) + ' → ' : ''}${skVal(c.id, nl)}</em><small>Stufe ${l} → ${nl}/${s.max}</small></button>`; }
+function augBoot() { if (!$('ov').classList.contains('hide') || $('aug') || travel > 0) return setTimeout(augBoot, 1000); if (S.augMsg != null) { const b = S.augMsg; delete S.augMsg; save('now'); overlay(`<h2>Neu: Augmente!</h2><p>Skills kaufst du nicht mehr mit ◆. Nach jedem Planeten wählst du 1 von 3 Augmenten, jedes kannst du einmal neu würfeln.<br><br>${b ? `Deine Skills wurden zurückgesetzt, dafür bekommst du <b style="color:#fff">◆${b}</b> zurück.<br>` : ''}Für deinen aktuellen Lauf darfst du jetzt <b style="color:#ffe94d">${S.augQ} Augmente</b> nachwählen.</p>`, [['Los geht\'s', () => { render(); setTimeout(augShow, 60); }]]); } else if (S.augQ) augShow(); }
+function augShow() {
+  if (!S.augQ || $('aug') || BON) return; if (!$('ov').classList.contains('hide')) return setTimeout(augShow, 1200);
+  if (!S.augO) { S.augO = augOffer(); save('now'); }
+  const d = document.createElement('div'); d.id = 'aug';
+  const draw = () => { d.innerHTML = `<div class="augw"><h2>Augment wählen</h2><p>Planet geschafft! Such dir eins aus.${S.augQ > 1 ? ` <b>Noch ${S.augQ - 1} weitere</b>` : ''}</p><div class="augr">${S.augO.map((c, k) => `<div class="augs">${augCard(c, k)}<button class="augrr" data-rr="${k}" ${c.rr ? 'disabled' : ''}>${c.rr ? 'Neu gewürfelt' : '↻ Neu würfeln'}</button></div>`).join('')}</div><button class="augl" id="augl">Später</button></div>`;
+    d.querySelectorAll('[data-ag]').forEach(b => b.onclick = () => augPick(+b.dataset.ag));
+    d.querySelectorAll('[data-rr]').forEach(b => b.onclick = () => { const k = +b.dataset.rr, c = S.augO[k]; if (c.rr) return; const n = augRoll(S.augO.filter((_, j) => j !== k).map(x => x.id).concat(c.id)); S.augO[k] = { ...n, rr: 1 }; SND.fx.up(); save('now'); draw(); d.querySelectorAll('.augs')[k].classList.add('spin'); });
+    d.querySelector('#augl').onclick = () => { d.remove(); render(); }; };
+  draw(); $('app').appendChild(d); SND.fx.up();
+}
+function augPick(k) { const c = S.augO[k], T = AUGT[c.t];
+  if (c.id === '_cry') { S.cry += 10 + 10 * c.t; toast('+◆' + (10 + 10 * c.t)); }
+  else { const s = SKILLS.find(x => x.id === c.id); S.sk[c.id] = Math.min(s.max, SK(c.id) + T.lv); toast(`${T.n}-Augment: ${s.n} Stufe ${S.sk[c.id]}`); }
+  if (c.t === 2) { lflash(); vib([60, 40, 120]); } else vib(30);
+  S.augQ = Math.max(0, (S.augQ || 1) - 1); S.augO = null; save('now'); const d = $('aug'); if (d) d.remove(); render(); ui();
+  if (S.augQ) setTimeout(augShow, 350); }
 function planetDone() {
   SND.fx.win();
-  const gain = (4 + S.p + 2 * WP('kris')) * (G.boss ? 3 : 1), old = G.name;
+  const gain = Math.ceil((2 + S.p * .6 + 2 * WP('kris')) * (G.boss ? 3 : 1)), old = G.name; // Prototyp: ◆ nur noch für Kisten & Fähigkeiten → weniger
   if (G.elite) setTimeout(() => { toast('⚠ Elite-Planet geschafft: Raketen-Kiste!'); giveRw({ crate: 'k1' }); }, 1800);
   mis('planets'); if (G.boss) { mis('boss'); vib([90, 60, 90, 60, 160]); } else vib(30);
-  S.cry += gain; S.p++; S.best = Math.max(S.best, S.p);
+  S.cry += gain; S.p++; S.best = Math.max(S.best, S.p); S.augQ = (S.augQ || 0) + 1; setTimeout(augShow, 2500);
   S.pAll = (S.pAll || 0) + 1; let chipT = ''; if (S.pAll % 5 === 0) { const cg = 1 + WP('chips'); S.chip = (S.chip || 0) + cg; chipT = ' · +⬢' + cg + ' Chip!'; setTimeout(() => toast('⬢ Waffen-Chip bekommen! Im Waffen-Tab bei „Waffen-Mods“ einsetzen.'), 2600); }
   let bgN = 0;
   if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); bgN = (BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut', true)) || 0; if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
@@ -1977,7 +2038,7 @@ function warp() {
     [['SPRINGEN', () => {
       S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); vib([40, 30, 40, 30, 300]); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.wReq = S.p + reqStep(S.p); S.pc = (S.pc || 0) + 1; S.dmgRun = {};
       S.cry = Math.floor(S.cry * keepPct() / 100); { const e = WP('erbe'), o = S.sk || {}; S.sk = {}; if (e) for (const k in o) S.sk[k] = Math.min(o[k], e); } S.abT = {}; S.buf = {}; S.cr = Math.max(150, startCr(WP('start'))); S.w = { line: 1 }; S.wo = ['line']; HP = {}; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
-      travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp();
+      S.augQ = 1; S.augO = null; travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp(); setTimeout(augShow, 3200);
       if (window.BB) BB.unlock('drill_warp');
       toast(`Warp geschafft: ✦${fmt(n)} · Multiplikator x${S.wm.toFixed(2)} · Neuer Lauf ab Planet ${S.p}`); tab = 'w'; document.querySelectorAll('.nav [data-t]').forEach(x => x.classList.toggle('on', x.dataset.t === 'w')); render();
     }], ['Noch nicht', null]]);
@@ -2258,7 +2319,7 @@ function rollAbility() {
   const a = ABIL[(Math.random() * ABIL.length) | 0], l = AL(a.id);
   if (l >= 10) { S.cry += 4; return { a, txt: 'Schon auf Max · ◆4 zurück' }; }
   S.ab[a.id] = l + 1;
-  if (!l) { const f = [0, 1, 2, 3, 4].find(k => !S.hot[k]); if (f != null) S.hot[f] = a.id; hotbar(true); return { a, txt: f != null ? 'Neu! Liegt jetzt auf deiner Hotbar.' : 'Neu!' }; }
+  if (!l) { const f = [0, 1, 2, 3, 4, 5, 6, 7].find(k => !S.hot[k]); if (f != null) S.hot[f] = a.id; hotbar(true); return { a, txt: f != null ? 'Neu! Liegt jetzt auf deiner Hotbar.' : 'Neu!' }; }
   return { a, txt: `Doppelt! Jetzt Lvl. ${l + 1}` };
 }
 function openShopCrate(k) {
@@ -2337,7 +2398,7 @@ function hotbar(force) {
   const now = Date.now(), sig = S.hot.join() + '|' + Object.keys(S.ab).length;
   if (force || sig !== hotSig) {
     hotSig = sig;
-    el.innerHTML = [0, 1, 2, 3, 4].map(k => { const id = S.hot[k], a = id && ABIL.find(x => x.id === id);
+    el.innerHTML = [0, 1, 2, 3, 4, 5, 6, 7].map(k => { const id = S.hot[k], a = id && ABIL.find(x => x.id === id);
       return a ? `<button class="hs" data-cast="${id}" aria-label="${a.n}">${abIco(a, ` viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"`)}<i class="cd"></i><span class="ct"></span></button>`
         : `<button class="hs empty" data-goab="1" aria-label="Fähigkeit hinzufügen">+</button>`; }).join('') + `<button class="hs shp" data-goshop="1" aria-label="Shop"><span class="dot" id="shdot" hidden></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.4 11h10.2L20 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></button><button class="hs bst" id="boost" aria-label="Boost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span id="bl">x2</span></button>`;
     el.querySelectorAll('[data-cast]').forEach(b => b.onclick = () => cast(b.dataset.cast));
@@ -2356,7 +2417,7 @@ let abSlot = null;
 function renderAb(L) {
   const own = ABIL.filter(a => AL(a.id)), dc = drawCost(), allOwned = own.length === ABIL.length;
   L.innerHTML = `<div class="skh"><span>Deine Hotbar</span><b>◆ ${fmt(S.cry)}</b></div>
-    <div class="hbe">${[0, 1, 2, 3, 4].map(k => { const a = S.hot[k] && ABIL.find(x => x.id === S.hot[k]); return `<button data-hs="${k}" class="${a ? '' : 'emp'}${abSlot === k ? ' sel' : ''}"><small>${k + 1}</small>${a ? `${abIco(a, ` viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"`)}` : '+'}</button>`; }).join('')}</div>
+    <div class="hbe">${[0, 1, 2, 3, 4, 5, 6, 7].map(k => { const a = S.hot[k] && ABIL.find(x => x.id === S.hot[k]); return `<button data-hs="${k}" class="${a ? '' : 'emp'}${abSlot === k ? ' sel' : ''}"><small>${k + 1}</small>${a ? `${abIco(a, ` viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"`)}` : '+'}</button>`; }).join('')}</div>
     <div class="hbe-h">${abSlot == null ? 'Slot antippen, dann eine Fähigkeit darunter wählen' : `<b>Slot ${abSlot + 1}:</b> jetzt eine Fähigkeit antippen${S.hot[abSlot] ? ' · <a href="#" id="hsclr" style="color:#ff7a96">Slot leeren</a>' : ''}`}</div>
     <div class="skh"><span>Fähigkeiten</span><b>${own.length}/${ABIL.length}</b></div>
     <button class="br aut ${WP('auto') && !S.autoOff ? 'on' : ''}" id="autot" ${WP('auto') ? '' : 'disabled'}>${WP('auto') ? (S.autoOff ? '🤖 AUTOPILOT: AUS' : '🤖 AUTOPILOT: AN') : '🔒 Autopilot (Warp-Werkstatt)'}<span class="gn">${WP('auto') ? 'zündet Fähigkeiten automatisch · tippen = umschalten' : 'erst in der Warp-Werkstatt freischalten'}</span></button>
@@ -2378,10 +2439,10 @@ function renderAb(L) {
     abSel = abSel === id ? null : id; render(); });
   L.querySelectorAll('[data-hs]').forEach(b => b.onclick = () => { const k = +b.dataset.hs; abSlot = abSlot === k ? null : k; render(); });
   if ($('hsclr')) $('hsclr').onclick = e => { e.preventDefault(); S.hot[abSlot] = null; abSlot = null; hotbar(true); save('now'); render(); };
-  if ($('abeq')) $('abeq').onclick = () => { const i = S.hot.indexOf(abSel); if (i >= 0) S.hot[i] = null; else { const f = S.hot.findIndex(x => !x); if (f >= 0 && f < 5) S.hot[f] = abSel; else if (S.hot.length < 5) S.hot.push(abSel); else S.hot[4] = abSel; } S.hot = S.hot.slice(0, 5); save('now'); hotbar(true); render(); };
+  if ($('abeq')) $('abeq').onclick = () => { const i = S.hot.indexOf(abSel); if (i >= 0) S.hot[i] = null; else { const f = S.hot.findIndex(x => !x); if (f >= 0 && f < 8) S.hot[f] = abSel; else if (S.hot.length < 8) S.hot.push(abSel); else S.hot[7] = abSel; } S.hot = S.hot.slice(0, 8); save('now'); hotbar(true); render(); };
   if ($('abup')) $('abup').onclick = () => { const c = abUpCost(abSel); if (AL(abSel) >= 10 || S.cry < c) return; S.cry -= c; S.ab[abSel]++; save('now'); render(); };
   $('aball').onclick = () => { let go = true; while (go) { go = false; const c = own.filter(a => AL(a.id) < 10).sort((a, b) => abUpCost(a.id) - abUpCost(b.id))[0]; if (c && S.cry >= abUpCost(c.id)) { S.cry -= abUpCost(c.id); S.ab[c.id]++; go = true; } } save('now'); render(); };
-  $('abbest').onclick = () => { S.hot = own.slice().sort((a, b) => AL(b.id) - AL(a.id)).slice(0, 5).map(a => a.id); save('now'); hotbar(true); render(); };
+  $('abbest').onclick = () => { S.hot = own.slice().sort((a, b) => AL(b.id) - AL(a.id)).slice(0, 8).map(a => a.id); save('now'); hotbar(true); render(); };
   L.querySelectorAll('[data-shop]').forEach(b => b.onclick = () => goTab('k'));
 }
 // ================== Täglich: Login-Belohnung + Tagesmissionen ==================
@@ -2634,7 +2695,7 @@ addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (k === 'escape') { const sh = document.querySelector('.hsheet'); if (sh) { sh.querySelector('.hsx').click(); return; } return; }
   if (!$('ov').classList.contains('hide')) return;
-  if (/^[1-5]$/.test(k)) { const b = $('hot').querySelectorAll('.hs')[+k - 1]; if (b && !b.disabled) b.click(); return; }
+  if (/^[1-8]$/.test(k)) { const b = $('hot').querySelectorAll('.hs')[+k - 1]; if (b && !b.disabled) b.click(); return; }
   if (k === 'b') { const b = $('boost'); if (b && !b.disabled) b.click(); return; }
   const t = { q: 'w', w: 's', e: 'a', r: 'h', t: 'p' }[k]; if (t) goTab(t);
 });
@@ -2653,15 +2714,17 @@ function cleanSave() {
   for (const k in S.inv) if (!IT(k)) delete S.inv[k];
   for (const sl of ['h', 'r', 't']) if (!S.inv[S.eq[sl]]) { const it = ITEMS.find(x => x.s === sl && S.inv[x.id]); if (it) S.eq[sl] = it.id; else { const b0 = { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }[sl]; S.inv[b0] = 1; S.eq[sl] = b0; } }
   for (const k in (S.ab || {})) if (!ABIL.find(a => a.id === k)) delete S.ab[k];
-  S.hot = (S.hot || []).slice(0, 5).map(x => x && S.ab && S.ab[x] ? x : null);
+  S.hot = (S.hot || []).slice(0, 8).map(x => x && S.ab && S.ab[x] ? x : null);
   for (const k in (S.wp || {})) if (!WARP.find(w => w.id === k)) delete S.wp[k];
   if (S.w && S.w.pulse) { S.w.whip = Math.max(S.w.whip || 0, S.w.pulse); delete S.w.pulse; S.wo = (S.wo || []).map(x => x === 'pulse' ? 'whip' : x); if (S.mod && S.mod.pulse) { S.mod.whip = S.mod.pulse; delete S.mod.pulse; } }
   if (S.w && S.w.turret) { S.w.tornado = Math.max(S.w.tornado || 0, S.w.turret); delete S.w.turret; S.wo = (S.wo || []).map(x => x === 'turret' ? 'tornado' : x); if (S.mod && S.mod.turret) { S.mod.tornado = S.mod.turret; delete S.mod.turret; } }
   if (S.offer) S.offer = S.offer.filter(x => x !== 'turret');
   if (S.dmgRun) { delete S.dmgRun.pulse; delete S.dmgRun.turret; } if (S.offer) S.offer = S.offer.filter(x => x !== 'pulse');
   if (S.wReq == null) S.wReq = S.pc ? Math.max(10, Math.ceil((S.p + 1) / 10) * 10) : 10;
-  if (!S.slot1) { S.slot1 = 1; if ((S.wpu || []).includes('slot') && WP('slot') < 8) S.wp.slot = WP('slot') + 1; } // Waffenslot-Warp: Stufe 1 jetzt gratis, alte Stände bekommen sie nach
-  if (!S.wq5) { S.wq5 = 1; if (S.wReq > 10) S.wReq = Math.max(10, S.wReq - (S.wReq >= 41 ? 15 : 5)); } // Hürde jetzt +5 statt +10/+20: alte Stände anpassen
+  if (!S.aug1) { S.aug1 = 1; let back = 0; for (const k in (S.sk || {})) for (let l = 0; l < S.sk[k]; l++) back += 1 + l; S.sk = {}; S.cry += back; S.augO = null;
+    S.augQ = Math.max(1, S.p - (1 + 2 * WP('skip')) + 1); if (S.p > 1 || back) S.augMsg = back; } // Skills sind jetzt Augmente
+  if (!S.slot1b) { S.slot1b = 1; if ((S.wpu || []).includes('slot') && WP('slot') < 8) S.wp.slot = WP('slot') + 1; } // Waffenslot-Warp: Stufe 1 jetzt gratis, alte Stände bekommen sie nach
+  if (!S.wq5b) { S.wq5b = 1; if (S.wReq > 10) S.wReq = Math.max(10, S.wReq - (S.wReq >= 41 ? 15 : 5)); } // Hürde jetzt +5 statt +10/+20: alte Stände anpassen
   S.wo = (S.wo || ['line']).filter(id => id === '_' || WEAP.find(w => w.id === id)); hybSync(); if (!S.wo.length) S.wo = ['line'];
   for (const k in (S.mod || {})) if (!MODS[k]) delete S.mod[k];
 }
@@ -2675,7 +2738,7 @@ function showIntro() {
   try { localStorage.setItem('gb_intro', '1'); } catch (e) {}
   overlay(`<img class="key" src="key.jpg" alt=""><h2>Galaxie-Bohrer</h2><ul class="howto"><li>🚀 Dein Schiff bohrt von alleine – du musst nichts tippen.</li><li>⬆ Mit <b>CR</b> levelst du Waffen, mit <b>◆</b> Skills, Kisten und Fähigkeiten.</li><li>🌀 Ab Planet 3: <b>Warp</b> = Neustart mit ✦ und dauerhaft mehr Multiplikator.</li><li>💤 Auch offline wird weiter gebohrt.</li></ul>`, [["LOS GEHT'S", null]]);
 }
-if (logged()) pull().then(() => offline()).then(showIntro).then(() => setTimeout(loginCheck, 1200)); else { offline(); showIntro(); setTimeout(loginCheck, 1200); }
+if (logged()) pull().then(() => offline()).then(showIntro).then(() => { setTimeout(loginCheck, 1200); setTimeout(augBoot, 2200); }); else { offline(); showIntro(); setTimeout(loginCheck, 1200); setTimeout(augBoot, 2200); }
 let lastId = myId();
 if (window.BB && BB.onChange) BB.onChange(() => { const id = myId(); if (id !== lastId) { lastId = id; if (id) { pulled = false; pull(); } else { pulled = true; svState(); } } });
 window.GB = { get trader() { return trader; }, get worm() { return worm; }, get BON() { return BON; }, spawnTrader: () => { traderT = 0; trader = null; }, spawnWorm: k => { wormT = 0; worm = null; trader = null; traderT = 999; }, evTap, enterBonus, exitBonus, get rkts() { return rkts; }, get gravs() { return gravs; }, get tors() { return tors; }, get whips() { return whips; }, get mets() { return mets; }, get mines() { return mines; }, get x() { return { wCost, maxBuy, nextUnl, offers, skCost, SKILLS, WARP, wpUnlCost, CRATES, bestEquip, meltList, melt, dmGain, totalDps, WEAP, ML, MODS, modCost, abUpCost, ABIL, AL, WP, SK, WL, owned, maxWeapons, wpOpen, ILV, lvUp, mis, boostClick, rollAbility, hullPow }; }, get lt() { return lineTarget; }, get waves() { return waves; }, ship, get travel() { return travel; }, cast, openCrate: i => openCrate(CRATES[i]), goTab, get S() { return S; }, get G() { return G; }, planetDone, render, warp, get comet() { return comet; }, set cometT(v) { cometT = v; } };
