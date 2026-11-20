@@ -160,7 +160,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;displa
     <button class="btn sec" id="reset" style="margin-top:auto;font-size:17px;padding:6px">Spielstand löschen</button>
   </div>
   <div id="right">
-    <div class="tabs"><button data-t="tree" class="on">AUFWERTEN</button><button data-t="coll">SAMMLUNG</button><span class="krc" id="krc">0 💎</span><button class="hb" id="bblogin" style="margin-left:6px;font-size:16px;padding:4px 10px;background:#1a2a1a;border:1px solid #3a5a3a;color:#8aba8a" onclick="window.BB&&BB.open('login')">🔑</button></div>
+    <div class="tabs"><button data-t="tree" class="on">AUFWERTEN</button><button data-t="coll">ARTEFAKTE</button><button data-t="heroes">HELDEN</button><span class="krc" id="krc">0 💎</span><button class="hb" id="bblogin" style="margin-left:6px;font-size:16px;padding:4px 10px;background:#1a2a1a;border:1px solid #3a5a3a;color:#8aba8a" onclick="window.BB&&BB.open('login')">🔑</button></div>
     <div id="treebox"><div id="tree"></div><div id="tip"></div><canvas id="treeBeam" style="position:absolute;inset:0;pointer-events:none;z-index:10"></canvas></div>
     <div id="coll"></div>
     <button class="btn" id="fight">KÄMPFEN</button>
@@ -1492,8 +1492,12 @@ function renderColl(){
     <div class="art-hex-grid">${artHexes}</div>
     <div id="art-tip" class="art-tip" style="display:none;position:fixed"></div>
   </div>`;
-  $('#coll').innerHTML = artSection + `<div class="grid">${HEROES.map(card2).join('')}</div>
-    <p class="mut" style="margin-top:14px">Werwölfe: Alle ${MOON_PERIOD} Sek. geht für ${MOON_DUR + MD.moon} Sek. der Vollmond auf, dann verwandeln sich Allan und Artur. Sind beide im Feld, gibt's den Rudel-Bonus (+${Math.round(MD.rudel*100)}% Schaden).</p>`;
+  if(curTab === 'heroes'){
+    $('#coll').innerHTML = `<div class="grid">${HEROES.map(card2).join('')}</div>
+      <p class="mut" style="margin-top:14px">Werwölfe: Alle ${MOON_PERIOD} Sek. geht für ${MOON_DUR + MD.moon} Sek. der Vollmond auf, dann verwandeln sich Allan und Artur. Sind beide im Feld, gibt's den Rudel-Bonus (+${Math.round(MD.rudel*100)}% Schaden).</p>`;
+  } else {
+    $('#coll').innerHTML = artSection;
+  }
 }
 
 /* ===================== HUB ===================== */
@@ -1507,9 +1511,10 @@ function renderHub(){
   renderShop();
   document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x.dataset.t === curTab));
   $('#treebox').style.display = curTab === 'tree' ? 'block' : 'none';
-  $('#coll').style.display = curTab === 'coll' ? 'block' : 'none';
+  $('#coll').style.display = (curTab === 'coll' || curTab === 'heroes') ? 'block' : 'none';
   if(curTab === 'tree') renderTree(); else renderColl();
-  document.querySelector('.tabs button[data-t="coll"]').innerHTML = 'SAMMLUNG' + (Object.keys(S.newSeen).length && curTab !== 'coll' ? ' <span style="color:#e84a3a">●</span>' : '');
+  const heroBtn = document.querySelector('.tabs button[data-t="heroes"]');
+  if(heroBtn) heroBtn.innerHTML = 'HELDEN' + (Object.keys(S.newSeen).length && curTab !== 'heroes' ? ' <span style="color:#e84a3a">●</span>' : '');
   // Goldener Strahl zu neuem Helden-Node
   if(window._pendingBeamHero && curTab === 'tree'){
     const beamId = window._pendingBeamHero;
