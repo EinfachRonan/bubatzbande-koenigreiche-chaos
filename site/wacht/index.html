@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Höhlenwacht · v0.4</title>
+<title>Höhlenwacht · v0.5</title>
 <script src="../bb.js?v=20261120a"></script>
 <script>
 /* Geheim-Spiel (Testphase): nur spielbar, wenn über „Code eingeben“ auf der Startseite freigeschaltet. */
@@ -116,6 +116,22 @@ canvas{width:100%;height:100%;display:block;object-fit:contain;image-rendering:p
  #ver{font-size:13px}
 }
 @media (min-width:1500px) and (min-aspect-ratio:5/4){#app{grid-template-columns:minmax(0,1fr) 540px}}
+#ultfx{position:absolute;inset:0;pointer-events:none;overflow:hidden;opacity:0;--uc:#f3d27a}
+#ultfx.go{animation:ufade 1.25s ease forwards}
+#ultfx:before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 60%,transparent 20%,rgba(0,0,0,.7));}
+#ultfx .band{position:absolute;left:-10%;right:-10%;top:30%;height:44%;transform:skewY(-6deg) scaleX(0);transform-origin:left;
+ background:linear-gradient(90deg,rgba(10,6,3,.95),rgba(10,6,3,.85) 60%,rgba(10,6,3,0));border-top:3px solid var(--uc);border-bottom:3px solid var(--uc);box-shadow:0 0 30px var(--uc)}
+#ultfx.go .band{animation:uband 1.25s cubic-bezier(.2,.9,.3,1) forwards}
+#ultfx img{position:absolute;left:4%;bottom:6%;height:92%;image-rendering:pixelated;filter:drop-shadow(0 0 14px var(--uc)) drop-shadow(0 0 3px #fff);transform:translateX(-120%) scale(.9)}
+#ultfx.go img{animation:uhero 1.25s cubic-bezier(.15,.9,.25,1) forwards}
+#ultfx .txt{position:absolute;left:42%;top:36%;transform:translateX(40%);opacity:0;line-height:1;text-align:left}
+#ultfx.go .txt{animation:utxt 1.25s cubic-bezier(.2,.9,.3,1) forwards}
+#ultfx small{display:block;font-family:'MedievalSharp',serif;font-size:clamp(14px,3.2vw,26px);letter-spacing:.5em;color:var(--uc);text-shadow:0 0 10px var(--uc)}
+#ultfx b{display:block;font-family:'MedievalSharp',serif;font-weight:400;font-size:clamp(26px,6.5vw,64px);color:#fff6dc;text-shadow:0 3px 0 #1a0f06,0 0 18px var(--uc);white-space:nowrap}
+@keyframes ufade{0%{opacity:0}8%{opacity:1}78%{opacity:1}100%{opacity:0}}
+@keyframes uband{0%{transform:skewY(-6deg) scaleX(0)}22%{transform:skewY(-6deg) scaleX(1)}100%{transform:skewY(-6deg) scaleX(1)}}
+@keyframes uhero{0%{transform:translateX(-120%) scale(.9);opacity:1}22%{transform:translateX(0) scale(1.05);opacity:1}75%{transform:translateX(6%) scale(1.08);opacity:1}100%{transform:translateX(30%) scale(1.1);opacity:0}}
+@keyframes utxt{0%,10%{opacity:0;transform:translateX(40%)}30%{opacity:1;transform:translateX(0)}75%{opacity:1;transform:translateX(-4%)}100%{opacity:0;transform:translateX(-14%)}}
 #modal{position:fixed;inset:0;background:rgba(5,3,1,.75);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
 #modal.on{display:flex}
 #modal .in{max-width:340px;width:100%;text-align:center;padding:22px 20px;color:#3a1c08;border-radius:3px;
@@ -132,12 +148,12 @@ canvas{width:100%;height:100%;display:block;object-fit:contain;image-rendering:p
     <a id="home" href="../" aria-label="Zur Startseite">‹</a><div style="flex:1"><div id="gold" class="h"><i></i><span id="goldv">0</span></div><div id="cores"></div></div>
     <button class="btn" id="bFs" title="Vollbild (F)" aria-label="Vollbild">⛶</button><div id="stage"><b id="stv">Stufe 1</b><br><span id="dps">0 Schaden/s</span></div>
   </div>
-  <div id="field"><canvas id="c"></canvas><div id="banner" class="h"></div></div>
+  <div id="field"><canvas id="c"></canvas><div id="banner" class="h"></div><div id="ultfx"><div class="band"></div><img><div class="txt"><small>ULT</small><b></b></div></div></div>
   <div id="bar"><div id="wave"></div><button class="btn" id="bAdv">▶ Vorrücken</button><button class="btn" id="bAuto">Auto-Ult</button><button class="btn" id="bSpd">x1</button></div>
   <div id="ults"></div>
   <div id="tabs"><button class="btn on" data-t="bande">Bande</button><button class="btn" data-t="ausbau">Ausbau</button><button class="btn" data-t="schmiede">Schmiede</button><button class="btn" data-t="taverne">Taverne</button></div>
   <div id="panel"></div>
-  <div id="ver">Höhlenwacht · v0.4 · Testphase<span id="sv"></span></div>
+  <div id="ver">Höhlenwacht · v0.5 · Testphase<span id="sv"></span></div>
 </div>
 <div id="modal"><div class="in"><h2 id="mh"></h2><p id="mp"></p><div class="row" id="mr"></div></div></div>
 <script>
@@ -400,7 +416,7 @@ function doAttack(h){const H0=HEROES[h.k],d=heroDmg(h.k,S.heroes[h.k]),t=h.tgt;i
  else if(H0.orb)shots.push({x:h.x+8,y:h.y-34,t,sp:170,d,src:h,c:'#9ad84a',r:3,aoe:22});
  else if(H0.frost){for(const e of enemies)if(e.hp>0&&e.x>=h.x-6&&e.x-h.x<H0.range+12&&Math.abs(e.y-h.y)<22){e.slow=1.5;hurtEnemy(e,d,h);}burst(h.x+18,h.y-18,'#a8f0ff',6);}
  else{hurtEnemy(t,d,h);if(H0.steal)h.hp=Math.min(h.mh,h.hp+d*H0.steal);}}
-function castUlt(h){if(h.en<100||h.dead)return;const al=alive(enemies);if(!al.length)return;h.en=0;const d=heroDmg(h.k,S.heroes[h.k]);sfx('ult');showBan(HEROES[h.k].ult.n,1);shake=.25;
+function castUlt(h){if(h.en<100||h.dead)return;const al=alive(enemies);if(!al.length)return;h.en=0;const d=heroDmg(h.k,S.heroes[h.k]);sfx('ult');ultFx(h.k);shake=.25;
  if(h.k==='kobold'){for(const e of al)shots.push({x:h.x,y:h.y-30,t:e,sp:260,d:d*4,src:null,c:'#c8c8d0',arrow:1});}
  else if(h.k==='geist'){for(const e of al)if(Math.abs(e.x-h.x)<70)hurtEnemy(e,d*6,null,1);for(const o of heroes)if(!o.dead){o.hp=Math.min(o.mh,o.hp+o.mh*.3);num(o.x,o.y-50,'+♥','#9ad84a');}for(let i=0;i<24;i++){const a=i/24*6.283;fx.push({x:h.x+Math.cos(a)*30,y:h.y-16+Math.sin(a)*14,vx:Math.cos(a)*40,vy:Math.sin(a)*20,l:.5,c:'#b0a0c8',s:2});}}
  else if(h.k==='lg3'){for(let i=0;i<6;i++){const e=al[i%al.length];shots.push({fall:1,x:e.x+(Math.random()-.5)*16,y:-10,ty:e.y,sp:260,d:d*3,c:'#9ad84a',r:4,aoe:26,delay:i*.12});}}
@@ -414,6 +430,8 @@ function waveDone(){state='next';stT=.6;
  renderTop();}
 function fail(why){showBan(why);state='next';stT=1.6;enemies=[];shots=[];spawnQ=[];
  S.farm=true;if(S.wave>1)S.wave--;for(const h of heroes){h.dead=false;h.hp=h.mh;h.x=HOME[h.k][0]-50;}renderTop();}
+const UCOL={kobold:'#d8dce4',geist:'#b48cff',lg3:'#9ad84a',marwin:'#f0c060',foku:'#8fe6ff'};let slowT=0;
+function ultFx(k){const el=document.getElementById('ultfx');el.style.setProperty('--uc',UCOL[k]||'#f3d27a');el.querySelector('img').src=SPR[k].r;el.querySelector('b').textContent=HEROES[k].ult.n;el.classList.remove('go');void el.offsetWidth;el.classList.add('go');slowT=.55;}
 function showBan(t,short){const b=document.getElementById('banner');b.textContent=t;b.classList.add('on');clearTimeout(banT);banT=setTimeout(()=>b.classList.remove('on'),short?700:1300);}
 
 /* ============ Zeichnen ============ */
@@ -495,7 +513,7 @@ syncHeroes();if(S.stage<1)S.stage=1;startWave();renderAll();
  cloudReady=ok;if(!ok){setTimeout(()=>{if(!cloudReady)BB.cloud.get('hw').then(x=>{cloudReady=true;if(x&&(x.total||0)>(S.total||0)){S=Object.assign(fresh(),x);heroes=[];enemies=[];syncHeroes();startWave();renderAll();}save(true);}).catch(()=>{});},8000);}
  if(c&&(c.total||0)>(S.total||0)){S=Object.assign(fresh(),c);heroes=[];enemies=[];syncHeroes();startWave();renderAll();}save(true);})();
 let lt=performance.now(),acc=0,gpsT=0;
-function loop(now){let dt=Math.min(.1,(now-lt)/1000);lt=now;dt*=S.spd;
+function loop(now){let dt=Math.min(.1,(now-lt)/1000);lt=now;if(slowT>0){slowT-=dt;dt*=.2;}dt*=S.spd;
  const steps=Math.ceil(dt/.034);for(let i=0;i<steps;i++)update(dt/steps);
  draw();gpsT+=dt/S.spd;acc+=dt/S.spd;
  if(gpsT>=5){const cur=gpsAcc/gpsT;S.gps=S.gps?S.gps*.8+cur*.2:cur;gpsAcc=0;gpsT=0;}
