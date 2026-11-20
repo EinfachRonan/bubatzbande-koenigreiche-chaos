@@ -532,7 +532,7 @@ html,body{overscroll-behavior:none;position:fixed;inset:0;width:100%}button,a{to
   </div>
   <div class="ov hide" id="ov"><div class="bx" id="ovb"></div></div>
 </div>
-<script src="../bb.js?v=20261119a"></script>
+<script src="../bb.js?v=20261120a"></script>
 <script>
 'use strict';
 // ================== Daten ==================
@@ -562,7 +562,7 @@ const WEAP = [
   { id: 'line', n: 'Kobold-Blaster', d: 'Schießt Energie-Kugeln auf den nächsten Block' },
   { id: 'star', n: 'Mollys Kristallstern', d: '4 rotierende Laser' },
   { id: 'drill', n: 'Fokuhilas Bohrlanze', d: 'Durchschlagender Stoß bis zum Kern' },
-  { id: 'nova', n: 'Geister-Nova', d: 'Geisterkugel explodiert im Planeten' },
+  { id: 'nova', n: 'Plasma-Nova', d: 'Plasmakugel zündet im Planeten eine Nova' },
   { id: 'scatter', n: 'Nilles Streufeuer', d: '7 Schüsse im Fächer' },
   { id: 'drones', n: 'DonPatrons Drohnen', d: '3 Drohnen ballern mit' },
   { id: 'chain', n: 'Marwins Kettenblitz', d: 'Blitz springt über 6 Blöcke' },
@@ -585,7 +585,7 @@ const HYB = {
   x_sturm: { n: 'Sturmpeitsche', p: ['whip', 'chain'], d: 'Jeder Peitschenhieb entlädt am Ende Kettenblitze', c: '#7af0ff' },
   x_malstrom: { n: 'Mahlstrom', p: ['grav', 'tornado'], d: 'Tornados mit Schwerkraftkern – doppelt so breit', c: '#d68cff' },
   x_prisma: { n: 'Prisma-Blaster', p: ['line', 'scatter'], d: 'Blaster-Schüsse zersplittern beim Aufprall in einen Funkenregen', c: '#fff07a' },
-  x_geist: { n: 'Geistersäge', p: ['saw', 'nova'], d: 'Die Sägeblätter lassen kleine Geister-Explosionen zurück', c: '#b8ffb0' }
+  x_geist: { n: 'Nova-Säge', p: ['saw', 'nova'], d: 'Die Sägeblätter zünden kleine Nova-Explosionen', c: '#b8ffb0' }
 };
 const HYBM = 2.2, HYBLV = 100, HYBCOST = 30;
 let HP = {}; // Eltern-Waffe -> aktive Hybrid-Waffe
@@ -624,7 +624,7 @@ const wpCost = l => 25 * (l + 1); // Stufe 1 = 25, Stufe 2 = 50, Stufe 3 = 75 �
 const WARP = [
   { id: 'kraft', n: 'Dunkle Kraft', d: () => '+100 % Schaden und CR', max: 20, cost: wpCost, ico: '<path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/><circle cx="12" cy="12" r="2"/>' },
   { id: 'tempo', n: 'Schusstempo', d: () => '+8 % Schussgeschwindigkeit aller Waffen', max: 10, cost: wpCost, ico: '<path d="M3 12h10M9 7l5 5-5 5"/><path d="M15 7l5 5-5 5"/>' },
-  { id: 'slot', n: 'Waffenslots', d: () => '+1 Platz für eine Waffe', max: 8, cost: wpCost, ico: '<rect x="3" y="6" width="7" height="12"/><rect x="14" y="6" width="7" height="12"/><path d="M17.5 10v4M15.5 12h4"/>' },
+  { id: 'slot', n: 'Waffenslots', d: () => '+1 Platz für eine Waffe', max: 8, cost: l => 25 * Math.max(1, l), /* Stufe 1 gibt's beim Ziehen gratis, danach 25, 50 … */ ico: '<rect x="3" y="6" width="7" height="12"/><rect x="14" y="6" width="7" height="12"/><path d="M17.5 10v4M15.5 12h4"/>' },
   { id: 'start', n: 'Startkapital', d: l => 'Start mit ' + fmt(startCr(l + 1)) + ' CR', max: 10, cost: wpCost, ico: '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 10h6"/>' },
   { id: 'keep', n: 'Kristallspeicher', d: l => 'Warp behält ' + keepPct(l) + ' % → ' + keepPct(l + 1) + ' % ◆', max: 6, cost: wpCost, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M8 12h8M12 8v8"/>' },
   { id: 'kris', n: 'Kristallregen', d: () => '+2 ◆ pro Planet', max: 5, cost: wpCost, ico: '<path d="M12 2l8 5v10l-8 5-8-5V7z"/>' },
@@ -658,7 +658,7 @@ let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
 const VER = 14; // interne Stand-Nummer (höher = einmaliger Reset)
 const VLABEL = '0.7'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
-const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, wq5: 1, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
+const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, wq5: 1, slot1: 1, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
 const norm = o => Object.assign(fresh(), o || {}, { w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: (o && o.inv && Object.keys(o.inv).length) ? o.inv : { h_pfeil: 1, r_basis: 1, t_basis: 1 }, /* Start-Teile nur bei neuem Spielstand, sonst kämen eingeschmolzene Teile beim Laden zurück */ eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
 if (S && S.v !== VER) { try { localStorage.removeItem('gb_intro'); } catch (e) {} } // neuer Start: Intro nochmal zeigen
@@ -820,7 +820,7 @@ const msN = l => MS.filter(m => l >= m).length + (l >= 200 ? Math.floor((l - 100
 const msNext = l => { for (const m of MS) if (l < m) return m; return Math.max(200, (Math.floor(l / 100) + 1) * 100); };
 const msPrev = l => { let p = 0; for (const m of MS) if (l >= m) p = m; return l >= 200 ? Math.floor(l / 100) * 100 : p; };
 const ST = id => msN(WL(id));
-const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', whip: 'längere Peitsche', x_komet: 'stärkerer Hagel', x_traeger: 'mehr Raketen', x_sturm: 'mehr Blitze', x_malstrom: 'stärkerer Sog', x_prisma: 'mehr Funken', x_geist: 'mehr Geister', rockets: 'eine Rakete mehr', grav: 'größerer Sog', tornado: 'ein Wirbel mehr', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
+const UPTXT = { line: 'ein Schuss mehr', star: 'mehr Kristall-Laser', drill: 'breitere, schnellere Lanze', nova: 'größerer Explosionsradius', scatter: '2 Schüsse mehr', drones: 'neue Drohne', chain: 'Blitz springt weiter', saw: 'mehr Sägeblätter', mine: 'mehr Minen', sniper: 'schießt schneller', meteor: 'ein Meteor mehr', whip: 'längere Peitsche', x_komet: 'stärkerer Hagel', x_traeger: 'mehr Raketen', x_sturm: 'mehr Blitze', x_malstrom: 'stärkerer Sog', x_prisma: 'mehr Funken', x_geist: 'mehr Nova-Explosionen', rockets: 'eine Rakete mehr', grav: 'größerer Sog', tornado: 'ein Wirbel mehr', boomer: 'eine Sichel mehr', frost: 'ein Splitter mehr' };
 const wDps = w => { const l = S.w[w.id] || 0; return l ? (w.hyb ? HYBM : 1) * T_DPS[tier(w.id)] * l * Math.pow(2, msN(l)) * mult() * (1 + HAw(w.id)) * (1 + .5 * ML(w.id)) : 0; };
 // ================== Waffen-Mods: mit ⬢ Chips (1 Chip pro 5 geschaffte Planeten), bleiben für immer ==================
 const ML = id => HYB[id] ? Math.max(...HYB[id].p.map(p => (S.mod || {})[p] || 0)) : (S.mod || {})[id] || 0;
@@ -1174,7 +1174,7 @@ function step(dt) {
     fx.push({ k: 'lance', x: ship.x, y: ship.y, x2: ex, y2: ey, t: .7, lv: Math.max(10, WL('drill')), w: 3.5 });
     if (ML('drill')) { const n = ML('drill') >= 3 ? 3 : 2; for (let a = -n; a <= n; a++) for (let b2 = -n; b2 <= n; b2++) if (a * a + b2 * b2 <= n * n) hit(cellAt(ex + a * CELL, ey + b2 * CELL), dD * cdD * critMul() * .25); fx.push({ k: 'nova', x: ex, y: ey, r: CELL * (n + 1), t: .4, c: '120,230,255' }); SND.fx.boom(); }
   }
-  // 4) Geister-Nova: Geisterkugel fliegt in den Planeten und explodiert dort mit Radius (wächst mit der Stufe)
+  // 4) Plasma-Nova: Plasmakugel fliegt in den Planeten und explodiert dort mit Radius (wächst mit der Stufe)
   curW = 'nova'; const dN = WD('nova') * Rd;
   if (dN && (cdNova -= dt * Rv * sp75('nova')) <= 0) {
     cdNova = 3; const t0 = nearest(ship.x, ship.y, 4 * CELL * CELL);
@@ -1185,7 +1185,7 @@ function step(dt) {
     for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) for (let c = Math.max(0, c0); c <= Math.min(COLS - 1, c1); c++) { const i = r * COLS + c; if (!G.alive[i]) continue; const [x, y] = cellXY(i), d = Math.hypot(x - n.tx, y - n.ty); if (d <= n.rad) cells.push([d, i]); }
     SND.fx.boom(); cells.sort((a2, b2) => a2[0] - b2[0]); waves.push({ x: n.tx, y: n.ty, rad: n.rad, r: 0, cells, j: 0, d: n.d * 7 * 1.2 / Math.max(7, cells.length) }); shake = Math.max(shake, 3);
     { const T = lvTier(WL('nova')); for (let q = 0; q < 0; q++) { const an = Math.random() * 6.283, sp = 50 + Math.random() * 70; bats.push({ x: n.tx, y: n.ty, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp - 20, t: 1.4 + Math.random() * .6, ph: Math.random() * 6 }); }
-      for (let q = 0; q < 4 + T * 2; q++) { const an = Math.random() * 6.283, d = Math.random() * n.rad * .7; fogs.push({ x: n.tx + Math.cos(an) * d, y: n.ty + Math.sin(an) * d, vx: Math.cos(an) * 12, vy: Math.sin(an) * 12 - 6, t: 1.8 + Math.random(), t0: 2.6, z: 8 + Math.random() * (6 + T * 2) }); } } }
+      for (let q = 0; q < 0; q++) { const an = Math.random() * 6.283, d = Math.random() * n.rad * .7; fogs.push({ x: n.tx + Math.cos(an) * d, y: n.ty + Math.sin(an) * d, vx: Math.cos(an) * 12, vy: Math.sin(an) * 12 - 6, t: 1.8 + Math.random(), t0: 2.6, z: 8 + Math.random() * (6 + T * 2) }); } } }
   for (let k = bats.length - 1; k >= 0; k--) { const b = bats[k]; b.ph += dt * 9; b.vx += Math.sin(b.ph * .7) * 40 * dt; b.x += b.vx * dt; b.y += b.vy * dt + Math.sin(b.ph) * 18 * dt; if ((b.t -= dt) <= 0) bats.splice(k, 1); }
   for (let k = fogs.length - 1; k >= 0; k--) { const f = fogs[k]; f.x += f.vx * dt; f.y += f.vy * dt; f.z += dt * 6; if ((f.t -= dt) <= 0) fogs.splice(k, 1); }
   if (bats.length > 80) bats.splice(0, bats.length - 80); if (fogs.length > 120) fogs.splice(0, fogs.length - 120);
@@ -1601,33 +1601,31 @@ function draw(now) {
     if (up) { P(-4, -3, 3, 2); P(2, -3, 3, 2); P(-6, -5, 2, 2); P(5, -5, 2, 2); } else { P(-4, 0, 3, 2); P(2, 0, 3, 2); P(-6, 1, 2, 2); P(5, 1, 2, 2); }
     g.fillStyle = '#ff4f7a'; P(-1, -1, 1, 1); P(1, -1, 1, 1); g.globalAlpha = 1; }
   g.globalCompositeOperation = gcoB;
-  // ===== Geister-Nova: ein Geist fliegt hin, kreischt und explodiert in einen Wirbel aus Seelen =====
-  { const gcoN = g.globalCompositeOperation; g.globalCompositeOperation = 'source-over'; const T = lvTier(WL('nova')), GC = T >= 3 ? ['#e6c8ff', '#b46cff', '138,80,255'] : ['#d8fff0', '#5fffc0', '60,255,180'], tq = performance.now() / 1000;
-  const ghost = (x, y, sz, a, look) => { // Pixel-Geist: runder Kopf, wabernder Fransen-Saum, leuchtende Augen
-    const u = Math.max(2, Math.round(sz / 7)); g.save(); g.translate(Math.round(x), Math.round(y)); g.globalAlpha = a;
-    g.fillStyle = `rgba(${GC[2]},.25)`; g.beginPath(); g.arc(0, 0, u * 6, 0, 7); g.fill();
-    const rows = [[-2, 2], [-3, 3], [-3, 3], [-3, 3], [-3, 3], [-3, 3]]; g.fillStyle = GC[0];
-    rows.forEach(([l, r], k) => g.fillRect(l * u, (k - 3) * u, (r - l + 1) * u, u));
-    g.fillRect(-1 * u, -4 * u, 3 * u, u);
-    for (let k = -3; k <= 3; k++) if ((k + Math.floor(tq * 8)) % 2 === 0) g.fillRect(k * u, 3 * u, u, u); // wabernder Saum
-    g.fillStyle = '#10061e'; g.fillRect(-2 * u, -2 * u, u, look ? 2 * u : u); g.fillRect(1 * u, -2 * u, u, look ? 2 * u : u); g.fillRect(-1 * u, 1 * u, 2 * u, u); // Augen + Mund
-    g.fillStyle = GC[1]; g.fillRect(-2 * u, -2 * u, u / 2, u / 2); g.fillRect(1 * u, -2 * u, u / 2, u / 2);
-    g.restore(); g.globalAlpha = 1; };
+  // ===== Nova: Plasmakugel fliegt hin und zündet eine kleine Sternexplosion (Blitz, Schockwelle, Strahlen, Funken) =====
+  { const gcoN = g.globalCompositeOperation, T = lvTier(WL('nova')), NC = T >= 3 ? '170,140,255' : '110,255,170', NH = T >= 3 ? '#d9ccff' : '#c8ffe0', tq = performance.now() / 1000;
+  const orb = (x, y, r, a) => { g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x, y, 0, x, y, r * 2.6);
+    gr.addColorStop(0, `rgba(255,255,255,${a})`); gr.addColorStop(.25, `rgba(${NC},${a * .9})`); gr.addColorStop(1, `rgba(${NC},0)`); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r * 2.6, 0, 7); g.fill(); g.globalCompositeOperation = 'source-over'; };
   for (const w of waves) { const k = Math.min(1, w.r / w.rad), a = Math.max(0, 1 - w.r / (w.rad * 1.15));
-    // Aufschrei-Blitz in der Mitte
-    if (k < .3) { g.fillStyle = `rgba(255,255,255,${(.3 - k) * 2.5})`; g.beginPath(); g.arc(w.x, w.y, w.rad * (.25 + k), 0, 7); g.fill(); ghost(w.x, w.y, 14 + T * 3, (.3 - k) * 3, true); }
-    // zackiger Geister-Ring, der wabert
-    g.strokeStyle = `rgba(${GC[2]},${a})`; g.lineWidth = 4 + T * 2; g.beginPath();
-    for (let q = 0; q <= 48; q++) { const an = q / 48 * 6.283, rr = w.r * (1 + .06 * Math.sin(an * 9 + tq * 6) + .03 * Math.sin(an * 23 - tq * 9)); const px = w.x + Math.cos(an) * rr, py = w.y + Math.sin(an) * rr; q ? g.lineTo(px, py) : g.moveTo(px, py); }
-    g.stroke(); g.strokeStyle = `rgba(255,255,255,${a * .9})`; g.lineWidth = 1.5; g.stroke(); g.fillStyle = `rgba(${GC[2]},${a * .12})`; g.fill();
-    // Seelen fliegen spiralförmig mit der Welle nach außen
-    const ns = 4 + T * 2; for (let q = 0; q < ns; q++) { const an = q / ns * 6.283 + k * (2.4 + T * .4), rr = w.r * (.55 + .4 * ((q * .37) % 1)); ghost(w.x + Math.cos(an) * rr, w.y + Math.sin(an) * rr, 5 + T * .6, a, false); }
-    // Ektoplasma-Spritzer
-    if (T >= 2) { g.fillStyle = GC[1]; for (let q = 0; q < 10 + T * 4; q++) { const an = q * 2.399 + w.x, rr = w.r * (1 + ((q * .53) % .2)); g.globalAlpha = a; g.fillRect(Math.round(w.x + Math.cos(an) * rr) - 1, Math.round(w.y + Math.sin(an) * rr) - 1, 3, 3); } g.globalAlpha = 1; } }
-  // Geist im Flug, mit Schweif aus kleinen Seelen
-  for (const n of novas) { const pos = t => [n.x + (n.tx - n.x) * t, n.y + (n.ty - n.y) * t], [x, y] = pos(n.t), bob = Math.sin(tq * 10) * 3;
-    for (let q = 1; q <= 4 + T; q++) { const [px, py] = pos(Math.max(0, n.t - q * .045)); g.fillStyle = `rgba(${GC[2]},${.4 - q * .06})`; const z = 8 - q; g.fillRect(Math.round(px - z / 2 + Math.sin(tq * 12 + q) * 3), Math.round(py - z / 2), z, z); }
-    ghost(x, y + bob, 12 + T * 2.5, 1, n.t > .7); } g.globalCompositeOperation = gcoN; }
+    // heller Kern-Blitz
+    if (k < .45) orb(w.x, w.y, w.rad * (.18 + k * .5), (.45 - k) * 2.2);
+    // Lichtstrahlen
+    g.globalCompositeOperation = 'lighter'; const nr = 8 + T * 2;
+    for (let q = 0; q < nr; q++) { const an = q / nr * 6.283 + w.x * .01, L = w.r * (.7 + .5 * ((q * .618) % 1)); g.strokeStyle = `rgba(${NC},${a * .55})`; g.lineWidth = 2 + T * .5; g.beginPath(); g.moveTo(w.x + Math.cos(an) * w.r * .15, w.y + Math.sin(an) * w.r * .15); g.lineTo(w.x + Math.cos(an) * L, w.y + Math.sin(an) * L); g.stroke(); }
+    // Schockwelle: Tinten-Rand, farbiger Ring, weiße Kante
+    g.globalCompositeOperation = 'source-over';
+    ink(() => { g.strokeStyle = INK; g.globalAlpha = a * .6; g.lineWidth = 6 + T * 2; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.stroke(); g.globalAlpha = 1; });
+    g.strokeStyle = `rgba(${NC},${a})`; g.lineWidth = 3 + T * 1.5; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.stroke();
+    g.strokeStyle = `rgba(255,255,255,${a * .95})`; g.lineWidth = 1.5; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.stroke();
+    g.fillStyle = `rgba(${NC},${a * .1})`; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.fill();
+    // Funken am Rand
+    g.fillStyle = NH; for (let q = 0; q < 10 + T * 4; q++) { const an = q * 2.399 + w.y * .01, rr = w.r * (.92 + ((q * .53) % .2)); g.globalAlpha = a; g.fillRect(Math.round(w.x + Math.cos(an) * rr) - 1, Math.round(w.y + Math.sin(an) * rr) - 1, 3, 3); } g.globalAlpha = 1; }
+  // Plasmakugel im Flug mit Kometenschweif
+  for (const n of novas) { const pos = t => [n.x + (n.tx - n.x) * t, n.y + (n.ty - n.y) * t], [x, y] = pos(n.t), r = 4 + T;
+    for (let q = 1; q <= 5 + T; q++) { const [px, py] = pos(Math.max(0, n.t - q * .04)); orb(px, py, r * (1 - q * .12), .5 - q * .07); }
+    ink(() => { g.fillStyle = INK; g.beginPath(); g.arc(x, y, r + 2, 0, 7); g.fill(); });
+    orb(x, y, r * (1 + .15 * Math.sin(tq * 20)), 1); g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, r * .55, 0, 7); g.fill();
+    if (T >= 2) { g.fillStyle = NH; for (let j = 0; j < T + 1; j++) { const an = tq * 7 + j * 6.283 / (T + 1); g.fillRect(x + Math.cos(an) * r * 2.2 - 1.5, y + Math.sin(an) * r * 2.2 - 1.5, 3, 3); } } }
+  g.globalCompositeOperation = gcoN; }
   hentsDraw();
   if (S.buf && S.buf.frz > Date.now()) { const tr = (S.bufP || {}).frzT || 0, [c, rgb] = ABCOL.frost[tr]; g.fillStyle = `rgba(${rgb},${.1 + .03 * tr + .03 * Math.sin(performance.now() / 200)})`; g.beginPath(); g.arc(G.cx, G.cy, G.R * 1.05, 0, 7); g.fill(); g.strokeStyle = `rgba(${rgb},.6)`; g.lineWidth = 2 + tr; g.stroke(); }
   if (S.buf && S.buf.dr > Date.now()) { const tr = (S.bufP || {}).drT || 0, n = 5 + tr * 2; for (let k = 0; k < n; k++) { const a = performance.now() / 300 + k * 6.283 / n, x = ship.x + Math.cos(a) * 44, y = ship.y + Math.sin(a) * 44; g.fillStyle = ABCOL.drohne[tr][0]; g.beginPath(); g.moveTo(x, y - 5); g.lineTo(x + 4, y + 3); g.lineTo(x - 4, y + 3); g.fill(); } }
@@ -2161,7 +2159,7 @@ const HULLAB = {
   h_kobold: { d: 'Kobold-Blaster +30 % Schaden', w: { line: .3 } },
   h_blatt: { d: '+3 % Krit-Chance', crit: .03 },
   h_molly: { d: 'Kristallstern +40 % Schaden', w: { star: .4 } },
-  h_geist: { d: 'Geister-Nova +25 % Radius und Schaden', w: { nova: .25 }, novaR: .25 },
+  h_geist: { d: 'Plasma-Nova +25 % Radius und Schaden', w: { nova: .25 }, novaR: .25 },
   h_don: { d: '+25 % CR', cr: .25 },
   h_koenig: { d: 'Fähigkeiten laden 15 % schneller', cd: .15 },
   h_drache: { d: '+35 % Schaden aller Waffen', dmg: .35 }
@@ -2252,9 +2250,9 @@ const CRATES = [
 ];
 // Fähigkeit aus einer Kiste: neu oder eine Stufe hoch
 // Neue Warp-Fähigkeit ziehen – mit „Nochmal ziehen“, solange noch welche fehlen und ✦ reicht
-function wpUnlock() { const c = wpUnlCost(), left = WARP.filter(w => !wpOpen(w.id)); if (!left.length || S.dm < c) return; S.dm -= c; const w = left[(Math.random() * left.length) | 0]; S.wpu = (S.wpu || []).concat(w.id); save('now');
+function wpUnlock() { const c = wpUnlCost(), left = WARP.filter(w => !wpOpen(w.id)); if (!left.length || S.dm < c) return; S.dm -= c; const w = left[(Math.random() * left.length) | 0]; S.wpu = (S.wpu || []).concat(w.id); if (w.id === 'slot') S.wp.slot = Math.max(1, S.wp.slot || 0); save('now');
   const more = left.length > 1;
-  overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${w.ico}</svg></div></div><h2 style="color:#c9a2ff">${w.n}</h2><p>Freigeschaltet! Startet bei Stufe 0.<br>Erste Stufe kostet ✦25.</p>`, (more ? [['Nochmal ziehen ✦' + c, () => { render(); wpUnlock(); }]] : []).concat([['Nice', () => render()]]));
+  overlay(`<div class="crate" style="--rc:#c9a2ff"><div class="cbox"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#c9a2ff" stroke-width="1.6">${w.ico}</svg></div></div><h2 style="color:#c9a2ff">${w.n}</h2><p>${w.id === 'slot' ? 'Freigeschaltet! Stufe 1 gratis: +1 Waffenslot.<br>Nächste Stufe kostet ✦25.' : 'Freigeschaltet! Startet bei Stufe 0.<br>Erste Stufe kostet ✦25.'}</p>`, (more ? [['Nochmal ziehen ✦' + c, () => { render(); wpUnlock(); }]] : []).concat([['Nice', () => render()]]));
   if (more) { const b0 = $('ovb').querySelector('[data-k="0"]'); b0.classList.add('again'); if (S.dm < c) b0.disabled = true; } }
 function rollAbility() {
   const a = ABIL[(Math.random() * ABIL.length) | 0], l = AL(a.id);
@@ -2662,6 +2660,7 @@ function cleanSave() {
   if (S.offer) S.offer = S.offer.filter(x => x !== 'turret');
   if (S.dmgRun) { delete S.dmgRun.pulse; delete S.dmgRun.turret; } if (S.offer) S.offer = S.offer.filter(x => x !== 'pulse');
   if (S.wReq == null) S.wReq = S.pc ? Math.max(10, Math.ceil((S.p + 1) / 10) * 10) : 10;
+  if (!S.slot1) { S.slot1 = 1; if ((S.wpu || []).includes('slot') && WP('slot') < 8) S.wp.slot = WP('slot') + 1; } // Waffenslot-Warp: Stufe 1 jetzt gratis, alte Stände bekommen sie nach
   if (!S.wq5) { S.wq5 = 1; if (S.wReq > 10) S.wReq = Math.max(10, S.wReq - (S.wReq >= 41 ? 15 : 5)); } // Hürde jetzt +5 statt +10/+20: alte Stände anpassen
   S.wo = (S.wo || ['line']).filter(id => id === '_' || WEAP.find(w => w.id === id)); hybSync(); if (!S.wo.length) S.wo = ['line'];
   for (const k in (S.mod || {})) if (!MODS[k]) delete S.mod[k];

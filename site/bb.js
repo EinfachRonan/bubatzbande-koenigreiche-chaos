@@ -614,14 +614,14 @@
   { id: 'line', n: 'Kobold-Blaster', d: 'Schießt Energie-Kugeln auf den nächsten Block' },
   { id: 'star', n: 'Mollys Kristallstern', d: '4 rotierende Laser' },
   { id: 'drill', n: 'Fokuhilas Bohrlanze', d: 'Durchschlagender Stoß bis zum Kern' },
-  { id: 'nova', n: 'Geister-Nova', d: 'Geisterkugel explodiert im Planeten' },
+  { id: 'nova', n: 'Plasma-Nova', d: 'Plasmakugel zündet im Planeten eine Nova' },
   { id: 'scatter', n: 'Nilles Streufeuer', d: '7 Schüsse im Fächer' },
   { id: 'drones', n: 'DonPatrons Drohnen', d: '3 Drohnen ballern mit' },
   { id: 'chain', n: 'Marwins Kettenblitz', d: 'Blitz springt über 6 Blöcke' },
   { id: 'saw', n: 'LG3s Kräutersäge', d: '2 große Sägeblätter kreisen ums Schiff' },
   { id: 'mine', n: 'Allans Minenwerfer', d: 'Minen explodieren auf der Oberfläche' },
   { id: 'sniper', n: 'Königsschuss', d: 'Ein Riesenschuss auf das wertvollste Erz' },
-  { id: 'meteor', n: 'Meteorregen' }, { id: 'whip', n: 'Plasmapeitsche' }, { id: 'rockets', n: 'Raketenschwarm' }, { id: 'grav', n: 'Gravitonbombe' }, { id: 'tornado', n: 'Wirbelsturm' }, { id: 'x_komet', n: 'Kometenhagel' }, { id: 'x_traeger', n: 'Drohnenträger' }, { id: 'x_sturm', n: 'Sturmpeitsche' }, { id: 'x_malstrom', n: 'Mahlstrom' }, { id: 'x_prisma', n: 'Prisma-Blaster' }, { id: 'x_geist', n: 'Geistersäge' }, { id: 'boomer', n: 'Sichelbumerang' }, { id: 'frost', n: 'Frostkanone' }
+  { id: 'meteor', n: 'Meteorregen' }, { id: 'whip', n: 'Plasmapeitsche' }, { id: 'rockets', n: 'Raketenschwarm' }, { id: 'grav', n: 'Gravitonbombe' }, { id: 'tornado', n: 'Wirbelsturm' }, { id: 'x_komet', n: 'Kometenhagel' }, { id: 'x_traeger', n: 'Drohnenträger' }, { id: 'x_sturm', n: 'Sturmpeitsche' }, { id: 'x_malstrom', n: 'Mahlstrom' }, { id: 'x_prisma', n: 'Prisma-Blaster' }, { id: 'x_geist', n: 'Nova-Säge' }, { id: 'boomer', n: 'Sichelbumerang' }, { id: 'frost', n: 'Frostkanone' }
 ]; const R = { g: { n: 'Gewöhnlich', c: '#c9d1d3', b: .1 }, s: { n: 'Selten', c: '#8dff5a', b: .25 }, e: { n: 'Episch', c: '#ff5fe0', b: .6 }, l: { n: 'Legendär', c: '#ffe94d', b: 1.5 } }; const A = {"over": "Hyperschub", "gold": "Goldrausch", "meteor": "Meteorschauer", "kanone": "Orbitalkanone", "loch": "Schwarzes Loch", "erz": "Erzradar", "zeit": "Zeitsprung"}; return { I, W, R, A }; })();
   function shipCard(s) {
     if (!s || !s.eq) return '';
