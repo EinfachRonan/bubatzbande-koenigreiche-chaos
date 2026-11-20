@@ -1947,6 +1947,12 @@ function hurt(e, amt, crit, src){
   if(src && src !== 'mouse' && src.st.selfheal) src.hp = Math.min(src.max, src.hp + src.st.selfheal);
   addText(e.x + (Math.random()-.5)*10, e.y - e.h - 4, Math.round(amt) + (crit ? '!' : ''), crit ? '#ffd84d' : src === 'mouse' ? '#ffffff' : '#c8d0c8', crit ? 15 : src === 'mouse' ? 14 : 11, 0.6);
   if(e.hp <= 0){
+    // Phase-2-Boss: nie durch hurt() töten, Phase-2-Check im Update-Loop übernimmt
+    if(e.boss && e.phase2 && !e.trans && !e.fakeDying){
+      e.hp = 1; return;
+    }
+    // FakeDying: Boss spielt Todesanim, aber stirbt noch nicht
+    if(e.boss && e.fakeDying){ e.hp = 1; return; }
     // GIF-only Enemies (bat, skeleton) spielen Sterbeanimation
     if(!e.boss && e.spr && e.spr.dieR && e.spr.dieR.length && !e.dying){
       e.dying = true; e.hp = 0.001; e.dieAnim = 0; e.stunT = 999; return; // Animation läuft, wird später dead
