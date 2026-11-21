@@ -1957,6 +1957,9 @@ $('#hzin').onclick = () => setZoom((S.zoom || 720) - 80);
 $('#hzout').onclick = () => setZoom((S.zoom || 720) + 80);
 cv.addEventListener('wheel', e => { e.preventDefault(); setZoom((S.zoom || 720) + (e.deltaY > 0 ? 40 : -40)); }, {passive:false});
 $('#hspeed').onclick = () => { S.speed = S.speed === 1 ? 2 : S.speed === 2 ? 3 : 1; save(); updateHud(); };
+// Testmodus: nur mit ?test in der Adresse → 👾-Knopf holt sofort einen Eindringling (auch in Kapitel 1)
+if(/[?&]test\b/.test(location.search)){ const tb = document.createElement('button'); tb.className = 'hb'; tb.id = 'htest'; tb.textContent = '👾'; tb.title = 'Test: Eindringling holen';
+  $('#hspeed').after(tb); tb.onclick = ev => { ev.stopPropagation(); if(!B || B.over || heroRevealActive) return; const a = Math.random() * Math.PI * 2; spawnIntruder(Math.cos(a) * 130, Math.sin(a) * 90 + 20); }; }
 $('#hquit').onclick = () => {
   if(!B || B.over) return;
   B.paused = true;
