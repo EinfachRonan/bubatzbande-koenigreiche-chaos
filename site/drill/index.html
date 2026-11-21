@@ -746,7 +746,7 @@ let S = null;
 // Version des Spielstands: alles mit älterer Version wird verworfen (kompletter Neustart)
 const VER = 14; // interne Stand-Nummer (höher = einmaliger Reset)
 const VLABEL = '0.7'; // angezeigte Version: kleine Updates bleiben, größere Updates -> 0.6 usw.
-const NEWSV = '2026-11-20c'; // bei größerem Update hochsetzen → „Was ist neu“ erscheint einmal
+const NEWSV = '2026-11-21'; // bei größerem Update hochsetzen → „Was ist neu“ erscheint einmal
 const fresh = () => ({ seed: (Math.random() * 1e6) | 0, v: VER, newsV: NEWSV, wq5b: 1, slot1b: 1, aug1: 1, augQ: 1, cr: 0, cry: 0, wm: 1, p: 1, best: 1, w: { line: 1 }, sk: {}, boostEnd: 0, boostCd: 0, ema: 0, t: Date.now(), last: Date.now(), done: 0, dm: 0, dmAll: 0, pc: 0, wp: {}, own: '', ab: {}, hot: [], abT: {}, buf: {}, inv: { h_pfeil: 1, r_basis: 1, t_basis: 1 }, eq: { h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, wo: ['line'], offer: null, rr: null, wpu: [] });
 const norm = o => Object.assign(fresh(), o || {}, { wq5b: o ? o.wq5b : 1, slot1b: o ? o.slot1b : 1, aug1: o ? o.aug1 : 1, newsV: o ? o.newsV : NEWSV, augQ: o ? o.augQ || 0 : 1, w: Object.assign({ line: 1 }, (o && o.w) || {}), sk: (o && o.sk) || {}, wp: (o && o.wp) || {}, ab: (o && o.ab) || {}, hot: (o && o.hot) || [], abT: (o && o.abT) || {}, buf: (o && o.buf) || {}, inv: (o && o.inv && Object.keys(o.inv).length) ? o.inv : { h_pfeil: 1, r_basis: 1, t_basis: 1 }, /* Start-Teile nur bei neuem Spielstand, sonst kämen eingeschmolzene Teile beim Laden zurück */ eq: Object.assign({ h: 'h_pfeil', r: 'r_basis', t: 't_basis' }, (o && o.eq) || {}), wpu: (o && o.wpu) || [], wo: (o && o.wo) || ['line', 'star', 'drill', 'nova', 'scatter', 'drones'].filter(id => o && o.w && o.w[id]) });
 try { S = JSON.parse(localStorage.getItem('gb_save')); } catch (e) {}
@@ -827,7 +827,9 @@ const boosting = () => S.boostEnd > Date.now();
 // Warp-Multiplikator: +0.01 pro ✦, das der Warp bringt (mindestens +0.02)
 // Warp-Hürde: der nächste Warp geht erst 10 Planeten weiter als der letzte, ab Universum 4 erst 2 Universen (20 Planeten) weiter
 const reqStep = at => 5, wLbl = n => 'Universum ' + uniOf(n) + ' · Planet ' + pInU(n);
-const wReq = () => S.wReq || 10, canWarp = () => S.p >= wReq() && dmGain() > 0;
+const wReq = () => S.wReq || 10, wTok = () => S.wTok || 0, canWarp = () => wTok() > 0 && dmGain() > 0;
+// Warp-Tokens: jede 5-Planeten-Marke gibt ein Token, Tokens kann man aufsparen
+function tokSync() { let n = 0; while (S.p >= wReq() && n < 100) { S.wTok = wTok() + 1; S.wReq = wReq() + 5; n++; } return n; }
 const wmGain = () => Math.round(Math.max(.02, .01 * dmGain()) * 100) / 100;
 const dmBonus = () => (S.wm || 1) * (1 + WP('kraft'));
 // ✦ beim Warp: ab Planet 3 = 1, jeder weitere Planet +1 (Planet 10 = 8), ab Universum 2 (Planet 11+) +2 pro Planet
@@ -1992,10 +1994,10 @@ function render() { lineSync();
   else if (tab === 'p') {
     const g0 = dmGain();
     L.innerHTML = `<button class="br unl" id="stopen" style="margin:0 0 9px">📊 STATISTIK · WELCHE WAFFE MACHT WIE VIEL</button><div class="wh wbox"><div class="wrow"><div><small>Warp bringt</small><b id="wgain">✦${fmt(g0)}</b></div><div><small>Multiplikator</small><b class="wm">x${(S.wm || 1).toFixed(2)} → <span id="wmto">x${((S.wm || 1) + wmGain()).toFixed(2)}</span></b></div></div>
-      <div class="wreq"><span>Warp möglich ab <b>${wLbl(wReq())}</b>${S.p >= wReq() ? ' ✔' : ''}</span><small>Danach ab ${wLbl(Math.max(S.p, wReq()) + reqStep(Math.max(S.p, wReq())))} · Warp alle 5 Planeten</small><i style="width:${Math.min(100, S.p / wReq() * 100)}%"></i></div>
+      <div class="wreq"><span>Warp-Tokens: <b>${wTok()}</b>${wTok() ? ' ✔' : ''}</span><small>Nächstes Token ab ${wLbl(wReq())} · alle 5 Planeten eins, Tokens kannst du aufsparen</small><i style="width:${Math.min(100, S.p / wReq() * 100)}%"></i></div>
       <p class="hint" style="padding:6px 0 8px">Neustart ab Planet ${1 + 2 * WP('skip')}: CR, Waffen und Skills sind weg, von deinen ◆ behältst du ${keepPct()} % (mehr mit „Kristallspeicher“). Fähigkeiten, Hangar und Werkstatt bleiben. ✦: ab Planet 3 bringt jeder Planet ✦, und alle 2 Planeten gibt's 1 mehr pro Planet (gerade +${String(dmPer(Math.max(1, S.p - 1))).replace('.', ',')} pro Planet). Multiplikator: +0.01 pro ✦, das der Warp bringt. Bisher ${S.pc || 0} ${S.pc === 1 ? 'Sprung' : 'Sprünge'} · Spielzeit ${(S.play || 0) >= 3600 ? ((S.play || 0) / 3600).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' Std.' : Math.floor((S.play || 0) / 60) + ' Min.'}.</p>
       
-      <button class="br" id="wgo" ${canWarp() ? '' : 'disabled'}>${canWarp() ? 'WARP-SPRUNG' : 'Warp ab ' + wLbl(wReq())}</button></div>
+      <button class="br" id="wgo" ${canWarp() ? '' : 'disabled'}>${canWarp() ? 'WARP-SPRUNG' + (wTok() > 1 ? ' · ' + wTok() + ' Tokens' : '') : 'Nächstes Token ab ' + wLbl(wReq())}</button></div>
       <div class="skh"><span>Warp-Werkstatt</span><b class="dm">✦ ${fmt(S.dm || 0)}</b></div>
       <div class="sk wp6">${WARP.map(w => { const l = WP(w.id), mx = l >= w.max;
         if (!wpOpen(w.id)) return `<button disabled class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>???</button>`;
@@ -2083,7 +2085,7 @@ const NEWS = [
   ['✨', '3 neue Skills', 'Riesentöter (mehr Schaden auf Boss & Elite), Abrissbirne (fast kaputte Blöcke zerbröseln) und Krit-Wucht (härtere Krits).'],
   ['⚒', 'Schmiede komplett', 'Neu: Bohrminen, Sternbumerang und die Dreier-Fusion Prisma-Railgun. Jede Waffe gehört zu genau einem Rezept – wer alle Waffen hat, kann alle verschmelzen.'],
   ['🎯', '8 Fähigkeiten-Plätze + Autopilot', 'Deine Hotbar hat jetzt 8 statt 5 Plätze. Der Autopilot zündet alle Fähigkeiten automatisch – jetzt für alle frei (im Fähigkeiten-Tab ausschaltbar).'],
-  ['🌀', 'Warp alle 5 Planeten', 'Der nächste Warp braucht nur 5 Planeten mehr. Der Waffenslot-Warp startet direkt mit +1 Slot.'],
+  ['🌀', 'Warp-Tokens', 'Alle 5 Planeten bekommst du ein Warp-Token. Tokens kannst du aufsparen – wer 10 Planeten weiterspielt, hat 2 Warps übrig. Der Waffenslot-Warp startet direkt mit +1 Slot.'],
   ['💥', 'Waffen überarbeitet', 'Neue Plasma-Nova, die Plasmapeitsche wird ab Stufe 50 deutlich länger. Ab Stufe 100 bekommen Kettenblitz, Nova, Minen und Wirbelsturm deutlich mehr Reichweite.'],
   ['🔨', 'Schmiede-Plätze', 'Nach dem Schmieden landen neue Waffen ganz hinten – und sind damit stärker als alle davor.'],
   ['☁', 'Spielstand-Sync', 'Spielst du auf zwei Geräten, fragt das Spiel jetzt, welchen Stand du willst. In den Einstellungen kannst du den Stand hoch- oder runterladen.'],
@@ -2149,7 +2151,7 @@ function planetDone() {
   if (window.BB) { BB.record('drill', S.p - 1, { n: ('U' + uniOf(S.p - 1) + ' · ' + old).slice(0, 20), w: S.pc || 0, d: Math.round(totalDps()) }); bgN = (BB.earn && BB.earn(10 + S.p * 4, 'Planet ' + (S.p - 1) + ' abgebaut', true)) || 0; if (S.p - 1 >= 10) BB.unlock('drill_10'); if (S.p - 1 >= 1) BB.unlock('drill_1'); }
   travel = travT0 = 2.6; built = false; shake = 10; G.clearing = 0; save('now');
   toast(pInU(S.p) === 1 ? `Universum ${uniOf(S.p) - 1} geschafft! +◆${fmt(gain)} · Sprung nach ${uniName(uniOf(S.p))} · Warp bringt jetzt ✦${fmt(dmGain())}` : `Planet abgebaut! +◆${fmt(gain)}${chipT}${bgN ? ` · +${bgN} Bandengold` : ''} · Warp bringt jetzt ✦${fmt(dmGain())}`);
-  if (S.p === wReq()) setTimeout(() => toast('Warp-Sprung bereit! Hol dir ✦ im Warp-Tab.'), 2800);
+  if (tokSync()) setTimeout(() => toast(`Warp-Token bekommen! (${wTok()} gespart) Hol dir ✦ im Warp-Tab.`), 2800);
   if (!document.hidden) { if (pInU(S.p) === 1) cele('UNIVERSUM ' + (uniOf(S.p) - 1) + '!', 'Sprung nach ' + uniName(uniOf(S.p)) + ' · +◆' + fmt(gain), 1); else cele(G.boss ? 'BOSS BESIEGT!' : 'PLANET ' + (S.p - 1) + '!', '+◆' + fmt(gain) + (chipT ? ' · +⬢' : '')); }
   render();
 }
@@ -2159,7 +2161,7 @@ function warp() {
   const n = dmGain(); if (!n || !canWarp()) return;
   overlay(`<h2>Warp-Sprung?</h2><p>Du bekommst <b style="color:#c9a2ff;font-size:18px">✦${fmt(n)} Dunkle Materie</b><br>Multiplikator: x${(S.wm || 1).toFixed(2)} → <b style="color:#5ce8f0">x${((S.wm || 1) + wmGain()).toFixed(2)}</b> (Schaden und CR, für immer)<br><br>Du behältst <b style="color:var(--txt)">${keepPct()} % deiner ◆</b> (◆${fmt(S.cry)} → ◆${fmt(Math.floor(S.cry * keepPct() / 100))}).<br>CR, Waffen, Planet und Skills werden zurückgesetzt. Fähigkeiten, Hangar und Warp-Werkstatt bleiben.</p>`,
     [['SPRINGEN', () => {
-      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); vib([40, 30, 40, 30, 300]); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.wReq = S.p + reqStep(S.p); S.pc = (S.pc || 0) + 1; S.dmgRun = {};
+      S.wm = Math.round(((S.wm || 1) + wmGain()) * 100) / 100; mis('warp'); vib([40, 30, 40, 30, 300]); S.dm = (S.dm || 0) + n; S.dmAll = (S.dmAll || 0) + n; S.wTok = Math.max(0, wTok() - 1); S.pc = (S.pc || 0) + 1; S.dmgRun = {};
       S.cry = Math.floor(S.cry * keepPct() / 100); { const e = WP('erbe'), o = S.sk || {}; S.sk = {}; if (e) for (const k in o) S.sk[k] = Math.min(o[k], e); } S.abT = {}; S.buf = {}; S.cr = Math.max(150, startCr(WP('start'))); S.w = { line: 1 }; S.wo = ['line']; HP = {}; S.offer = null; S.rrUsed = false; S.p = 1 + 2 * WP('skip'); S.done = 0; S.boostEnd = 0; S.seed = (Math.random() * 1e6) | 0;
       S.augQ = 1; S.augO = null; travel = travT0 = 2.8; built = false; shake = 12; warpT = 2; G.clearing = 0; save('now'); SND.fx.warp(); setTimeout(augShow, 3200);
       if (window.BB) BB.unlock('drill_warp');
@@ -2954,6 +2956,7 @@ function cleanSave() {
   if (S.wp && S.wp.auto) { S.dm = (S.dm || 0) + 25; delete S.wp.auto; } if (S.wpu) S.wpu = S.wpu.filter(x => x !== 'auto'); // Autopilot ist jetzt für alle frei
   if (!S.slot1b) { S.slot1b = 1; if ((S.wpu || []).includes('slot') && WP('slot') < 8) S.wp.slot = WP('slot') + 1; } // Waffenslot-Warp: Stufe 1 jetzt gratis, alte Stände bekommen sie nach
   if (!S.wq5b) { S.wq5b = 1; if (S.wReq > 10) S.wReq = Math.max(10, S.wReq - (S.wReq >= 41 ? 15 : 5)); } // Hürde jetzt +5 statt +10/+20: alte Stände anpassen
+  if (S.wTok == null) { S.wTok = 0; } tokSync(); // Warp-Tokens nachrechnen
   S.wo = (S.wo || ['line']).filter(id => id === '_' || WEAP.find(w => w.id === id)); hybSync(); if (!S.wo.length) S.wo = ['line'];
   for (const k in (S.mod || {})) if (!MODS[k]) delete S.mod[k];
 }
