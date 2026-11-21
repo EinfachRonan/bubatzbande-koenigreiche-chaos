@@ -792,6 +792,7 @@ function svState() {
 function fixFinn() {
   try {
     const P = BB.profile || {}, u = (P.user || '') + ' ' + (P.name || '');
+    if (/fin/i.test(u) && /lol/i.test(u) && !S.tokGift) { S.tokGift = 1; S.wTok = (S.wTok || 0) + 1; save('now'); render(); setTimeout(() => toast('🎁 Du hast 1 Warp-Token geschenkt bekommen!'), 1500); } // einmaliges Geschenk für Finn
     if (S.fixElite || !/finn/i.test(u) || !/lol/i.test(u) || !W || !G || !G.elite) return;
     S.noElite = G.p; S.fixElite = 1; buildPlanet(0); render(); save('now'); toast('Elite-Planet entschärft – viel Spaß!');
   } catch (e) {}
