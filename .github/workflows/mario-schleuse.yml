@@ -1,7 +1,7 @@
 name: Mario-Schleuse
 
 # Mario pusht NUR auf den Branch „mario“. Diese Action übernimmt davon ausschließlich
-# seinen Spiele-Ordner nach master (→ danach läuft automatisch der Deploy).
+# seinen Spiele-Ordner und die Warteschlange nach master (→ danach läuft automatisch der Deploy).
 # Änderungen an allen anderen Dateien werden ignoriert und kommen nie auf die Seite.
 on:
   push:
@@ -13,7 +13,10 @@ permissions:
 concurrency: mario-schleuse
 
 env:
-  ERLAUBT: site/kraeuterhoehle   # Marios Ordner (mehrere mit Leerzeichen trennen)
+  # Marios Ordner (mehrere mit Leerzeichen trennen):
+  #  - site/kraeuterhoehle  = sein Spiel, geht direkt live
+  #  - warteschlange        = neue Spiele von Mario; liegt außerhalb von site/ → NICHT live, bis Ronan „umsetzen“ sagt
+  ERLAUBT: site/kraeuterhoehle warteschlange
 
 jobs:
   uebernehmen:
