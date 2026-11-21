@@ -82,34 +82,34 @@ button{font-family:inherit}
 #coll{flex:1;overflow:auto;padding:14px;display:none}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 /* === Artefakt Hex-Grid UI === */
-.art-section{background:#12141a;border:2px solid #2a1f4a;border-radius:10px;padding:14px 16px;margin-bottom:14px}
-.art-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.art-title{font-size:18px;font-weight:700;letter-spacing:2px;color:#c8a8ff;text-transform:uppercase}
-.art-count{font-size:13px;color:#7a6a9a;background:#1e1a2e;border:1px solid #3a2a5a;border-radius:12px;padding:2px 10px}
+.art-section{background:#12141a;border:2px solid #2a1f4a;border-radius:10px;padding:20px 24px;margin-bottom:14px}
+.art-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.art-title{font-size:32px;font-weight:700;letter-spacing:2px;color:#c8a8ff;text-transform:uppercase}
+.art-count{font-size:22px;color:#a898c8;background:#1e1a2e;border:1px solid #3a2a5a;border-radius:16px;padding:4px 16px}
 .art-chest{display:flex;align-items:center;gap:10px;cursor:pointer;background:linear-gradient(135deg,#1e1200,#3a2800);border:2px solid #c8a000;border-radius:8px;padding:10px 14px;margin-bottom:12px;transition:background .15s}
 .art-chest:hover{background:linear-gradient(135deg,#2e1e00,#4a3400)}
 /* Ausrüstungs-Slots oben */
-.art-equip-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.art-equip-label{font-size:12px;color:#7a6a9a;text-transform:uppercase;letter-spacing:1px;margin-right:4px}
-.art-equip-slot{width:100px;height:100px;position:relative;cursor:pointer;flex-shrink:0}
+.art-equip-row{display:flex;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.art-equip-label{font-size:22px;color:#a898c8;text-transform:uppercase;letter-spacing:1px;margin-right:4px}
+.art-equip-slot{width:170px;height:170px;position:relative;cursor:pointer;flex-shrink:0}
 .art-equip-slot .art-hex-bg{position:absolute;inset:0;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);background:linear-gradient(160deg,#2a1f4a,#1a1030);border:0;transition:filter .15s}
 .art-equip-slot:hover .art-hex-bg{filter:brightness(1.4)}
 .art-equip-slot .art-hex-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
 .art-equip-slot.empty .art-hex-bg{background:#1a1a26;box-shadow:0 0 0 2px #3a2a5a inset}
 .art-equip-slot.filled .art-hex-bg{box-shadow:0 0 0 2px #7a4aff inset}
-.art-equip-slot .art-eq-name{font-size:10px;color:#c8a8ff;text-align:center;margin-top:3px;max-width:90px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.art-equip-slot .art-eq-name{font-size:17px;color:#c8a8ff;text-align:center;margin-top:4px;max-width:150px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .art-equip-slot-locked .art-hex-bg{background:#111118;box-shadow:0 0 0 2px #2a2535 inset}
 /* Hexagon-Grid — größer */
-.art-hex-grid{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0}
-.art-hex{width:120px;height:120px;position:relative;cursor:pointer;flex-shrink:0}
+.art-hex-grid{display:flex;flex-wrap:wrap;gap:14px;padding:4px 0}
+.art-hex{width:190px;height:190px;position:relative;cursor:pointer;flex-shrink:0}
 .art-hex-bg{position:absolute;inset:0;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);transition:filter .15s}
 .art-hex-owned .art-hex-bg{background:linear-gradient(160deg,#2a1f4a,#1a1030);box-shadow:0 0 0 2px #7a4aff inset}
 .art-hex-locked .art-hex-bg{background:#1a1a22}
 .art-hex:hover .art-hex-bg{filter:brightness(1.35)}
 .art-hex-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
-.art-hex-icon{font-size:36px;line-height:1}
-.art-hex-klass{font-size:10px;color:#c8a8ff;background:#2a1f4a;border-radius:3px;padding:0 4px;line-height:1.6;text-align:center;max-width:108px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.art-tip{position:fixed;z-index:999;background:#1a1428;border:1.5px solid #7a4aff;border-radius:8px;padding:10px 14px;max-width:240px;pointer-events:none;box-shadow:0 4px 20px #0009;font-size:13px}
+.art-hex-icon{font-size:64px;line-height:1}
+.art-hex-klass{font-size:17px;color:#c8a8ff;background:#2a1f4a;border-radius:4px;padding:1px 8px;line-height:1.5;text-align:center;max-width:170px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.art-tip{position:fixed;z-index:999;background:#1a1428;border:2px solid #7a4aff;border-radius:10px;padding:16px 20px;max-width:440px;line-height:1.4;pointer-events:none;box-shadow:0 4px 20px #0009;font-size:13px}
 #fight{position:absolute;right:18px;bottom:18px;font-size:36px;padding:14px 34px;letter-spacing:2px;z-index:4}
 #battle{position:fixed;inset:0;display:none;flex-direction:column;background:#0b110e;z-index:10}
 #hud{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#000c;font-size:20px;font-weight:600}
@@ -144,11 +144,15 @@ canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;displa
   #fight{font-size:26px;padding:10px 20px;right:12px;bottom:12px}
   #tip{width:260px}
   /* Hexagons kleiner auf Mobile */
-  .art-hex{width:80px;height:80px}
+  .art-hex{width:110px;height:110px}
+  .art-hex-inner img{max-width:58%;max-height:58%}
+  .art-hex-icon{font-size:40px}
+  .art-title{font-size:22px}
+  .art-count,.art-equip-label{font-size:15px}
   .art-hex-grid{gap:6px}
-  .art-equip-slot{width:72px;height:72px}
-  .art-equip-slot .art-eq-name{font-size:9px;max-width:66px}
-  .art-hex-klass{font-size:9px;max-width:72px}
+  .art-equip-slot{width:100px;height:100px}
+  .art-equip-slot .art-eq-name{font-size:12px;max-width:90px}
+  .art-hex-klass{font-size:12px;max-width:96px}
   /* Tabs kleiner */
   .tabs button{font-size:17px;padding:6px 10px}
   .tabs .krc{font-size:22px}
@@ -166,7 +170,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;displa
   .dbox{min-width:0;padding:7px 10px}
   .dbox table{font-size:17px}
   /* Art tip */
-  .art-tip{max-width:180px;font-size:12px;padding:8px 10px}
+  .art-tip{max-width:280px;font-size:15px;padding:10px 12px}
   /* Canvas battle */
   #battle{position:fixed}
 }
@@ -1473,11 +1477,11 @@ function showArtTip(el, artId){
   const klassColors = KLASS_COLORS;
   const kc = A.k ? (klassColors[A.k]||'#c8a8ff') : '#c8a8ff';
   tip.innerHTML = owned
-    ? `<b style="font-size:15px;color:#e8e0ff">${A.n}</b>${A.k ? `<span style="color:${kc};font-size:11px;margin-left:6px">${A.k}</span>` : ''}<br><span style="color:#9090c0;font-size:12px">${A.d}</span>${equipped ? `<br><span style="color:#ffd84d;font-size:11px">✓ Ausgerüstet</span>` : `<br><span style="color:#7a7a9a;font-size:11px">Klick → ausrüsten</span>`}`
-    : `<span style="color:#666;font-size:13px">❔ Noch nicht entdeckt</span>`;
+    ? `<b style="font-size:26px;color:#e8e0ff">${A.n}</b>${A.k ? `<span style="color:${kc};font-size:19px;margin-left:8px">${A.k}</span>` : ''}<br><span style="color:#b0b0e0;font-size:20px">${A.d}</span>${equipped ? `<br><span style="color:#ffd84d;font-size:18px">✓ Ausgerüstet</span>` : `<br><span style="color:#7a7a9a;font-size:18px">Klick → ausrüsten</span>`}`
+    : `<span style="color:#888;font-size:20px">❔ Noch nicht entdeckt</span>`;
   tip.style.display = 'block';
   const er = el.getBoundingClientRect();
-  const tx = Math.min(er.left + er.width/2 - 120, window.innerWidth - 250);
+  const tx = Math.min(er.left + er.width/2 - tip.offsetWidth/2, window.innerWidth - tip.offsetWidth - 10);
   const ty = er.bottom + 8;
   tip.style.left = Math.max(4, tx) + 'px';
   tip.style.top = (ty + tip.offsetHeight > window.innerHeight ? er.top - tip.offsetHeight - 8 : ty) + 'px';
@@ -1543,12 +1547,12 @@ function renderColl(){
     return `<div class="art-equip-slot ${A ? 'filled' : 'empty'}" onclick="${A ? `toggleEquip('${eid}')` : ''}" title="${A ? A.n+' – klicken zum Abziehen' : 'Leerer Slot – klicke ein Artefakt unten an'}">
       <div class="art-hex-bg" style="${A ? 'box-shadow:0 0 0 3px '+kc+' inset' : ''}"></div>
       <div class="art-hex-inner">
-        ${A ? `${(typeof CUSTOM_ART_ICONS!=='undefined'&&CUSTOM_ART_ICONS[A.id])?`<img src="${CUSTOM_ART_ICONS[A.id]}" style="width:52px;height:52px;object-fit:contain;image-rendering:pixelated">`:`<span class="art-hex-icon" style="font-size:36px">${A.icon}</span>`}<span class="art-eq-name" style="color:${kc}">${A.n}</span>` : '<span style="font-size:32px;opacity:.2">+</span>'}
+        ${A ? `${(typeof CUSTOM_ART_ICONS!=='undefined'&&CUSTOM_ART_ICONS[A.id])?`<img src="${CUSTOM_ART_ICONS[A.id]}" style="width:92px;height:92px;object-fit:contain;image-rendering:pixelated">`:`<span class="art-hex-icon" style="font-size:60px">${A.icon}</span>`}<span class="art-eq-name" style="color:${kc}">${A.n}</span>` : '<span style="font-size:56px;opacity:.2">+</span>'}
       </div>
     </div>`;
   }).join('');
   const slot2Btn = slots < 3 && ownedArts.size > equipped.size
-    ? `<div style="font-size:11px;color:#9a7a6a;cursor:pointer;padding:5px 10px;border:1px solid #4a2a2a;border-radius:6px;white-space:nowrap;line-height:1.5" onclick="destroyArtForSlot()">🔓 Slot ${slots+1}<br><span style="color:#a06a5a">Artefakt opfern</span></div>` : '';
+    ? `<div style="font-size:19px;color:#c09a8a;cursor:pointer;padding:10px 16px;border:2px solid #4a2a2a;border-radius:8px;white-space:nowrap;line-height:1.5" onclick="destroyArtForSlot()">🔓 Slot ${slots+1}<br><span style="color:#a06a5a">Artefakt opfern</span></div>` : '';
   const equipRow = `<div class="art-equip-row">
     <span class="art-equip-label">Ausgerüstet</span>
     ${equipHexes}${slot2Btn}
@@ -1566,8 +1570,8 @@ function renderColl(){
       <div class="art-hex-bg" style="${bgStyle}"></div>
       <div class="art-hex-inner">
         ${owned
-          ? `${(typeof CUSTOM_ART_ICONS!=='undefined'&&CUSTOM_ART_ICONS[A.id])?`<img src="${CUSTOM_ART_ICONS[A.id]}" style="width:62px;height:62px;object-fit:contain;image-rendering:pixelated">`:`<span class="art-hex-icon">${A.icon}</span>`}${A.k ? `<div class="art-hex-klass" style="color:${kc};background:${kc}22">${A.k}</div>` : ''}`
-          : '<span style="font-size:36px;opacity:.18">?</span>'}
+          ? `${(typeof CUSTOM_ART_ICONS!=='undefined'&&CUSTOM_ART_ICONS[A.id])?`<img src="${CUSTOM_ART_ICONS[A.id]}" style="width:108px;height:108px;object-fit:contain;image-rendering:pixelated">`:`<span class="art-hex-icon">${A.icon}</span>`}${A.k ? `<div class="art-hex-klass" style="color:${kc};background:${kc}22">${A.k}</div>` : ''}`
+          : '<span style="font-size:60px;opacity:.18">?</span>'}
       </div>
     </div>`;
   }).join('');
